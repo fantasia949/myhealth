@@ -1,0 +1,36 @@
+{
+  "name": "myhealth",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "main": "src/index.js",
+  "dependencies": {
+    "bootstrap": "5.3.3",
+    "lodash.orderby": "4.6.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "classnames": "2.5.1",
+    "@echarts-readymade/line": "1.2.0",
+    "@echarts-readymade/core": "1.2.0",
+    "echarts": "5.5.1",
+    "@stdlib/stats-pcorrtest": "0.2.2",
+    "jotai": "2.9.3",
+    "@echarts-readymade/scatter": "1.2.0"
+  },
+  "devDependencies": {
+    "typescript": "3.8.3",
+    "vite": "^5.0.11",
+    "@vitejs/plugin-react": "^4.2.1"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}

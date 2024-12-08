@@ -1,0 +1,118 @@
+const tag = {
+  "1-Metabolic": [
+    "HDL",
+    "TG / HDL",
+    "Triglyceride",
+    "Total Cholesterol / HDL",
+    "Insulin",
+    "Glucose",
+    "HbA1c",
+    "HOMA-IR",
+  ],
+  "4-Liver": [
+    "GGT",
+    "AST",
+    "ALP",
+    "ALT",
+    "HCV Ab",
+    "HBsAg",
+    "HBsAb định lượng",
+    "Bilirubin toàn phần",
+    "Bilirubin trực tiếp",
+    "Bilirubin gián tiếp",
+  ],
+  "2-Lipid": [
+    "HDL",
+    "LDL",
+    "Cholesterol",
+    "Triglyceride",
+    "TG / HDL",
+    "LDL / HDL",
+    "Triglyceride / HDL",
+    "Lipoprotein - APO-B",
+    "Total Cholesterol / HDL",
+  ],
+  "3-Hormone": [
+    "T3",
+    "TSH",
+    "FT3",
+    "FT4",
+    "Vitamin D Total",
+    "Testosterone",
+    "Cortisol",
+  ],
+  "5-Kidney": ["Ure", "Creatinin", "eGFR", "BUN"],
+  "6-RBC": [
+    "RBC",
+    "MCV",
+    "MCH",
+    "Hb",
+    "HbA1c",
+    "MCHC",
+    "HCT",
+    "RDW-CV",
+    "PLT",
+    "MPV",
+    "PCT",
+    "PDW",
+    "RDW-SD",
+    "% Các TB non lớn",
+    "SL TB non lớn",
+    "Tỉ lệ tiểu cầu có KT lớn",
+    "SL tiểu cầu KT lớn",
+  ],
+  "7-WBC": [
+    "WBC",
+    "% Neutrophil",
+    "% Lymphocyte",
+    "% Monocyte",
+    "% Eosinophil",
+    "% Basophil",
+    "% Lympho không điển hình",
+    "SL Neutrophil",
+    "SL Lymphocyte",
+    "SL Monocyte",
+    "SL Eosinophil",
+    "SL Basophil",
+    "SL Lympho không điển hình",
+    "Neutropil / Lymphocite",
+    "CRP-hs",
+    "NLR",
+  ],
+  "8-Mineral": [
+    "Magnesium",
+    "Calcium",
+    "Ferritin",
+    "Serum iron",
+    "Natri",
+    "Kali",
+    "Clo",
+    "Phosphat",
+  ],
+  "9-PhenoAge": [
+    "Albumin",
+    "Glucose",
+    "Creatinin",
+    "MCV",
+    "RDW-CV",
+    "CRP-hs",
+    "% Lymphocyte",
+    "WBC",
+    "ALP",
+    "Pheno age",
+    "PhenoAge2",
+    "Age",
+  ],
+};
+
+const taggedDic = Object.entries(tag).reduce((result, [tag, entries]) => {
+  entries.forEach((entry) => (result[entry] = [...(result[entry] || []), tag]));
+  return result;
+}, {});
+
+export default ([name, values, unit, extra]) => {
+  extra.tag = taggedDic[name] || ["1-Others"];
+  return [name, values, unit, extra];
+};
+
+export const tagKeys = [...Object.keys(tag), "1-Others"];
