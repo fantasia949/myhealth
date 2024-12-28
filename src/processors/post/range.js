@@ -77,6 +77,12 @@ const range = {
   "Serum iron": [10.744, 23.2787],
   "Protein Total": [64, 83],
   Tranferrin: [25.2, 45.4],
+  Đồng: [62, 140],
+  Kẽm: [80, 120],
+  Natri: [136, 145],
+  Kali: [3.6, 5.0],
+  Clo: [96, 106],
+  Cortisol: [140, 690],
 };
 
 export default (entry) => {

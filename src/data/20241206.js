@@ -55,7 +55,7 @@ export default {
     ["FT4", "19.89", "pmol/L"],
     ["Testosterone", "19.68", "nmol/L"],
     ["Cortisol", "423.6", "nmol/L"],
-    ["Đồng (**)", "33.73", "μg/dL"],
+    ["Đồng", "33.73", "μg/dL"],
 
     ["Weight", 72.8],
     ["Pheno age", "22.73", { url }],
