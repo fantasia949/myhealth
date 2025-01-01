@@ -35,7 +35,7 @@ export default React.memo(({ target }) => {
       if (result.pValue <= MAX_P_VALUE) {
         entries.push([item[0], result.statistic, result.pValue, result.pcorr]);
       }
-      entries.sort((a, b) => a[1] - b[1]);
+      entries.sort((a, b) => b[1] - a[1]);
     }
 
     return entries;

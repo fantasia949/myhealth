@@ -1,4 +1,4 @@
-import { getPhenotypicAge } from "./phenoAge";
+import { getPhenotypicAge, getPhenotypicAge2 } from "./phenoAge";
 import { labels } from "../../data";
 
 const recipes = [
@@ -38,7 +38,7 @@ const recipes = [
     (value1, value2) => (value1 / value2).toFixed(1),
   ],
   [
-    "PhenoAge2",
+    "PhenoAge1",
     [
       "Albumin",
       "Creatinin",
@@ -51,6 +51,21 @@ const recipes = [
       "WBC",
     ],
     (...args) => getPhenotypicAge(...args, 37).toFixed(1),
+  ],
+  [
+    "PhenoAge2",
+    [
+      "Albumin",
+      "Creatinin",
+      "Glucose",
+      "CRP-hs",
+      "% Lymphocyte",
+      "MCV",
+      "RDW-CV",
+      "ALP",
+      "WBC",
+    ],
+    (...args) => getPhenotypicAge2(...args, 37).toFixed(1),
   ],
   ["Age", [], (age) => age.toFixed(1)],
 ];

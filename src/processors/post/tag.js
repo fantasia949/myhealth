@@ -100,6 +100,7 @@ const tag = {
     "WBC",
     "ALP",
     "Pheno age",
+    "PhenoAge1",
     "PhenoAge2",
     "Age",
   ],
