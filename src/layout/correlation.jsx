@@ -1,6 +1,6 @@
 import React from "react";
 import pcorrtest from "@stdlib/stats-pcorrtest";
-import { atom, useAtom, useAtomValue } from "jotai";
+import { atom, useAtomValue } from "jotai";
 import { dataAtom } from "../atom/dataAtom";
 
 const nonInferredDataAtom = atom((get) => {

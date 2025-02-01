@@ -1,5 +1,5 @@
 import { atom } from "jotai";
-import { unwrap } from "jotai/utils";
+import { unwrap, atomWithStorage } from "jotai/utils";
 import { loadData } from "../data";
 import { process } from "../processors";
 
@@ -31,4 +31,4 @@ export const visibleDataAtom = atom((get) => {
   return data;
 });
 
-export const aiKeyAtom = atom(() => localStorage.getItem("key"));
+export const aiKeyAtom = atomWithStorage("key");
