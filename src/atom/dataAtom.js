@@ -30,3 +30,5 @@ export const visibleDataAtom = atom((get) => {
   }
   return data;
 });
+
+export const aiKeyAtom = atom(() => localStorage.getItem("key"));

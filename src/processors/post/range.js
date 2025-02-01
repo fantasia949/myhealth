@@ -5,19 +5,18 @@ const MAX_VALUE = 9999;
 const range = {
   Glucose: [3.9, 6.4],
   HbA1c: [4.2, 6.4],
-  "Uric acid": [202.3, 416.5],
+  Uric: [202.3, 416.5],
   Magnesium: [0.66, 1.07],
   Ferritin: [30, 400],
   "CRP-hs": [0, 5],
   Insulin: [2.6, 24.9],
   Albumin: [35, 52],
-  Calcium: [2.15, 2.5],
   "IGF-1": [120, 160], //  116, 250 ["M: 116 ", " 250; F: 107 ", " 263 ng/ml"],
   Triglyceride: [0, 1.7],
   Cholesterol: [2.6, 5.2],
   HDL: [1.03, 2.07],
   LDL: [0, 3.4],
-  "Vitamin D Total": [30, 70],
+  "Vitamin D Total": [40, 70],
   T3: [1.3, 3.1],
   FT3: [3.1, 6.8],
   T4: [66, 181],
@@ -26,7 +25,7 @@ const range = {
   NLR: [1.2, 2],
   Testosterone: [8.64, 29],
   TSH: [0.27, 4.2],
-  AST: [10, 26],
+  AST: [10, 30],
   ALT: [10, 26],
   "Bilirubin toàn phần": [0, 21],
   "Bilirubin trực tiếp": [0, 5],
@@ -41,13 +40,13 @@ const range = {
   eGFR: [90, MAX_VALUE],
   BUN: [3.27, 10.56],
   RBC: [4.4, 4.9],
-  Hb: [14, 15],
+  Hb: [14, 16],
   HCT: [39, 45],
-  MCV: [85, 92],
+  MCV: [82, 92],
   MCH: [28, 32],
   MCHC: [32, 35],
   "RDW-CV": [11.5, 13],
-  PLT: [150, 450],
+  PLT: [150, 350],
   MPV: [4, 11],
   PCT: [0.1, 1],
   PDW: [10, 16.5],
@@ -82,13 +81,36 @@ const range = {
   Natri: [136, 145],
   Kali: [3.6, 5.0],
   Clo: [96, 106],
+  Calcium: [2.15, 2.5],
   Cortisol: [140, 690],
+  Phospho: [2.8, 4.0],
 };
 
-export default (entry) => {
-  const [name, _values, _unit, extra] = entry;
+const strictRange = {
+  Glucose: [3.9, 4.7], // 70 - 85
+  Uric: [210, 330], // 3.5 - 5.5
+  Natri: [137, 142],
+  Kali: [4.0, 4.5],
+  "CRP-hs": [0, 1],
+  //   Calcium: [9.0, 9.8]
+  // Creatinine: 0.7–1.1
+  // BUN: 8–16
+  // BUN/Creatinine Ratio: 10:1–15:1
+  // Bilirubin: 0.3–1.0 mg/dL
+  // Triglycerides: <90 mg/dL
+  // HDL-C: ≥50 mg/dL
+  // Testosterone: 500–900 ng/dL (
+};
 
-  let rangeValues = range[name];
+export default (entry, strict) => {
+  const [name, _values, _unit, extra] = entry;
+  let appliedRange = range;
+
+  if (strict) {
+    appliedRange = { ...appliedRange, ...strictRange };
+  }
+
+  let rangeValues = appliedRange[name];
   if (rangeValues) {
     const convert = converter[name];
     if (extra.originUnit && convert) {

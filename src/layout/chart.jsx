@@ -70,6 +70,7 @@ export default memo(({ data, keys }) => {
         });
       }
     }
+    return () => instance.destroy();
   }, [ref.current, keys]);
 
   return (

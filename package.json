@@ -5,22 +5,25 @@
   "keywords": [],
   "main": "src/index.js",
   "dependencies": {
+    "@echarts-readymade/core": "1.2.0",
+    "@echarts-readymade/line": "1.2.0",
+    "@echarts-readymade/scatter": "1.2.0",
+    "@stdlib/stats-pcorrtest": "0.2.2",
+    "@tanstack/react-table": "^8.20.6",
     "bootstrap": "5.3.3",
+    "classnames": "2.5.1",
+    "echarts": "5.5.1",
+    "echarts-for-react": "^3.0.2",
+    "echarts-stat": "^1.2.0",
+    "jotai": "2.9.3",
     "lodash.orderby": "4.6.0",
     "react": "19.0.0",
-    "react-dom": "19.0.0",
-    "classnames": "2.5.1",
-    "@echarts-readymade/line": "1.2.0",
-    "@echarts-readymade/core": "1.2.0",
-    "echarts": "5.5.1",
-    "@stdlib/stats-pcorrtest": "0.2.2",
-    "jotai": "2.9.3",
-    "@echarts-readymade/scatter": "1.2.0"
+    "react-dom": "19.0.0"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
     "typescript": "3.8.3",
-    "vite": "^5.0.11",
-    "@vitejs/plugin-react": "^4.2.1"
+    "vite": "^5.0.11"
   },
   "scripts": {
     "dev": "vite",

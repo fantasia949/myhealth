@@ -9,8 +9,8 @@ body {
 
 thead {
   position: sticky;
-  top: 0;
-  z-index: 1;
+  top: 39px;
+  z-index: 2;
   background-color: #454d55;
 }
 
@@ -58,6 +58,7 @@ td {
 .sticky-left {
   position: sticky;
   left: 0;
+  z-index: 1;
 }
 
 /* @media (max-width: 800px) {

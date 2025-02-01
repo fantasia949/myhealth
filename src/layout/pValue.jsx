@@ -20,7 +20,9 @@ export default React.memo(({ comparedSourceTarget }) => {
   return !!text ? (
     <div style={{ whiteSpace: "pre-wrap" }} title={text[1]}>
       <div>
-        {comparedSourceTarget[0][0]} => {comparedSourceTarget[1][0]}
+        {comparedSourceTarget[0][0]}
+        <span>=&gt;</span>
+        {comparedSourceTarget[1][0]}
       </div>
       {text[0]}
     </div>

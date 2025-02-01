@@ -6,7 +6,7 @@ export const converter = {
   Cholesterol: (value) => Math.round(value * 38.610039),
   HDL: (value) => Math.round(value * 38.610039),
   LDL: (value) => Math.round(value * 38.610039),
-  "Uric acid": (value) => value / 59.48,
+  Uric: (value) => value / 59.48,
   Creatinin: (value) => value / 88.42,
   Albumin: (value) => value / 10,
 };
@@ -46,7 +46,7 @@ const valueMapper = (value, unit, name) => {
     unit = "μg/dL";
   }
 
-  if (unit === "µmol/L" && name === "Uric acid") {
+  if (unit === "µmol/L" && name === "Uric") {
     originValue = value;
     value = converter[name](value);
     originUnit = unit;

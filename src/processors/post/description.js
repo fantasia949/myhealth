@@ -1,6 +1,6 @@
 const description = {
   Glucose: "Glucose blood",
-  "Uric acid": "Uric acid blood",
+  Uric: "Uric acid blood",
   Albumin: "Albumin blood",
   Calcium: "Calcium blood",
   "Vitamin D Total": "Vitamin D",
@@ -27,7 +27,7 @@ const description = {
   PDW: "Độ phân bố TC",
   WBC: "Số lượng bạch cầu",
   "RDW-SD": "Độ phân bố HC",
-  NLR: "% Neutrophil / % Lymphocyte"
+  NLR: "% Neutrophil / % Lymphocyte",
 };
 
 // https://drjockers.com/functional-blood-analysis/

@@ -1,26 +1,59 @@
 import React from "react";
 import cn from "classnames";
 import { tags } from "../processors";
+import { askBioMarkers } from "../service/askAI";
+import { useAtomValue } from "jotai";
+import { visibleDataAtom, aiKeyAtom } from "../atom/dataAtom";
 
 export default React.memo(
   ({
     selected,
+    onSelect,
     filterText,
     filterTag,
     showOrigColumns,
-    showLast5Records,
+    showRecords,
+    onShowRecordsChange,
     onTextChange,
     onFilterByTag,
     onOriginValueToggle,
-    onShowLast5RecordsToggle,
     onVisualize,
     onPValue,
     onCorrelation,
   }) => {
+    const key = useAtomValue(aiKeyAtom);
+    const data = useAtomValue(visibleDataAtom);
     const [show, setShow] = React.useState(false);
     const onToggle = () => setShow((v) => !v);
+
+    const onAskAI = React.useCallback(
+      async (e) => {
+        if (selected.length === 0) {
+          return;
+        }
+        e.target.disabled = true;
+
+        try {
+          const pairs = data
+            .filter(([key]) => selected.includes(key))
+            .map(
+              ([key, values, unit = ""]) =>
+                `${key} ${values[values.length - 1]} ${unit}`
+            );
+          const text = await askBioMarkers(pairs, key);
+          alert(text);
+          // console.log(text);
+        } catch (err) {
+          alert(err);
+        } finally {
+          e.target.disabled = false;
+        }
+      },
+      [selected, data]
+    );
+
     return (
-      <nav className="navbar navbar-expand-lg sticky-top sticky-left bg-body-tertiary gap-3">
+      <nav className="navbar navbar-expand-lg sticky-top sticky-left bg-body-tertiary gap-3 z-2">
         <div className="container-fluid gap-3">
           <button className="navbar-toggler" type="button" onClick={onToggle}>
             <span className="navbar-toggler-icon"></span>
@@ -36,7 +69,7 @@ export default React.memo(
             />
           </div>
           <div className={cn("collapse navbar-collapse", { show })}>
-            <ul className="navbar-nav col-6 gap-2 align-items-start">
+            <ul className="navbar-nav gap-2 align-items-start">
               {tags.map((tag) => (
                 <li className="nav-item" key={tag}>
                   <button
@@ -89,18 +122,37 @@ export default React.memo(
               Correlations
             </button>
           )}
+          {selected.length > 0 && (
+            <button
+              type="button"
+              className="btn btn-sm btn-primary px-4"
+              onClick={onAskAI}
+            >
+              Ask AI
+            </button>
+          )}
+          {selected.map((item) => (
+            <button
+              type="button"
+              name={item}
+              key={item}
+              onClick={onSelect}
+              className="btn btn-outline-warning btn-sm"
+            >
+              {item}
+            </button>
+          ))}
           <div className="ms-auto d-flex flex-row gap-4">
             <div className="form-check form-switch">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                checked={showLast5Records}
-                onChange={onShowLast5RecordsToggle}
-                id="lastFiveRecords"
-              />
-              <label className="form-check-label" htmlFor="lastFiveRecords">
-                Last 5 records
-              </label>
+              <select
+                className="form-select"
+                value={showRecords.toString()}
+                onChange={onShowRecordsChange}
+              >
+                <option value="0">All</option>
+                <option value="10">Last 10 records</option>
+                <option value="5">Last 5 records</option>
+              </select>
             </div>
             <div className="form-check form-switch">
               <input

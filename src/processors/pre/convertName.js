@@ -39,7 +39,7 @@ const nameMapper = {
   "Số lượng tiểu cầu có KT lớn": "SL tiểu cầu KT lớn",
   "Ure máu": "Ure",
   "Creatinin máu": "Creatinin",
-  "Uric acid máu": "Uric acid",
+  "Uric acid máu": "Uric",
   "Natri máu": "Natri",
   "Kali máu": "Kali",
   "Clo máu": "Clo"

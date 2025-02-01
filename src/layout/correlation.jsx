@@ -35,8 +35,8 @@ export default React.memo(({ target }) => {
       if (result.pValue <= MAX_P_VALUE) {
         entries.push([item[0], result.statistic, result.pValue, result.pcorr]);
       }
-      entries.sort((a, b) => b[1] - a[1]);
     }
+    entries.sort((a, b) => a[2] - b[2]);
 
     return entries;
   }, [data, target]);
@@ -45,9 +45,9 @@ export default React.memo(({ target }) => {
       <div>{target}</div>
       {entries.map((entry) => (
         <div key={entry[0]} className="d-flex justify-content-between">
-          <span>{entry[0]}</span>
-          <span>{entry[1].toFixed(4)}</span>
-          <span>{entry[2].toFixed(4)}</span>
+          <span style={{ flexBasis: 120 }}>{entry[0]}</span>
+          {/* <span>{entry[1].toFixed(4)}</span> */}
+          <span>{entry[2].toFixed(6)}</span>
           <span>{entry[3].toFixed(4)}</span>
         </div>
       ))}
