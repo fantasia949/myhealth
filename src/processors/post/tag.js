@@ -20,6 +20,8 @@ const tag = {
     "Bilirubin toàn phần",
     "Bilirubin trực tiếp",
     "Bilirubin gián tiếp",
+    "Albumin",
+    "Protein Total",
   ],
   "2-Lipid": [
     "HDL",
@@ -88,8 +90,11 @@ const tag = {
     "Kali",
     "Clo",
     "Phosphat",
+    "Đồng",
+    "Kẽm",
   ],
-  "9-PhenoAge": [
+  "9-Elect": [],
+  "a-PhenoAge": [
     "Albumin",
     "Glucose",
     "Creatinin",
@@ -112,8 +117,10 @@ const taggedDic = Object.entries(tag).reduce((result, [tag, entries]) => {
 }, {});
 
 export default ([name, values, unit, extra]) => {
-  extra.tag = taggedDic[name] || ["1-Others"];
+  extra.tag = taggedDic[name] || ["b-Others"];
   return [name, values, unit, extra];
 };
 
-export const tagKeys = [...Object.keys(tag), "1-Others"];
+export const tagKeys = [...Object.keys(tag), "b-Others"];
+
+export const unsortedTags = ["a-PhenoAge", "b-Others"];

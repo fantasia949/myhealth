@@ -47,6 +47,9 @@ const echartsOptions = {
       name: "",
     },
   ],
+  tooltip: {
+    triggerOn: "mousemove",
+  },
   grid: {
     top: 40,
     bottom: 40,
@@ -71,10 +74,12 @@ const echartsOptions = {
       symbolSize: 24,
       legendHoverLink: true,
       large: false,
+      zIndex: 2,
     },
     {
       type: "line",
       symbol: "circle",
+      zIndex: -1,
       showSymbol: false,
       lineStyle: {
         color: "#5470C688",

@@ -1,5 +1,6 @@
 import React from "react";
 import cn from "classnames";
+import Offcanvas from "react-bootstrap/Offcanvas";
 import { tags } from "../processors";
 import { askBioMarkers } from "../service/askAI";
 import { useAtomValue } from "jotai";
@@ -37,11 +38,11 @@ export default React.memo(
           const pairs = data
             .filter(([key]) => selected.includes(key))
             .map(
-              ([key, values, unit = ""]) =>
-                `${key} ${values[values.length - 1]} ${unit}`
+              ([key, values, unit]) =>
+                `${key} ${values[values.length - 1]} ${unit || ""}`
             );
           const text = await askBioMarkers(pairs, key);
-          alert(text);
+          setCanvasText(text);
           // console.log(text);
         } catch (err) {
           alert(err);
@@ -51,6 +52,10 @@ export default React.memo(
       },
       [selected, data]
     );
+
+    const [canvasText, setCanvasText] = React.useState(null);
+
+    const handleClose = React.useCallback(() => setCanvasText(null), []);
 
     return (
       <nav className="navbar navbar-expand-lg sticky-top sticky-left bg-body-tertiary gap-3 z-2">
@@ -171,6 +176,15 @@ export default React.memo(
             </div>
           </div>
         </div>
+
+        <Offcanvas show={!!canvasText} onHide={handleClose}>
+          <Offcanvas.Header closeButton>
+            <Offcanvas.Title>Biomarker</Offcanvas.Title>
+          </Offcanvas.Header>
+          <Offcanvas.Body style={{ whiteSpace: "pre-wrap" }}>
+            {canvasText}
+          </Offcanvas.Body>
+        </Offcanvas>
       </nav>
     );
   }

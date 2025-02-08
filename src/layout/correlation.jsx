@@ -11,7 +11,6 @@ const nonInferredDataAtom = atom((get) => {
 const MAX_P_VALUE = 0.1;
 
 export default React.memo(({ target }) => {
-  console.log(nonInferredDataAtom);
   const data = useAtomValue(nonInferredDataAtom);
 
   const entries = React.useMemo(() => {

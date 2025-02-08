@@ -1,6 +1,10 @@
-const model = "gemini-2.0-flash-exp"; // 'gemini-1.5-flash'
+const model = "gemini-2.0-pro-exp-02-05"; // 'gemini-2.0-flash'
 
 export async function askAI(question, key) {
+  const cache = sessionStorage.getItem(question);
+  if (cache) {
+    return cache;
+  }
   if (!key) {
     throw new Error("Please input gemini key");
   }
@@ -34,13 +38,23 @@ export async function askAI(question, key) {
     .flatMap((candidate) => candidate.content.parts.map((part) => part.text))
     .join("\n");
 
+  sessionStorage.setItem(question, text);
+
   return text;
 }
 
-const suffix = "  with optimal range info in young age as short answer";
-const prefix = "Biomarker";
-
 export async function askBioMarkers(pairs, key) {
+  const suffix =
+    "  with optimal range info for young male and nutritional advise as short answer";
+  const prefix = "Biomarker";
+  const values = pairs.join(", ");
+  const question = `${prefix} ${values} ${suffix}`;
+  return askAI(question, key);
+}
+
+export async function askDefinitions(pairs, key) {
+  const suffix = "  with optimal range info in young age";
+  const prefix = "Biomarker";
   const values = pairs.join(", ");
   const question = `${prefix} ${values} ${suffix}`;
   return askAI(question, key);
