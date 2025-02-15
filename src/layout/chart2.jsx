@@ -9,7 +9,7 @@ import { registerTransform } from "echarts";
 registerTransform(transform.regression);
 
 const echartsOptions = {
-  style: { height: 400 },
+  style: { height: 400, maxWidth: 800 },
   theme: "dark",
   color: [
     "#FF7C7C",
@@ -214,14 +214,14 @@ export default memo(({ data, keys }) => {
   // console.log("ch2", options.series[0].data, options.series[1].data);
 
   return (
-    <ChartProvider data={scatterData} echartsOptions={options}>
-      <ReactECharts option={options} />
-      <Scatter
-        ref={scatterRef}
-        context={ChartContext}
-        valueList={valueList}
-        dimension={dimension}
-      />
-    </ChartProvider>
+    <div><ChartProvider data={scatterData} echartsOptions={options}>
+    <ReactECharts option={options} style={options.style} />
+    <Scatter
+      ref={scatterRef}
+      context={ChartContext}
+      valueList={valueList}
+      dimension={dimension}
+    />
+  </ChartProvider></div>
   );
 });

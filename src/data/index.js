@@ -18,6 +18,7 @@ export const labels = [
   "241019",
   "241206",
   "241228",
+  "250214",
 ];
 
 export const loadData = () =>

@@ -45,6 +45,7 @@ export default React.memo(
           setCanvasText(text);
           // console.log(text);
         } catch (err) {
+          console.error(err);
           alert(err);
         } finally {
           e.target.disabled = false;
@@ -181,7 +182,7 @@ export default React.memo(
           <Offcanvas.Header closeButton>
             <Offcanvas.Title>Biomarker</Offcanvas.Title>
           </Offcanvas.Header>
-          <Offcanvas.Body style={{ whiteSpace: "pre-wrap" }}>
+          <Offcanvas.Body style={{ whiteSpace: "pre-wrap", fontSize: 14 }}>
             {canvasText}
           </Offcanvas.Body>
         </Offcanvas>

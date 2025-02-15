@@ -40,7 +40,7 @@ export default React.memo(({ target }) => {
     return entries;
   }, [data, target]);
   return !!entries ? (
-    <div style={{ width: 300 }}>
+    <div style={{ width: 300 }} className="mx-auto">
       <div>{target}</div>
       {entries.map((entry) => (
         <div key={entry[0]} className="d-flex justify-content-between">
