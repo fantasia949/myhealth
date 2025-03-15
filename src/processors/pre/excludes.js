@@ -9,7 +9,7 @@ export default [
   "% Lympho không điển hình",
   "SL Lympho không điển hình",
   "BUN",
-  "Tranferrin",
+  // "Tranferrin",
   "T4",
   "IGF-1",
 ];

@@ -84,6 +84,8 @@ const range = {
   Calcium: [2.15, 2.5],
   Cortisol: [140, 690],
   Phospho: [2.8, 4.0],
+  FSH: [1.5, 12.4],
+  LH: [1.7, 8.6],
 };
 
 const strictRange = {

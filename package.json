@@ -8,12 +8,13 @@
     "@echarts-readymade/core": "1.2.0",
     "@echarts-readymade/line": "1.2.0",
     "@echarts-readymade/scatter": "1.2.0",
+    "@huggingface/inference": "^3.5.2",
     "@stdlib/stats-pcorrtest": "0.2.2",
-    "@tanstack/react-table": "^8.20.6",
+    "@tanstack/react-table": "^8.21.2",
     "bootstrap": "5.3.3",
     "classnames": "2.5.1",
-    "echarts": "5.5.1",
-    "echarts-for-react": "^3.0.2",
+    "echarts": "5.6.0",
+    "echarts-for-react": "^3.0.3",
     "echarts-stat": "^1.2.0",
     "jotai": "2.9.3",
     "lodash.orderby": "4.6.0",
@@ -23,8 +24,8 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
-    "typescript": "3.8.3",
-    "vite": "^5.0.11"
+    "typescript": "5.8.2",
+    "vite": "^6.2.2"
   },
   "scripts": {
     "dev": "vite",

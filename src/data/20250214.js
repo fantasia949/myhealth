@@ -65,5 +65,6 @@ export default {
     "+incarin?",
     "cold?",
     "berry-tea?",
+    "+green-tea",
   ],
 };
