@@ -1,8 +1,26 @@
 import { HfInference } from '@huggingface/inference'
 
-const model = 'gemini-2.0-pro-exp-02-05' // 'gemini-2.0-flash'
+// Define model type and value
+const model: string = 'gemini-2.0-pro-exp-02-05' // 'gemini-2.0-flash'
 
-export async function askAI(context, question, key) {
+// Define interfaces for API response
+interface GeminiPart {
+  text: string;
+}
+
+interface GeminiContent {
+  parts: GeminiPart[];
+}
+
+interface GeminiCandidate {
+  content: GeminiContent;
+}
+
+interface GeminiResponse {
+  candidates: GeminiCandidate[];
+}
+
+export async function askAI(context: string, question: string, key: string): Promise<string> {
     const cache = sessionStorage.getItem(question)
     if (cache) {
         return cache
@@ -51,7 +69,7 @@ export async function askAI(context, question, key) {
         throw new Error(response.statusText)
     }
 
-    const data = await response.json()
+    const data: GeminiResponse = await response.json()
     const text = data.candidates
         .flatMap(candidate => candidate.content.parts.map(part => part.text))
         .join('\n')
@@ -61,11 +79,11 @@ export async function askAI(context, question, key) {
     return text
 }
 
-const context =
+const context: string =
     'You are a health science researcher who has years in cellular and structural biology, '
 
-export async function askBioMarkers(pairs, key) {
-    let suffix =
+export async function askBioMarkers(pairs: string[], key: string): Promise<string> {
+    let suffix: string =
         '  with optimal range info for young male and well-studied nutritional advise as short answer'
     if (pairs.length > 1) {
         suffix += ', their relationship and significance if any'
@@ -76,13 +94,13 @@ export async function askBioMarkers(pairs, key) {
     return askAI(context, question, key)
 }
 
-export async function askDefinitions(pairs, key) {
-    let suffix = '  with optimal range info in young age'
-    let prefix = 'help me evaluate these biomarkers '
+export async function askDefinitions(pairs: string[], key: string): Promise<string> {
+    let suffix: string = '  with optimal range info in young age'
+    let prefix: string = 'help me evaluate these biomarkers '
     if (pairs.length > 1) {
         suffix += ' their relationship and significance'
     }
     const values = pairs.join(', ')
     const question = `${prefix} ${values} ${suffix}`
-    return askAI(question, key)
+    return askAI(context, question, key)
 }

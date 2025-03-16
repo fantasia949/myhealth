@@ -5,7 +5,9 @@ import { process } from "../processors";
 
 const sourceAtom = atom(() => loadData());
 
-export const getDataAtom = atom((get) => get(sourceAtom).then(process));
+export const getDataAtom = atom((get) => get(sourceAtom).then(([data]) => process(data)));
+
+export const notesAtom = atom((get) => get(sourceAtom).then(([_, notes]) => notes));
 
 export const dataAtom = atom((get) => get(unwrap(getDataAtom, [])));
 

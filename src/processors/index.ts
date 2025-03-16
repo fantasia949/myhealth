@@ -5,7 +5,7 @@ import { tagKeys, unsortedTags } from "./post/tag";
 
 export const tags = tagKeys;
 
-export const process = (entries) => {
+export const process = (entries: Array<Entry>) => {
   entries = preProcess(entries);
   entries = enrich(entries);
   entries = postProcess(entries);

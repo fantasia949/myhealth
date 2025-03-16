@@ -1,7 +1,7 @@
 import React from "react";
 import cn from "classnames";
 import { labels } from "../data";
-import { visibleDataAtom } from "../atom/dataAtom";
+import { visibleDataAtom, notesAtom } from "../atom/dataAtom";
 import { useAtomValue } from "jotai";
 import {
   useReactTable,
@@ -13,6 +13,10 @@ import {
 
 const columnHelper = createColumnHelper();
 
+function getKeyFromTime(label) {
+  return label.slice(0, 2) + "/" + label.slice(2, 4);
+}
+
 const columns = [
   columnHelper.accessor("selection", {
     header: "",
@@ -22,9 +26,10 @@ const columns = [
   }),
   ...labels.map((label, index) =>
     columnHelper.accessor(label, {
-      header: label.slice(0, 2) + "/" + label.slice(2, 4),
+      header: getKeyFromTime(label),
       isRecord: true,
       isLatest: index === labels.length - 1,
+      title: label
     })
   ),
   columnHelper.accessor("placeholder", {
@@ -49,6 +54,8 @@ const columns = [
 export default React.memo(
   ({ showOrigColumns, selected, onSelect, showRecords }) => {
     const convertedEntries = useAtomValue(visibleDataAtom);
+    const notes = useAtomValue(notesAtom);
+    
     const onCellClick = React.useCallback(async (e) => {
       await navigator.clipboard.writeText(e.target.textContent);
     }, []);
@@ -110,6 +117,7 @@ export default React.memo(
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
+                    title={notes[header.column.columnDef.title]?.join("\n")}
                     className={cn({
                       "text-end": header.column.columnDef.isRecord,
                       "text-center": header.column.columnDef.align === "center",
