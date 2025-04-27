@@ -132,7 +132,7 @@ export default function App() {
   return (
     <>
       <Nav {...navProps} />
-      <PValue comparedSourceTarget={comparedSourceTarget} />
+      <PValue comparedSourceTarget={comparedSourceTarget} onClose={() => setSourceTarget(null)} />
       <Correlation target={corrlationKey} />
       {chartKeys?.length === 2 && <Chart data={data} keys={chartKeys} />}
       <Table {...tableProps} />
