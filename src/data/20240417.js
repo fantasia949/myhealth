@@ -51,8 +51,8 @@ export default {
     ["Weight", 70.4],
   ],
   notes: [
-    "melatonin sáng",
-    "horny goat weed sáng",
+    "+melatonin", /// 200mg morning, total 400mg
+    "+incarin", // morning
     "+egg",
     "+casein",
     "-niacin",

@@ -61,7 +61,7 @@ export default {
     ["Weight", 70.4],
   ],
   notes: [
-    "++high melatonin",
+    // "++high melatonin",
     "-milk thistle",
     "+glycine",
     "+fenugreek",

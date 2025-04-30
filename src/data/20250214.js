@@ -60,8 +60,9 @@ export default {
     "-astragalus",
     "-brazil-nut",
     "-red-light",
+    "-chia",
     "+sun-light",
-    "+running",
+    "+cardio", //running
     "+incarin?",
     "cold?",
     "berry-tea?",

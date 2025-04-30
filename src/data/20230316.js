@@ -52,14 +52,14 @@ export default [
   ["Homocysteine total", "6.80", "µmol/L"],
   ["Lipoprotein - APO-B", "95.27", "mg/dl"],
   ["T3", "1.40", "nmol/L"],
-  ["Testosterone", "23.88", "nmol/L"]
+  ["Testosterone", "23.88", "nmol/L"],
 ];
 
 export const notes = [
   "+policosanol",
-  "+high melatonin",
+  "+melatonin low", // 20mg
   "+ellagic Acid",
   "+blue Berry extract",
   "-curcumin",
-  "+aswaganda"
+  "+aswaganda",
 ];

@@ -25,7 +25,10 @@ export const labels = [
 
 const mergeNotes = (inputs: Array<RawEntry>) =>
   Object.fromEntries(
-    inputs.map((entry, index) => [labels[index], entry.notes])
+    inputs.map((entry, index) => [
+      labels[index],
+      { supps: [], items: entry.notes },
+    ])
   );
 
 export const loadData = () =>

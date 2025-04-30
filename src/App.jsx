@@ -8,14 +8,14 @@ import PValue from "./layout/pValue";
 import Correlation from "./layout/correlation";
 import { useAtomValue, useAtom } from "jotai";
 import {
-  getDataAtom,
+  getBioMarkersAtom,
   filterTextAtom,
   tagAtom,
   aiKeyAtom,
 } from "./atom/dataAtom";
 
 export default function App() {
-  const data = useAtomValue(getDataAtom);
+  const data = useAtomValue(getBioMarkersAtom);
   const [selected, setSelect] = React.useState([]);
   const [filterText, setFilterText] = useAtom(filterTextAtom);
   const [filterTag, setFilterTag] = useAtom(tagAtom);
@@ -132,7 +132,10 @@ export default function App() {
   return (
     <>
       <Nav {...navProps} />
-      <PValue comparedSourceTarget={comparedSourceTarget} onClose={() => setSourceTarget(null)} />
+      <PValue
+        comparedSourceTarget={comparedSourceTarget}
+        onClose={() => setSourceTarget(null)}
+      />
       <Correlation target={corrlationKey} />
       {chartKeys?.length === 2 && <Chart data={data} keys={chartKeys} />}
       <Table {...tableProps} />

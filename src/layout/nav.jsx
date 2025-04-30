@@ -156,8 +156,10 @@ export default React.memo(
                 onChange={onShowRecordsChange}
               >
                 <option value="0">All</option>
+                <option value="15">Last 15 records</option>
                 <option value="10">Last 10 records</option>
                 <option value="5">Last 5 records</option>
+                <option value="3">Last 3 records</option>
               </select>
             </div>
             <div className="form-check form-switch">

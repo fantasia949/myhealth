@@ -63,7 +63,7 @@ export default {
   notes: [
     "+astragalus",
     "--digest-enzyme",
-    "+melyahua",
+    // "+melyahua",
     "+chia",
     "-bumbkin-seed",
     "+mag-lunch",

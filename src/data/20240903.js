@@ -57,16 +57,15 @@ export default {
     ["Pheno age", "19.82", { url }],
   ],
   notes: [
-    "+melatonin sáng",
     "+egg",
     "-red light",
     "+ems",
     "+ashwangha",
     "-walk",
     "-boswellia",
-    "+thotitu",
-    "+brazil nut",
-    "+pumbkin seed",
+    "~thotitu",
+    "~brazil nut",
+    "~pumbkin seed",
   ],
 };
 

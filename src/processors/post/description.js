@@ -1,6 +1,6 @@
 const description = {
   Glucose: "Glucose blood",
-  Uric: "Uric acid blood",
+  "Uric acid": "Uric acid blood",
   Albumin: "Albumin blood",
   Calcium: "Calcium blood",
   "Vitamin D Total": "Vitamin D",

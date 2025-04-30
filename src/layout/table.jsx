@@ -23,13 +23,14 @@ const columns = [
   }),
   columnHelper.accessor("name", {
     header: "Name",
+    footer: "Supp",
   }),
   ...labels.map((label, index) =>
     columnHelper.accessor(label, {
       header: getKeyFromTime(label),
       isRecord: true,
       isLatest: index === labels.length - 1,
-      title: label
+      title: label,
     })
   ),
   columnHelper.accessor("placeholder", {
@@ -55,7 +56,7 @@ export default React.memo(
   ({ showOrigColumns, selected, onSelect, showRecords }) => {
     const convertedEntries = useAtomValue(visibleDataAtom);
     const notes = useAtomValue(notesAtom);
-    
+
     const onCellClick = React.useCallback(async (e) => {
       await navigator.clipboard.writeText(e.target.textContent);
     }, []);
@@ -107,6 +108,7 @@ export default React.memo(
 
     // console.log(table.getRowModel());
     // console.log(selected, rowSelection);
+    console.log(table.getFooterGroups());
 
     return (
       <React.Suspense fallback="Loading...">
@@ -117,7 +119,9 @@ export default React.memo(
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    title={notes[header.column.columnDef.title]?.join("\n")}
+                    title={notes[header.column.columnDef.title]?.items?.join(
+                      "\n"
+                    )}
                     className={cn({
                       "text-end": header.column.columnDef.isRecord,
                       "text-center": header.column.columnDef.align === "center",
@@ -212,6 +216,27 @@ export default React.memo(
                 )
               )}
           </tbody>
+          <tfoot>
+            {table.getFooterGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th
+                    key={header.id}
+                    title={notes[header.column.columnDef.title]?.supps?.join(
+                      "\n"
+                    )}
+                    className={cn("text-center", {
+                      "is-latest": header.column.columnDef.isLatest,
+                      "sticky-left": header.id === "name",
+                      "w-25": header.column.columnDef.placehoder,
+                    })}
+                  >
+                    {notes[header.column.columnDef.title]?.supps ? "?" : null}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </tfoot>
         </table>
       </React.Suspense>
     );

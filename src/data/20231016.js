@@ -58,9 +58,9 @@ export default {
     ["Pheno age", "18.64", { url }],
   ],
   notes: [
-    "+high melatonin",
+    // "+high melatonin",
     "-aspirin",
-    "+acetic acid",
+    "+acetic",
     "+milk thistle",
     "+cardio",
     "+taurine",

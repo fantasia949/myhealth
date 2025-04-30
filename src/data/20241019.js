@@ -58,8 +58,9 @@ export default {
     ["Pheno age", "19.23", { url }],
   ],
   notes: [
-    "+melatonin sáng",
+    "+melatonin", // 400mg morning, total 600mg
     "-egg",
+    "-niacin", // hieu chinh
     "-marrow",
     "+ems",
     "-ashwangha",
@@ -68,7 +69,7 @@ export default {
     "-thotitu",
     "+oyster",
     "+cacao",
-    "+nutritionyeast",
+    "~nutritionyeast",
     "+tmg",
   ],
 };

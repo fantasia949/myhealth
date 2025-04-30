@@ -1,15 +1,19 @@
 import preProcess from "./pre";
-import enrich from "./enrich";
+import { enrichBiomarkers, enrichTime } from "./enrich";
 import postProcess from "./post";
 import { tagKeys, unsortedTags } from "./post/tag";
 
 export const tags = tagKeys;
 
-export const process = (entries: Array<Entry>) => {
+export const processTime = (notes: Notes) => {
+  return enrichTime(notes);
+};
+
+export const processBiomarkers = (entries: Array<Entry>) => {
   entries = preProcess(entries);
-  entries = enrich(entries);
+  entries = enrichBiomarkers(entries);
   entries = postProcess(entries);
-  // console.log(entries);
+  // console.log(output);
 
   return entries.toSorted((entry1, entry2) => {
     const tag1 =

@@ -51,10 +51,10 @@ export default {
     ["Pheno age", "22.53", { url }],
   ],
   notes: [
-    "+melatonin sáng",
+    // "+melatonin",
     "+egg",
     "-casein",
-    "+niacin 50mg",
+    "+niacin", // 50mg
     "+red light",
     "+vitamin-c", // ???
   ],

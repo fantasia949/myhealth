@@ -1,5 +1,5 @@
 export default (inputs: Array<RawEntry>) =>
-    inputs.reduce<Array<Entry>>((result, info, index) => {
+    inputs.reduce((result, info, index) => {
         info.entries.forEach(([name, value, unit, extra]) => {
             const matchedEntry = result.find(entry => entry[0] === name)
             if (matchedEntry) {

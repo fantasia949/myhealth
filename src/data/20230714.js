@@ -56,13 +56,14 @@ export default {
     ["Pheno age", "24.57"],
   ],
   notes: [
-    "++high melatonin",
+    "-melatonin low",
+    "+melatonin", // 200mg night
     "-olive oil",
     "-gac oil",
     "+aspirin",
     "+niacin",
     "-gymnema syvesttr",
-    "+acetic acid",
+    "+acetic",
     "+egg",
     "+milk thistle",
     "+astragalus",

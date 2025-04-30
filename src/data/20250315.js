@@ -52,9 +52,9 @@ export default {
   notes: [
     "+astragalus",
     "+lipoic-acid",
-    "+melatonin", // 200mg toi. total 800mg
+    "+melatonin", // 400mg toi. total 800mg
     "+lactoferrin",
-    "+icarrin",
+    "+incarin",
     "-red-light",
     "-pregnenolone",
     "-dhea",

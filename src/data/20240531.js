@@ -58,7 +58,7 @@ export default {
     ["Weight", 70.8],
   ],
   notes: [
-    "+horny goat weed",
+    "+incarin",
     "+boswellia",
     "+niacin",
     "+redlight",
