@@ -10,6 +10,7 @@ import {
   createColumnHelper,
   flexRender,
 } from "@tanstack/react-table";
+import { averageCountAtom } from "../atom/averageValueAtom";
 
 const columnHelper = createColumnHelper();
 
@@ -55,6 +56,7 @@ const columns = [
 export default React.memo(
   ({ showOrigColumns, selected, onSelect, showRecords }) => {
     const convertedEntries = useAtomValue(visibleDataAtom);
+    const averageCountValue = useAtomValue(averageCountAtom);
     const notes = useAtomValue(notesAtom);
 
     const onCellClick = React.useCallback(async (e) => {
@@ -199,7 +201,11 @@ export default React.memo(
                         ></span> */}
                           </td>
                         ))}
-                    <td></td>
+                    <td>
+                      {averageCountValue
+                        ? extra.getSamples(+averageCountValue)
+                        : null}
+                    </td>
                     {showOrigColumns &&
                       extra.hasOrigin &&
                       extra.originValues.map((value, index) => (

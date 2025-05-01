@@ -13,7 +13,9 @@ export const notesAtom = atom((get) =>
   get(sourceAtom).then(([_, notes]) => processTime(notes))
 );
 
-export const dataAtom = atom((get) => get(unwrap(getBioMarkersAtom, [])));
+export const dataAtom = atom<Entry[]>((get) =>
+  get(unwrap(getBioMarkersAtom, []))
+);
 
 export const filterTextAtom = atom("");
 export const tagAtom = atom(null);

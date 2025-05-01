@@ -3,10 +3,27 @@ import cn from "classnames";
 import Offcanvas from "react-bootstrap/Offcanvas";
 import { tags } from "../processors";
 import { askBioMarkers } from "../service/askAI";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { visibleDataAtom, aiKeyAtom } from "../atom/dataAtom";
+import { averageCountAtom } from "../atom/averageValueAtom";
 
-export default React.memo(
+type Props = {
+  selected;
+  onSelect;
+  filterText;
+  filterTag;
+  showOrigColumns;
+  showRecords;
+  onShowRecordsChange;
+  onTextChange: (value: string) => void;
+  onFilterByTag;
+  onOriginValueToggle;
+  onVisualize;
+  onPValue;
+  onCorrelation;
+};
+
+export default React.memo<Props>(
   ({
     selected,
     onSelect,
@@ -22,6 +39,7 @@ export default React.memo(
     onPValue,
     onCorrelation,
   }) => {
+    const [averageCount, setAverageCount] = useAtom(averageCountAtom);
     const key = useAtomValue(aiKeyAtom);
     const data = useAtomValue(visibleDataAtom);
     const [show, setShow] = React.useState(false);
@@ -57,6 +75,11 @@ export default React.memo(
     const [canvasText, setCanvasText] = React.useState(null);
 
     const handleClose = React.useCallback(() => setCanvasText(null), []);
+
+    const onAverageCount = React.useCallback(
+      (e) => setAverageCount(e.target.value),
+      []
+    );
 
     return (
       <nav className="navbar navbar-expand-lg sticky-top sticky-left bg-body-tertiary gap-3 z-2">
@@ -152,14 +175,27 @@ export default React.memo(
             <div className="form-check form-switch">
               <select
                 className="form-select"
+                value={averageCount.toString()}
+                onChange={onAverageCount}
+              >
+                <option value=""></option>
+                <option value="3">Average of last 3 tests</option>
+                <option value="5">Average of last 5 tests</option>
+                <option value="10">Average of last 10 tests</option>
+                <option value="15">Average of last 15 tests</option>
+              </select>
+            </div>
+            <div className="form-check form-switch">
+              <select
+                className="form-select"
                 value={showRecords.toString()}
                 onChange={onShowRecordsChange}
               >
                 <option value="0">All</option>
-                <option value="15">Last 15 records</option>
-                <option value="10">Last 10 records</option>
-                <option value="5">Last 5 records</option>
                 <option value="3">Last 3 records</option>
+                <option value="5">Last 5 records</option>
+                <option value="10">Last 10 records</option>
+                <option value="15">Last 15 records</option>
               </select>
             </div>
             <div className="form-check form-switch">
