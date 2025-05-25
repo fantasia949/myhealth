@@ -62,6 +62,7 @@ export default {
     "-incarin",
     "-lipoic-acid",
     "-fenugreek",
+    "-gac-oil",
     "-red-light",
   ],
   review: [

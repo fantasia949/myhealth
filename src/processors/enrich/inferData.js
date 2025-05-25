@@ -67,6 +67,7 @@ const recipes = [
     ],
     (...args) => getPhenotypicAge2(...args, 37).toFixed(1),
   ],
+  ["VLDL", ["Triglyceride"], (triglyceride) => (triglyceride / 5).toFixed(0)],
   ["Age", [], (age) => age.toFixed(1)],
 ];
 

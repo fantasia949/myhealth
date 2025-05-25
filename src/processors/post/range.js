@@ -86,6 +86,7 @@ const range = {
   Phospho: [2.8, 4.0],
   FSH: [1.5, 12.4],
   LH: [1.7, 8.6],
+  VLDL: [5, 40],
 };
 
 const strictRange = {
