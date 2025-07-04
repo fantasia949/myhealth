@@ -22,6 +22,7 @@ export const labels = [
   "250315",
   "250426",
   "250525",
+  "250702",
 ];
 
 const mergeNotes = (inputs: Array<RawEntry>) =>

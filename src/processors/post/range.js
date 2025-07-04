@@ -87,6 +87,8 @@ const range = {
   FSH: [1.5, 12.4],
   LH: [1.7, 8.6],
   VLDL: [5, 40],
+  IgM: [22, 240],
+  "DHEA.SO4": [0.889, 4.27],
 };
 
 const strictRange = {
