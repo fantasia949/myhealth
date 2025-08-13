@@ -54,6 +54,8 @@ export default {
     "+melatonin", // 200mg sang - 600/400
     "-lactoferrin",
     "+milk-thistle",
+    "+astaxanthin",
+    "+lecithin",
     "+vitamin-c",
     "-oyster",
     "-mag-lunch",
@@ -61,5 +63,10 @@ export default {
     "-lipoic-acid",
     "~~mulberry-leaf-tea",
     "~~400ml-water",
+  ],
+  review: [],
+  target: [
+    "lower creatinin, hscrp, hba1c, triglyceride, liver enzyme, uric",
+    "higher DHEA",
   ],
 };

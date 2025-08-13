@@ -58,4 +58,8 @@ export default {
     "~sleep-aid",
     "-fucoidan",
   ],
+  review: [
+
+  ],
+  target: ["lower creatinin, hscrp, hba1c, triglyceride"],
 };

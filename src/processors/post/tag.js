@@ -43,8 +43,9 @@ const tag = {
     "Vitamin D Total",
     "Testosterone",
     "Cortisol",
+    "DHEA.SO4",
   ],
-  "5-Kidney": ["Ure", "Creatinin", "eGFR", "BUN"],
+  "5-Kidney": ["Ure", "Creatinin", "eGFR", "BUN", "Cystatin C"],
   "6-RBC": [
     "RBC",
     "MCV",
@@ -81,6 +82,8 @@ const tag = {
     "Neutropil / Lymphocite",
     "CRP-hs",
     "NLR",
+    "IgM",
+    "IgG",
   ],
   "8-Mineral": [
     "Magnesium",
