@@ -6,6 +6,7 @@ import { askBioMarkers } from "../service/askAI";
 import { useAtom, useAtomValue } from "jotai";
 import { visibleDataAtom, aiKeyAtom } from "../atom/dataAtom";
 import { averageCountAtom } from "../atom/averageValueAtom";
+import Markdown from "react-markdown";
 
 type Props = {
   selected;
@@ -221,7 +222,7 @@ export default React.memo<Props>(
             <Offcanvas.Title>Biomarker</Offcanvas.Title>
           </Offcanvas.Header>
           <Offcanvas.Body style={{ whiteSpace: "pre-wrap", fontSize: 14 }}>
-            {canvasText}
+            <Markdown>{canvasText}</Markdown>
           </Offcanvas.Body>
         </Offcanvas>
       </nav>

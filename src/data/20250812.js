@@ -61,6 +61,6 @@ export default {
     "+tmg",
     "~~400ml-water",
   ],
-  review: [],
-  target: ["lower creatinin, hscrp, hba1c, triglyceride"],
+  review: ['cinamon may increase liver enzymes','ascobic acid is likely to increase ferritin', 'pure robusta coffee may lower LDL'],
+  target: ["lower creatinin, ferritin, hscrp, hba1c, triglyceride, liver enzymes"],
 };
