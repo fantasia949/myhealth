@@ -1,4 +1,5 @@
 import mergeEntries from "../processors/merge";
+import { allEntries } from "./allEntries";
 
 export const labels = [
   "200811",
@@ -34,16 +35,6 @@ const mergeNotes = (inputs: Array<RawEntry>) =>
     ])
   );
 
-export const loadData = () =>
-  Promise.all(
-    labels.map((label) =>
-      import(`./20${label}.js`).then((module) => {
-        const record: RawEntry = Array.isArray(module.default.entries)
-          ? module.default
-          : { entries: module.default };
-        return record;
-      })
-    )
-  ).then((entries) => [mergeEntries(entries), mergeNotes(entries)] as const);
+export const loadData = () => Promise.resolve([mergeEntries(allEntries), mergeNotes(allEntries)] as const);
 
 // https://www.scymed.com/en/smnxps/psxkc035_c.htm
