@@ -1,30 +1,9 @@
 import mergeEntries from "../processors/merge";
+import data from "./aggregated";
 
-export const labels = [
-  "200811",
-  "201116",
-  "210304",
-  "210621",
-  "220406",
-  "221227",
-  "230316",
-  "230714",
-  "231016",
-  "240319",
-  "240417",
-  "240531",
-  "240801",
-  "240903",
-  "241019",
-  "241206",
-  "241228",
-  "250214",
-  "250315",
-  "250426",
-  "250525",
-  "250702",
-  "250812",
-];
+const addLabels = [];
+
+export const labels = [...data.map((item) => item.time), ...addLabels];
 
 const mergeNotes = (inputs: Array<RawEntry>) =>
   Object.fromEntries(
@@ -34,16 +13,24 @@ const mergeNotes = (inputs: Array<RawEntry>) =>
     ])
   );
 
-export const loadData = () =>
-  Promise.all(
-    labels.map((label) =>
-      import(`./20${label}.js`).then((module) => {
-        const record: RawEntry = Array.isArray(module.default.entries)
-          ? module.default
-          : { entries: module.default };
-        return record;
-      })
-    )
-  ).then((entries) => [mergeEntries(entries), mergeNotes(entries)] as const);
+// export const loadData2 = () =>
+//   Promise.all(
+//     addLabels.map((label) =>
+//       import(`./20${label}.js`).then((module) => {
+//         const record: RawEntry = Array.isArray(module.default.entries)
+//           ? module.default
+//           : { entries: module.default };
+//         record.time = label;
+//         return record;
+//       })
+//     )
+//   ).then((entries) => {
+//     entries = [...data, ...entries];
+//     return [mergeEntries(entries), mergeNotes(entries)] as const;
+//   });
+
+export const loadData = async () => {
+  return [mergeEntries(data), mergeNotes(data)] as const;
+};
 
 // https://www.scymed.com/en/smnxps/psxkc035_c.htm
