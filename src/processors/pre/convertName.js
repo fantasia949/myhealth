@@ -1,22 +1,22 @@
 const nameMapper = {
-  "Số lượng hồng cầu (RBC)": "RBC",
+  "Số lượng hồng cầu": "RBC",
   "Gamma GT": "GGT",
   "Glucose máu": "Glucose",
   "Alkaline Phosphatase": "ALP",
   "HDL-Cholesterol": "HDL",
   "LDL-Cholesterol": "LDL",
-  "Thể tích trung bình HC (MCV)": "MCV",
-  "Lượng huyết sắc tố (Hb)": "Hb",
-  "Thể tích khối hồng cầu (HCT)": "HCT",
-  "Lượng Hb trung bình HC (MCH)": "MCH",
-  "Nồng độ Hb trung bình HC (MCHC)": "MCHC",
-  "Độ phân bố HC (RDW-CV)": "RDW-CV",
-  "Thể tích khối tiểu cầu (PCT)": "PCT",
-  "Thể tích trung bình TC (MPV)": "MPV",
-  "Độ phân bố TC (PDW)": "PDW",
-  "Số lượng bạch cầu (WBC)": "WBC",
-  "Số lượng tiểu cầu (PLT)": "PLT",
-  "Độ phân bố HC (RDW-SD)": "RDW-SD",
+  "Thể tích trung bình HC": "MCV",
+  "Lượng huyết sắc tố": "Hb",
+  "Thể tích khối hồng cầu": "HCT",
+  "Lượng Hb trung bình HC": "MCH",
+  "Nồng độ Hb trung bình HC": "MCHC",
+  "Độ phân bố HC": "RDW-CV",
+  "Thể tích khối tiểu cầu": "PCT",
+  "Thể tích trung bình TC": "MPV",
+  "Độ phân bố TC": "PDW",
+  "Số lượng bạch cầu": "WBC",
+  "Số lượng tiểu cầu": "PLT",
+  "Độ phân bố HC": "RDW-SD",
   "eGFR (Mức lọc cầu thận)": "eGFR",
   "IGF-1 miễn dịch": "IGF-1",
   "BUN (Blood Urea Nitrogen)": "BUN",
@@ -42,9 +42,13 @@ const nameMapper = {
   "Uric acid máu": "Uric",
   "Natri máu": "Natri",
   "Kali máu": "Kali",
-  "Clo máu": "Clo"
+  "Clo máu": "Clo",
+  "Ketone/Máu": "Ketone",
+  "Định lượng Cortisol máu": "Cortisol",
 };
 
+const keys = Object.keys(nameMapper);
 export default ([name, values, unit, extra]) => {
-  return [nameMapper[name] || name, values, unit, extra];
+  const key = keys.find(k => k.matches(name))
+  return [nameMapper[key] || name, values, unit, extra];
 };
