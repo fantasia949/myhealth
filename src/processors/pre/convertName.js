@@ -50,6 +50,7 @@ const nameMapper = {
 
 const keys = Object.keys(nameMapper);
 export default ([name, values, unit, extra]) => {
-  const key = keys.find(k => name.startsWith(k))
+  const key = keys.find((k) => name.startsWith(k));
+  console.log(key);
   return [nameMapper[key] || name, values, unit, extra];
 };
