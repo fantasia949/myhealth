@@ -10,13 +10,13 @@ const nameMapper = {
   "Thể tích khối hồng cầu": "HCT",
   "Lượng Hb trung bình HC": "MCH",
   "Nồng độ Hb trung bình HC": "MCHC",
-  "Độ phân bố HC": "RDW-CV",
+  "Độ phân bố HC (RDW-CV)": "RDW-CV",
   "Thể tích khối tiểu cầu": "PCT",
   "Thể tích trung bình TC": "MPV",
   "Độ phân bố TC": "PDW",
   "Số lượng bạch cầu": "WBC",
   "Số lượng tiểu cầu": "PLT",
-  "Độ phân bố HC": "RDW-SD",
+  "Độ phân bố HC (RDW-SD)": "RDW-SD",
   "eGFR (Mức lọc cầu thận)": "eGFR",
   "IGF-1 miễn dịch": "IGF-1",
   "BUN (Blood Urea Nitrogen)": "BUN",
@@ -45,6 +45,7 @@ const nameMapper = {
   "Clo máu": "Clo",
   "Ketone/Máu": "Ketone",
   "Định lượng Cortisol máu": "Cortisol",
+  "Khả năng gắn sắt toàn phần": "TIBC",
 };
 
 const keys = Object.keys(nameMapper);
