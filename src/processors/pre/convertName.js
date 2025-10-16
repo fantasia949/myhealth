@@ -49,6 +49,6 @@ const nameMapper = {
 
 const keys = Object.keys(nameMapper);
 export default ([name, values, unit, extra]) => {
-  const key = keys.find(k => k.matches(name))
+  const key = keys.find(k => k.match(name))
   return [nameMapper[key] || name, values, unit, extra];
 };
