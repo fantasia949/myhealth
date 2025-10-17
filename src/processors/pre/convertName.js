@@ -1,21 +1,21 @@
 const nameMapper = {
-  "Số lượng hồng cầu": "RBC",
+  "Số lượng hồng cầu (RBC)": "RBC",
   "Gamma GT": "GGT",
   "Glucose máu": "Glucose",
   "Alkaline Phosphatase": "ALP",
   "HDL-Cholesterol": "HDL",
   "LDL-Cholesterol": "LDL",
-  "Thể tích trung bình HC": "MCV",
-  "Lượng huyết sắc tố": "Hb",
-  "Thể tích khối hồng cầu": "HCT",
-  "Lượng Hb trung bình HC": "MCH",
-  "Nồng độ Hb trung bình HC": "MCHC",
+  "Thể tích trung bình HC (MCV)": "MCV",
+  "Lượng huyết sắc tố (Hb)": "Hb",
+  "Thể tích khối hồng cầu (HCT)": "HCT",
+  "Lượng Hb trung bình HC (MCH)": "MCH",
+  "Nồng độ Hb trung bình HC (MCHC)": "MCHC",
   "Độ phân bố HC (RDW-CV)": "RDW-CV",
-  "Thể tích khối tiểu cầu": "PCT",
-  "Thể tích trung bình TC": "MPV",
-  "Độ phân bố TC": "PDW",
-  "Số lượng bạch cầu": "WBC",
-  "Số lượng tiểu cầu": "PLT",
+  "Thể tích khối tiểu cầu (PCT)": "PCT",
+  "Thể tích trung bình TC (MPV)": "MPV",
+  "Độ phân bố TC (PDW)": "PDW",
+  "Số lượng bạch cầu (WBC)": "WBC",
+  "Số lượng tiểu cầu (PLT)": "PLT",
   "Độ phân bố HC (RDW-SD)": "RDW-SD",
   "eGFR (Mức lọc cầu thận)": "eGFR",
   "IGF-1 miễn dịch": "IGF-1",
@@ -48,8 +48,6 @@ const nameMapper = {
   "Khả năng gắn sắt toàn phần": "TIBC",
 };
 
-const keys = Object.keys(nameMapper);
 export default ([name, values, unit, extra]) => {
-  const key = keys.find(k => k.match(name))
-  return [nameMapper[key] || name, values, unit, extra];
+  return [nameMapper[name] || name, values, unit, extra];
 };

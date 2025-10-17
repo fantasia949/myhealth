@@ -8,7 +8,7 @@ const tag = {
     "Glucose",
     "HbA1c",
     "HOMA-IR",
-    "Ketone"
+    "Ketone",
   ],
   "4-Liver": [
     "GGT",
@@ -46,7 +46,14 @@ const tag = {
     "Cortisol",
     "DHEA.SO4",
   ],
-  "5-Kidney": ["Ure", "Creatinin", "eGFR", "eGFR-Cystatinc-c", "BUN", "Cystatin C"],
+  "5-Kidney": [
+    "Ure",
+    "Creatinin",
+    "eGFR",
+    "eGFR-Cystatinc-c",
+    "BUN",
+    "Cystatin C",
+  ],
   "6-RBC": [
     "RBC",
     "MCV",
@@ -65,11 +72,10 @@ const tag = {
     "SL TB non lớn",
     "Tỉ lệ tiểu cầu có KT lớn",
     "SL tiểu cầu KT lớn",
-    "Fibrinogen"
+    "Fibrinogen",
     "INR",
     "TG Quick",
-    "Tỷ lệ Prothrombin"
-
+    "Tỷ lệ Prothrombin",
   ],
   "7-WBC": [
     "WBC",
