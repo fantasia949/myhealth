@@ -60,7 +60,7 @@ export default React.memo<Props>(
               ([key, values, unit]) =>
                 `${key} ${values[values.length - 1]} ${unit || ""}`
             );
-          const text = await askBioMarkers(pairs, key);
+          const text = await askBioMarkers(pairs, key, filterTag);
           setCanvasText(text);
           // console.log(text);
         } catch (err) {
@@ -70,7 +70,7 @@ export default React.memo<Props>(
           e.target.disabled = false;
         }
       },
-      [selected, data]
+      [selected, data, filterTag]
     );
 
     const [canvasText, setCanvasText] = React.useState(null);

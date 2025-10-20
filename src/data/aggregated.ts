@@ -1432,6 +1432,7 @@ export default [
       "+DHEA",
       "+Pregnelonone",
       "-curcumin",
+      "-lactoferrin",
       "-alicin",
       "+ginkgo",
       "+tmg",

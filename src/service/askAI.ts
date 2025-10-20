@@ -1,4 +1,4 @@
-import { HfInference } from "@huggingface/inference";
+import { tagDescription } from "../processors/post/tag";
 
 // Define model type and value
 const model: string = "gemini-2.5-pro"; // 'gemini-2.0-flash'
@@ -88,16 +88,20 @@ const context: string =
 
 export async function askBioMarkers(
   pairs: string[],
-  key: string
+  key: string,
+  topic?: string
 ): Promise<string> {
   let suffix: string =
     "  with optimal range info for young male and well-studied nutritional advise as short answer. In additional, let me know related info or studies that may interest me";
   if (pairs.length > 1) {
     suffix += ", their relationship and significance if any";
   }
-  const prefix = "help me evaluate these biomarkers";
+  let prefix = "help me evaluate these biomarkers";
+  if (topic) {
+    prefix += "in context of " + tagDescription[topic];
+  }
   const values = pairs.join(", ");
-  const question = `${prefix} ${values} ${suffix}`;
+  const question = `${prefix}: ${values} ${suffix}`;
   return askAI(context, question, key);
 }
 

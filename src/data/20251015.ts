@@ -65,15 +65,36 @@ export default {
     "+theanine",
     "+curcumin",
     "+solanum-trilobatum",
-    "~cardio",
+    "~cardio", // more cardio
     "~-coffee", // paper filer, fine robusta
     "+ginger",
     "+TMG",
     "+lactoferrin",
+    "-lecithin",
     "~-fish-oil", // lecithin
     "+nac",
     "-green-tea",
-    "+cistance",
+    "-taurine",
+    "+cistanche",
+    "+lactoferrin",
+    "-milk-thistle",
+    "-astaxanthin",
+    "-yohourt",
+    "-DHEA",
+    "-cinamon",
+    "-Pregnenolone",
     "~-melatonin", // -200mg
+  ],
+  review: [
+    "cinamon may not increase liver enzymes as previous hypothesid",
+    "ascobic acid is more likely to increase ferritin",
+    "pure robusta coffee/paper filter indeed lower LDL",
+    "curcumin and ginger does not lower hs-crp?",
+    "solanum has small effect on hba1c",
+    "cistanche boosts testosterone",
+    "nac lower liver enzymes?",
+    "omega 3 lower hscrp?",
+    "solanum lower hba1c?",
+    "melatonin, theanine, tmg higher liver enzymes?",
   ],
 };

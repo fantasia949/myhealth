@@ -64,6 +64,8 @@ const tag = {
     "HCT",
     "RDW-CV",
     "RDW-SD",
+  ],
+  "7-Platelet": [
     "PLT",
     "MPV",
     "PCT",
@@ -77,7 +79,7 @@ const tag = {
     "TG Quick",
     "Tỷ lệ Prothrombin",
   ],
-  "7-WBC": [
+  "8-WBC": [
     "WBC",
     "% Neutrophil",
     "% Lymphocyte",
@@ -97,7 +99,7 @@ const tag = {
     "IgM",
     "IgG",
   ],
-  "8-Mineral": [
+  "9-Mineral": [
     "Magnesium",
     "Calcium",
     "Ferritin",
@@ -109,7 +111,6 @@ const tag = {
     "Đồng",
     "Kẽm",
   ],
-  "9-Elect": [],
   "a-PhenoAge": [
     "Albumin",
     "Glucose",
@@ -138,5 +139,18 @@ export default ([name, values, unit, extra]) => {
 };
 
 export const tagKeys = [...Object.keys(tag), "b-Others"];
+
+export const tagDescription = {
+  "1-Metabolic": "metabolic info",
+  "2-Lipid": "lipid info",
+  "3-Hormone": "hormone info",
+  "4-Liver": "liver info",
+  "5-Kidney": "kidney info",
+  "6-RBC": "red blood cell info",
+  "7-Platelet": "platelet info",
+  "8-WBC": "white blood cell info",
+  "9-Mineral": "mineral info",
+  "a-PhenoAge": "phenoage info",
+};
 
 export const unsortedTags = ["a-PhenoAge", "b-Others"];
