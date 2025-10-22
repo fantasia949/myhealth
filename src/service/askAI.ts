@@ -1,66 +1,36 @@
 import { tagDescription } from "../processors/post/tag";
 
-// Define model type and value
-const model: string = "gemini-2.5-pro"; // 'gemini-2.0-flash'
-
-// Define interfaces for API response
-interface GeminiPart {
-  text: string;
-}
-
-interface GeminiContent {
-  parts: GeminiPart[];
-}
-
-interface GeminiCandidate {
-  content: GeminiContent;
-}
-
-interface GeminiResponse {
-  candidates: GeminiCandidate[];
-}
-
-export async function askAI(
-  context: string,
-  question: string,
-  key: string
-): Promise<string> {
-  const cache = sessionStorage.getItem(question);
-  if (cache) {
-    return cache;
-  }
+export const askBioMarkers = async (
+  pairs: string[],
+  key: string | null,
+  tag: string | null
+) => {
   if (!key) {
-    throw new Error("Please input gemini key");
+    throw new Error("Missing Gemini key");
   }
-  // const hf = new HfInference();
-  // const response = await hf.textGeneration({
-  //   endpointUrl: `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
-  //   contents: [
-  //     {
-  //       parts: [
-  //         {
-  //           text: question,
-  //         },
-  //       ],
-  //     },
-  //   ],
-  // });
-  // console.log(response);
-  // const text = response.generated_text;
+
+  const tagText = tag
+    ? `The following analysis is about ${tagDescription[tag]}.`
+    : "";
+
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${key}`,
     {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         contents: [
           {
             parts: [
-              { text: context },
               {
-                text: question,
+                text: `You are a professional medical expert who can analyze a list of biomarkers from blood tests. I will provide you with a list of biomarkers and their values, and you will need to analyze them and provide me with a report. ${tagText}
+                The report should include:
+                - A summary of the results
+                - What are the good and bad biomarkers
+                - What are the possible causes of the bad biomarkers
+                - What are the possible solutions to improve the bad biomarkers
+                - What are the possible supplements to improve the bad biomarkers
+
+                The biomarkers are: ${pairs.join(",")}`,
               },
             ],
           },
@@ -68,53 +38,10 @@ export async function askAI(
       }),
     }
   );
-
-  if (!response.ok) {
-    throw new Error(response.statusText);
+  const data = await response.json();
+  if (data.candidates?.[0]) {
+    return data.candidates[0].content.parts[0].text;
+  } else {
+    throw new Error(data.error.message);
   }
-
-  const data: GeminiResponse = await response.json();
-  const text = data.candidates
-    .flatMap((candidate) => candidate.content.parts.map((part) => part.text))
-    .join("\n");
-
-  sessionStorage.setItem(question, text);
-
-  return text;
-}
-
-const context: string =
-  "You are a health science researcher who has years in cellular and structural biology, ";
-
-export async function askBioMarkers(
-  pairs: string[],
-  key: string,
-  topic?: string
-): Promise<string> {
-  let suffix: string =
-    "  with optimal range info for young male and well-studied nutritional advise as short answer. In additional, let me know related info or studies that may interest me";
-  if (pairs.length > 1) {
-    suffix += ", their relationship and significance if any";
-  }
-  let prefix = "help me evaluate these biomarkers";
-  if (topic) {
-    prefix += "in context of " + tagDescription[topic];
-  }
-  const values = pairs.join(", ");
-  const question = `${prefix}: ${values} ${suffix}`;
-  return askAI(context, question, key);
-}
-
-export async function askDefinitions(
-  pairs: string[],
-  key: string
-): Promise<string> {
-  let suffix: string = "  with optimal range info in young age";
-  let prefix: string = "help me evaluate these biomarkers ";
-  if (pairs.length > 1) {
-    suffix += " their relationship and significance";
-  }
-  const values = pairs.join(", ");
-  const question = `${prefix} ${values} ${suffix}`;
-  return askAI(context, question, key);
-}
+};

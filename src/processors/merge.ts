@@ -1,5 +1,5 @@
-export default (inputs: Array<RawEntry>) =>
-    inputs.reduce((result, info, index) => {
+export default (inputs: Array<RawEntry>): Entry[] =>
+    inputs.reduce((result: Entry[], info, index) => {
         info.entries.forEach(([name, value, unit, extra]) => {
             const matchedEntry = result.find(entry => entry[0] === name)
             if (matchedEntry) {
@@ -7,9 +7,8 @@ export default (inputs: Array<RawEntry>) =>
             } else {
                 const values = Array.from<string>({ length: inputs.length })
                 values[index] = value
-                result.push([name, values, unit, extra])
+                result.push([name, values, unit as string, extra])
             }
         })
         return result
     }, [])
-

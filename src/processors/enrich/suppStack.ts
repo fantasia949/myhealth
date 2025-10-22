@@ -1,6 +1,6 @@
 export default (notes: Notes) => {
-  const supps = new Set();
-  const dates = {};
+  const supps = new Set<string>();
+  const dates: Record<string, string[]> = {};
 
   Object.entries(notes)
     .filter(([_, note]) => !!note.items)
