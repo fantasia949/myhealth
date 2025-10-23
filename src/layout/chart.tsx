@@ -64,8 +64,9 @@ export default memo(({ data, keys }: ChartProps) => {
   const ref = useRef<any>(null);
 
   useEffect(() => {
+    let instance: any = null;
     if (ref.current) {
-      const instance = ref.current.getEchartsInstance();
+      instance = ref.current.getEchartsInstance();
       if (instance) {
         instance.setOption({
           yAxis,
@@ -78,12 +79,12 @@ export default memo(({ data, keys }: ChartProps) => {
           ],
         });
       }
-      return () => {
-        if (instance) {
-          instance.destroy();
-        }
-      };
     }
+    return () => {
+      if (instance) {
+        instance.destroy();
+      }
+    };
   }, [ref.current, keys, yAxis]);
 
   return (

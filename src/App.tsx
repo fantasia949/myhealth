@@ -65,11 +65,11 @@ export default function App() {
   }, [setFilterTag, setFilterText, setCorrelationKey, setSelect, setSourceTarget]);
 
   const onSelect = React.useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    (name: string) => {
       // debugger;
       let values = selected;
 
-      const value = e.target.name;
+      const value = name;
       const index = values.indexOf(value);
       if (index == -1) {
         values = [...values, value];
@@ -97,17 +97,20 @@ export default function App() {
   }, [selected]);
 
   const onPValue = React.useCallback(() => {
-    let sourceTarget: BioMarker[] = data.filter(([name]) =>
+    let sourceTarget: (BioMarker | undefined)[] = data.filter(([name]) =>
       selected.includes(name)
     );
     sourceTarget = selected.map(
-      (name) => sourceTarget.find((i) => i[0] === name) as BioMarker
+      (name) => sourceTarget.find((i) => i && i[0] === name)
     );
+    if (sourceTarget.some((i) => !i)) {
+      return;
+    }
     setSourceTarget((v) => {
       if (v && sourceTarget[0] === v[0] && sourceTarget[1] === v[1]) {
         return null;
       }
-      return sourceTarget;
+      return sourceTarget as BioMarker[];
     });
   }, [selected, data]);
 

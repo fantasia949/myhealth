@@ -17,7 +17,7 @@ import { averageCountAtom } from "../atom/averageValueAtom";
 interface TableProps {
   showOrigColumns: boolean;
   selected: string[];
-  onSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSelect: (name: string) => void;
   showRecords: number;
 }
 
@@ -128,7 +128,7 @@ export default React.memo(
         const newState = typeof updater === 'function' ? updater(rowSelection) : updater;
         const selectedRow = Object.keys(newState)[0];
         if (selectedRow) {
-          onSelect({ target: { name: selectedRow } } as any);
+          onSelect(selectedRow);
         }
       },
       state: {
@@ -186,7 +186,7 @@ export default React.memo(
                         type="checkbox"
                         style={{ height: 20, width: 20 }}
                         name={name}
-                        onChange={onSelect || getToggleSelectedHandler()}
+                        onChange={() => onSelect(name)}
                         checked={selected.includes(name)}
                       />
                     </td>

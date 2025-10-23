@@ -10,7 +10,7 @@ import Markdown from "react-markdown";
 
 type Props = {
   selected: string[];
-  onSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSelect: (name: string) => void;
   filterText: string;
   filterTag: string | null;
   showOrigColumns: boolean;
@@ -85,9 +85,7 @@ export default React.memo<Props>(
 
     const onButtonClick = React.useCallback(
       (e: React.MouseEvent<HTMLButtonElement>) => {
-        onSelect({
-          target: { name: (e.target as HTMLButtonElement).name },
-        } as React.ChangeEvent<HTMLInputElement>);
+        onSelect((e.target as HTMLButtonElement).name);
       },
       [onSelect]
     );
