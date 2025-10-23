@@ -21,13 +21,20 @@ interface TableProps {
   showRecords: number;
 }
 
-const columnHelper = createColumnHelper<BioMarker>();
+type DisplayedEntry = {
+  name: string;
+  values: number[];
+  unit: string;
+  extra: BioMarker[3];
+};
+
+const columnHelper = createColumnHelper<DisplayedEntry>();
 
 function getKeyFromTime(label: string) {
   return label.slice(0, 2) + "/" + label.slice(2, 4);
 }
 
-const columns: ColumnDef<BioMarker, any>[] = [
+const columns: ColumnDef<DisplayedEntry, any>[] = [
   columnHelper.accessor("selection" as any, {
     header: "",
   }),
@@ -82,7 +89,7 @@ export default React.memo(
       await navigator.clipboard.writeText((e.target as HTMLElement).textContent || "");
     }, []);
 
-    const displayedEntries = React.useMemo(() => {
+    const displayedEntries: DisplayedEntry[] = React.useMemo(() => {
       return convertedEntries
         .filter(([_, values]) => !showRecords || (values && values.length > 0 && values[values.length - 1] !== null && values[values.length - 1] !== undefined))
         .map(([name, values, unit, extra]) => ({ name, values, unit, extra }));
@@ -112,7 +119,7 @@ export default React.memo(
     );
 
     const table = useReactTable({
-      data: displayedEntries as any,
+      data: displayedEntries,
       columns,
       getCoreRowModel: getCoreRowModel(),
       getFilteredRowModel: getFilteredRowModel(),
@@ -128,7 +135,7 @@ export default React.memo(
         columnVisibility: columnState,
         rowSelection,
       },
-      getRowId: (originalRow) => originalRow[0],
+      getRowId: (originalRow) => originalRow.name,
     });
 
     // console.log(table.getRowModel());
@@ -170,7 +177,7 @@ export default React.memo(
               .getRowModel()
               .rows.map(
                 ({
-                  original: [ name, values, unit, extra ],
+                  original: { name, values, unit, extra },
                   getToggleSelectedHandler,
                 }) => (
                   <tr key={name}>
@@ -220,6 +227,7 @@ export default React.memo(
                     <td>
                       {averageCountValue
                         ? extra.getSamples(+averageCountValue)
+                        .join(', ')
                         : null}
                     </td>
                     {showOrigColumns &&

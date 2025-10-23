@@ -78,7 +78,11 @@ export default memo(({ data, keys }: ChartProps) => {
           ],
         });
       }
-      return () => instance.destroy();
+      return () => {
+        if (instance) {
+          instance.destroy();
+        }
+      };
     }
   }, [ref.current, keys, yAxis]);
 

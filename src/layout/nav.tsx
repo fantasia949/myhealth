@@ -83,6 +83,15 @@ export default React.memo<Props>(
       []
     );
 
+    const onButtonClick = React.useCallback(
+      (e: React.MouseEvent<HTMLButtonElement>) => {
+        onSelect({
+          target: { name: (e.target as HTMLButtonElement).name },
+        } as React.ChangeEvent<HTMLInputElement>);
+      },
+      [onSelect]
+    );
+
     return (
       <nav className="navbar navbar-expand-lg sticky-top sticky-left bg-body-tertiary gap-3 z-2">
         <div className="container-fluid gap-3">
@@ -167,7 +176,7 @@ export default React.memo<Props>(
               type="button"
               name={item}
               key={item}
-              onClick={onSelect as any}
+              onClick={onButtonClick}
               className="btn btn-outline-warning btn-sm"
             >
               {item}

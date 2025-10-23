@@ -156,7 +156,7 @@ export default function App() {
       <input
         className="field"
         name="key"
-        value={aiKey as string}
+        value={aiKey || ""}
         onChange={onAiKeyChange}
         id="gemini-key"
         placeholder="Gemini key"
