@@ -15,9 +15,7 @@ const echartsOptions = {
     type: 'category',
     data: [] as string[],
   },
-  yAxis: {
-    type: 'value',
-  },
+  yAxis: [] as any[],
   series: [] as any[],
   tooltip: {
     trigger: 'axis',
@@ -25,14 +23,31 @@ const echartsOptions = {
   legend: {
     data: [] as string[],
   },
+  grid: {
+    right: 40,
+  }
 };
 
 export default memo(({ data, keys }: BarChartProps) => {
-  const chartData = keys.map(key => {
+  const yAxes = keys.map((key, index) => ({
+    type: 'value',
+    name: key,
+    position: 'left',
+    offset: index * 80,
+    axisLine: {
+      show: true,
+    },
+    axisLabel: {
+      formatter: '{value}',
+    },
+  }));
+
+  const chartData = keys.map((key, index) => {
     const bioMarker = data.find(bm => bm[0] === key);
     return {
       name: key,
       type: 'bar',
+      yAxisIndex: index,
       data: bioMarker ? bioMarker[1] : [],
     };
   });
@@ -43,11 +58,15 @@ export default memo(({ data, keys }: BarChartProps) => {
       ...echartsOptions.xAxis,
       data: data.length > 0 ? data[0][1].map((_, i) => `Sample ${i + 1}`) : [],
     },
+    yAxis: yAxes,
     series: chartData,
     legend: {
       ...echartsOptions.legend,
       data: keys,
     },
+    grid: {
+      right: keys.length * 60
+    }
   };
 
   return <ReactECharts option={options} style={options.style} />;
