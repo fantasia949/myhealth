@@ -19,9 +19,9 @@ const dimension = [
 const echartsOptions: any = {
   style: { height: 400 },
   theme: "dark",
-  option: {},
-  opts: {
-    grid: { top: 0 },
+  option: {
+    grid: { top: 40, bottom: 20 },
+    backgroundColor: 'transparent'
   },
 };
 

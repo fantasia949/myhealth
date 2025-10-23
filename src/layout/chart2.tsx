@@ -13,8 +13,9 @@ interface ChartProps {
 const echartsOptions: any = {
   style: { height: 400, maxWidth: 800 },
   theme: "dark",
+  backgroundColor: 'transparent',
   color: [
-    "#FF7C7C",
+    "#c23531",
     "#ADD4EF",
     "#BFDAA7",
     "#FCAC65",

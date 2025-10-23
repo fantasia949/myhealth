@@ -1,17 +1,31 @@
 :root {
-  font-size: 11px;
-  font-family: system-ui;
+  font-size: 12px;
+  font-family: "Inter", sans-serif;
+  --dark-bg: #1a1a1a;
+  --dark-table-header: #2c2c2c;
+  --dark-table-row: #222222;
+  --dark-text: #f0f0f0;
+  --dark-accent: #3a3a3a;
 }
 
 body {
-  background-color: #000;
+  background-color: var(--dark-bg);
+  color: var(--dark-text);
+}
+
+.table {
+  --bs-table-bg: var(--dark-table-row);
+  --bs-table-striped-bg: var(--dark-accent);
+  --bs-table-border-color: var(--dark-accent);
+  --bs-table-hover-bg: #333;
+  --bs-table-hover-color: var(--dark-text);
 }
 
 thead {
   position: sticky;
   top: 39px;
   z-index: 2;
-  background-color: #454d55;
+  background-color: var(--dark-table-header);
 }
 
 th {

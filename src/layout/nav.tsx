@@ -11,6 +11,8 @@ import Markdown from "react-markdown";
 type Props = {
   selected: string[];
   onSelect: (name: string) => void;
+  chartType: string;
+  onChartTypeChange: (type: string) => void;
   filterText: string;
   filterTag: string | null;
   showOrigColumns: boolean;
@@ -28,6 +30,8 @@ export default React.memo<Props>(
   ({
     selected,
     onSelect,
+    chartType,
+    onChartTypeChange,
     filterText,
     filterTag,
     showOrigColumns,
@@ -133,14 +137,24 @@ export default React.memo<Props>(
               </button>
             )}
           </div>
-          {selected.length == 2 && (
-            <button
-              type="button"
-              className="btn btn-sm btn-primary px-4"
-              onClick={onVisualize}
-            >
-              Visualize
-            </button>
+          {selected.length > 0 && (
+            <div className="d-flex gap-2">
+              <select
+                className="form-select"
+                value={chartType}
+                onChange={(e) => onChartTypeChange(e.target.value)}
+              >
+                <option value="line">Line Chart</option>
+                <option value="bar">Bar Chart</option>
+              </select>
+              <button
+                type="button"
+                className="btn btn-sm btn-primary px-4"
+                onClick={onVisualize}
+              >
+                Visualize
+              </button>
+            </div>
           )}
           {selected.length === 2 && (
             <button
