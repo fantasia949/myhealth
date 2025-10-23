@@ -1,14 +1,16 @@
 import { memo, useRef, useEffect, useMemo } from "react";
 import { ChartProvider, ChartContext } from "@echarts-readymade/core";
 import { Scatter } from "@echarts-readymade/scatter";
-import { regression, transform } from "echarts-stat";
 import { labels } from "../data";
 import ReactECharts from "echarts-for-react";
-import { registerTransform } from "echarts";
+import { BioMarker } from "../atom/dataAtom";
 
-registerTransform(transform.regression);
+interface ChartProps {
+  data: BioMarker[];
+  keys: string[];
+}
 
-const echartsOptions = {
+const echartsOptions: any = {
   style: { height: 400, maxWidth: 800 },
   theme: "dark",
   color: [
@@ -106,7 +108,7 @@ const echartsOptions = {
   ],
 };
 
-export default memo(({ data, keys }) => {
+export default memo(({ data, keys }: ChartProps) => {
   const valueList = [
     { fieldKey: keys[0], fieldName: keys[0], decimalLength: 2 },
     { fieldKey: keys[1], fieldName: keys[1], decimalLength: 2 },
@@ -132,20 +134,23 @@ export default memo(({ data, keys }) => {
       .map((key) => {
         return data.find(([k]) => key === k);
       })
-      .reduce((result, [key, values], i) => {
-        values.forEach((v, i) => {
-          if (!result[i]) {
-            result[i] = [labels[i].slice(0, -2)];
-          }
-          result[i].push(v);
-        });
+      .reduce((result: any[][], entry) => {
+        if (entry) {
+          const [key, values] = entry;
+          values.forEach((v, i) => {
+            if (!result[i]) {
+              result[i] = [labels[i].slice(0, -2)];
+            }
+            result[i].push(v);
+          });
+        }
         return result;
       }, [])
       .filter((v) => v[1] && v[2]);
 
-    const excludedDate = matchedData.map((v) => [+v[2], +v[1]]);
+    const excludedDate: number[][] = matchedData.map((v) => [+v[2], +v[1]]);
 
-    const scatterData = matchedData.map((v, i) => ({
+    const scatterData: Record<string, any>[] = matchedData.map((v) => ({
       [keys[0]]: v[1],
       [keys[1]]: v[2],
       date: v[0],
@@ -154,32 +159,15 @@ export default memo(({ data, keys }) => {
     return [scatterData, excludedDate];
   }, [keys, data]);
 
-  const scatterRef = useRef(null);
+  const scatterRef = useRef<any>(null);
 
-  useEffect(() => {
-    if (scatterRef.current) {
-      const instance = scatterRef.current.getEchartsInstance();
-      if (instance) {
-        instance.setOption(
-          {
-            grid: options.grid,
-            series: [{ symbolSize: 40 }],
-            dataZoom: options.dataZoom,
-          }
-          // { notMerge: true }
-        );
-        // console.log("ch1", instance.getOption());
-      }
-    }
-  }, [scatterRef.current, keys]);
-
-  const options = useMemo(() => {
+  const options: any = useMemo(() => {
     let { series, yAxis, xAxis } = echartsOptions;
-    xAxis[0].name = keys[0];
-    yAxis[0].name = keys[1];
+    (xAxis as any[])[0].name = keys[0];
+    (yAxis as any[])[0].name = keys[1];
 
     const scatterData = scatterData2.map((v) => [v[1], v[0]]);
-    series[1].datasetIndex = 1;
+    (series as any[])[1].datasetIndex = 1;
 
     const dataset = [
       { source: scatterData },
@@ -198,30 +186,49 @@ export default memo(({ data, keys }) => {
       series,
       dataZoom: [
         {
-          ...echartsOptions.dataZoom[0],
+          ...(echartsOptions.dataZoom as any[])[0],
           startValue: Math.min(...scatterData.map((item) => item[0])),
           endValue: Math.max(...scatterData.map((item) => item[0])),
         },
         {
-          ...echartsOptions.dataZoom[1],
+          ...(echartsOptions.dataZoom as any[])[1],
           startValue: Math.min(...scatterData.map((item) => item[1])),
           endValue: Math.max(...scatterData.map((item) => item[1])),
         },
       ],
     };
-  }, [echartsOptions, scatterData2]);
+  }, [scatterData2, keys]);
+
+  useEffect(() => {
+    if (scatterRef.current) {
+      const instance = scatterRef.current.getEchartsInstance();
+      if (instance) {
+        instance.setOption(
+          {
+            grid: options.grid,
+            series: [{ symbolSize: 40 }],
+            dataZoom: options.dataZoom,
+          }
+          // { notMerge: true }
+        );
+        // console.log("ch1", instance.getOption());
+      }
+    }
+  }, [scatterRef.current, keys, options]);
 
   // console.log("ch2", options.series[0].data, options.series[1].data);
 
   return (
-    <div><ChartProvider data={scatterData} echartsOptions={options}>
-    <ReactECharts option={options} style={options.style} />
-    <Scatter
-      ref={scatterRef}
-      context={ChartContext}
-      valueList={valueList}
-      dimension={dimension}
-    />
-  </ChartProvider></div>
+    <div>
+      <ChartProvider data={scatterData} echartsOptions={options}>
+        <ReactECharts option={options} style={options.style} />
+        <Scatter
+          ref={scatterRef}
+          context={ChartContext}
+          valueList={valueList}
+          dimension={dimension}
+        />
+      </ChartProvider>
+    </div>
   );
 });
