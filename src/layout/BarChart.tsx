@@ -1,10 +1,15 @@
 import { memo } from "react";
 import ReactECharts from "echarts-for-react";
 import { BioMarker } from "../atom/dataAtom";
+import { labels } from "../data";
 
 interface BarChartProps {
   data: BioMarker[];
   keys: string[];
+}
+
+function getKeyFromTime(label: string) {
+  return label.slice(0, 2) + "/" + label.slice(2, 4);
 }
 
 const echartsOptions = {
@@ -40,6 +45,7 @@ export default memo(({ data, keys }: BarChartProps) => {
     axisLabel: {
       formatter: '{value}',
     },
+    min: 'dataMin',
   }));
 
   const chartData = keys.map((key, index) => {
@@ -56,7 +62,7 @@ export default memo(({ data, keys }: BarChartProps) => {
     ...echartsOptions,
     xAxis: {
       ...echartsOptions.xAxis,
-      data: data.length > 0 ? data[0][1].map((_, i) => `Sample ${i + 1}`) : [],
+      data: labels.map(getKeyFromTime),
     },
     yAxis: yAxes,
     series: chartData,
