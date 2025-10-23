@@ -9,19 +9,19 @@ import { averageCountAtom } from "../atom/averageValueAtom";
 import Markdown from "react-markdown";
 
 type Props = {
-  selected;
-  onSelect;
-  filterText;
-  filterTag;
-  showOrigColumns;
-  showRecords;
-  onShowRecordsChange;
-  onTextChange: (value: string) => void;
-  onFilterByTag;
-  onOriginValueToggle;
-  onVisualize;
-  onPValue;
-  onCorrelation;
+  selected: string[];
+  onSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  filterText: string;
+  filterTag: string | null;
+  showOrigColumns: boolean;
+  showRecords: number;
+  onShowRecordsChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  onTextChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onFilterByTag: (e: React.MouseEvent<HTMLElement>) => void;
+  onOriginValueToggle: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onVisualize: () => void;
+  onPValue: () => void;
+  onCorrelation: () => void;
 };
 
 export default React.memo<Props>(
@@ -47,11 +47,11 @@ export default React.memo<Props>(
     const onToggle = () => setShow((v) => !v);
 
     const onAskAI = React.useCallback(
-      async (e) => {
+      async (e: React.MouseEvent<HTMLButtonElement>) => {
         if (selected.length === 0) {
           return;
         }
-        e.target.disabled = true;
+        (e.target as HTMLButtonElement).disabled = true;
 
         try {
           const pairs = data
@@ -67,19 +67,29 @@ export default React.memo<Props>(
           console.error(err);
           alert(err);
         } finally {
-          e.target.disabled = false;
+          (e.target as HTMLButtonElement).disabled = false;
         }
       },
-      [selected, data, filterTag]
+      [selected, data, filterTag, key]
     );
 
-    const [canvasText, setCanvasText] = React.useState(null);
+    const [canvasText, setCanvasText] = React.useState<string | null>(null);
 
     const handleClose = React.useCallback(() => setCanvasText(null), []);
 
     const onAverageCount = React.useCallback(
-      (e) => setAverageCount(e.target.value),
+      (e: React.ChangeEvent<HTMLSelectElement>) =>
+        setAverageCount(e.target.value),
       []
+    );
+
+    const onButtonClick = React.useCallback(
+      (e: React.MouseEvent<HTMLButtonElement>) => {
+        onSelect({
+          target: { name: (e.target as HTMLButtonElement).name },
+        } as React.ChangeEvent<HTMLInputElement>);
+      },
+      [onSelect]
     );
 
     return (
@@ -100,7 +110,7 @@ export default React.memo<Props>(
           </div>
           <div className={cn("collapse navbar-collapse", { show })}>
             <ul className="navbar-nav gap-2 align-items-start">
-              {tags.map((tag) => (
+              {tags.map((tag: string) => (
                 <li className="nav-item" key={tag}>
                   <button
                     type="button"
@@ -166,7 +176,7 @@ export default React.memo<Props>(
               type="button"
               name={item}
               key={item}
-              onClick={onSelect}
+              onClick={onButtonClick}
               className="btn btn-outline-warning btn-sm"
             >
               {item}

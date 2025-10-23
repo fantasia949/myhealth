@@ -5,19 +5,19 @@ const addLabels = ["251015"];
 
 export const labels = [...data.map((item) => item.time), ...addLabels];
 
-const mergeNotes = (inputs: Array<RawEntry>) =>
+const mergeNotes = (inputs: Array<RawEntry>): Notes =>
   Object.fromEntries(
     inputs.map((entry, index) => [
       labels[index],
-      { supps: [], items: entry.notes },
+      { date: labels[index], supps: [], items: entry.notes || [] },
     ])
   );
 
-const loadNewData = () =>
+const loadNewData = (): Promise<RawEntry[]> =>
   Promise.all(
     addLabels.map((label) =>
       import(`./20${label}.ts`).then((module) => {
-        const record: RawEntry = Array.isArray(module.default.entries)
+        const record: RawEntry & { time?: string } = Array.isArray(module.default.entries)
           ? module.default
           : { entries: module.default };
         record.time = label;
@@ -27,7 +27,7 @@ const loadNewData = () =>
   );
 
 export const loadData = async () => {
-  const newData = [...data, ...(await loadNewData())];
+  const newData: any[] = [...data, ...(await loadNewData())];
   return [mergeEntries(newData), mergeNotes(newData)] as const;
 };
 

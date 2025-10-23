@@ -12,49 +12,60 @@ import {
   filterTextAtom,
   tagAtom,
   aiKeyAtom,
+  BioMarker,
 } from "./atom/dataAtom";
 
 export default function App() {
   const data = useAtomValue(getBioMarkersAtom);
-  const [selected, setSelect] = React.useState([]);
+  const [selected, setSelect] = React.useState<string[]>([]);
   const [filterText, setFilterText] = useAtom(filterTextAtom);
   const [filterTag, setFilterTag] = useAtom(tagAtom);
   const [aiKey, setAiKey] = useAtom(aiKeyAtom);
-  const [showOrigColumns, setShowOrigColumns] = React.useState(false);
-  const [showRecords, setShowRecords] = React.useState(5);
-  const [chartKeys, setChartKeys] = React.useState(null);
-  const [comparedSourceTarget, setSourceTarget] = React.useState(null);
-  const [corrlationKey, setCorrelationKey] = React.useState(null);
+  const [showOrigColumns, setShowOrigColumns] = React.useState<boolean>(false);
+  const [showRecords, setShowRecords] = React.useState<number>(5);
+  const [chartKeys, setChartKeys] = React.useState<string[] | null>(null);
+  const [comparedSourceTarget, setSourceTarget] = React.useState<
+    BioMarker[] | null
+  >(null);
+  const [corrlationKey, setCorrelationKey] = React.useState<string | null>(
+    null
+  );
   const onTextChange = React.useCallback(
-    (e) => React.startTransition(() => setFilterText(e.target.value)),
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      React.startTransition(() => setFilterText(e.target.value)),
     []
   );
 
   const onOriginValueToggle = React.useCallback(
-    (e) => setShowOrigColumns(e.target.checked),
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      setShowOrigColumns(e.target.checked),
     []
   );
 
   const onShowRecordsChange = React.useCallback(
-    (e) => setShowRecords(+e.target.value),
+    (e: React.ChangeEvent<HTMLSelectElement>) =>
+      setShowRecords(+e.target.value),
     []
   );
 
-  const onAiKeyChange = React.useCallback((e) => setAiKey(e.target.value), []);
+  const onAiKeyChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setAiKey(e.target.value),
+    []
+  );
 
-  const onFilterByTag = React.useCallback((e) => {
+  const onFilterByTag = React.useCallback((e: React.MouseEvent<HTMLElement>) => {
     React.startTransition(() => {
-      setFilterTag(e.target.dataset.tag);
+      setFilterTag((e.target as HTMLElement).dataset.tag as string);
       setFilterText("");
       setCorrelationKey(null);
       setSelect([]);
       setSourceTarget(null);
     });
     setShowOrigColumns(false);
-  }, []);
+  }, [setFilterTag, setFilterText, setCorrelationKey, setSelect, setSourceTarget]);
 
   const onSelect = React.useCallback(
-    (e) => {
+    (e: React.ChangeEvent<HTMLInputElement>) => {
       // debugger;
       let values = selected;
 
@@ -75,6 +86,7 @@ export default function App() {
         if (keys) {
           return values;
         }
+        return keys;
       });
     },
     [selected, chartKeys]
@@ -85,9 +97,11 @@ export default function App() {
   }, [selected]);
 
   const onPValue = React.useCallback(() => {
-    let sourceTarget = data.filter(([name]) => selected.includes(name));
-    sourceTarget = selected.map((name) =>
-      sourceTarget.find((i) => i[0] === name)
+    let sourceTarget: BioMarker[] = data.filter(([name]) =>
+      selected.includes(name)
+    );
+    sourceTarget = selected.map(
+      (name) => sourceTarget.find((i) => i[0] === name) as BioMarker
     );
     setSourceTarget((v) => {
       if (v && sourceTarget[0] === v[0] && sourceTarget[1] === v[1]) {
@@ -142,7 +156,7 @@ export default function App() {
       <input
         className="field"
         name="key"
-        value={aiKey}
+        value={aiKey || ""}
         onChange={onAiKeyChange}
         id="gemini-key"
         placeholder="Gemini key"
