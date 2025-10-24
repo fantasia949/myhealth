@@ -11,6 +11,10 @@ import {
   flexRender,
   ColumnDef,
   RowSelectionState,
+  getGroupedRowModel,
+  getExpandedRowModel,
+  GroupingState,
+  ExpandedState,
 } from "@tanstack/react-table";
 import { averageCountAtom } from "../atom/averageValueAtom";
 
@@ -26,6 +30,9 @@ type DisplayedEntry = {
   values: number[];
   unit: string;
   extra: BioMarker[3];
+  tag: string;
+  displayTag: string;
+  sortKey: string;
 };
 
 const columnHelper = createColumnHelper<DisplayedEntry>();
@@ -37,6 +44,10 @@ function getKeyFromTime(label: string) {
 const columns: ColumnDef<DisplayedEntry, any>[] = [
   columnHelper.accessor("selection" as any, {
     header: "",
+  }),
+  columnHelper.accessor("tag" as any, {
+    header: "Tag",
+    getGroupingValue: (row) => row.tag,
   }),
   columnHelper.accessor("name" as any, {
     header: "Name",
@@ -92,18 +103,31 @@ export default React.memo(
     const displayedEntries: DisplayedEntry[] = React.useMemo(() => {
       return convertedEntries
         .filter(([_, values]) => !showRecords || (values && values.length > 0 && values[values.length - 1] !== null && values[values.length - 1] !== undefined))
-        .map(([name, values, unit, extra]) => ({ name, values, unit, extra }));
+        .flatMap(([name, values, unit, extra]) => {
+          if (extra.tag && extra.tag.length > 0) {
+            return extra.tag.map(tag => {
+              const displayTag = tag.substring(tag.indexOf('-') + 1);
+              const sortKey = /^\d/.test(tag) ? `1_${tag}` : `2_${tag}`;
+              return { name, values, unit, extra, tag, displayTag, sortKey };
+            });
+          }
+          return [{ name, values, unit, extra, tag: 'Uncategorized', displayTag: 'Uncategorized', sortKey: '3_Uncategorized' }];
+        })
+        .sort((a, b) => a.sortKey.localeCompare(b.sortKey));
     }, [convertedEntries, showRecords]);
 
     const columnState = React.useMemo(() => {
-      let state: Record<string, boolean> = {};
+      let state: Record<string, boolean> = { tag: false };
 
       if (showRecords) {
-        state = Object.fromEntries(
-          labels
-            .filter((_, index) => index < labels.length - showRecords)
-            .map((label) => [label, false])
-        );
+        state = {
+          ...state,
+          ...Object.fromEntries(
+            labels
+              .filter((_, index) => index < labels.length - showRecords)
+              .map((label) => [label, false])
+          ),
+        };
       }
 
       if (!showOrigColumns) {
@@ -118,12 +142,20 @@ export default React.memo(
       [selected]
     );
 
+    const [grouping, setGrouping] = React.useState<GroupingState>(['tag']);
+    const [expanded, setExpanded] = React.useState<ExpandedState>(true);
+
     const table = useReactTable({
       data: displayedEntries,
       columns,
       getCoreRowModel: getCoreRowModel(),
       getFilteredRowModel: getFilteredRowModel(),
+      getGroupedRowModel: getGroupedRowModel(),
+      getExpandedRowModel: getExpandedRowModel(),
       enableRowSelection: true,
+      onGroupingChange: setGrouping,
+      onExpandedChange: setExpanded,
+      groupedColumnMode: false,
       onRowSelectionChange: (updater) => {
         const newState = typeof updater === 'function' ? updater(rowSelection) : updater;
         const selectedRow = Object.keys(newState)[0];
@@ -134,8 +166,10 @@ export default React.memo(
       state: {
         columnVisibility: columnState,
         rowSelection,
+        grouping,
+        expanded,
       },
-      getRowId: (originalRow) => originalRow.name,
+      getRowId: (originalRow) => originalRow.name + originalRow.tag,
     });
 
     // console.log(table.getRowModel());
@@ -175,12 +209,32 @@ export default React.memo(
           <tbody>
             {table
               .getRowModel()
-              .rows.map(
-                ({
-                  original: { name, values, unit, extra },
-                  getToggleSelectedHandler,
-                }) => (
-                  <tr key={name}>
+              .rows.map((row) => {
+                if (row.getIsGrouped()) {
+                  return (
+                    <tr key={row.id}>
+                      <td colSpan={columns.length}>
+                        <button
+                          {...{
+                            onClick: row.getToggleExpandedHandler(),
+                            style: {
+                              cursor: row.getCanExpand()
+                                ? "pointer"
+                                : "normal",
+                            },
+                          }}
+                        >
+                          {row.getIsExpanded() ? "👇" : "👉"}{" "}
+                          {row.original.displayTag} ({row.subRows.length})
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                }
+
+                const { name, values, unit, extra } = row.original;
+                return (
+                  <tr key={row.id}>
                     <td>
                       <input
                         type="checkbox"
@@ -227,7 +281,7 @@ export default React.memo(
                     <td>
                       {averageCountValue
                         ? extra.getSamples(+averageCountValue)
-                        .join(', ')
+                        .join(", ")
                         : null}
                     </td>
                     {showOrigColumns &&
@@ -243,8 +297,8 @@ export default React.memo(
                       <td className="col-ref">{extra.originUnit}</td>
                     )}
                   </tr>
-                )
-              )}
+                );
+              })}
           </tbody>
           <tfoot>
             {table.getFooterGroups().map((headerGroup) => (
