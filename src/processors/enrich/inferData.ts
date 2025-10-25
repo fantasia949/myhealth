@@ -6,7 +6,7 @@ type Recipe = [string, string[], (...args: any[]) => string, Partial<BioMarker[3
 
 const recipes: Recipe[] = [
   [
-    "Neutropil / Lymphocite",
+    "Neutro / Lympho",
     ["SL Neutrophil", "SL Lymphocyte"],
     (value1, value2) => (value1 / value2).toFixed(1),
   ],
@@ -16,7 +16,7 @@ const recipes: Recipe[] = [
     (value1, value2) => (value1 / value2).toFixed(1),
   ],
   [
-    "Total Cholesterol / HDL",
+    "Total Choles / HDL",
     ["Cholesterol", "HDL"],
     (value1, value2) => (value1 / value2).toFixed(1),
   ],
@@ -37,7 +37,7 @@ const recipes: Recipe[] = [
   ],
   [
     "NLR",
-    ["% Neutrophil", "% Lymphocyte"],
+    ["% Neutro", "% Lympho"],
     (value1, value2) => (value1 / value2).toFixed(1),
   ],
   [
