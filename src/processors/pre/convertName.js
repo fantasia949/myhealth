@@ -46,6 +46,9 @@ const nameMapper = {
   "Ketone/Máu": "Ketone",
   "Định lượng Cortisol máu": "Cortisol",
   "Khả năng gắn sắt toàn phần": "TIBC",
+  "SL tiểu cầu KT lớn": "P-LCC",
+  "Tỉ lệ tiểu cầu có KT lớn": "P-LCR",
+  "Tỉ lệ Prothrombin": "Prothrombin"
 };
 
 export default ([name, values, unit, extra]) => {
