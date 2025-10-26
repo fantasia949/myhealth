@@ -4,7 +4,7 @@ import "./styles.css";
 import Nav from "./layout/nav";
 import Table from "./layout/table";
 import Chart from "./layout/chart2";
-import ScatterChart from "./layout/ScatterChart";
+import BarChart from "./layout/BarChart";
 import PValue from "./layout/pValue";
 import Correlation from "./layout/correlation";
 import { useAtomValue, useAtom } from "jotai";
@@ -25,7 +25,7 @@ export default function App() {
   const [showOrigColumns, setShowOrigColumns] = React.useState<boolean>(false);
   const [showRecords, setShowRecords] = React.useState<number>(5);
   const [chartKeys, setChartKeys] = React.useState<string[] | null>(null);
-  const [chartType, setChartType] = React.useState<string>('scatter');
+  const [chartType, setChartType] = React.useState<string>('line');
   const [comparedSourceTarget, setSourceTarget] = React.useState<
     BioMarker[] | null
   >(null);
@@ -163,7 +163,7 @@ export default function App() {
       />
       <Correlation target={corrlationKey} />
       {chartKeys?.length === 2 && chartType === 'line' && <Chart data={data} keys={chartKeys} />}
-      {chartKeys?.length && chartType === 'scatter' && <ScatterChart data={data} keys={chartKeys} />}
+      {chartKeys?.length && chartType === 'bar' && <BarChart data={data} keys={chartKeys} />}
       <Table {...tableProps} />
       <input
         className="field"
