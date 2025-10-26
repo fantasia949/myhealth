@@ -144,8 +144,7 @@ export default React.memo<Props>(
                 value={chartType}
                 onChange={(e) => onChartTypeChange(e.target.value)}
               >
-                <option value="line">Line Chart</option>
-                <option value="bar">Bar Chart</option>
+                <option value="scatter">Scatter Chart</option>
               </select>
               <button
                 type="button"

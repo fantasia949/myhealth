@@ -1,7 +1,16 @@
 const tag = {
-  "1-RBC": ["RBC", "MCV", "MCH", "Hb", "MCHC", "HCT", "RDW-CV", "RDW-SD"],
-  "2-Metabolic": ["Insulin", "Glucose", "HbA1c", "HOMA-IR", "Ketone", "Uric"],
-  "3-Liver": [
+  "1-Metabolic": [
+    "HDL",
+    "TG / HDL",
+    "Triglyceride",
+    "Total Cholesterol / HDL",
+    "Insulin",
+    "Glucose",
+    "HbA1c",
+    "HOMA-IR",
+    "Ketone",
+  ],
+  "4-Liver": [
     "GGT",
     "AST",
     "ALP",
@@ -15,7 +24,7 @@ const tag = {
     "Albumin",
     "Protein Total",
   ],
-  "4-Lipid": [
+  "2-Lipid": [
     "HDL",
     "LDL",
     "VLDL",
@@ -27,7 +36,7 @@ const tag = {
     "Lipoprotein - APO-B",
     "Total Cholesterol / HDL",
   ],
-  "5-Hormone": [
+  "3-Hormone": [
     "T3",
     "TSH",
     "FT3",
@@ -37,13 +46,24 @@ const tag = {
     "Cortisol",
     "DHEA.SO4",
   ],
-  "6-Kidney": [
+  "5-Kidney": [
     "Ure",
     "Creatinin",
     "eGFR",
     "eGFR-Cystatinc-c",
     "BUN",
     "Cystatin C",
+  ],
+  "6-RBC": [
+    "RBC",
+    "MCV",
+    "MCH",
+    "Hb",
+    "HbA1c",
+    "MCHC",
+    "HCT",
+    "RDW-CV",
+    "RDW-SD",
   ],
   "7-Platelet": [
     "PLT",
@@ -52,12 +72,12 @@ const tag = {
     "PDW",
     "% Các TB non lớn",
     "SL TB non lớn",
+    "Tỉ lệ tiểu cầu có KT lớn",
+    "SL tiểu cầu KT lớn",
     "Fibrinogen",
     "INR",
     "TG Quick",
     "Tỷ lệ Prothrombin",
-    "P-LCR",
-    "P-LCC",
   ],
   "8-WBC": [
     "WBC",
@@ -90,7 +110,6 @@ const tag = {
     "Phosphat",
     "Đồng",
     "Kẽm",
-    "TIBC",
   ],
   "a-PhenoAge": [
     "Albumin",
