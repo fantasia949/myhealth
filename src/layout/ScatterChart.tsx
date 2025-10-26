@@ -44,13 +44,17 @@ export default memo(({ data, keys }: ScatterChartProps) => {
     min: 'dataMin',
   }));
 
+  const formatTime = (label: string) => {
+    return `${label.slice(0, 4)}-${label.slice(4, 6)}-${label.slice(6, 8)}`;
+  };
+
   const chartData = keys.map((key, index) => {
     const bioMarker = data.find(bm => bm[0] === key);
     return {
       name: key,
       type: 'scatter',
       yAxisIndex: index,
-      data: bioMarker ? bioMarker[1].map((value, i) => [labels[i], value]) : [],
+      data: bioMarker ? bioMarker[1].map((value, i) => [formatTime(labels[i]), value]) : [],
     };
   });
 
