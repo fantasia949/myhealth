@@ -140,12 +140,13 @@ export default React.memo<Props>(
           {selected.length > 0 && (
             <div className="d-flex gap-2">
               <select
+                id="chart-type"
                 className="form-select"
                 value={chartType}
                 onChange={(e) => onChartTypeChange(e.target.value)}
               >
                 <option value="line">Line Chart</option>
-                <option value="bar">Bar Chart</option>
+                <option value="scatter">Scatter Chart</option>
               </select>
               <button
                 type="button"

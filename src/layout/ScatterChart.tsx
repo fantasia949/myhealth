@@ -3,27 +3,23 @@ import ReactECharts from "echarts-for-react";
 import { BioMarker } from "../atom/dataAtom";
 import { labels } from "../data";
 
-interface BarChartProps {
+interface ScatterChartProps {
   data: BioMarker[];
   keys: string[];
 }
 
-function getKeyFromTime(label: string) {
-  return label.slice(0, 2) + "/" + label.slice(2, 4);
-}
 
 const echartsOptions = {
   style: { height: 400 },
   theme: "dark",
   backgroundColor: 'transparent',
   xAxis: {
-    type: 'category',
-    data: [] as string[],
+    type: 'time',
   },
   yAxis: [] as any[],
   series: [] as any[],
   tooltip: {
-    trigger: 'axis',
+    trigger: 'item',
   },
   legend: {
     data: [] as string[],
@@ -33,7 +29,7 @@ const echartsOptions = {
   }
 };
 
-export default memo(({ data, keys }: BarChartProps) => {
+export default memo(({ data, keys }: ScatterChartProps) => {
   const yAxes = keys.map((key, index) => ({
     type: 'value',
     name: key,
@@ -52,9 +48,9 @@ export default memo(({ data, keys }: BarChartProps) => {
     const bioMarker = data.find(bm => bm[0] === key);
     return {
       name: key,
-      type: 'bar',
+      type: 'scatter',
       yAxisIndex: index,
-      data: bioMarker ? bioMarker[1] : [],
+      data: bioMarker ? bioMarker[1].map((value, i) => [labels[i], value]) : [],
     };
   });
 
@@ -62,7 +58,6 @@ export default memo(({ data, keys }: BarChartProps) => {
     ...echartsOptions,
     xAxis: {
       ...echartsOptions.xAxis,
-      data: labels.map(getKeyFromTime),
     },
     yAxis: yAxes,
     series: chartData,
