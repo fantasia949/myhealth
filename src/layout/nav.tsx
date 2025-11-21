@@ -64,7 +64,15 @@ export default React.memo<Props>(
               ([key, values, unit]) =>
                 `${key} ${values[values.length - 1]} ${unit || ""}`
             );
-          const text = await askBioMarkers(pairs, key, filterTag);
+          const prevPairs = data
+            .filter(([key]) => selected.includes(key))
+            .map(([key, values, unit]) =>
+              values.length > 1
+                ? `${key} ${values[values.length - 2]} ${unit || ""}`
+                : undefined
+            )
+            .filter(Boolean);
+          const text = await askBioMarkers(pairs, key, filterTag, prevPairs);
           setCanvasText(text);
           // console.log(text);
         } catch (err) {

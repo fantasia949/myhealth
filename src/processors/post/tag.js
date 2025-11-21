@@ -1,6 +1,14 @@
 const tag = {
   "1-RBC": ["RBC", "MCV", "MCH", "Hb", "MCHC", "HCT", "RDW-CV", "RDW-SD"],
-  "2-Metabolic": ["Insulin", "Glucose", "HbA1c", "HOMA-IR", "Ketone", "Uric"],
+  "2-Metabolic": [
+    "Insulin",
+    "Glucose",
+    "HbA1c",
+    "HOMA-IR",
+    "Ketone",
+    "Uric",
+    "Weight",
+  ],
   "3-Liver": [
     "GGT",
     "AST",
@@ -36,6 +44,7 @@ const tag = {
     "Testosterone",
     "Cortisol",
     "DHEA.SO4",
+    "SHBG",
   ],
   "6-Kidney": [
     "Ure",
@@ -52,6 +61,7 @@ const tag = {
     "PDW",
     "% Các TB non lớn",
     "SL TB non lớn",
+    "SL tiểu cầu KT lớn",
     "Fibrinogen",
     "INR",
     "TG Quick",

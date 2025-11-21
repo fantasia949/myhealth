@@ -1,7 +1,7 @@
 import mergeEntries from "../processors/merge";
 import data from "./aggregated";
 
-const addLabels = ["251015"];
+const addLabels = ["251015", "251120"];
 
 export const labels = [...data.map((item) => item.time), ...addLabels];
 
@@ -17,7 +17,9 @@ const loadNewData = (): Promise<RawEntry[]> =>
   Promise.all(
     addLabels.map((label) =>
       import(`./20${label}.ts`).then((module) => {
-        const record: RawEntry & { time?: string } = Array.isArray(module.default.entries)
+        const record: RawEntry & { time?: string } = Array.isArray(
+          module.default.entries
+        )
           ? module.default
           : { entries: module.default };
         record.time = label;

@@ -3,7 +3,8 @@ import { tagDescription } from "../processors/post/tag";
 export const askBioMarkers = async (
   pairs: string[],
   key: string | null,
-  tag: string | null
+  tag: string | null,
+  prevPairs: string[]
 ) => {
   if (!key) {
     throw new Error("Missing Gemini key");
@@ -13,8 +14,25 @@ export const askBioMarkers = async (
     ? `The following analysis is about ${tagDescription[tag]}.`
     : "";
 
+  let content = `You are a professional medical expert who can analyze a list of biomarkers from blood tests. I will provide you with a list of biomarkers and their values, and you will need to analyze them and provide me with a report. ${tagText}
+The report should include:
+- A summary of the results
+- What are the good and bad biomarkers
+- What are the possible causes of the bad biomarkers
+- What are the possible solutions to improve the bad biomarkers
+- What are the related biomakers which give more insight to help improve the items
+- What are the possible supplements to improve the bad biomarkers
+Disclaimers or general advices are excluded.
+The current biomarkers are: ${pairs.join(",")}`;
+  if (prevPairs.length) {
+    content = `${content}
+In month ago, the values were: ${prevPairs.join(",")}`;
+  }
+  console.log(content);
+
+  // gemini-3-pro-preview
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${key}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${key}`,
     {
       method: "POST",
       body: JSON.stringify({
@@ -22,19 +40,15 @@ export const askBioMarkers = async (
           {
             parts: [
               {
-                text: `You are a professional medical expert who can analyze a list of biomarkers from blood tests. I will provide you with a list of biomarkers and their values, and you will need to analyze them and provide me with a report. ${tagText}
-                The report should include:
-                - A summary of the results
-                - What are the good and bad biomarkers
-                - What are the possible causes of the bad biomarkers
-                - What are the possible solutions to improve the bad biomarkers
-                - What are the possible supplements to improve the bad biomarkers
-
-                The biomarkers are: ${pairs.join(",")}`,
+                text: content,
               },
             ],
           },
         ],
+        // generationConfig: {
+        //   thinkingConfig: { thinkingLevel: "HIGH" },
+        // },
+        tools: [{ googleSearch: {} }],
       }),
     }
   );

@@ -76,7 +76,6 @@ export default {
     "-green-tea",
     "-taurine",
     "+cistanche",
-    "+lactoferrin",
     "-milk-thistle",
     "-astaxanthin",
     "-yohourt",
