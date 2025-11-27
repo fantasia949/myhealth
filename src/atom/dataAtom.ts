@@ -52,3 +52,4 @@ export const visibleDataAtom = atom((get) => {
 });
 
 export const aiKeyAtom = atomWithStorage<string | null>("key", null);
+export const gistTokenAtom = atomWithStorage<string | null>("gistToken", null);

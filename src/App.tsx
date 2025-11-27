@@ -12,6 +12,7 @@ import {
   filterTextAtom,
   tagAtom,
   aiKeyAtom,
+  gistTokenAtom,
   BioMarker,
 } from "./atom/dataAtom";
 
@@ -21,6 +22,7 @@ export default function App() {
   const [filterText, setFilterText] = useAtom(filterTextAtom);
   const [filterTag, setFilterTag] = useAtom(tagAtom);
   const [aiKey, setAiKey] = useAtom(aiKeyAtom);
+  const [gistToken, setGistToken] = useAtom(gistTokenAtom);
   const [showOrigColumns, setShowOrigColumns] = React.useState<boolean>(false);
   const [showRecords, setShowRecords] = React.useState<number>(5);
   const [chartKeys, setChartKeys] = React.useState<string[] | null>(null);
@@ -51,6 +53,11 @@ export default function App() {
 
   const onAiKeyChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => setAiKey(e.target.value),
+    []
+  );
+
+  const onGistTokenChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setGistToken(e.target.value),
     []
   );
 
@@ -171,6 +178,15 @@ export default function App() {
         id="gemini-key"
         placeholder="Gemini key"
         autoComplete="gemini-key"
+      />
+      <input
+        className="field"
+        name="key"
+        value={gistToken || ""}
+        onChange={onGistTokenChange}
+        id="gist-token"
+        placeholder="Gist token"
+        autoComplete="gist-token"
       />
     </>
   );

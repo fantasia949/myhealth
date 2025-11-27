@@ -3,8 +3,9 @@ import cn from "classnames";
 import Offcanvas from "react-bootstrap/Offcanvas";
 import { tags } from "../processors";
 import { askBioMarkers } from "../service/askAI";
+import { createGist } from "../service/gist";
 import { useAtom, useAtomValue } from "jotai";
-import { visibleDataAtom, aiKeyAtom } from "../atom/dataAtom";
+import { visibleDataAtom, aiKeyAtom, gistTokenAtom } from "../atom/dataAtom";
 import { averageCountAtom } from "../atom/averageValueAtom";
 import Markdown from "react-markdown";
 
@@ -46,6 +47,7 @@ export default React.memo<Props>(
   }) => {
     const [averageCount, setAverageCount] = useAtom(averageCountAtom);
     const key = useAtomValue(aiKeyAtom);
+    const gistToken = useAtomValue(gistTokenAtom);
     const data = useAtomValue(visibleDataAtom);
     const [show, setShow] = React.useState(false);
     const onToggle = () => setShow((v) => !v);
@@ -86,8 +88,16 @@ export default React.memo<Props>(
     );
 
     const [canvasText, setCanvasText] = React.useState<string | null>(null);
+    const [gistUrl, setGistUrl] = React.useState<string | null>(null);
+    const [gistError, setGistError] = React.useState<string | null>(null);
+    const [isGistLoading, setIsGistLoading] = React.useState(false);
 
-    const handleClose = React.useCallback(() => setCanvasText(null), []);
+    const handleClose = React.useCallback(() => {
+      setCanvasText(null);
+      setGistUrl(null);
+      setGistError(null);
+      setIsGistLoading(false);
+    }, []);
 
     const onAverageCount = React.useCallback(
       (e: React.ChangeEvent<HTMLSelectElement>) =>
@@ -252,6 +262,44 @@ export default React.memo<Props>(
           </Offcanvas.Header>
           <Offcanvas.Body style={{ whiteSpace: "pre-wrap", fontSize: 14 }}>
             <Markdown>{canvasText}</Markdown>
+            <div className="mt-3">
+              <button
+                type="button"
+                className="btn btn-sm btn-primary px-4"
+                disabled={isGistLoading}
+                onClick={async () => {
+                  setIsGistLoading(true);
+                  setGistError(null);
+                  setGistUrl(null);
+                  if (!gistToken) {
+                    setGistError("Please provide a Gist token.");
+                    setIsGistLoading(false);
+                    return;
+                  }
+                  try {
+                    const url = await createGist(
+                      canvasText!,
+                      gistToken
+                    );
+                    setGistUrl(url);
+                  } catch (err: any) {
+                    setGistError(err.message);
+                  } finally {
+                    setIsGistLoading(false);
+                  }
+                }}
+              >
+                {isGistLoading ? "Saving..." : "Save to Gist"}
+              </button>
+              {gistUrl && (
+                <div className="mt-2">
+                  <a href={gistUrl} target="_blank" rel="noopener noreferrer">
+                    View Gist
+                  </a>
+                </div>
+              )}
+              {gistError && <div className="mt-2 text-danger">{gistError}</div>}
+            </div>
           </Offcanvas.Body>
         </Offcanvas>
       </nav>
