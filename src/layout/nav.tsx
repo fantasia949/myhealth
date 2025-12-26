@@ -5,7 +5,7 @@ import { tags } from "../processors";
 import { askBioMarkers } from "../service/askAI";
 import { createGist } from "../service/gist";
 import { useAtom, useAtomValue } from "jotai";
-import { visibleDataAtom, aiKeyAtom, gistTokenAtom } from "../atom/dataAtom";
+import { visibleDataAtom, aiKeyAtom, gistTokenAtom, aiModelAtom } from "../atom/dataAtom";
 import { averageCountAtom } from "../atom/averageValueAtom";
 import Markdown from "react-markdown";
 
@@ -47,6 +47,7 @@ export default React.memo<Props>(
   }) => {
     const [averageCount, setAverageCount] = useAtom(averageCountAtom);
     const key = useAtomValue(aiKeyAtom);
+    const model = useAtomValue(aiModelAtom);
     const gistToken = useAtomValue(gistTokenAtom);
     const data = useAtomValue(visibleDataAtom);
     const [show, setShow] = React.useState(false);
@@ -74,7 +75,7 @@ export default React.memo<Props>(
                 : undefined
             )
             .filter(Boolean);
-          const text = await askBioMarkers(pairs, key, filterTag, prevPairs);
+          const text = await askBioMarkers(pairs, key, model, filterTag, prevPairs);
           setCanvasText(text);
           // console.log(text);
         } catch (err) {

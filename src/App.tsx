@@ -12,6 +12,7 @@ import {
   filterTextAtom,
   tagAtom,
   aiKeyAtom,
+  aiModelAtom,
   gistTokenAtom,
   BioMarker,
 } from "./atom/dataAtom";
@@ -22,6 +23,7 @@ export default function App() {
   const [filterText, setFilterText] = useAtom(filterTextAtom);
   const [filterTag, setFilterTag] = useAtom(tagAtom);
   const [aiKey, setAiKey] = useAtom(aiKeyAtom);
+  const [aiModel, setAiModel] = useAtom(aiModelAtom);
   const [gistToken, setGistToken] = useAtom(gistTokenAtom);
   const [showOrigColumns, setShowOrigColumns] = React.useState<boolean>(false);
   const [showRecords, setShowRecords] = React.useState<number>(5);
@@ -53,6 +55,11 @@ export default function App() {
 
   const onAiKeyChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => setAiKey(e.target.value),
+    []
+  );
+
+  const onAiModelChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => setAiModel(e.target.value),
     []
   );
 
@@ -170,6 +177,18 @@ export default function App() {
       <Correlation target={corrlationKey} />
       {chartKeys?.length > 0 && chartType === 'scatter' && <ScatterChart data={data} keys={chartKeys} />}
       <Table {...tableProps} />
+      <select
+        className="field"
+        value={aiModel}
+        onChange={onAiModelChange}
+      >
+          <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+          <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+          <option value="gemini-3-flash">Gemini 3 Flash</option>
+          <option value="gemini-3-pro">Gemini 3 Pro</option>
+          <option value="gemini-3-flash-preview">Gemini 3 Flash Preview</option>
+          <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
+      </select>
       <input
         className="field"
         name="key"
