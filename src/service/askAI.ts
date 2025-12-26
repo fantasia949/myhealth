@@ -3,6 +3,7 @@ import { tagDescription } from "../processors/post/tag";
 export const askBioMarkers = async (
   pairs: string[],
   key: string | null,
+  model: string,
   tag: string | null,
   prevPairs: string[]
 ) => {
@@ -32,7 +33,7 @@ In month ago, the values were: ${prevPairs.join(",")}`;
 
   // gemini-3-pro-preview
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${key}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
     {
       method: "POST",
       body: JSON.stringify({
