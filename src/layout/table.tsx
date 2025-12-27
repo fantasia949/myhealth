@@ -17,6 +17,7 @@ import {
   ExpandedState,
 } from "@tanstack/react-table";
 import { averageCountAtom } from "../atom/averageValueAtom";
+import LineChart from "./LineChart";
 
 interface TableProps {
   showOrigColumns: boolean;
@@ -43,6 +44,10 @@ function getKeyFromTime(label: string) {
 
 const columns: ColumnDef<DisplayedEntry, any>[] = [
   columnHelper.accessor("selection" as any, {
+    header: "",
+  }),
+  columnHelper.display({
+    id: "expand",
     header: "",
   }),
   columnHelper.accessor("tag" as any, {
@@ -95,9 +100,14 @@ export default React.memo(
     const convertedEntries = useAtomValue(visibleDataAtom);
     const averageCountValue = useAtomValue(averageCountAtom);
     const notes = useAtomValue(notesAtom);
+    const [expandedRowId, setExpandedRowId] = React.useState<string | null>(null);
 
     const onCellClick = React.useCallback(async (e: React.MouseEvent<HTMLElement>) => {
       await navigator.clipboard.writeText((e.target as HTMLElement).textContent || "");
+    }, []);
+
+    const toggleExpand = React.useCallback((id: string) => {
+      setExpandedRowId((prev) => (prev === id ? null : id));
     }, []);
 
     const displayedEntries: DisplayedEntry[] = React.useMemo(() => {
@@ -233,70 +243,93 @@ export default React.memo(
                 }
 
                 const { name, values, unit, extra } = row.original;
+                const isExpanded = expandedRowId === row.id;
+
                 return (
-                  <tr key={row.id}>
-                    <td>
-                      <input
-                        type="checkbox"
-                        style={{ height: 20, width: 20 }}
-                        name={name}
-                        onChange={() => onSelect(name)}
-                        checked={selected.includes(name)}
-                      />
-                    </td>
-                    <th
-                      className="text-nowrap sticky-left"
-                      title={extra.description}
-                    >
-                      {name}
-                    </th>
-                    {(!showOrigColumns || !extra.hasOrigin) &&
-                      values
-                        .filter(
-                          (_, index) =>
-                            !showRecords || index >= labels.length - showRecords
-                        )
-                        .map((value, index, array) => (
-                          <td
-                            className={cn("text-end", {
-                              "v-bad": extra.isNotOptimal(value),
-                              "is-latest": index === array.length - 1,
-                            })}
-                            key={index}
-                            onClick={onCellClick}
-                          >
-                            {(unit as any)?.url ? (
-                              <a
-                                href={(unit as any).url}
-                                target="_blank"
-                                rel="noreferrer"
-                              >
-                                {value}
-                              </a>
-                            ) : (
-                              value
-                            )}
-                          </td>
+                  <React.Fragment key={row.id}>
+                    <tr>
+                      <td>
+                        <input
+                          type="checkbox"
+                          style={{ height: 20, width: 20 }}
+                          name={name}
+                          onChange={() => onSelect(name)}
+                          checked={selected.includes(name)}
+                        />
+                      </td>
+                      <td className="text-center align-middle">
+                        <span
+                          role="button"
+                          onClick={() => toggleExpand(row.id)}
+                          style={{ cursor: "pointer", fontSize: "1.2em" }}
+                          title="Toggle Chart"
+                        >
+                          {isExpanded ? "➖" : "📈"}
+                        </span>
+                      </td>
+                      <th
+                        className="text-nowrap sticky-left"
+                        title={extra.description}
+                      >
+                        {name}
+                      </th>
+                      {(!showOrigColumns || !extra.hasOrigin) &&
+                        values
+                          .filter(
+                            (_, index) =>
+                              !showRecords || index >= labels.length - showRecords
+                          )
+                          .map((value, index, array) => (
+                            <td
+                              className={cn("text-end", {
+                                "v-bad": extra.isNotOptimal(value),
+                                "is-latest": index === array.length - 1,
+                              })}
+                              key={index}
+                              onClick={onCellClick}
+                            >
+                              {(unit as any)?.url ? (
+                                <a
+                                  href={(unit as any).url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >
+                                  {value}
+                                </a>
+                              ) : (
+                                value
+                              )}
+                            </td>
+                          ))}
+                      <td>
+                        {averageCountValue
+                          ? extra.getSamples(+averageCountValue)
+                          .join(", ")
+                          : null}
+                      </td>
+                      {showOrigColumns &&
+                        extra.hasOrigin &&
+                        extra.originValues?.map((value: any, index: number) => (
+                          <td key={index}>{value}</td>
                         ))}
-                    <td>
-                      {averageCountValue
-                        ? extra.getSamples(+averageCountValue)
-                        .join(", ")
-                        : null}
-                    </td>
-                    {showOrigColumns &&
-                      extra.hasOrigin &&
-                      extra.originValues?.map((value: any, index: number) => (
-                        <td key={index}>{value}</td>
-                      ))}
-                    <td className="text-nowrap col-ref text-center">
-                      {extra.range as any}
-                    </td>
-                    <td className="col-ref">{unit as any}</td>
-                    {showOrigColumns && extra.hasOrigin && (
-                      <td className="col-ref">{extra.originUnit}</td>
+                      <td className="text-nowrap col-ref text-center">
+                        {extra.range as any}
+                      </td>
+                      <td className="col-ref">{unit as any}</td>
+                      {showOrigColumns && extra.hasOrigin && (
+                        <td className="col-ref">{extra.originUnit}</td>
+                      )}
+                    </tr>
+                    {isExpanded && (
+                      <tr className="table-secondary">
+                        <td colSpan={table.getVisibleLeafColumns().length}>
+                          <div className="p-3">
+                             <LineChart name={name} values={values} />
+                          </div>
+                        </td>
+                      </tr>
                     )}
-                  </tr>
+                  </React.Fragment>
                 );
               })}
           </tbody>
