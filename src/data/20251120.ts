@@ -76,5 +76,5 @@ export default {
     "cardio excersise + guava leaf + glycine + lipoic-acid postprandial lower glucose/hba1c/wbc?",
     "theanine, tmg does not higher liver enzymes",
   ],
-  plan: ["+lion-mane", "-cistanche", "+turkes"],
+  plan: ["+lion-mane", "+turkes"],
 };
