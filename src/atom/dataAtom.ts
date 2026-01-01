@@ -25,9 +25,17 @@ export const notesAtom = atom((get) =>
   get(sourceAtom).then(([_, notes]) => processTime(notes))
 );
 
-export const dataAtom = atom<BioMarker[]>((get) =>
-  get(unwrap(getBioMarkersAtom, () => []))
-);
+import { loadable } from "jotai/utils";
+
+const loadableBioMarkersAtom = loadable(getBioMarkersAtom);
+
+export const dataAtom = atom<BioMarker[]>((get) => {
+  const loadableBioMarkers = get(loadableBioMarkersAtom);
+  if (loadableBioMarkers.state === "hasData") {
+    return loadableBioMarkers.data;
+  }
+  return [];
+});
 
 export const filterTextAtom = atom("");
 export const tagAtom = atom<string | null>(null);
