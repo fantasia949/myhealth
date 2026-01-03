@@ -56,6 +56,7 @@ export default {
     "+fenugreek",
     "+HMB",
     "-theanine",
+    '-boron',
     "-solanum-trilobatum",
     "++cardio", // more cardio
     "-TMG",
