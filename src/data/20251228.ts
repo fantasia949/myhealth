@@ -55,6 +55,7 @@ export default {
   ],
   notes: [
     "+fenugreek",
+    '+boron',
     "+magnesium-glycinate",
     '~melatonin', // alcohol sublingual
     "~-cardio", // less cardio
