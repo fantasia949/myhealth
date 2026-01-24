@@ -10,7 +10,6 @@ import {
   createColumnHelper,
   flexRender,
   ColumnDef,
-  RowSelectionState,
   getGroupedRowModel,
   getExpandedRowModel,
   GroupingState,
@@ -182,14 +181,10 @@ export default React.memo(
       getRowId: (originalRow) => originalRow.name + originalRow.tag,
     });
 
-    // console.log(table.getRowModel());
-    // console.log(selected, rowSelection);
-    console.log(table.getFooterGroups());
-
     return (
       <React.Suspense fallback="Loading...">
-        <table className="table table-dark table-striped table-bordered table-sm table-hover">
-          <thead>
+        <table className="w-full text-sm text-left border-collapse bg-dark-table-row text-dark-text">
+          <thead className="sticky top-[39px] z-10 bg-dark-table-header">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
@@ -198,13 +193,12 @@ export default React.memo(
                     title={notes[(header.column.columnDef.meta as any)?.title as string]?.items?.join(
                       "\n"
                     )}
-                    className={cn({
-                      "text-end": (header.column.columnDef.meta as any)?.isRecord,
+                    className={cn("p-2 border border-gray-700 relative whitespace-nowrap", {
+                      "text-right": (header.column.columnDef.meta as any)?.isRecord,
                       "text-center": (header.column.columnDef.meta as any)?.align === "center",
                       "is-latest": (header.column.columnDef.meta as any)?.isLatest,
-                      "sticky-left": header.id === "name",
-                      "col-ref": (header.column.columnDef.meta as any)?.ref,
-                      "w-25": (header.column.columnDef.meta as any)?.placehoder,
+                      "sticky-left bg-dark-table-header": header.id === "name",
+                      "w-1/4": (header.column.columnDef.meta as any)?.placehoder,
                     })}
                   >
                     {flexRender(
@@ -222,8 +216,8 @@ export default React.memo(
               .rows.map((row) => {
                 if (row.getIsGrouped()) {
                   return (
-                    <tr key={row.id}>
-                      <td colSpan={columns.length}>
+                    <tr key={row.id} className="bg-dark-accent font-bold">
+                      <td colSpan={columns.length} className="p-2 border border-gray-700">
                         <button
                           {...{
                             onClick: row.getToggleExpandedHandler(),
@@ -233,6 +227,7 @@ export default React.memo(
                                 : "normal",
                             },
                           }}
+                          className="flex items-center gap-2 w-full text-left"
                         >
                           {row.getIsExpanded() ? "👇" : "👉"}{" "}
                           {row.original.displayTag} ({row.subRows.length})
@@ -247,28 +242,29 @@ export default React.memo(
 
                 return (
                   <React.Fragment key={row.id}>
-                    <tr>
-                      <td>
+                    <tr className="hover:bg-gray-700 odd:bg-dark-accent border-b border-gray-700">
+                      <td className="p-2 border border-gray-700 text-center">
                         <input
                           type="checkbox"
-                          style={{ height: 20, width: 20 }}
+                          className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
                           name={name}
                           onChange={() => onSelect(name)}
                           checked={selected.includes(name)}
                         />
                       </td>
-                      <td className="text-center align-middle">
+                      <td className="p-2 border border-gray-700 text-center align-middle">
                         <span
                           role="button"
                           onClick={() => toggleExpand(row.id)}
                           style={{ cursor: "pointer", fontSize: "1.2em" }}
                           title="Toggle Chart"
+                          className="block"
                         >
                           {isExpanded ? "➖" : "📈"}
                         </span>
                       </td>
                       <th
-                        className="text-nowrap sticky-left"
+                        className="p-2 border border-gray-700 whitespace-nowrap sticky-left bg-dark-table-row"
                         title={extra.description}
                       >
                         {name}
@@ -281,7 +277,7 @@ export default React.memo(
                           )
                           .map((value, index, array) => (
                             <td
-                              className={cn("text-end", {
+                              className={cn("p-2 border border-gray-700 text-right cursor-pointer", {
                                 "v-bad": extra.isNotOptimal(value),
                                 "is-latest": index === array.length - 1,
                               })}
@@ -293,6 +289,7 @@ export default React.memo(
                                   href={(unit as any).url}
                                   target="_blank"
                                   rel="noreferrer"
+                                  className="text-blue-400 hover:underline"
                                 >
                                   {value}
                                 </a>
@@ -301,7 +298,7 @@ export default React.memo(
                               )}
                             </td>
                           ))}
-                      <td>
+                      <td className="p-2 border border-gray-700">
                         {averageCountValue
                           ? extra.getSamples(+averageCountValue)
                           .join(", ")
@@ -310,19 +307,19 @@ export default React.memo(
                       {showOrigColumns &&
                         extra.hasOrigin &&
                         extra.originValues?.map((value: any, index: number) => (
-                          <td key={index}>{value}</td>
+                          <td key={index} className="p-2 border border-gray-700">{value}</td>
                         ))}
-                      <td className="text-nowrap col-ref text-center">
+                      <td className="p-2 border border-gray-700 whitespace-nowrap text-center">
                         {extra.range as any}
                       </td>
-                      <td className="col-ref">{unit as any}</td>
+                      <td className="p-2 border border-gray-700">{unit as any}</td>
                       {showOrigColumns && extra.hasOrigin && (
-                        <td className="col-ref">{extra.originUnit}</td>
+                        <td className="p-2 border border-gray-700">{extra.originUnit}</td>
                       )}
                     </tr>
                     {isExpanded && (
-                      <tr className="table-secondary">
-                        <td colSpan={table.getVisibleLeafColumns().length}>
+                      <tr className="bg-gray-800">
+                        <td colSpan={table.getVisibleLeafColumns().length} className="border border-gray-700">
                           <div className="p-3">
                              <LineChart name={name} values={values} />
                           </div>
@@ -342,10 +339,10 @@ export default React.memo(
                     title={notes[(header.column.columnDef.meta as any)?.title as string]?.supps?.join(
                       "\n"
                     )}
-                    className={cn("text-center", {
+                    className={cn("p-2 border border-gray-700 text-center relative", {
                       "is-latest": (header.column.columnDef.meta as any)?.isLatest,
-                      "sticky-left": header.id === "name",
-                      "w-25": (header.column.columnDef.meta as any)?.placehoder,
+                      "sticky-left bg-dark-table-row": header.id === "name",
+                      "w-1/4": (header.column.columnDef.meta as any)?.placehoder,
                     })}
                   >
                     {notes[(header.column.columnDef.meta as any)?.title as string]?.supps ? "?" : null}
