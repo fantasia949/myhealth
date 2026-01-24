@@ -277,7 +277,7 @@ export default React.memo(
                           )
                           .map((value, index, array) => (
                             <td
-                              className={cn("p-2 border border-gray-700 text-right cursor-pointer", {
+                              className={cn("p-2 border border-gray-700 text-right cursor-pointer relative", {
                                 "v-bad": extra.isNotOptimal(value),
                                 "is-latest": index === array.length - 1,
                               })}

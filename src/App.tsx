@@ -176,9 +176,9 @@ export default function App() {
       <Correlation target={corrlationKey} />
       {chartKeys?.length > 0 && chartType === 'scatter' && <ScatterChart data={data} keys={chartKeys} />}
       <Table {...tableProps} />
-      <div className="flex flex-col items-center gap-2 mt-4 pb-8">
+      <div className="flex flex-wrap justify-center gap-4 mt-4 pb-8">
         <select
-          className="w-full max-w-xs px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
+          className="px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
           value={aiModel}
           onChange={onAiModelChange}
         >
@@ -190,7 +190,7 @@ export default function App() {
           <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
         </select>
         <input
-          className="w-full max-w-xs px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
+          className="px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
           name="key"
           value={aiKey || ""}
           onChange={onAiKeyChange}
@@ -199,7 +199,7 @@ export default function App() {
           autoComplete="gemini-key"
         />
         <input
-          className="w-full max-w-xs px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
+          className="px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
           name="key"
           value={gistToken || ""}
           onChange={onGistTokenChange}
