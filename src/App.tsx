@@ -1,6 +1,5 @@
 import React from "react";
-import "bootstrap/dist/css/bootstrap.css";
-import "./styles.css";
+import "./index.css";
 import Nav from "./layout/nav";
 import Table from "./layout/table";
 import ScatterChart from "./layout/ScatterChart";
@@ -177,36 +176,38 @@ export default function App() {
       <Correlation target={corrlationKey} />
       {chartKeys?.length > 0 && chartType === 'scatter' && <ScatterChart data={data} keys={chartKeys} />}
       <Table {...tableProps} />
-      <select
-        className="field"
-        value={aiModel}
-        onChange={onAiModelChange}
-      >
+      <div className="flex flex-wrap justify-center gap-4 mt-4 pb-8">
+        <select
+          className="px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
+          value={aiModel}
+          onChange={onAiModelChange}
+        >
           <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
           <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
           <option value="gemini-3-flash">Gemini 3 Flash</option>
           <option value="gemini-3-pro">Gemini 3 Pro</option>
           <option value="gemini-3-flash-preview">Gemini 3 Flash Preview</option>
           <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
-      </select>
-      <input
-        className="field"
-        name="key"
-        value={aiKey || ""}
-        onChange={onAiKeyChange}
-        id="gemini-key"
-        placeholder="Gemini key"
-        autoComplete="gemini-key"
-      />
-      <input
-        className="field"
-        name="key"
-        value={gistToken || ""}
-        onChange={onGistTokenChange}
-        id="gist-token"
-        placeholder="Gist token"
-        autoComplete="gist-token"
-      />
+        </select>
+        <input
+          className="px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
+          name="key"
+          value={aiKey || ""}
+          onChange={onAiKeyChange}
+          id="gemini-key"
+          placeholder="Gemini key"
+          autoComplete="gemini-key"
+        />
+        <input
+          className="px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
+          name="key"
+          value={gistToken || ""}
+          onChange={onGistTokenChange}
+          id="gist-token"
+          placeholder="Gist token"
+          autoComplete="gist-token"
+        />
+      </div>
     </>
   );
 }
