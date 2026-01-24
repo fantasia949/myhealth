@@ -164,6 +164,7 @@ export default React.memo(
       enableRowSelection: true,
       onGroupingChange: setGrouping,
       onExpandedChange: setExpanded,
+      autoResetExpanded: false,
       groupedColumnMode: false,
       onRowSelectionChange: (updater) => {
         const newState = typeof updater === 'function' ? updater(rowSelection) : updater;
