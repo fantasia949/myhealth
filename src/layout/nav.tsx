@@ -52,6 +52,7 @@ export default React.memo<Props>(
     const gistToken = useAtomValue(gistTokenAtom);
     const data = useAtomValue(visibleDataAtom);
     const [show, setShow] = React.useState(false);
+    const [isAsking, setIsAsking] = React.useState(false);
     const onToggle = () => setShow((v) => !v);
 
     const onAskAI = React.useCallback(
@@ -59,7 +60,7 @@ export default React.memo<Props>(
         if (selected.length === 0) {
           return;
         }
-        (e.target as HTMLButtonElement).disabled = true;
+        setIsAsking(true);
 
         try {
           const pairs = data
@@ -82,7 +83,7 @@ export default React.memo<Props>(
           console.error(err);
           alert(err);
         } finally {
-          (e.target as HTMLButtonElement).disabled = false;
+          setIsAsking(false);
         }
       },
       [selected, data, filterTag, key]
@@ -121,6 +122,7 @@ export default React.memo<Props>(
               className="lg:hidden p-2 text-gray-400 hover:text-white focus:outline-none"
               type="button"
               onClick={onToggle}
+              aria-label="Toggle menu"
             >
               <Bars3Icon className="h-6 w-6" />
             </button>
@@ -132,6 +134,7 @@ export default React.memo<Props>(
                 autoFocus
                 className="w-full px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
                 placeholder="Search"
+                aria-label="Search biomarkers"
               />
             </div>
             <div className={cn("w-full lg:flex lg:w-auto lg:items-center", { hidden: !show, block: show })}>
@@ -141,6 +144,7 @@ export default React.memo<Props>(
                     <button
                       type="button"
                       data-tag={tag}
+                      aria-pressed={filterTag === tag}
                       className={cn("px-3 py-2 rounded transition-colors", {
                         "bg-blue-600 text-white": filterTag == tag,
                         "text-gray-300 hover:text-white hover:bg-gray-700": filterTag != tag,
@@ -204,10 +208,11 @@ export default React.memo<Props>(
               {selected.length > 0 && (
                 <button
                   type="button"
-                  className="px-4 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-500"
+                  className="px-4 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={onAskAI}
+                  disabled={isAsking}
                 >
-                  Ask AI
+                  {isAsking ? "Asking..." : "Ask AI"}
                 </button>
               )}
               {selected.map((item) => (
@@ -229,6 +234,7 @@ export default React.memo<Props>(
                   className="px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded"
                   value={averageCount.toString()}
                   onChange={onAverageCount}
+                  aria-label="Select average count"
                 >
                   <option value=""></option>
                   <option value="3">Average of last 3 tests</option>
@@ -242,6 +248,7 @@ export default React.memo<Props>(
                   className="px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded"
                   value={showRecords.toString()}
                   onChange={onShowRecordsChange}
+                  aria-label="Select number of records to show"
                 >
                   <option value="0">All</option>
                   <option value="3">Last 3 records</option>
@@ -257,6 +264,7 @@ export default React.memo<Props>(
                   checked={showOrigColumns}
                   onChange={onOriginValueToggle}
                   id="flexSwitchCheckDefault"
+                  aria-label="Origin values"
                 />
                 <label
                   className="text-sm cursor-pointer select-none"
@@ -300,7 +308,7 @@ export default React.memo<Props>(
                       className="flex justify-between items-center text-lg font-medium leading-6 mb-4"
                     >
                       <span>Biomarker</span>
-                      <button onClick={handleClose} className="text-gray-400 hover:text-white">
+                      <button onClick={handleClose} className="text-gray-400 hover:text-white" aria-label="Close dialog">
                         <XMarkIcon className="h-6 w-6" />
                       </button>
                     </Dialog.Title>
