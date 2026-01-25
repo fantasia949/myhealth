@@ -46,10 +46,10 @@ export default React.memo(({ target }: CorrelationProps) => {
     return entries;
   }, [data, target]);
   return !!entries ? (
-    <div style={{ width: 300 }} className="mx-auto">
-      <div>{target}</div>
+    <div style={{ width: 300 }} className="mx-auto text-dark-text">
+      <div className="font-bold mb-2 text-center">{target}</div>
       {entries.map((entry) => (
-        <div key={entry[0]} className="d-flex justify-content-between">
+        <div key={entry[0]} className="flex justify-between border-b border-gray-700 py-1">
           <span style={{ flexBasis: 120 }}>{entry[0]}</span>
           {/* <span>{entry[1].toFixed(4)}</span> */}
           <span>{entry[2].toFixed(6)}</span>

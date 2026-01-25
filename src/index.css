@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+  --color-dark-bg: #1a1a1a;
+  --color-dark-table-header: #2c2c2c;
+  --color-dark-table-row: #222222;
+  --color-dark-text: #f0f0f0;
+  --color-dark-accent: #3a3a3a;
+  --font-inter: "Inter", sans-serif;
+}
+
+:root {
+  font-size: 12px;
+  font-family: var(--font-inter);
+}
+
+body {
+  background-color: var(--color-dark-bg);
+  color: var(--color-dark-text);
+}
+
+/* Custom Utilities that mimic what was in styles.css */
+
+.sticky-left {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+
+.indicator {
+  width: 2px;
+  height: 100%;
+  border-right: 2px solid transparent;
+  position: absolute;
+  left: 0;
+}
+
+.indicator.--up {
+  border-color: var(--color-green-500);
+}
+
+.indicator.--down {
+  border-color: var(--color-red-500);
+}
+
+.v-bad {
+  background-color: color-mix(in srgb, var(--color-red-500) 40%, transparent);
+}
+
+.is-latest {
+  background-color: #000e;
+}
+.is-latest:nth-child(even) {
+  background-color: #0007;
+}
