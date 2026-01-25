@@ -118,24 +118,24 @@ export default React.memo<Props>(
       <>
         <nav className="flex flex-wrap items-center justify-between p-4 bg-dark-accent sticky top-0 left-0 z-20 gap-3">
           <div className="flex w-full flex-wrap items-center justify-between px-3 gap-3">
-            <button
-              className="lg:hidden p-2 text-gray-400 hover:text-white focus:outline-none"
-              type="button"
-              onClick={onToggle}
-              aria-label="Toggle menu"
-            >
-              <Bars3Icon className="h-6 w-6" />
-            </button>
-            <div className="w-full lg:w-auto lg:flex-none">
-              <input
-                type="search"
-                value={filterText}
-                onChange={onTextChange}
-                autoFocus
-                className="w-full px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
-                placeholder="Search"
-                aria-label="Search biomarkers"
-              />
+            <div className="flex w-full lg:w-auto items-center gap-2">
+              <button
+                className="lg:hidden p-2 text-gray-400 hover:text-white focus:outline-none"
+                type="button"
+                onClick={onToggle}
+              >
+                <Bars3Icon className="h-6 w-6" />
+              </button>
+              <div className="flex-1 lg:w-auto lg:flex-none">
+                <input
+                  type="search"
+                  value={filterText}
+                  onChange={onTextChange}
+                  autoFocus
+                  className="w-full px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
+                  placeholder="Search"
+                />
+              </div>
             </div>
             <div className={cn("w-full lg:flex lg:w-auto lg:items-center", { hidden: !show, block: show })}>
               <ul className="flex flex-col lg:flex-row gap-2 items-start lg:items-center list-none p-0 m-0">
@@ -144,7 +144,6 @@ export default React.memo<Props>(
                     <button
                       type="button"
                       data-tag={tag}
-                      aria-pressed={filterTag === tag}
                       className={cn("px-3 py-2 rounded transition-colors", {
                         "bg-blue-600 text-white": filterTag == tag,
                         "text-gray-300 hover:text-white hover:bg-gray-700": filterTag != tag,
@@ -208,11 +207,10 @@ export default React.memo<Props>(
               {selected.length > 0 && (
                 <button
                   type="button"
-                  className="px-4 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-500"
                   onClick={onAskAI}
-                  disabled={isAsking}
                 >
-                  {isAsking ? "Asking..." : "Ask AI"}
+                  Ask AI
                 </button>
               )}
               {selected.map((item) => (
@@ -234,7 +232,6 @@ export default React.memo<Props>(
                   className="px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded"
                   value={averageCount.toString()}
                   onChange={onAverageCount}
-                  aria-label="Select average count"
                 >
                   <option value=""></option>
                   <option value="3">Average of last 3 tests</option>
@@ -248,7 +245,6 @@ export default React.memo<Props>(
                   className="px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded"
                   value={showRecords.toString()}
                   onChange={onShowRecordsChange}
-                  aria-label="Select number of records to show"
                 >
                   <option value="0">All</option>
                   <option value="3">Last 3 records</option>
@@ -264,7 +260,6 @@ export default React.memo<Props>(
                   checked={showOrigColumns}
                   onChange={onOriginValueToggle}
                   id="flexSwitchCheckDefault"
-                  aria-label="Origin values"
                 />
                 <label
                   className="text-sm cursor-pointer select-none"
