@@ -52,6 +52,7 @@ export default React.memo<Props>(
     const gistToken = useAtomValue(gistTokenAtom);
     const data = useAtomValue(visibleDataAtom);
     const [show, setShow] = React.useState(false);
+    const [isAsking, setIsAsking] = React.useState(false);
     const onToggle = () => setShow((v) => !v);
 
     const onAskAI = React.useCallback(
@@ -59,7 +60,7 @@ export default React.memo<Props>(
         if (selected.length === 0) {
           return;
         }
-        (e.target as HTMLButtonElement).disabled = true;
+        setIsAsking(true);
 
         try {
           const pairs = data
@@ -82,7 +83,7 @@ export default React.memo<Props>(
           console.error(err);
           alert(err);
         } finally {
-          (e.target as HTMLButtonElement).disabled = false;
+          setIsAsking(false);
         }
       },
       [selected, data, filterTag, key]
@@ -302,7 +303,7 @@ export default React.memo<Props>(
                       className="flex justify-between items-center text-lg font-medium leading-6 mb-4"
                     >
                       <span>Biomarker</span>
-                      <button onClick={handleClose} className="text-gray-400 hover:text-white">
+                      <button onClick={handleClose} className="text-gray-400 hover:text-white" aria-label="Close dialog">
                         <XMarkIcon className="h-6 w-6" />
                       </button>
                     </Dialog.Title>
