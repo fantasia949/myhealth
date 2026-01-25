@@ -1,5 +1,6 @@
 import React from "react";
 import "./index.css";
+import DarkVeil from "./layout/DarkVeil";
 import Nav from "./layout/nav";
 import Table from "./layout/table";
 import ScatterChart from "./layout/ScatterChart";
@@ -168,6 +169,9 @@ export default function App() {
 
   return (
     <>
+      <div className="fixed inset-0 -z-10">
+        <DarkVeil />
+      </div>
       <Nav {...navProps} />
       <PValue
         comparedSourceTarget={comparedSourceTarget}
