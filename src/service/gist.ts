@@ -1,4 +1,7 @@
-export async function createGist(content: string, token: string): Promise<string> {
+export async function createGist(content: string, token: string, keys: string): Promise<string> {
+  const prefix = "biomarker"
+  const suffix = Date.now()
+  const fileName = `${prefix}_${keys}_${suffix}.md`
   const response = await fetch("https://api.github.com/gists/f0423911a4f974338132d2a160b6c638", {
     method: "PATCH",
     headers: {
@@ -11,7 +14,7 @@ export async function createGist(content: string, token: string): Promise<string
       description: "BioMarker AI Result",
       public: false,
       files: {
-        "biomarker.md": {
+        [fileName]: {
           content,
         },
       },
