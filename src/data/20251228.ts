@@ -55,16 +55,16 @@ export default {
   ],
   notes: [
     "+fenugreek",
-    '+boron',
+    "+boron",
     "+magnesium-glycinate",
-    '~melatonin', // alcohol sublingual
+    "~melatonin", // alcohol sublingual
     "~-cardio", // less cardio
   ],
   review: [
-    '25mg DHEA stablizes DHEA in optimal range',
-    'papaya leaf does nothing with platlets count',
-    'low eosinophil help lower hscrp?',
-    ''
+    "25mg DHEA stablizes DHEA in optimal range",
+    "papaya leaf does nothing with platlets count",
+    "low eosinophil help lower hscrp?",
+    "",
   ],
-  plan: ['+vitamin-c', '+tmg', '+theanine', "+magnesium-malate"],
+  plan: ["+vitamin-c", "+tmg", "+theanine", "+magnesium-malate"],
 };

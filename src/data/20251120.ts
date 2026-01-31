@@ -56,7 +56,7 @@ export default {
     "+fenugreek",
     "+HMB",
     "-theanine",
-    '-boron',
+    "-boron",
     "-solanum-trilobatum",
     "++cardio", // more cardio
     "-TMG",
@@ -64,6 +64,7 @@ export default {
     "+fish-oil",
     "+nac",
     "+DHEA",
+    "+creatine", // lunch
     "+Pregnenolone",
     "+lipoic-acid",
   ],

@@ -40,6 +40,8 @@ const recipes = [
   [
     "PhenoAge1",
     [
+      "eGFR-Cystatinc-c",
+      "Weight",
       "Albumin",
       "Creatinin",
       "Glucose",
@@ -50,7 +52,15 @@ const recipes = [
       "ALP",
       "WBC",
     ],
-    (...args) => getPhenotypicAge(...args, 37).toFixed(1),
+    (egfr, weight, ...args) => {
+      if (egfr && weight) {
+        const prev = args[1];
+        args[1] = estimateCreatinineFromGfr(egfr, 38, weight);
+        console.log(prev, args[1]);
+      }
+      return getPhenotypicAge(...args, 38).toFixed(1);
+    },
+    { allowsNull: true },
   ],
   [
     "PhenoAge2",
@@ -65,11 +75,25 @@ const recipes = [
       "ALP",
       "WBC",
     ],
-    (...args) => getPhenotypicAge2(...args, 37).toFixed(1),
+    (...args) => {
+      // console.log(args[3]);
+      // if (weight && egfr) {
+      //   args[3] = (((140 - 38) * weight) / (72 * egfr)).toFixed(2);
+      //   console.log(args[3]);
+      // }
+      return getPhenotypicAge(...args, 38).toFixed(1);
+    },
   ],
   ["VLDL", ["Triglyceride"], (triglyceride) => (triglyceride / 5).toFixed(0)],
   ["Age", [], (age) => age.toFixed(1)],
 ];
+
+function estimateCreatinineFromGfr(eGFR, age, weight, gender = "male") {
+  // Rearranged Cockcroft-Gault: SCr = ((140 - age) * weight * 0.85_if_female) / (72 * GFR)
+  const genderFactor = gender.toLowerCase() === "female" ? 0.85 : 1;
+  const creatinine = ((140 - age) * weight * genderFactor) / (72 * eGFR);
+  return parseFloat(creatinine.toFixed(2)); // Returns 2 decimal places
+}
 
 const getAge = (label) => {
   let year = "20" + label.slice(0, 2);
@@ -87,7 +111,7 @@ export default (entries) => {
         (field) => entries.find(([name]) => name === field)[1][i]
       );
 
-      if (fieldValues.some((v) => !v)) {
+      if (fieldValues.some((v) => !v) && !extra.allowsNull) {
         return null;
       }
       return func(...fieldValues, getAge(labels[i]));
