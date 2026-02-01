@@ -45,15 +45,26 @@ export const visibleDataAtom = atom((get) => {
   const filterText = get(filterTextAtom);
   const tag = get(tagAtom);
   if (data && (filterText || tag)) {
+    const lowerFilterText = filterText ? filterText.toLowerCase() : "";
+    const words = lowerFilterText.split(" ").filter(Boolean);
+    const hasFilterText = !!filterText;
+
     data = data.filter((entry) => {
       const matchedTag = !tag || entry[3]?.tag.includes(tag);
-      let matchedText = !filterText;
-      if (!matchedText) {
-        const words = filterText.toLowerCase().split(" ").filter(Boolean);
-        const title = entry[0].toLowerCase();
-        matchedText = words.some((word) => title.includes(word));
+      if (!matchedTag) {
+        return false;
       }
-      return matchedText && matchedTag;
+
+      if (!hasFilterText) {
+        return true;
+      }
+
+      if (words.length === 0) {
+        return false;
+      }
+
+      const title = entry[0].toLowerCase();
+      return words.some((word) => title.includes(word));
     });
   }
   return data;
