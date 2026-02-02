@@ -248,20 +248,22 @@ export default React.memo(
                           type="checkbox"
                           className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
                           name={name}
+                          aria-label={`Select ${name}`}
                           onChange={() => onSelect(name)}
                           checked={selected.includes(name)}
                         />
                       </td>
                       <td className="p-2 border border-gray-700 text-center align-middle">
-                        <span
-                          role="button"
+                        <button
+                          type="button"
                           onClick={() => toggleExpand(row.id)}
-                          style={{ cursor: "pointer", fontSize: "1.2em" }}
-                          title="Toggle Chart"
-                          className="block"
+                          className="block w-full text-lg hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                          title={isExpanded ? "Collapse Chart" : "Expand Chart"}
+                          aria-label={isExpanded ? "Collapse Chart" : "Expand Chart"}
+                          aria-expanded={isExpanded}
                         >
                           {isExpanded ? "➖" : "📈"}
-                        </span>
+                        </button>
                       </td>
                       <th
                         className="p-2 border border-gray-700 whitespace-nowrap sticky-left bg-dark-table-row"
