@@ -1,0 +1,1 @@
+## 2025-05-27 - Filter Loop Optimization\n**Learning:** `visibleDataAtom` contained redundant `string.split` and array creation inside the filter loop. Hoisting this calculation provided a ~3x speedup in a synthetic benchmark.\n**Action:** Always check `filter` callbacks for invariant calculations that can be hoisted, especially in Jotai derived atoms that run frequently.
