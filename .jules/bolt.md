@@ -1,3 +1,6 @@
+## 2024-05-23 - Missing Test Infrastructure
+**Learning:** The project lacks standard `test` scripts and Playwright browsers are not installed in the environment, making E2E verification difficult without setup overhead.
+**Action:** When working on this repo, assume tests need environment setup (installing browsers) or rely on `tsc` and manual verification for logic-only changes.
 ## 2024-05-22 - [Jotai Atom Filtering Optimization]
 **Learning:** Hoisting invariant calculations (like `string.split` and `toLowerCase`) outside of `filter` loops in Jotai atoms yields significant performance gains (~2.6x speedup). This is especially critical for atoms that derive state from large datasets on every keystroke.
 **Action:** Always inspect `filter` and `map` callbacks in atoms for invariant calculations that can be moved to the parent scope.
