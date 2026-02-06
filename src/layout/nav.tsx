@@ -53,6 +53,16 @@ export default React.memo<Props>(
     const data = useAtomValue(visibleDataAtom);
     const [show, setShow] = React.useState(false);
     const [isAsking, setIsAsking] = React.useState(false);
+    const [isScrolled, setIsScrolled] = React.useState(false);
+
+    React.useEffect(() => {
+      const handleScroll = () => {
+        setIsScrolled(window.scrollY > 10);
+      };
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
     const onToggle = () => setShow((v) => !v);
 
     const onAskAI = React.useCallback(
@@ -116,7 +126,15 @@ export default React.memo<Props>(
 
     return (
       <>
-        <nav className="flex flex-wrap items-center justify-between p-4 bg-dark-accent sticky top-0 left-0 z-20 gap-3">
+        <nav
+          className={cn(
+            "flex flex-wrap items-center justify-between p-4 sticky top-0 left-0 z-20 gap-3 transition-colors duration-300 ease-in-out",
+            {
+              "bg-dark-accent": !isScrolled,
+              "bg-dark-accent-solid": isScrolled,
+            }
+          )}
+        >
           <div className="flex w-full flex-wrap items-center justify-between px-3 gap-3">
             <button
               className="lg:hidden p-2 text-gray-400 hover:text-white focus:outline-none"
