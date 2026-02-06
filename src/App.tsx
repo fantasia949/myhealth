@@ -20,6 +20,7 @@ export default function App() {
   const data = useAtomValue(getBioMarkersAtom);
   const [selected, setSelect] = React.useState<string[]>([]);
   const [filterText, setFilterText] = useAtom(filterTextAtom);
+  const [searchText, setSearchText] = React.useState(filterText);
   const [filterTag, setFilterTag] = useAtom(tagAtom);
   const [aiKey, setAiKey] = useAtom(aiKeyAtom);
   const [aiModel, setAiModel] = useAtom(aiModelAtom);
@@ -34,9 +35,22 @@ export default function App() {
   const [corrlationKey, setCorrelationKey] = React.useState<string | null>(
     null
   );
+
+  React.useEffect(() => {
+    const handler = setTimeout(() => {
+      React.startTransition(() => {
+        setFilterText(searchText);
+      });
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchText, setFilterText]);
+
   const onTextChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) =>
-      React.startTransition(() => setFilterText(e.target.value)),
+      setSearchText(e.target.value),
     []
   );
 
@@ -70,6 +84,7 @@ export default function App() {
   const onFilterByTag = React.useCallback((e: React.MouseEvent<HTMLElement>) => {
     React.startTransition(() => {
       setFilterTag((e.target as HTMLElement).dataset.tag as string);
+      setSearchText("");
       setFilterText("");
       setCorrelationKey(null);
       setSelect([]);
@@ -146,7 +161,7 @@ export default function App() {
     onSelect,
     chartType,
     onChartTypeChange,
-    filterText,
+    filterText: searchText,
     filterTag,
     showOrigColumns,
     showRecords,
