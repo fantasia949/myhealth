@@ -258,9 +258,9 @@ export default React.memo(
                         <button
                           type="button"
                           onClick={() => toggleExpand(row.id)}
-                          className="block w-full text-lg hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
-                          title={isExpanded ? "Collapse Chart" : "Expand Chart"}
-                          aria-label={isExpanded ? "Collapse Chart" : "Expand Chart"}
+                          title="Toggle Chart"
+                          className="block w-full text-xl hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                          aria-label={isExpanded ? "Collapse chart" : "Expand chart"}
                           aria-expanded={isExpanded}
                         >
                           {isExpanded ? "➖" : "📈"}
