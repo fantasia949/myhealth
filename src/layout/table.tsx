@@ -251,6 +251,7 @@ export default React.memo(
                           aria-label={`Select ${name}`}
                           onChange={() => onSelect(name)}
                           checked={selected.includes(name)}
+                          aria-label={`Select ${name}`}
                         />
                       </td>
                       <td className="p-2 border border-gray-700 text-center align-middle">
