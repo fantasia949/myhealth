@@ -64,6 +64,13 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
         isRecord: true,
         isLatest: index === labels.length - 1,
         title: label,
+        className: (() => {
+          const dist = labels.length - 1 - index;
+          if (dist === 0) return "";
+          if (dist === 1) return "hidden sm:table-cell";
+          if (dist === 2) return "hidden md:table-cell";
+          return "hidden lg:table-cell";
+        })(),
       },
     })
   ),
@@ -71,6 +78,7 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
     header: "",
     meta: {
       placehoder: true,
+      className: "hidden lg:table-cell",
     },
   }),
   columnHelper.accessor("range" as any, {
@@ -78,18 +86,21 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
     meta: {
       ref: true,
       align: "center",
+      className: "hidden md:table-cell",
     },
   }),
   columnHelper.accessor("unit" as any, {
     header: "Unit",
     meta: {
       ref: true,
+      className: "hidden sm:table-cell",
     },
   }),
   columnHelper.accessor("origUnit" as any, {
     header: "Orig Unit",
     meta: {
       ref: true,
+      className: "hidden lg:table-cell",
     },
   }),
 ];
@@ -200,7 +211,7 @@ export default React.memo(
                       "is-latest": (header.column.columnDef.meta as any)?.isLatest,
                       "sticky-left bg-dark-table-header": header.id === "name",
                       "w-1/4": (header.column.columnDef.meta as any)?.placehoder,
-                    })}
+                    }, (header.column.columnDef.meta as any)?.className)}
                   >
                     {flexRender(
                       header.column.columnDef.header,
@@ -252,7 +263,7 @@ export default React.memo(
                           aria-label={`Select ${name}`}
                           onChange={() => onSelect(name)}
                           checked={selected.includes(name)}
-                          aria-label={`Select ${name}`}
+
                         />
                       </td>
                       <td className="p-2 border border-gray-700 text-center align-middle">
@@ -284,6 +295,9 @@ export default React.memo(
                               className={cn("p-2 border border-gray-700 text-right cursor-pointer relative", {
                                 "v-bad": extra.isNotOptimal(value),
                                 "is-latest": index === array.length - 1,
+                                "hidden sm:table-cell": array.length - 1 - index === 1,
+                                "hidden md:table-cell": array.length - 1 - index === 2,
+                                "hidden lg:table-cell": array.length - 1 - index > 2,
                               })}
                               key={index}
                               onClick={onCellClick}
@@ -302,7 +316,7 @@ export default React.memo(
                               )}
                             </td>
                           ))}
-                      <td className="p-2 border border-gray-700">
+                      <td className="p-2 border border-gray-700 hidden lg:table-cell">
                         {averageCountValue
                           ? extra.getSamples(+averageCountValue)
                           .join(", ")
@@ -313,12 +327,12 @@ export default React.memo(
                         extra.originValues?.map((value: any, index: number) => (
                           <td key={index} className="p-2 border border-gray-700">{value}</td>
                         ))}
-                      <td className="p-2 border border-gray-700 whitespace-nowrap text-center">
+                      <td className="p-2 border border-gray-700 whitespace-nowrap text-center hidden md:table-cell">
                         {extra.range as any}
                       </td>
-                      <td className="p-2 border border-gray-700">{unit as any}</td>
+                      <td className="p-2 border border-gray-700 hidden sm:table-cell">{unit as any}</td>
                       {showOrigColumns && extra.hasOrigin && (
-                        <td className="p-2 border border-gray-700">{extra.originUnit}</td>
+                        <td className="p-2 border border-gray-700 hidden lg:table-cell">{extra.originUnit}</td>
                       )}
                     </tr>
                     {isExpanded && (
@@ -347,7 +361,7 @@ export default React.memo(
                       "is-latest": (header.column.columnDef.meta as any)?.isLatest,
                       "sticky-left bg-dark-table-row": header.id === "name",
                       "w-1/4": (header.column.columnDef.meta as any)?.placehoder,
-                    })}
+                    }, (header.column.columnDef.meta as any)?.className)}
                   >
                     {notes[(header.column.columnDef.meta as any)?.title as string]?.supps ? "?" : null}
                   </th>
