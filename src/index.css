@@ -1,11 +1,12 @@
 @import "tailwindcss";
 
 @theme {
-  --color-dark-bg: #1a1a1a;
-  --color-dark-table-header: #2c2c2c;
-  --color-dark-table-row: #222222;
+  --color-dark-bg: transparent;
+  --color-dark-table-header: #2c2c2c80;
+  --color-dark-table-row: #22222280;
   --color-dark-text: #f0f0f0;
-  --color-dark-accent: #3a3a3a;
+  --color-dark-accent: #3a3a3a80;
+  --color-dark-accent-solid: #3a3a3a;
   --font-inter: "Inter", sans-serif;
 }
 
