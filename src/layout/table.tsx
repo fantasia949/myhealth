@@ -248,6 +248,7 @@ export default React.memo(
                           type="checkbox"
                           className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
                           name={name}
+                          aria-label={`Select ${name}`}
                           onChange={() => onSelect(name)}
                           checked={selected.includes(name)}
                           aria-label={`Select ${name}`}
@@ -257,9 +258,9 @@ export default React.memo(
                         <button
                           type="button"
                           onClick={() => toggleExpand(row.id)}
-                          title="Toggle Chart"
-                          className="block w-full text-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
-                          aria-label={`Toggle chart for ${name}`}
+                          className="block w-full text-lg hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                          title={isExpanded ? "Collapse Chart" : "Expand Chart"}
+                          aria-label={isExpanded ? "Collapse Chart" : "Expand Chart"}
                           aria-expanded={isExpanded}
                         >
                           {isExpanded ? "➖" : "📈"}

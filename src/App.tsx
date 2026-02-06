@@ -20,6 +20,7 @@ export default function App() {
   const data = useAtomValue(getBioMarkersAtom);
   const [selected, setSelect] = React.useState<string[]>([]);
   const [filterText, setFilterText] = useAtom(filterTextAtom);
+  const [searchText, setSearchText] = React.useState(filterText);
   const [filterTag, setFilterTag] = useAtom(tagAtom);
   const [aiKey, setAiKey] = useAtom(aiKeyAtom);
   const [aiModel, setAiModel] = useAtom(aiModelAtom);
@@ -34,9 +35,22 @@ export default function App() {
   const [corrlationKey, setCorrelationKey] = React.useState<string | null>(
     null
   );
+
+  React.useEffect(() => {
+    const handler = setTimeout(() => {
+      React.startTransition(() => {
+        setFilterText(searchText);
+      });
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchText, setFilterText]);
+
   const onTextChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) =>
-      React.startTransition(() => setFilterText(e.target.value)),
+      setSearchText(e.target.value),
     []
   );
 
@@ -70,6 +84,7 @@ export default function App() {
   const onFilterByTag = React.useCallback((e: React.MouseEvent<HTMLElement>) => {
     React.startTransition(() => {
       setFilterTag((e.target as HTMLElement).dataset.tag as string);
+      setSearchText("");
       setFilterText("");
       setCorrelationKey(null);
       setSelect([]);
@@ -146,7 +161,7 @@ export default function App() {
     onSelect,
     chartType,
     onChartTypeChange,
-    filterText,
+    filterText: searchText,
     filterTag,
     showOrigColumns,
     showRecords,
@@ -177,36 +192,52 @@ export default function App() {
       {chartKeys?.length > 0 && chartType === 'scatter' && <ScatterChart data={data} keys={chartKeys} />}
       <Table {...tableProps} />
       <div className="flex flex-wrap justify-center gap-4 mt-4 pb-8">
-        <select
-          className="px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
-          value={aiModel}
-          onChange={onAiModelChange}
-        >
-          <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
-          <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
-          <option value="gemini-3-flash">Gemini 3 Flash</option>
-          <option value="gemini-3-pro">Gemini 3 Pro</option>
-          <option value="gemini-3-flash-preview">Gemini 3 Flash Preview</option>
-          <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
-        </select>
-        <input
-          className="px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
-          name="key"
-          value={aiKey || ""}
-          onChange={onAiKeyChange}
-          id="gemini-key"
-          placeholder="Gemini key"
-          autoComplete="gemini-key"
-        />
-        <input
-          className="px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
-          name="key"
-          value={gistToken || ""}
-          onChange={onGistTokenChange}
-          id="gist-token"
-          placeholder="Gist token"
-          autoComplete="gist-token"
-        />
+        <div className="flex flex-col gap-1">
+          <label htmlFor="ai-model" className="text-xs text-gray-400 font-medium ml-1">
+            AI Model
+          </label>
+          <select
+            id="ai-model"
+            className="px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
+            value={aiModel}
+            onChange={onAiModelChange}
+          >
+            <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+            <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+            <option value="gemini-3-flash">Gemini 3 Flash</option>
+            <option value="gemini-3-pro">Gemini 3 Pro</option>
+            <option value="gemini-3-flash-preview">Gemini 3 Flash Preview</option>
+            <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
+          </select>
+        </div>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="gemini-key" className="text-xs text-gray-400 font-medium ml-1">
+            Gemini API Key
+          </label>
+          <input
+            className="px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
+            name="key"
+            value={aiKey || ""}
+            onChange={onAiKeyChange}
+            id="gemini-key"
+            placeholder="Gemini key"
+            autoComplete="gemini-key"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="gist-token" className="text-xs text-gray-400 font-medium ml-1">
+            Gist Token
+          </label>
+          <input
+            className="px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
+            name="gist_token"
+            value={gistToken || ""}
+            onChange={onGistTokenChange}
+            id="gist-token"
+            placeholder="Gist token"
+            autoComplete="gist-token"
+          />
+        </div>
       </div>
     </>
   );
