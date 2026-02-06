@@ -248,8 +248,10 @@ export default React.memo(
                           type="checkbox"
                           className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
                           name={name}
+                          aria-label={`Select ${name}`}
                           onChange={() => onSelect(name)}
                           checked={selected.includes(name)}
+                          aria-label={`Select ${name}`}
                         />
                       </td>
                       <td className="p-2 border border-gray-700 text-center align-middle">
