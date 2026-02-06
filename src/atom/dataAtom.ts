@@ -45,14 +45,17 @@ export const visibleDataAtom = atom((get) => {
   const filterText = get(filterTextAtom);
   const tag = get(tagAtom);
   if (data && (filterText || tag)) {
-    // Optimization: Hoist words calculation outside the loop
-    const words = filterText ? filterText.toLowerCase().split(" ").filter(Boolean) : [];
+    // Optimization: Pre-calculate filter words outside the loop
+    const filterWords = filterText
+      ? filterText.toLowerCase().split(" ").filter(Boolean)
+      : [];
+
     data = data.filter((entry) => {
       const matchedTag = !tag || entry[3]?.tag.includes(tag);
       let matchedText = !filterText;
       if (!matchedText) {
         const title = entry[0].toLowerCase();
-        matchedText = words.some((word) => title.includes(word));
+        matchedText = filterWords.some((word) => title.includes(word));
       }
       return matchedText && matchedTag;
     });
