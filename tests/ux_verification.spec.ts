@@ -52,3 +52,21 @@ test('data cells show copied feedback on click', async ({ context, page }) => {
   // Expect it to disappear after 1.5s
   await expect(feedback).not.toBeVisible({ timeout: 5000 });
 });
+
+test('search input has search icon', async ({ page }) => {
+  await page.goto('http://localhost:5173');
+
+  // Verify search input is present
+  const searchInput = page.getByRole('searchbox', { name: 'Search biomarkers' });
+  await expect(searchInput).toBeVisible();
+
+  // Verify it has padding-left (class pl-10)
+  // We can check if the class name contains pl-10
+  await expect(searchInput).toHaveClass(/pl-10/);
+
+  // Verify the icon is present (by looking for the svg with correct classes)
+  // The icon is inside the same container, so we can look for it nearby
+  // Or just check page for the specific svg
+  const icon = page.locator('div.relative svg.h-5.w-5');
+  await expect(icon).toBeVisible();
+});

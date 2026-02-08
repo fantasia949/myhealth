@@ -1,7 +1,7 @@
 import React, { Fragment } from "react";
 import cn from "classnames";
 import { Dialog, Transition } from "@headlessui/react";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, XMarkIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { tags } from "../processors";
 import { askBioMarkers } from "../service/askAI";
 import { createGist } from "../service/gist";
@@ -145,15 +145,20 @@ export default React.memo<Props>(
               <Bars3Icon className="h-6 w-6" />
             </button>
             <div className="w-full lg:w-auto lg:flex-none">
-              <input
-                type="search"
-                value={filterText}
-                onChange={onTextChange}
-                autoFocus
-                className="w-full px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
-                placeholder="Search"
-                aria-label="Search biomarkers"
-              />
+              <div className="relative text-gray-400 focus-within:text-gray-200">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <MagnifyingGlassIcon className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <input
+                  type="search"
+                  value={filterText}
+                  onChange={onTextChange}
+                  autoFocus
+                  className="w-full pl-10 px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500 placeholder-gray-500 focus:placeholder-gray-400"
+                  placeholder="Search"
+                  aria-label="Search biomarkers"
+                />
+              </div>
             </div>
             <div className={cn("w-full lg:flex lg:w-auto lg:items-center", { hidden: !show, block: show })}>
               <ul className="flex flex-col lg:flex-row gap-2 items-start lg:items-center list-none p-0 m-0">
