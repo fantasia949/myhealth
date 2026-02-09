@@ -7,3 +7,4 @@
 
   ➜  Local:   http://localhost:5173/
   ➜  Network: use --host to expose
+4:26:19 AM [vite] (client) hmr update /src/layout/nav.tsx, /src/index.css
