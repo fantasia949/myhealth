@@ -23,6 +23,13 @@ export const processBiomarkers = (entries: Array<Entry>): BioMarker[] => {
       entry[3].normalizedTitle = entry[0].toLowerCase();
       entry[3].sortTag =
         entry[3].tag.find((tag) => !unsortedTags.includes(tag)) || "";
+
+      // Optimization: Pre-calculate displayTag and sortKey to avoid repetitive calculations in render loop
+      entry[3].processedTags = entry[3].tag.map((tag) => {
+        const displayTag = tag.substring(tag.indexOf("-") + 1);
+        const sortKey = /^\d/.test(tag) ? `1_${tag}` : `2_${tag}`;
+        return { tag, displayTag, sortKey };
+      });
     }
   });
 
