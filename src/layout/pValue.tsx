@@ -53,13 +53,13 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
                   leaveFrom="translate-x-0"
                   leaveTo="translate-x-full"
                 >
-                  <Dialog.Panel className="w-full max-w-md transform overflow-hidden bg-dark-table-row text-dark-text p-6 text-left align-middle shadow-xl transition-all h-screen ml-auto border-l border-gray-700">
+                  <Dialog.Panel className="w-full max-w-md transform overflow-hidden bg-[#222222] text-dark-text p-6 text-left align-middle shadow-xl transition-all h-screen ml-auto border-l border-gray-700">
                     <Dialog.Title
                       as="div"
                       className="flex justify-between items-center text-lg font-medium leading-6 mb-4"
                     >
                       <span>P-Value</span>
-                      <button onClick={onClose} className="text-gray-400 hover:text-white">
+                      <button onClick={onClose} className="text-gray-400 hover:text-white" aria-label="Close dialog">
                         <XMarkIcon className="h-6 w-6" />
                       </button>
                     </Dialog.Title>
