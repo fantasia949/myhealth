@@ -16,20 +16,12 @@ export const processBiomarkers = (entries: Array<Entry>): BioMarker[] => {
   biomarkers = postProcess(biomarkers as any) as any;
   // console.log(output);
 
-  // Optimization: Pre-calculate normalized title to avoid repetitive toLowerCase() calls in filter loops
-  // Optimization: Pre-calculate sortTag to avoid repetitive filtering in sort comparator
-  biomarkers.forEach((entry) => {
-    if (entry[3]) {
-      entry[3].normalizedTitle = entry[0].toLowerCase();
-      entry[3].sortTag =
-        entry[3].tag.find((tag) => !unsortedTags.includes(tag)) || "";
-    }
-  });
-
   return biomarkers.sort((entry1, entry2) => {
-    const tag1 = entry1[3]?.sortTag ?? "";
-    const tag2 = entry2[3]?.sortTag ?? "";
-
+    const tag1 =
+      entry1[3]?.tag.filter((tag) => !unsortedTags.includes(tag))[0] ?? "";
+    const tag2 =
+      entry2[3]?.tag.filter((tag) => !unsortedTags.includes(tag))[0] ?? "";
+    // console.log(tag1, tag2, entry1[0], entry2[0], entry1[3].tag, entry2[3].tag);
     if (tag1 > tag2) {
       return 1;
     }
