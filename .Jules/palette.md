@@ -11,7 +11,3 @@
 ## 2025-05-21 - Form Accessibility Patterns
 **Learning:** Critical configuration inputs relied solely on placeholders, causing context loss when filled. Found duplicate `name` attributes in these ad-hoc forms, likely from copy-paste coding.
 **Action:** Enforce visible labels for all inputs using a vertical flex container pattern (`flex-col gap-1`) to maintain layout while improving usability. Always audit `name` and `id` attributes when cloning form fields.
-
-## 2026-02-15 - Data Integrity in DOM-based Actions
-**Learning:** Extracting data from `textContent` for actions like "Copy to Clipboard" is risky when the UI state changes (e.g., injecting a "Copied!" tooltip). This can lead to copying the tooltip text along with the data on rapid interactions.
-**Action:** Pass the raw data value to the event handler instead of relying on the DOM content, especially for interactive elements with dynamic children.

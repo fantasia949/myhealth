@@ -41,39 +41,6 @@ function getKeyFromTime(label: string) {
   return label.slice(0, 2) + "/" + label.slice(2, 4);
 }
 
-const DataCell = React.memo(({ className, onCellClick, children }: any) => {
-  const [copied, setCopied] = React.useState(false);
-
-  const handleInteraction = React.useCallback(async () => {
-      if (onCellClick) await onCellClick();
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-  }, [onCellClick]);
-
-  return (
-      <td
-          className={cn(className, "relative group focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm")}
-          onClick={handleInteraction}
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              handleInteraction();
-            }
-          }}
-          role="button"
-          aria-label={typeof children === 'string' || typeof children === 'number' ? `Copy ${children}` : 'Copy value'}
-      >
-           {children}
-          {copied && (
-               <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 text-xs text-white bg-blue-600 rounded shadow-lg z-50 animate-fade-in-out pointer-events-none whitespace-nowrap" aria-live="polite">
-                  Copied!
-               </span>
-          )}
-      </td>
-  )
-});
-
 const columns: ColumnDef<DisplayedEntry, any>[] = [
   columnHelper.accessor("selection" as any, {
     header: "",
@@ -99,10 +66,10 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
         title: label,
         className: (() => {
           const dist = labels.length - 1 - index;
-          if (dist === 0) return "";
-          if (dist === 1) return "hidden sm:table-cell";
-          if (dist === 2) return "hidden md:table-cell";
-          return "hidden lg:table-cell";
+          if (dist <= 1) return "";
+          if (dist === 2) return "hidden sm:table-cell";
+          if (dist <= 4) return "hidden md:table-cell";
+          if (dist > 4) return "hidden lg:table-cell";
         })(),
       },
     })
@@ -145,8 +112,8 @@ export default React.memo(
     const notes = useAtomValue(notesAtom);
     const [expandedRowId, setExpandedRowId] = React.useState<string | null>(null);
 
-    const onCellClick = React.useCallback(async (text: string) => {
-      await navigator.clipboard.writeText(text);
+    const onCellClick = React.useCallback(async (e: React.MouseEvent<HTMLElement>) => {
+      await navigator.clipboard.writeText((e.target as HTMLElement).textContent || "");
     }, []);
 
     const toggleExpand = React.useCallback((id: string) => {
@@ -324,16 +291,16 @@ export default React.memo(
                               !showRecords || index >= labels.length - showRecords
                           )
                           .map((value, index, array) => (
-                            <DataCell
-                              className={cn("p-2 border border-gray-700 text-right cursor-pointer", {
+                            <td
+                              className={cn("p-2 border border-gray-700 text-right cursor-pointer relative", {
                                 "v-bad": extra.isNotOptimal(value),
                                 "is-latest": index === array.length - 1,
-                                "hidden sm:table-cell": array.length - 1 - index === 1,
-                                "hidden md:table-cell": array.length - 1 - index === 2,
-                                "hidden lg:table-cell": array.length - 1 - index > 2,
+                                "hidden sm:table-cell": array.length - 1 - index === 2,
+                                "hidden md:table-cell": array.length - 1 - index <= 4 && array.length - 1 - index > 2,
+                                "hidden lg:table-cell": array.length - 1 - index > 4,
                               })}
                               key={index}
-                              onCellClick={() => onCellClick(value != null ? value.toString() : "")}
+                              onClick={onCellClick}
                             >
                               {(unit as any)?.url ? (
                                 <a
@@ -347,7 +314,7 @@ export default React.memo(
                               ) : (
                                 value
                               )}
-                            </DataCell>
+                            </td>
                           ))}
                       <td className="p-2 border border-gray-700 hidden lg:table-cell">
                         {averageCountValue

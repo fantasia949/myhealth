@@ -13,8 +13,6 @@ export type BioMarker = [string, number[], string, {
   isNotOptimal: (value: number) => boolean;
   getSamples: (num: number, count?: number) => string[];
   originUnit?: string;
-  normalizedTitle?: string;
-  sortTag?: string;
 }];
 
 const sourceAtom = atom(() => loadData());
@@ -65,8 +63,7 @@ export const visibleDataAtom = atom((get) => {
         return false;
       }
 
-      // Optimization: use pre-calculated lowercase title to avoid O(N) string allocation in filter loop
-      const title = entry[3]?.normalizedTitle || entry[0].toLowerCase();
+      const title = entry[0].toLowerCase();
       return words.some((word) => title.includes(word));
     });
   }

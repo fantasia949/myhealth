@@ -1,0 +1,14 @@
+
+> myhealth@1.0.0 dev /app
+> vite
+
+
+  VITE v7.1.12  ready in 394 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+1:47:33 AM [vite] (client) hmr update /src/layout/table.tsx, /src/index.css
+1:47:56 AM [vite] (client) hmr update /src/layout/table.tsx, /src/index.css
+1:48:17 AM [vite] (client) hmr update /src/layout/table.tsx, /src/index.css
+2:29:24 AM [vite] (client) hmr update /src/layout/table.tsx, /src/index.css
