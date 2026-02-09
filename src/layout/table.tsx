@@ -67,9 +67,9 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
         className: (() => {
           const dist = labels.length - 1 - index;
           if (dist === 0) return "";
-          if (dist === 1) return "hidden sm:table-cell";
-          if (dist === 2) return "hidden md:table-cell";
-          return "hidden lg:table-cell";
+          if (dist <= 2) return "hidden sm:table-cell";
+          if (dist <= 4) return "hidden md:table-cell";
+          if (dist > 4) return "hidden lg:table-cell";
         })(),
       },
     })
@@ -295,9 +295,9 @@ export default React.memo(
                               className={cn("p-2 border border-gray-700 text-right cursor-pointer relative", {
                                 "v-bad": extra.isNotOptimal(value),
                                 "is-latest": index === array.length - 1,
-                                "hidden sm:table-cell": array.length - 1 - index === 1,
-                                "hidden md:table-cell": array.length - 1 - index === 2,
-                                "hidden lg:table-cell": array.length - 1 - index > 2,
+                                "hidden sm:table-cell": array.length - 1 - index <= 2 && array.length - 1 - index > 0,
+                                "hidden md:table-cell": array.length - 1 - index <= 4 && array.length - 1 - index > 2,
+                                "hidden lg:table-cell": array.length - 1 - index > 4,
                               })}
                               key={index}
                               onClick={onCellClick}
