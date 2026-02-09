@@ -59,7 +59,7 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
                       className="flex justify-between items-center text-lg font-medium leading-6 mb-4"
                     >
                       <span>P-Value</span>
-                      <button onClick={onClose} className="text-gray-400 hover:text-white">
+                      <button onClick={onClose} className="text-gray-400 hover:text-white" aria-label="Close dialog">
                         <XMarkIcon className="h-6 w-6" />
                       </button>
                     </Dialog.Title>
