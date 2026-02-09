@@ -157,16 +157,42 @@ export default React.memo(
       return convertedEntries
         .filter(([_, values]) => !showRecords || (values && values.length > 0 && values[values.length - 1] !== null && values[values.length - 1] !== undefined))
         .flatMap(([name, values, unit, extra]) => {
+          // Optimization: use pre-calculated tags to avoid repetitive substring and regex in render loop
+          if (extra.processedTags && extra.processedTags.length > 0) {
+            return extra.processedTags.map(({ tag, displayTag, sortKey }) => ({
+              name,
+              values,
+              unit,
+              extra,
+              tag,
+              displayTag,
+              sortKey,
+            }));
+          }
+          // Fallback if processedTags is missing (e.g. inferred data not yet processed through main loop)
           if (extra.tag && extra.tag.length > 0) {
-            return extra.tag.map(tag => {
-              const displayTag = tag.substring(tag.indexOf('-') + 1);
+            return extra.tag.map((tag) => {
+              const displayTag = tag.substring(tag.indexOf("-") + 1);
               const sortKey = /^\d/.test(tag) ? `1_${tag}` : `2_${tag}`;
               return { name, values, unit, extra, tag, displayTag, sortKey };
             });
           }
-          return [{ name, values, unit, extra, tag: 'Uncategorized', displayTag: 'Uncategorized', sortKey: '3_Uncategorized' }];
+          return [
+            {
+              name,
+              values,
+              unit,
+              extra,
+              tag: "Uncategorized",
+              displayTag: "Uncategorized",
+              sortKey: "3_Uncategorized",
+            },
+          ];
         })
-        .sort((a, b) => a.sortKey.localeCompare(b.sortKey));
+        // Optimization: use standard comparison instead of localeCompare for ASCII keys
+        .sort((a, b) =>
+          a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0
+        );
     }, [convertedEntries, showRecords]);
 
     const columnState = React.useMemo(() => {
