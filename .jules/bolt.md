@@ -19,3 +19,6 @@
 ## 2025-05-27 - [Table Render Optimization]
 **Learning:** Moving derived data calculation (like `substring` and regex for tags) from `flatMap` in render loop to data processing step reduces render time significantly (~47%). Also, replacing `localeCompare` with standard operators for ASCII keys boosts sort performance.
 **Action:** Pre-calculate display properties during data loading/processing instead of inside React render loops or hooks.
+## 2025-05-27 - [React.memo Invalidation]
+**Learning:** `React.memo` on list items (like `DataCell` in `src/layout/table.tsx`) is ineffective if the parent component passes an inline arrow function (e.g., `onCellClick={() => ...}`) as a prop, as this creates a new function reference on every render.
+**Action:** Pass stable handlers (via `useCallback`) and primitive values to memoized components to ensure referential equality and prevent unnecessary re-renders.
