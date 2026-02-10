@@ -24,6 +24,32 @@ test('chart toggle button is accessible', async ({ page }) => {
   await expect(toggleButton).toHaveAttribute('aria-expanded', 'true');
 });
 
+test('group header toggle button is accessible', async ({ page }) => {
+  await page.goto('http://localhost:5173');
+
+  // Wait for table to load
+  await page.waitForSelector('table');
+
+  // Locate the first group header button
+  // It's inside a tr with specific classes and td
+  const groupButton = page.locator('tr.bg-dark-accent.font-bold button').first();
+
+  await expect(groupButton).toBeVisible();
+
+  // Check initial state (expanded by default)
+  await expect(groupButton).toHaveAttribute('aria-expanded', 'true');
+
+  // Click to collapse
+  await groupButton.click();
+
+  // Check collapsed state
+  await expect(groupButton).toHaveAttribute('aria-expanded', 'false');
+
+  // Click to expand again
+  await groupButton.click();
+  await expect(groupButton).toHaveAttribute('aria-expanded', 'true');
+});
+
 test('p-value dialog close button has aria-label', async ({ page }) => {
   await page.goto('http://localhost:5173/');
 
