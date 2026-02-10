@@ -41,14 +41,14 @@ function getKeyFromTime(label: string) {
   return label.slice(0, 2) + "/" + label.slice(2, 4);
 }
 
-const DataCell = React.memo(({ className, onCellClick, children }: any) => {
+const DataCell = React.memo(({ className, rawValue, onCopy, children }: any) => {
   const [copied, setCopied] = React.useState(false);
 
   const handleInteraction = React.useCallback(async () => {
-      if (onCellClick) await onCellClick();
+      if (onCopy) await onCopy(rawValue);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-  }, [onCellClick]);
+  }, [onCopy, rawValue]);
 
   return (
       <td
@@ -359,7 +359,8 @@ export default React.memo(
                                 "hidden lg:table-cell": array.length - 1 - index > 4,
                               })}
                               key={index}
-                              onCellClick={() => onCellClick(value != null ? value.toString() : "")}
+                              rawValue={value != null ? value.toString() : ""}
+                              onCopy={onCellClick}
                             >
                               {(unit as any)?.url ? (
                                 <a
