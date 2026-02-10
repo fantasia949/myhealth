@@ -15,6 +15,7 @@ import {
   GroupingState,
   ExpandedState,
 } from "@tanstack/react-table";
+import { ChevronRightIcon, ChevronDownIcon, ChartBarIcon, MinusIcon } from "@heroicons/react/24/outline";
 import { averageCountAtom } from "../atom/averageValueAtom";
 import LineChart from "./LineChart";
 
@@ -299,8 +300,13 @@ export default React.memo(
                             },
                           }}
                           className="flex items-center gap-2 w-full text-left"
+                          aria-expanded={row.getIsExpanded()}
                         >
-                          {row.getIsExpanded() ? "👇" : "👉"}{" "}
+                          {row.getIsExpanded() ? (
+                            <ChevronDownIcon className="h-4 w-4 text-gray-400" />
+                          ) : (
+                            <ChevronRightIcon className="h-4 w-4 text-gray-400" />
+                          )}
                           {row.original.displayTag} ({row.subRows.length})
                         </button>
                       </td>
@@ -330,11 +336,15 @@ export default React.memo(
                           type="button"
                           onClick={() => toggleExpand(row.id)}
                           title="Toggle Chart"
-                          className="block w-full text-xl hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                          className="block w-full hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded flex justify-center"
                           aria-label={isExpanded ? "Collapse chart" : "Expand chart"}
                           aria-expanded={isExpanded}
                         >
-                          {isExpanded ? "➖" : "📈"}
+                          {isExpanded ? (
+                            <MinusIcon className="h-5 w-5" />
+                          ) : (
+                            <ChartBarIcon className="h-5 w-5" />
+                          )}
                         </button>
                       </td>
                       <th
