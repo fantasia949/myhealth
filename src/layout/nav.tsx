@@ -119,7 +119,7 @@ export default React.memo<Props>(
 
     const onButtonClick = React.useCallback(
       (e: React.MouseEvent<HTMLButtonElement>) => {
-        onSelect((e.target as HTMLButtonElement).name);
+        onSelect(e.currentTarget.name);
       },
       [onSelect]
     );
@@ -252,9 +252,11 @@ export default React.memo<Props>(
                     name={item}
                     key={item}
                     onClick={onButtonClick}
-                    className="px-2 py-1 text-sm border border-yellow-500 text-yellow-500 rounded hover:bg-yellow-500 hover:text-black w-full lg:w-auto"
+                    className="flex items-center gap-1 px-2 py-1 text-sm border border-yellow-500 text-yellow-500 rounded hover:bg-yellow-500 hover:text-black w-full lg:w-auto transition-colors"
+                    aria-label={`Remove ${item} from selection`}
                   >
-                    {item}
+                    <span>{item}</span>
+                    <XMarkIcon className="h-4 w-4" aria-hidden="true" />
                   </button>
                 ))}
               </div>

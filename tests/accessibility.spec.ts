@@ -96,3 +96,39 @@ test('p-value dialog close button has aria-label', async ({ page }) => {
       throw new Error(`FAIL: aria-label is missing or incorrect. Found: "${ariaLabel}"`);
   }
 });
+
+test('selected item chips in nav are accessible and removable', async ({ page }) => {
+  await page.goto('http://localhost:5173');
+
+  // Wait for table to load
+  await page.waitForSelector('table');
+  await page.waitForSelector('tbody tr');
+
+  // Select the first checkbox
+  const firstCheckbox = page.locator('tbody tr input[type="checkbox"]').first();
+  const name = await firstCheckbox.getAttribute('name');
+  if (!name) throw new Error('Checkbox does not have a name attribute');
+
+  await firstCheckbox.click();
+
+  // Verify the chip appears in the nav
+  // The chip button has name={name}
+  const chip = page.locator(`nav button[name="${name}"]`);
+  await expect(chip).toBeVisible();
+
+  // Verify aria-label
+  await expect(chip).toHaveAttribute('aria-label', `Remove ${name} from selection`);
+
+  // Verify it contains the X icon (by class or SVG presence)
+  const icon = chip.locator('svg.h-4.w-4');
+  await expect(icon).toBeVisible();
+
+  // Click to remove
+  await chip.click();
+
+  // Verify chip is gone
+  await expect(chip).toBeHidden();
+
+  // Verify checkbox is unchecked
+  await expect(firstCheckbox).not.toBeChecked();
+});
