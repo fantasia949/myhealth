@@ -15,3 +15,7 @@
 ## 2026-02-15 - Data Integrity in DOM-based Actions
 **Learning:** Extracting data from `textContent` for actions like "Copy to Clipboard" is risky when the UI state changes (e.g., injecting a "Copied!" tooltip). This can lead to copying the tooltip text along with the data on rapid interactions.
 **Action:** Pass the raw data value to the event handler instead of relying on the DOM content, especially for interactive elements with dynamic children.
+
+## 2026-10-25 - Event Delegation on Buttons with Icons
+**Learning:** When adding icons (e.g., `<XMarkIcon />`) inside a `<button>` that relies on `e.target.name` for its handler, the `e.target` often becomes the SVG icon element (which has no name), breaking the handler. Using `e.currentTarget` ensures the event listener is always attached to the button itself.
+**Action:** When refactoring text-only buttons to include icons, always audit the `onClick` handler and switch `e.target` to `e.currentTarget` or pass the value directly via closure.
