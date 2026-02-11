@@ -9,7 +9,9 @@ if (container) {
 
   root.render(
     <React.StrictMode>
-      <App />
+      <React.Suspense fallback={null}>
+        <App />
+      </React.Suspense>
     </React.StrictMode>
   );
 } else {
