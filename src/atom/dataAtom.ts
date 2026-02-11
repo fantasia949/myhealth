@@ -53,7 +53,7 @@ export const visibleDataAtom = atom((get) => {
     const hasFilterText = !!filterText;
 
     data = data.filter((entry) => {
-      const matchedTag = !tag || entry[3]?.tag.includes(tag);
+      const matchedTag = !tag || entry[3].tag.includes(tag);
       if (!matchedTag) {
         return false;
       }
@@ -67,7 +67,7 @@ export const visibleDataAtom = atom((get) => {
       }
 
       // Optimization: use pre-calculated lowercase title to avoid O(N) string allocation in filter loop
-      const title = entry[3]?.normalizedTitle || entry[0].toLowerCase();
+      const title = entry[3].normalizedTitle!;
       return words.some((word) => title.includes(word));
     });
   }
