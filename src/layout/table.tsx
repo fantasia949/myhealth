@@ -334,10 +334,8 @@ export default React.memo(
                       </th>
                       {(!showOrigColumns || !extra.hasOrigin) &&
                         values
-                          .filter(
-                            (_, index) =>
-                              !showRecords || index >= labels.length - showRecords
-                          )
+                          // Optimization: use slice instead of filter for faster range extraction in render loop
+                          .slice(showRecords ? -showRecords : 0)
                           .map((value, index, array) => (
                             <DataCell
                               className={cn("p-2 border border-gray-700 text-right cursor-pointer", {
