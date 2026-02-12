@@ -22,3 +22,6 @@
 ## 2025-05-27 - [React.memo Invalidation]
 **Learning:** `React.memo` on list items (like `DataCell` in `src/layout/table.tsx`) is ineffective if the parent component passes an inline arrow function (e.g., `onCellClick={() => ...}`) as a prop, as this creates a new function reference on every render.
 **Action:** Pass stable handlers (via `useCallback`) and primitive values to memoized components to ensure referential equality and prevent unnecessary re-renders.
+## 2025-05-27 - [Render Loop Optimization: Slice vs Filter]
+**Learning:** In React render loops, using `Array.prototype.filter` with index logic to extract a range (e.g., last N items) allocates a new array and iterates all elements (O(N)). Replacing this with `Array.prototype.slice(-N)` (O(k)) is significantly faster and cleaner.
+**Action:** Inspect `map` and `filter` chains in render methods. If `filter` is only used for range extraction or slicing, replace it with `slice`.
