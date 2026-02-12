@@ -10,6 +10,13 @@ import { visibleDataAtom, aiKeyAtom, gistTokenAtom, aiModelAtom } from "../atom/
 import { averageCountAtom } from "../atom/averageValueAtom";
 import Markdown from "react-markdown";
 
+const Spinner = () => (
+  <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+  </svg>
+);
+
 type Props = {
   selected: string[];
   onSelect: (name: string) => void;
@@ -239,11 +246,12 @@ export default React.memo<Props>(
                 {selected.length > 0 && (
                   <button
                     type="button"
-                    className="px-4 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed w-full lg:w-auto"
+                    className="px-4 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed w-full lg:w-auto flex items-center justify-center gap-2"
                     onClick={onAskAI}
                     disabled={isAsking}
+                    aria-busy={isAsking}
                   >
-                    {isAsking ? "Asking..." : "Ask AI"}
+                    {isAsking ? <><Spinner /> Asking...</> : "Ask AI"}
                   </button>
                 )}
                 {selected.map((item) => (
@@ -353,8 +361,9 @@ export default React.memo<Props>(
                     <div className="mt-4">
                       <button
                         type="button"
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50"
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50 flex items-center justify-center gap-2"
                         disabled={isGistLoading}
+                        aria-busy={isGistLoading}
                         onClick={async () => {
                           setIsGistLoading(true);
                           setGistError(null);
@@ -378,7 +387,7 @@ export default React.memo<Props>(
                           }
                         }}
                       >
-                        {isGistLoading ? "Saving..." : "Save to Gist"}
+                        {isGistLoading ? <><Spinner /> Saving...</> : "Save to Gist"}
                       </button>
                       {gistUrl && (
                         <div className="mt-2">
