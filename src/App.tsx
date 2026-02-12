@@ -96,7 +96,6 @@ export default function App() {
 
   const onSelect = React.useCallback(
     (name: string) => {
-      // debugger;
       let values = selected;
 
       const value = name;
