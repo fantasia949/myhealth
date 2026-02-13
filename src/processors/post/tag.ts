@@ -1,0 +1,154 @@
+const tag: Record<string, string[]> = {
+  "1-RBC": ["RBC", "MCV", "MCH", "Hb", "MCHC", "HCT", "RDW-CV", "RDW-SD"],
+  "2-Metabolic": [
+    "Insulin",
+    "Glucose",
+    "HbA1c",
+    "HOMA-IR",
+    "HOMA1-IR",
+    "HOMA2-IR",
+    "HOMA-S(%S)",
+    "HOMA-B(%B)",
+    "Ketone",
+    "Uric",
+    "Weight",
+  ],
+  "3-Liver": [
+    "GGT",
+    "AST",
+    "ALP",
+    "ALT",
+    "HCV Ab",
+    "HBsAg",
+    "HBsAb định lượng",
+    "Bilirubin toàn phần",
+    "Bilirubin trực tiếp",
+    "Bilirubin gián tiếp",
+    "Albumin",
+    "Protein Total",
+  ],
+  "4-Lipid": [
+    "HDL",
+    "LDL",
+    "VLDL",
+    "Cholesterol",
+    "Triglyceride",
+    "TG / HDL",
+    "LDL / HDL",
+    "Triglyceride / HDL",
+    "Lipoprotein - APO-B",
+    "Total Cholesterol / HDL",
+  ],
+  "5-Hormone": [
+    "T3",
+    "TSH",
+    "FT3",
+    "FT4",
+    "Vitamin D Total",
+    "Testosterone",
+    "Cortisol",
+    "DHEA.SO4",
+    "SHBG",
+  ],
+  "6-Kidney": [
+    "Ure",
+    "Creatinin",
+    "eGFR",
+    "eGFR-Cystatinc-c",
+    "eGFR (Creatinin-Cystatin C máu)",
+    "BUN",
+    "Cystatin C",
+  ],
+  "7-Platelet": [
+    "PLT",
+    "MPV",
+    "PCT",
+    "PDW",
+    "% Các TB non lớn",
+    "SL TB non lớn",
+    "SL tiểu cầu KT lớn",
+    "Fibrinogen",
+    "INR",
+    "TG Quick",
+    "Tỷ lệ Prothrombin",
+    "P-LCR",
+    "P-LCC",
+  ],
+  "8-WBC": [
+    "WBC",
+    "% Neutrophil",
+    "% Lymphocyte",
+    "% Monocyte",
+    "% Eosinophil",
+    "% Basophil",
+    "% Lympho không điển hình",
+    "SL Neutrophil",
+    "SL Lymphocyte",
+    "SL Monocyte",
+    "SL Eosinophil",
+    "SL Basophil",
+    "SL Lympho không điển hình",
+    "Neutropil / Lymphocite",
+    "CRP-hs",
+    "NLR",
+    "IgM",
+    "IgG",
+  ],
+  "9-Mineral": [
+    "Magnesium",
+    "Calcium",
+    "Ferritin",
+    "Serum iron",
+    "Natri",
+    "Kali",
+    "Clo",
+    "Phosphat",
+    "Đồng",
+    "Kẽm",
+    "TIBC",
+  ],
+  "a-PhenoAge": [
+    "Albumin",
+    "Glucose",
+    "Creatinin",
+    "MCV",
+    "RDW-CV",
+    "CRP-hs",
+    "% Lymphocyte",
+    "WBC",
+    "ALP",
+    "Pheno age",
+    "PhenoAge1",
+    "PhenoAge2",
+    "Age",
+  ],
+};
+
+const taggedDic: Record<string, string[]> = Object.entries(tag).reduce((result, [tag, entries]) => {
+  entries.forEach((entry) => (result[entry] = [...(result[entry] || []), tag]));
+  return result;
+}, {} as Record<string, string[]>);
+
+export default ([name, values, unit, extra]: Entry): Entry => {
+  if (extra) {
+    extra.tag = taggedDic[name] || ["b-Others"];
+  }
+  return [name, values, unit, extra];
+};
+
+export const tagKeys = [...Object.keys(tag), "b-Others"];
+
+export const tagDescription: Record<string, string> = {
+  "1-Metabolic": "metabolic info",
+  "2-Lipid": "lipid info",
+  "3-Hormone": "hormone info",
+  "4-Liver": "liver info",
+  "5-Kidney": "kidney info",
+  "6-RBC": "red blood cell info",
+  "7-Platelet": "platelet info",
+  "8-WBC": "white blood cell info",
+  "9-Mineral": "mineral info",
+  "a-PhenoAge": "phenoage info",
+};
+
+export const unsortedTags = ["a-PhenoAge", "b-Others"];

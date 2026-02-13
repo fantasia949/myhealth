@@ -213,7 +213,7 @@ export default function App() {
         onClose={() => setSourceTarget(null)}
       />
       <Correlation target={corrlationKey} />
-      {chartKeys?.length > 0 && chartType === 'scatter' && <ScatterChart data={data} keys={chartKeys} />}
+      {chartKeys && chartKeys.length > 0 && chartType === 'scatter' && <ScatterChart data={data} keys={chartKeys} />}
       <Table {...tableProps} />
       <div className="flex flex-wrap justify-center gap-4 mt-4 pb-8">
         <div className="flex flex-col gap-1">
