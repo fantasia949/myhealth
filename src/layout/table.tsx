@@ -403,7 +403,7 @@ export default React.memo(
                   <th
                     key={header.id}
 
-                    className={cn("p-2 border border-gray-700 text-center relative", {
+                    className={cn("border border-gray-700 text-center relative p-0 h-full", {
                       "is-latest": (header.column.columnDef.meta as any)?.isLatest,
                       "sticky-left bg-dark-table-row": header.id === "name",
                       "w-1/4": (header.column.columnDef.meta as any)?.placehoder,

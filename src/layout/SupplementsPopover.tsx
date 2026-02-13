@@ -9,8 +9,8 @@ export default function SupplementsPopover({ supps }: Props) {
   if (!supps || supps.length === 0) return null;
 
   return (
-    <Popover className="relative inline-block">
-      <PopoverButton className="cursor-pointer hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 font-bold transition-colors">
+    <Popover className="w-full h-full flex justify-center items-center">
+      <PopoverButton className="w-full h-full cursor-pointer hover:bg-gray-800 hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded font-bold transition-colors flex justify-center items-center">
         ?
       </PopoverButton>
       <PopoverPanel
