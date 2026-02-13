@@ -1,3 +1,4 @@
+import SupplementsPopover from "./SupplementsPopover";
 import React from "react";
 import cn from "classnames";
 import { labels } from "../data";
@@ -401,16 +402,14 @@ export default React.memo(
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    title={notes[(header.column.columnDef.meta as any)?.title as string]?.supps?.join(
-                      "\n"
-                    )}
+
                     className={cn("p-2 border border-gray-700 text-center relative", {
                       "is-latest": (header.column.columnDef.meta as any)?.isLatest,
                       "sticky-left bg-dark-table-row": header.id === "name",
                       "w-1/4": (header.column.columnDef.meta as any)?.placehoder,
                     }, (header.column.columnDef.meta as any)?.className)}
                   >
-                    {notes[(header.column.columnDef.meta as any)?.title as string]?.supps ? "?" : null}
+                    {notes[(header.column.columnDef.meta as any)?.title as string]?.supps ? (<SupplementsPopover supps={notes[(header.column.columnDef.meta as any)?.title as string]?.supps!} />) : null}
                   </th>
                 ))}
               </tr>
