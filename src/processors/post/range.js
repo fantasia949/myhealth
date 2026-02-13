@@ -118,7 +118,15 @@ export default (entry, strict) => {
   let rangeValues = appliedRange[name];
   if (rangeValues) {
     const convert = converter[name];
+
+    // Optimization: Pre-calculate numeric bounds to avoid parsing inside the render loop
+    let min = rangeValues[0];
+    let max = rangeValues[1];
+
     if (extra.originUnit && convert) {
+      if (min !== MAX_VALUE) min = +convert(min).toFixed(2);
+      if (max !== MAX_VALUE) max = +convert(max).toFixed(2);
+
       rangeValues = rangeValues.map((x) =>
         x != MAX_VALUE ? convert(x).toFixed(2) : "-"
       );
@@ -130,8 +138,9 @@ export default (entry, strict) => {
       extra.range = rangeValues.join(" - ");
     }
     extra.isNotOptimal = (value) => {
-      const v = value && (value < +rangeValues[0] || value > +rangeValues[1]);
-      return v;
+      // Optimization: use pre-calculated numeric bounds
+      // This avoids +string parsing and array access in every cell render
+      return value && (value < min || value > max);
     };
   } else {
     extra.isNotOptimal = (value) => false;
