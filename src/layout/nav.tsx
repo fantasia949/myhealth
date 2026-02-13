@@ -93,7 +93,7 @@ export default React.memo<Props>(
                 ? `${key} ${values[values.length - 2]} ${unit || ""}`
                 : undefined
             )
-            .filter(Boolean);
+            .filter((item): item is string => !!item);
           const text = await askBioMarkers(pairs, key, model, filterTag, prevPairs);
           setCanvasText(text);
         } catch (err) {

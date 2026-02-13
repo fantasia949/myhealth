@@ -2,7 +2,7 @@ import { converter } from "../pre/convertUnit";
 
 const MAX_VALUE = 9999;
 
-const range = {
+const range: Record<string, number[]> = {
   Glucose: [3.9, 6.4],
   HbA1c: [4.2, 6.4],
   Uric: [202.3, 416.5],
@@ -91,7 +91,7 @@ const range = {
   "DHEA.SO4": [0.889, 4.27],
 };
 
-const strictRange = {
+const strictRange: Record<string, number[]> = {
   Glucose: [3.9, 4.7], // 70 - 85
   Uric: [210, 330], // 3.5 - 5.5
   Natri: [137, 142],
@@ -107,28 +107,27 @@ const strictRange = {
   // Testosterone: 500–900 ng/dL (
 };
 
-export default (entry, strict) => {
+export default (entry: Entry, strict?: boolean): Entry => {
   const [name, _values, _unit, extra] = entry;
-  let appliedRange = range;
+  let appliedRange = { ...range };
 
   if (strict) {
     appliedRange = { ...appliedRange, ...strictRange };
   }
 
-  let rangeValues = appliedRange[name];
-  if (rangeValues) {
+  let rangeValues: (number | string)[] = appliedRange[name];
+  if (rangeValues && extra) {
     const convert = converter[name];
 
-    // Optimization: Pre-calculate numeric bounds to avoid parsing inside the render loop
-    let min = rangeValues[0];
-    let max = rangeValues[1];
+    let min = rangeValues[0] as number;
+    let max = rangeValues[1] as number;
 
     if (extra.originUnit && convert) {
       if (min !== MAX_VALUE) min = +convert(min).toFixed(2);
       if (max !== MAX_VALUE) max = +convert(max).toFixed(2);
 
       rangeValues = rangeValues.map((x) =>
-        x != MAX_VALUE ? convert(x).toFixed(2) : "-"
+        x != MAX_VALUE ? convert(x as number).toFixed(2) : "-"
       );
     }
 
@@ -137,13 +136,14 @@ export default (entry, strict) => {
     } else {
       extra.range = rangeValues.join(" - ");
     }
-    extra.isNotOptimal = (value) => {
-      // Optimization: use pre-calculated numeric bounds
-      // This avoids +string parsing and array access in every cell render
-      return value && (value < min || value > max);
+
+    extra.isNotOptimal = (val: string | number | undefined) => {
+      if (val === undefined || val === null) return false;
+      const value = typeof val === 'string' ? parseFloat(val) : val;
+      return !isNaN(value) && (value < min || value > max);
     };
-  } else {
-    extra.isNotOptimal = (value) => false;
+  } else if (extra) {
+    extra.isNotOptimal = (value: any) => false;
   }
   return entry;
 };
