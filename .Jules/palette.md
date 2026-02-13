@@ -19,3 +19,7 @@
 ## 2026-10-25 - Event Delegation on Buttons with Icons
 **Learning:** When adding icons (e.g., `<XMarkIcon />`) inside a `<button>` that relies on `e.target.name` for its handler, the `e.target` often becomes the SVG icon element (which has no name), breaking the handler. Using `e.currentTarget` ensures the event listener is always attached to the button itself.
 **Action:** When refactoring text-only buttons to include icons, always audit the `onClick` handler and switch `e.target` to `e.currentTarget` or pass the value directly via closure.
+
+## 2026-11-05 - Privacy UX for Sensitive Inputs
+**Learning:** API keys displayed in plain text expose users to security risks during screen sharing. Implementing a password toggle pattern (`type="password"` with show/hide button) is a standard UX expectation that balances security with usability.
+**Action:** Identify sensitive inputs (keys, tokens) and wrap them in a password visibility toggle component by default.

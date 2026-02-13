@@ -16,6 +16,25 @@ import {
   gistTokenAtom,
   BioMarker,
 } from "./atom/dataAtom";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+
+const PasswordInput = React.memo(({ show, setShow, ...props }: any) => (
+  <div className="relative w-full">
+    <input
+      type={show ? "text" : "password"}
+      className="w-full px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500 pr-10"
+      {...props}
+    />
+    <button
+      type="button"
+      onClick={() => setShow(!show)}
+      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none"
+      aria-label={show ? "Hide password" : "Show password"}
+    >
+      {show ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+    </button>
+  </div>
+));
 
 export default function App() {
   const data = useAtomValue(getBioMarkersAtom);
@@ -36,6 +55,8 @@ export default function App() {
   const [corrlationKey, setCorrelationKey] = React.useState<string | null>(
     null
   );
+  const [showAiKey, setShowAiKey] = React.useState(false);
+  const [showGistToken, setShowGistToken] = React.useState(false);
 
   React.useEffect(() => {
     const handler = setTimeout(() => {
@@ -217,28 +238,30 @@ export default function App() {
           <label htmlFor="gemini-key" className="text-xs text-gray-400 font-medium ml-1">
             Gemini API Key
           </label>
-          <input
-            className="px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
+          <PasswordInput
             name="key"
             value={aiKey || ""}
             onChange={onAiKeyChange}
             id="gemini-key"
             placeholder="Gemini key"
             autoComplete="gemini-key"
+            show={showAiKey}
+            setShow={setShowAiKey}
           />
         </div>
         <div className="flex flex-col gap-1">
           <label htmlFor="gist-token" className="text-xs text-gray-400 font-medium ml-1">
             Gist Token
           </label>
-          <input
-            className="px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
+          <PasswordInput
             name="gist_token"
             value={gistToken || ""}
             onChange={onGistTokenChange}
             id="gist-token"
             placeholder="Gist token"
             autoComplete="gist-token"
+            show={showGistToken}
+            setShow={setShowGistToken}
           />
         </div>
       </div>
