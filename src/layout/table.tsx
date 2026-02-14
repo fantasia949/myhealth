@@ -334,13 +334,15 @@ export default React.memo(
                         {name}
                       </th>
                       {(!showOrigColumns || !extra.hasOrigin) &&
-                        values
-                          // Optimization: use slice instead of filter for faster range extraction in render loop
-                          .slice(showRecords ? -showRecords : 0)
-                          .map((value, index, array) => (
+                        (() => {
+                          const sliceArg = showRecords ? -showRecords : 0;
+                          const visibleValues = values.slice(sliceArg);
+                          const visibleOptimality = extra.optimality ? extra.optimality.slice(sliceArg) : null;
+
+                          return visibleValues.map((value, index, array) => (
                             <DataCell
                               className={cn("p-2 border border-gray-700 text-right cursor-pointer", {
-                                "v-bad": extra.isNotOptimal(value),
+                                "v-bad": visibleOptimality ? visibleOptimality[index] : extra.isNotOptimal(value),
                                 "is-latest": index === array.length - 1,
                                 "hidden sm:table-cell": array.length - 1 - index === 2,
                                 "hidden md:table-cell": array.length - 1 - index <= 4 && array.length - 1 - index > 2,
@@ -363,7 +365,8 @@ export default React.memo(
                                 value
                               )}
                             </DataCell>
-                          ))}
+                          ));
+                        })()}
                       <td className="p-2 border border-gray-700 hidden lg:table-cell">
                         {averageCountValue
                           ? extra.getSamples(+averageCountValue)

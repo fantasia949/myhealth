@@ -108,7 +108,7 @@ const strictRange: Record<string, number[]> = {
 };
 
 export default (entry: Entry, strict?: boolean): Entry => {
-  const [name, _values, _unit, extra] = entry;
+  const [name, values, _unit, extra] = entry;
   let appliedRange = { ...range };
 
   if (strict) {
@@ -142,8 +142,13 @@ export default (entry: Entry, strict?: boolean): Entry => {
       const value = typeof val === 'string' ? parseFloat(val) : val;
       return !isNaN(value) && (value < min || value > max);
     };
+
+    // Optimization: pre-calculate optimality to avoid repeated calculations in render loops
+    extra.optimality = values.map((val) => extra.isNotOptimal(val));
+
   } else if (extra) {
     extra.isNotOptimal = (value: any) => false;
+    extra.optimality = values.map(() => false);
   }
   return entry;
 };

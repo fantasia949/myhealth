@@ -25,6 +25,7 @@ type Entry = [
     isNotOptimal: () => boolean;
     description: string;
     getSamples?(testsPerSample: number): Array<string>;
+    optimality?: boolean[];
   }
 ];
 
