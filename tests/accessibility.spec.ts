@@ -132,3 +132,20 @@ test('selected item chips in nav are accessible and removable', async ({ page })
   // Verify checkbox is unchecked
   await expect(firstCheckbox).not.toBeChecked();
 });
+
+test('supplements popover button has accessible label', async ({ page }) => {
+  await page.goto('http://localhost:5173');
+
+  // Wait for table to load
+  await page.waitForSelector('table');
+
+  // Find the button with visible text "?"
+  // We use filter hasText to find the button element containing "?"
+  const popoverButton = page.locator('button').filter({ hasText: '?' }).first();
+
+  // Verify it's visible
+  await expect(popoverButton).toBeVisible();
+
+  // Verify it has the expected aria-label
+  await expect(popoverButton).toHaveAttribute('aria-label', 'View supplements');
+});
