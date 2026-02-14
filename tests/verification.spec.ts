@@ -6,8 +6,8 @@ test('take screenshot of chart', async ({ page }) => {
   // Wait for 5 seconds to allow the table to render
   await page.waitForTimeout(5000);
 
-  // Select the first biomarker
-  await page.locator('tbody tr:first-child input[type="checkbox"]').check();
+  // Select the first biomarker, skipping group headers
+  await page.locator('tbody tr input[type="checkbox"]').first().check();
 
   // Click the "Visualize" button
   await page.click('button:has-text("Visualize")');
