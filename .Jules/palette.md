@@ -23,3 +23,7 @@
 ## 2026-11-05 - Privacy UX for Sensitive Inputs
 **Learning:** API keys displayed in plain text expose users to security risks during screen sharing. Implementing a password toggle pattern (`type="password"` with show/hide button) is a standard UX expectation that balances security with usability.
 **Action:** Identify sensitive inputs (keys, tokens) and wrap them in a password visibility toggle component by default.
+
+## 2026-02-14 - Icon-only Button Accessibility
+**Learning:** Icon-only buttons (like `?`) are easily missed during manual accessibility audits because they look interactive. Automated tests asserting `aria-label` presence on specific selectors (like `button:has-text("?")`) reliably catch these omissions.
+**Action:** When creating icon-only buttons, always include an `aria-label` and verify it with a specific test case targeting that button.
