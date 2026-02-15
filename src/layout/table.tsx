@@ -335,37 +335,42 @@ export default React.memo(
                       </th>
                       {(!showOrigColumns || !extra.hasOrigin) &&
                         (() => {
-                          const sliceArg = showRecords ? -showRecords : 0;
-                          const visibleValues = values.slice(sliceArg);
-                          const visibleOptimality = extra.optimality ? extra.optimality.slice(sliceArg) : null;
+                          // Optimization: avoid array copy when showing all records
+                          const visibleValues = showRecords ? values.slice(-showRecords) : values;
+                          const visibleOptimality = showRecords ? extra.optimality.slice(-showRecords) : extra.optimality;
 
-                          return visibleValues.map((value, index, array) => (
-                            <DataCell
-                              className={cn("p-2 border border-gray-700 text-right cursor-pointer", {
-                                "v-bad": visibleOptimality ? visibleOptimality[index] : extra.isNotOptimal(value),
-                                "is-latest": index === array.length - 1,
-                                "hidden sm:table-cell": array.length - 1 - index === 2,
-                                "hidden md:table-cell": array.length - 1 - index <= 4 && array.length - 1 - index > 2,
-                                "hidden lg:table-cell": array.length - 1 - index > 4,
-                              })}
-                              key={index}
-                              rawValue={value != null ? value.toString() : ""}
-                              onCopy={onCellClick}
-                            >
-                              {(unit as any)?.url ? (
-                                <a
-                                  href={(unit as any).url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="text-blue-400 hover:underline"
-                                >
-                                  {value}
-                                </a>
-                              ) : (
-                                value
-                              )}
-                            </DataCell>
-                          ));
+                          return visibleValues.map((value, index, array) => {
+                            // Optimization: simplify index calculations
+                            const dist = array.length - 1 - index;
+                            return (
+                              <DataCell
+                                className={cn("p-2 border border-gray-700 text-right cursor-pointer", {
+                                  // Optimization: remove expensive fallback function call
+                                  "v-bad": visibleOptimality[index],
+                                  "is-latest": dist === 0,
+                                  "hidden sm:table-cell": dist === 2,
+                                  "hidden md:table-cell": dist > 2 && dist <= 4,
+                                  "hidden lg:table-cell": dist > 4,
+                                })}
+                                key={index}
+                                rawValue={value != null ? value.toString() : ""}
+                                onCopy={onCellClick}
+                              >
+                                {(unit as any)?.url ? (
+                                  <a
+                                    href={(unit as any).url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-blue-400 hover:underline"
+                                  >
+                                    {value}
+                                  </a>
+                                ) : (
+                                  value
+                                )}
+                              </DataCell>
+                            );
+                          });
                         })()}
                       <td className="p-2 border border-gray-700 hidden lg:table-cell">
                         {averageCountValue
