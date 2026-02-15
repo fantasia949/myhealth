@@ -16,7 +16,7 @@ export type BioMarker = [string, number[], string, {
   normalizedTitle?: string;
   sortTag?: string;
   processedTags?: { tag: string; displayTag: string; sortKey: string }[];
-  optimality?: boolean[];
+  optimality: boolean[];
 }];
 
 const sourceAtom = atom(() => loadData());
