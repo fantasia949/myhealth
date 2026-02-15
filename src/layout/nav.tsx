@@ -61,6 +61,7 @@ export default React.memo<Props>(
     const [show, setShow] = React.useState(false);
     const [isAsking, setIsAsking] = React.useState(false);
     const [isScrolled, setIsScrolled] = React.useState(false);
+    const searchInputRef = React.useRef<HTMLInputElement>(null);
 
     React.useEffect(() => {
       const handleScroll = () => {
@@ -157,14 +158,28 @@ export default React.memo<Props>(
                   <MagnifyingGlassIcon className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <input
+                  ref={searchInputRef}
                   type="search"
                   value={filterText}
                   onChange={onTextChange}
                   autoFocus
-                  className="w-full pl-10 px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500 placeholder-gray-500 focus:placeholder-gray-400"
+                  className="w-full pl-10 pr-10 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500 placeholder-gray-500 focus:placeholder-gray-400"
                   placeholder="Search"
                   aria-label="Search biomarkers"
                 />
+                {filterText && (
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white"
+                    onClick={() => {
+                      onTextChange({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
+                      searchInputRef.current?.focus();
+                    }}
+                    aria-label="Clear search"
+                  >
+                    <XMarkIcon className="h-5 w-5" aria-hidden="true" />
+                  </button>
+                )}
               </div>
             </div>
 
