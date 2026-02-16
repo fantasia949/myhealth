@@ -25,3 +25,7 @@
 ## 2025-05-27 - [Render Loop Optimization: Slice vs Filter]
 **Learning:** In React render loops, using `Array.prototype.filter` with index logic to extract a range (e.g., last N items) allocates a new array and iterates all elements (O(N)). Replacing this with `Array.prototype.slice(-N)` (O(k)) is significantly faster and cleaner.
 **Action:** Inspect `map` and `filter` chains in render methods. If `filter` is only used for range extraction or slicing, replace it with `slice`.
+
+## 2025-05-27 - [Render Loop Slicing Optimization]
+**Learning:** Slicing arrays (e.g., `values.slice(-N)`) inside a React render loop (specifically inside `map`) creates new array references on every render, defeating `React.memo` on child components and adding O(N) complexity.
+**Action:** Move slicing logic to `useMemo` or data processing steps to ensure referential stability and O(1) access in the render loop.

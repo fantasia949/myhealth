@@ -30,6 +30,8 @@ interface TableProps {
 type DisplayedEntry = {
   name: string;
   values: number[];
+  visibleValues: number[];
+  visibleOptimality: boolean[] | null;
   unit: string;
   extra: BioMarker[3];
   tag: string;
@@ -156,13 +158,25 @@ export default React.memo(
     }, []);
 
     const displayedEntries: DisplayedEntry[] = React.useMemo(() => {
+      // Optimization: Pre-calculate visible values/optimality to avoid slicing in the render loop.
+      // This reduces render complexity from O(rows * cols) to O(rows), and keeps array references stable
+      // when showRecords doesn't change, allowing React.memo to work effectively on cells.
       return convertedEntries
         .filter(([_, values]) => !showRecords || (values && values.length > 0 && values[values.length - 1] !== null && values[values.length - 1] !== undefined))
         .flatMap(([name, values, unit, extra]) => {
+          const sliceArg = showRecords ? -showRecords : 0;
+          // Use original array if showing all records to avoid copy overhead
+          const visibleValues = showRecords ? values.slice(sliceArg) : values;
+          const visibleOptimality = extra.optimality
+            ? (showRecords ? extra.optimality.slice(sliceArg) : extra.optimality)
+            : null;
+
           // Optimization: use pre-calculated tags to avoid repetitive substring and regex in render loop
           return extra.processedTags!.map(({ tag, displayTag, sortKey }) => ({
             name,
             values,
+            visibleValues,
+            visibleOptimality,
             unit,
             extra,
             tag,
@@ -294,7 +308,7 @@ export default React.memo(
                   );
                 }
 
-                const { name, values, unit, extra } = row.original;
+                const { name, values, visibleValues, visibleOptimality, unit, extra } = row.original;
                 const isExpanded = expandedRowId === row.id;
 
                 return (
@@ -334,12 +348,7 @@ export default React.memo(
                         {name}
                       </th>
                       {(!showOrigColumns || !extra.hasOrigin) &&
-                        (() => {
-                          const sliceArg = showRecords ? -showRecords : 0;
-                          const visibleValues = values.slice(sliceArg);
-                          const visibleOptimality = extra.optimality ? extra.optimality.slice(sliceArg) : null;
-
-                          return visibleValues.map((value, index, array) => (
+                          visibleValues.map((value, index, array) => (
                             <DataCell
                               className={cn("p-2 border border-gray-700 text-right cursor-pointer", {
                                 "v-bad": visibleOptimality ? visibleOptimality[index] : extra.isNotOptimal(value),
@@ -365,8 +374,8 @@ export default React.memo(
                                 value
                               )}
                             </DataCell>
-                          ));
-                        })()}
+                          ))
+                      }
                       <td className="p-2 border border-gray-700 hidden lg:table-cell">
                         {averageCountValue
                           ? extra.getSamples(+averageCountValue)
