@@ -67,6 +67,7 @@ test('search input has search icon', async ({ page }) => {
   // Verify the icon is present (by looking for the svg with correct classes)
   // The icon is inside the same container, so we can look for it nearby
   // Or just check page for the specific svg
-  const icon = page.locator('div.relative svg.h-5.w-5');
+  const searchContainer = page.locator('div.relative:has(input[type="search"])');
+  const icon = searchContainer.locator('svg.h-5.w-5').first();
   await expect(icon).toBeVisible();
 });
