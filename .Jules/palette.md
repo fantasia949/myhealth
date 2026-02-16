@@ -27,3 +27,7 @@
 ## 2026-02-14 - Icon-only Button Accessibility
 **Learning:** Icon-only buttons (like `?`) are easily missed during manual accessibility audits because they look interactive. Automated tests asserting `aria-label` presence on specific selectors (like `button:has-text("?")`) reliably catch these omissions.
 **Action:** When creating icon-only buttons, always include an `aria-label` and verify it with a specific test case targeting that button.
+
+## 2026-03-01 - Empty State Handling in Data Tables
+**Learning:** Data tables using virtualization or headless libraries (like `@tanstack/react-table`) often render nothing when filters match no data, leaving users confused. Explicitly checking `table.getRowModel().rows.length === 0` and rendering a full-width row (`colSpan={table.getVisibleLeafColumns().length}`) provides immediate, helpful feedback.
+**Action:** Always implement an explicit "No records found" empty state for tables, ensuring the message spans all visible columns.
