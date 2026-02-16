@@ -263,9 +263,14 @@ export default React.memo(
             ))}
           </thead>
           <tbody>
-            {table
-              .getRowModel()
-              .rows.map((row) => {
+            {table.getRowModel().rows.length === 0 ? (
+              <tr>
+                <td colSpan={table.getVisibleLeafColumns().length} className="p-8 text-center text-gray-400">
+                  No records found
+                </td>
+              </tr>
+            ) : (
+              table.getRowModel().rows.map((row) => {
                 if (row.getIsGrouped()) {
                   return (
                     <tr key={row.id} className="bg-dark-accent font-bold">
@@ -397,7 +402,7 @@ export default React.memo(
                     )}
                   </React.Fragment>
                 );
-              })}
+              }))}
           </tbody>
           <tfoot>
             {table.getFooterGroups().map((headerGroup) => (
