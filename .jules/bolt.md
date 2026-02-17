@@ -29,3 +29,7 @@
 ## 2025-05-27 - [Render Loop Slicing Optimization]
 **Learning:** Slicing arrays (e.g., `values.slice(-N)`) inside a React render loop (specifically inside `map`) creates new array references on every render, defeating `React.memo` on child components and adding O(N) complexity.
 **Action:** Move slicing logic to `useMemo` or data processing steps to ensure referential stability and O(1) access in the render loop.
+
+## 2025-05-27 - [Redundant Render Loop Calculations]
+**Learning:** Re-calculating derived data (like array slicing) inside a component's render loop (specifically inside an IIFE or map callback) shadows pre-calculated values and defeats memoization optimizations. Always check for variable shadowing in complex render logic.
+**Action:** Remove redundant calculations in render loops and prefer using pre-calculated values from `useMemo` hooks or props.
