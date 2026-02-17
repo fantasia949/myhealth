@@ -177,11 +177,19 @@ export default function App() {
     setChartType(type);
   }, []);
 
+  const onClearSelection = React.useCallback(() => {
+    setSelect([]);
+    setChartKeys(null);
+    setSourceTarget(null);
+    setCorrelationKey(null);
+  }, []);
+
   const navProps = {
     selected,
     onSelect,
     chartType,
     onChartTypeChange,
+    onClearSelection,
     filterText: searchText,
     filterTag,
     showOrigColumns,

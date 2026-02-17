@@ -31,3 +31,11 @@
 ## 2026-03-01 - Empty State Handling in Data Tables
 **Learning:** Data tables using virtualization or headless libraries (like `@tanstack/react-table`) often render nothing when filters match no data, leaving users confused. Explicitly checking `table.getRowModel().rows.length === 0` and rendering a full-width row (`colSpan={table.getVisibleLeafColumns().length}`) provides immediate, helpful feedback.
 **Action:** Always implement an explicit "No records found" empty state for tables, ensuring the message spans all visible columns.
+
+## 2026-10-25 - Bulk Action Visibility
+**Learning:** When users can select multiple items (e.g., checkboxes), providing a single "Clear All" action that appears conditionally (when > 1 item selected) significantly reduces friction compared to deselecting items individually. This pattern works well in the filter bar alongside individual item tags.
+**Action:** Implement "Clear All" buttons for any multi-select filter or list interfaces, ensuring they are keyboard accessible and have clear aria-labels.
+
+## 2026-10-25 - Scoping Checkbox Locators in Tests
+**Learning:** Generic locators like `input[type="checkbox"]` often match unexpected elements (like navigation toggles) in this layout.
+**Action:** Always scope checkbox locators to their container (e.g., `table input[type="checkbox"]`) to avoid false positives in tests.

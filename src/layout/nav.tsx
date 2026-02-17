@@ -1,7 +1,7 @@
 import React, { Fragment } from "react";
 import cn from "classnames";
 import { Dialog, Transition } from "@headlessui/react";
-import { Bars3Icon, XMarkIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, XMarkIcon, MagnifyingGlassIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { tags } from "../processors";
 import { askBioMarkers } from "../service/askAI";
 import { createGist } from "../service/gist";
@@ -22,6 +22,7 @@ type Props = {
   onSelect: (name: string) => void;
   chartType: string;
   onChartTypeChange: (type: string) => void;
+  onClearSelection: () => void;
   filterText: string;
   filterTag: string | null;
   showOrigColumns: boolean;
@@ -41,6 +42,7 @@ export default React.memo<Props>(
     onSelect,
     chartType,
     onChartTypeChange,
+    onClearSelection,
     filterText,
     filterTag,
     showOrigColumns,
@@ -226,6 +228,7 @@ export default React.memo<Props>(
                     className="px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded w-full lg:w-auto"
                     value={chartType}
                     onChange={(e) => onChartTypeChange(e.target.value)}
+                    aria-label="Select chart type"
                   >
                     <option value="scatter">Scatter Chart</option>
                   </select>
@@ -282,6 +285,17 @@ export default React.memo<Props>(
                     <XMarkIcon className="h-4 w-4" aria-hidden="true" />
                   </button>
                 ))}
+                {selected.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={onClearSelection}
+                    className="flex items-center gap-1 px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-500 w-full lg:w-auto transition-colors"
+                    aria-label="Clear all selected items"
+                  >
+                    <TrashIcon className="h-4 w-4" aria-hidden="true" />
+                    <span>Clear All</span>
+                  </button>
+                )}
               </div>
 
               <div className="contents lg:flex lg:ml-auto lg:flex-row lg:gap-4 lg:items-center">
