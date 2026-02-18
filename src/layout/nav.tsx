@@ -13,10 +13,12 @@ import { createGist } from "../service/gist";
 import { useAtom, useAtomValue } from "jotai";
 import {
   visibleDataAtom,
+  dataAtom,
   aiKeyAtom,
   gistTokenAtom,
   aiModelAtom,
 } from "../atom/dataAtom";
+import { calculateSpearman } from "../processors/stats";
 import { averageCountAtom } from "../atom/averageValueAtom";
 import Markdown from "react-markdown";
 
@@ -86,6 +88,7 @@ export default React.memo<Props>(
     const model = useAtomValue(aiModelAtom);
     const gistToken = useAtomValue(gistTokenAtom);
     const data = useAtomValue(visibleDataAtom);
+    const fullData = useAtomValue(dataAtom);
     const [show, setShow] = React.useState(false);
     const [isAsking, setIsAsking] = React.useState(false);
     const [isScrolled, setIsScrolled] = React.useState(false);
@@ -123,12 +126,54 @@ export default React.memo<Props>(
                 : undefined
             )
             .filter((item): item is string => !!item);
+          const relatedContext = (() => {
+            if (!fullData || fullData.length === 0) return undefined;
+
+            const selectedEntries = fullData.filter((d) =>
+              selected.includes(d[0])
+            );
+            const candidates = fullData.filter(
+              (d) => !d[3].inferred && !selected.includes(d[0])
+            );
+            const related = new Map<string, string>();
+
+            for (const source of selectedEntries) {
+              const sourceValues = source[1].map((v) => (v ? +v : 0));
+              for (const target of candidates) {
+                if (related.has(target[0])) continue;
+
+                const targetValues = target[1].map((v) => (v ? +v : 0));
+                const res = calculateSpearman(sourceValues, targetValues, {
+                  alpha: 0.05,
+                  alternative: "two-sided",
+                });
+
+                if (res.pValue <= 0.05 && Math.abs(res.statistic) >= 0.4) {
+                  const val = target[1][target[1].length - 1];
+                  const unit = target[2] || "";
+                  related.set(
+                    target[0],
+                    `- ${target[0]}: ${val} ${unit} (Correlation: ${res.statistic.toFixed(
+                      2
+                    )}, P-Value: ${res.pValue.toFixed(4)})`
+                  );
+                }
+              }
+            }
+            if (related.size === 0) return undefined;
+            return (
+              "Related Biomarkers (Significant Correlations):\n" +
+              Array.from(related.values()).join("\n")
+            );
+          })();
+
           const text = await askBioMarkers(
             pairs,
             key,
             model,
             filterTag,
-            prevPairs
+            prevPairs,
+            relatedContext
           );
           setCanvasText(text);
         } catch (err) {
