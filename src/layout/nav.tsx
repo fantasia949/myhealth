@@ -177,7 +177,7 @@ export default React.memo<Props>(
             }
           )}
         >
-          <div className="flex w-full flex-wrap items-center justify-between px-3 gap-3">
+          <div className="flex w-full items-center justify-between px-3 gap-3">
             <button
               className="lg:hidden p-2 text-gray-400 hover:text-white focus:outline-none"
               type="button"
@@ -186,7 +186,7 @@ export default React.memo<Props>(
             >
               <Bars3Icon className="h-6 w-6" />
             </button>
-            <div className="w-full lg:w-auto flex-1 lg:flex-none">
+            <div className="w-full min-w-40 lg:w-auto flex-1 lg:flex-none">
               <div className="relative text-gray-400 focus-within:text-gray-200">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <MagnifyingGlassIcon className="h-5 w-5" aria-hidden="true" />
