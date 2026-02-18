@@ -179,7 +179,7 @@ export default React.memo<Props>(
         >
           <div className="flex flex-wrap lg:flex-nowrap w-full items-center justify-between px-3 gap-3">
             <button
-              className="lg:hidden p-2 text-gray-400 hover:text-white focus:outline-none"
+              className="lg:hidden p-2 text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
               type="button"
               onClick={onToggle}
               aria-label="Toggle menu"
@@ -204,7 +204,7 @@ export default React.memo<Props>(
                 {filterText && (
                   <button
                     type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-sm"
                     onClick={() => {
                       onTextChange({
                         target: { value: "" },
