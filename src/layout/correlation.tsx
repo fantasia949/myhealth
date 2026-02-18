@@ -12,7 +12,7 @@ const nonInferredDataAtom = atom((get) => {
   return data.filter((item) => !item[3]?.inferred);
 });
 
-const MAX_P_VALUE = 0.1;
+const MAX_P_VALUE = 0.001;
 
 export default React.memo(({ target }: CorrelationProps) => {
   const data = useAtomValue(nonInferredDataAtom);
@@ -34,7 +34,7 @@ export default React.memo(({ target }: CorrelationProps) => {
       }
       const targetValues = item[1].map((v) => (v ? +v : 0));
       const result = pcorrtest(sourceValues, targetValues, {
-        alpha: 0.1,
+        alpha: MAX_P_VALUE,
         // alternative: "greater",
       });
       if (result.pValue <= MAX_P_VALUE) {
@@ -49,7 +49,10 @@ export default React.memo(({ target }: CorrelationProps) => {
     <div style={{ width: 300 }} className="mx-auto text-dark-text">
       <div className="font-bold mb-2 text-center">{target}</div>
       {entries.map((entry) => (
-        <div key={entry[0]} className="flex justify-between border-b border-gray-700 py-1">
+        <div
+          key={entry[0]}
+          className="flex justify-between border-b border-gray-700 py-1"
+        >
           <span style={{ flexBasis: 120 }}>{entry[0]}</span>
           {/* <span>{entry[1].toFixed(4)}</span> */}
           <span>{entry[2].toFixed(6)}</span>
