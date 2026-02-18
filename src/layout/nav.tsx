@@ -183,7 +183,7 @@ export default React.memo<Props>(
           setIsAsking(false);
         }
       },
-      [selected, data, filterTag, key]
+      [selected, data, filterTag, key, model, fullData]
     );
 
     const [canvasText, setCanvasText] = React.useState<string | null>(null);
