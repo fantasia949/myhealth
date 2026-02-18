@@ -12,7 +12,7 @@ const PROMPT = {
   3. Usage of Reference: You may only mention items from the [REFERENCE CONTEXT] in the "Root Cause Analysis" section, and only if they explain why a Primary Target is abnormal.`,
     REPORT_STRUCTURE: `### REPORT STRUCTURE ###
 1. Executive Summary: A concise 2-sentence overview of the trend found in <primary_target> ONLY.
-2. Biomarker Breakdown (STRICT FILTER APPLIED):
+2. Biomarker Breakdown:
    - INSTRUCTION: List ONLY items found inside the <primary_target> tags above.
    - CONSTRAINT: If a biomarker is listed in <background_context>, it must NOT appear in this list.
    - Optimal: [List qualifying <primary_target> items]
@@ -59,7 +59,7 @@ ${PROMPT.TASK}${tagText}.
     content += '\n</primary_target>'
     if (relatedContext) {
         content = `${content}
-[REFERENCE CONTEXT] (READ ONLY. Do NOT list these in the "Biomarker Breakdown". Use these ONLY to explain *why* the Primary Target is changing.): ${relatedContext}.`
+<background_context>(READ ONLY. Do NOT list these in the "Biomarker Breakdown". Use these ONLY to explain *why* the Primary Target is changing.): ${relatedContext}</background_context>`
     }
     content = `${content}
 ${PROMPT.REPORT_STRUCTURE}
