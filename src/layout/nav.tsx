@@ -144,12 +144,17 @@ export default React.memo<Props>(
 
                 const targetValues = target[1].map((v) => (v ? +v : 0));
                 const res = calculateSpearman(sourceValues, targetValues, {
+                  // TODO: should not be hardcoded?
                   alpha: 0.05,
                   alternative: "two-sided",
                 });
 
                 if (res.pValue <= 0.05 && Math.abs(res.statistic) >= 0.4) {
                   const val = target[1][target[1].length - 1];
+                  if (!val) {
+                    console.log('the test does not include this marker, so skip it', target[0])
+                    continue
+                  }
                   const unit = target[2] || "";
                   related.set(
                     target[0],
