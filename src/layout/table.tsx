@@ -45,7 +45,10 @@ function getKeyFromTime(label: string) {
   return label.slice(0, 2) + "/" + label.slice(2, 4);
 }
 
-const DataCell = React.memo(({ className, rawValue, onCopy, children }: any) => {
+// Optimization: DataCell accepts stable props (unit, displayValue) instead of children
+// to ensure React.memo works effectively. Passing JSX as children (e.g. <a...>)
+// creates new object references on every render, defeating memoization.
+const DataCell = React.memo(({ className, rawValue, onCopy, unit, displayValue }: any) => {
   const [copied, setCopied] = React.useState(false);
 
   const handleInteraction = React.useCallback(async () => {
@@ -53,6 +56,19 @@ const DataCell = React.memo(({ className, rawValue, onCopy, children }: any) => 
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
   }, [onCopy, rawValue]);
+
+  const content = (unit as any)?.url ? (
+    <a
+      href={(unit as any).url}
+      target="_blank"
+      rel="noreferrer"
+      className="text-blue-400 hover:underline"
+    >
+      {displayValue}
+    </a>
+  ) : (
+    displayValue
+  );
 
   return (
       <td
@@ -66,9 +82,9 @@ const DataCell = React.memo(({ className, rawValue, onCopy, children }: any) => 
             }
           }}
           role="button"
-          aria-label={typeof children === 'string' || typeof children === 'number' ? `Copy ${children}` : 'Copy value'}
+          aria-label={typeof displayValue === 'string' || typeof displayValue === 'number' ? `Copy ${displayValue}` : 'Copy value'}
       >
-           {children}
+           {content}
           {copied && (
                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 text-xs text-white bg-blue-600 rounded shadow-lg z-50 animate-fade-in-out pointer-events-none whitespace-nowrap" aria-live="polite">
                   Copied!
@@ -368,21 +384,10 @@ export default React.memo(
                               })}
                               key={index}
                               rawValue={value != null ? value.toString() : ""}
+                              displayValue={value}
+                              unit={unit}
                               onCopy={onCellClick}
-                            >
-                              {(unit as any)?.url ? (
-                                <a
-                                  href={(unit as any).url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="text-blue-400 hover:underline"
-                                >
-                                  {value}
-                                </a>
-                              ) : (
-                                value
-                              )}
-                            </DataCell>
+                            />
                           );
                         })}
                       <td className="p-2 border border-gray-700 hidden lg:table-cell">
