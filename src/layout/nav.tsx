@@ -177,7 +177,7 @@ export default React.memo<Props>(
             }
           )}
         >
-          <div className="flex w-full items-center justify-between px-3 gap-3">
+          <div className="flex flex-wrap lg:flex-nowrap w-full items-center justify-between px-3 gap-3">
             <button
               className="lg:hidden p-2 text-gray-400 hover:text-white focus:outline-none"
               type="button"
@@ -228,7 +228,7 @@ export default React.memo<Props>(
                 }
               )}
             >
-              <ul className="contents lg:flex lg:flex-row lg:gap-2 lg:items-center list-none p-0 m-0">
+              <ul className="contents lg:flex lg:flex-row xl:gap-1 lg:items-center list-none p-0 m-0">
                 {tags.map((tag: string) => (
                   <li className="nav-item contents lg:block" key={tag}>
                     <button
