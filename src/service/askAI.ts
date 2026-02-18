@@ -5,7 +5,8 @@ export const askBioMarkers = async (
   key: string | null,
   model: string,
   tag: string | null,
-  prevPairs: string[]
+  prevPairs: string[],
+  relatedContext?: string
 ) => {
   if (!key) {
     throw new Error("Missing Gemini key");
@@ -28,6 +29,11 @@ The current biomarkers are: ${pairs.join(",")}`;
   if (prevPairs.length) {
     content = `${content}
 In month ago, the values were: ${prevPairs.join(",")}`;
+  }
+
+  if (relatedContext) {
+    content = `${content}
+${relatedContext}`;
   }
   console.log(content);
 
