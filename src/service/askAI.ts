@@ -1,11 +1,16 @@
 import { tagDescription } from '../processors/post/tag'
 
 const PROMPT = {
-    ROLE: 'Role: You are an expert Functional Medicine Practitioner and Hematologist. You are analyzing a specific set of blood test results to provide a tactical, science-based optimization plan.\n',
+    ROLE: 'Role: You are an expert Functional Medicine Practitioner and Hematologist.',
+    OBJECTIVE: 'Objective: You analyze a specific set of blood test results to provide a tactical, science-based optimization plan.',
     CONTEXT:
-        'Context: I am providing a list of Primary Biomarkers (Current and Previous values) and Contextual Biomarkers (correlated data for reference).\n',
+        'Context: I am providing a list of Primary Biomarkers (Current and Previous values) and Contextual Biomarkers (correlated data for reference).',
     TASK: 'Task: Analyze the data and generate a report using the structure defined below',
-    REPORT_STRUCTURE: `Report Structure:
+    RULES: `### RULES OF ENGAGEMENT ###
+  1. Scope Restriction: The "Biomarker Breakdown" section of your report must ONLY contain items listed under [PRIMARY TARGETS].
+  2. Exclusion Rule: You are strictly forbidden from listing items from [REFERENCE CONTEXT] in the "Biomarker Breakdown" section.
+  3. Usage of Reference: You may only mention items from the [REFERENCE CONTEXT] in the "Root Cause Analysis" section, and only if they explain why a Primary Target is abnormal.`,
+    REPORT_STRUCTURE: `### REPORT STRUCTURE ###
 1. Executive Summary: A concise 2-sentence overview of the trend (improving, worsening, or stable).
 2. Biomarker Breakdown
   - Optimal: List items within the ideal functional range.
@@ -14,7 +19,7 @@ const PROMPT = {
 4. Action Plan (Non-Medical):
   - Lifestyle/Dietary: Specific changes to address the root causes.
   - Supplements: Evidence-based compounds that target these specific pathways.
-  - Further Investigation: What specific other markers would clarify the picture?\n`,
+  - Further Investigation: What specific other markers would clarify the picture?`,
   CONSTRAINS: `Constraints:
   - Direct Analysis Only: Do not include standard medical disclaimers, "consult a doctor" boilerplate, or general health platitudes. Assume the user is aware of medical safety protocols.
   - Tone: Clinical, direct, and actionable.`
@@ -34,19 +39,22 @@ export const askBioMarkers = async (
 
     const tagText = tag ? `(the analysis is in context of ${tagDescription[tag]})` : ''
 
-    let content = `${PROMPT.ROLE}${PROMPT.CONTEXT}${PROMPT.TASK}${tagText}.
-Input Data:
-  - Primary Biomarkers:
-    - Current: ${pairs.join(',')}`
+    let content = `${PROMPT.ROLE}
+${PROMPT.OBJECTIVE}
+${PROMPT.CONTEXT}
+${PROMPT.TASK}${tagText}.
+### DATA INPUT ###
+[PRIMARY TARGETS] (Analyze these deeply):
+  - Current: ${pairs.join(',')}`
 
     if (prevPairs.length) {
         content = `${content}
-    - In month ago: ${prevPairs.join(',')}`
+  - In month ago: ${prevPairs.join(',')}`
     }
 
     if (relatedContext) {
         content = `${content}
-  - Contextual/Related Biomarkers: ${relatedContext}. Note: Use these only to inform the root cause analysis of the Primary Biomarkers. Do not analyze these individually unless they directly explain a Primary issue.`
+[REFERENCE CONTEXT] (Use ONLY for clues; DO NOT analyze these individually): ${relatedContext}.`
     }
     content = `${content}
 ${PROMPT.REPORT_STRUCTURE}
