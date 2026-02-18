@@ -224,7 +224,7 @@ export default React.memo<Props>(
                 "w-full lg:flex lg:flex-1 lg:items-center lg:gap-4",
                 {
                   "hidden lg:flex": !show,
-                  "grid grid-cols-2 gap-2": show,
+                  "grid grid-cols-3 gap-2": show,
                 }
               )}
             >
@@ -263,7 +263,7 @@ export default React.memo<Props>(
               </button>
 
               {selected.length > 0 && (
-                <div className="contents lg:flex lg:gap-2">
+                <div className="hidden contents lg:flex lg:gap-2">
                   <select
                     className="px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded w-full lg:w-auto"
                     value={chartType}
@@ -344,7 +344,7 @@ export default React.memo<Props>(
                 )}
               </div>
 
-              <div className="contents lg:flex lg:ml-auto lg:flex-row lg:gap-4 lg:items-center">
+              <div className="hidden contents lg:flex lg:ml-auto lg:flex-row lg:gap-4 lg:items-center">
                 <div className="flex items-center gap-2 w-full lg:w-auto">
                   <select
                     className="flex-1 lg:flex-none px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded"
@@ -359,7 +359,7 @@ export default React.memo<Props>(
                     <option value="15">Average of last 15 tests</option>
                   </select>
                 </div>
-                <div className="flex items-center gap-2 w-full lg:w-auto">
+                <div className="hidden lg:flex items-center gap-2 lg:w-auto">
                   <select
                     className="flex-1 lg:flex-none px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded"
                     value={showRecords.toString()}
