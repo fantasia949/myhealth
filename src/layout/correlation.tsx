@@ -103,16 +103,17 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                         <div className="flex flex-col gap-2">
                           <div className="flex justify-between items-center">
                             <label htmlFor="corr-alpha" className="text-xs text-gray-300">Alpha Threshold:</label>
-                            <input
+                                                        <select
                               id="corr-alpha"
-                              type="number"
-                              step="0.001"
-                              min="0.0001"
-                              max="1"
                               value={alpha}
                               onChange={(e) => setAlpha(Number(e.target.value))}
-                              className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs text-right focus:border-blue-500 outline-none transition-colors text-white"
-                            />
+                              className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white"
+                            >
+                              <option value={0.05}>0.05</option>
+                              <option value={0.01}>0.01</option>
+                              <option value={0.005}>0.005</option>
+                              <option value={0.001}>0.001</option>
+                            </select>
                           </div>
                           <div className="flex justify-between items-center">
                             <label htmlFor="corr-alt" className="text-xs text-gray-300">Hypothesis:</label>
