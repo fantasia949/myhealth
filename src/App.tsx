@@ -28,7 +28,7 @@ const PasswordInput = React.memo(({ show, setShow, ...props }: any) => (
     <button
       type="button"
       onClick={() => setShow(!show)}
-      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none"
+      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
       aria-label={show ? "Hide password" : "Show password"}
     >
       {show ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
