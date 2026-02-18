@@ -1,19 +1,45 @@
 import React, { Fragment } from "react";
 import cn from "classnames";
 import { Dialog, Transition } from "@headlessui/react";
-import { Bars3Icon, XMarkIcon, MagnifyingGlassIcon, TrashIcon } from "@heroicons/react/24/outline";
+import {
+  Bars3Icon,
+  XMarkIcon,
+  MagnifyingGlassIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
 import { tags } from "../processors";
 import { askBioMarkers } from "../service/askAI";
 import { createGist } from "../service/gist";
 import { useAtom, useAtomValue } from "jotai";
-import { visibleDataAtom, aiKeyAtom, gistTokenAtom, aiModelAtom } from "../atom/dataAtom";
+import {
+  visibleDataAtom,
+  aiKeyAtom,
+  gistTokenAtom,
+  aiModelAtom,
+} from "../atom/dataAtom";
 import { averageCountAtom } from "../atom/averageValueAtom";
 import Markdown from "react-markdown";
 
 const Spinner = () => (
-  <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+  <svg
+    className="animate-spin h-4 w-4 text-white"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <circle
+      className="opacity-25"
+      cx="12"
+      cy="12"
+      r="10"
+      stroke="currentColor"
+      strokeWidth="4"
+    ></circle>
+    <path
+      className="opacity-75"
+      fill="currentColor"
+      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+    ></path>
   </svg>
 );
 
@@ -97,7 +123,13 @@ export default React.memo<Props>(
                 : undefined
             )
             .filter((item): item is string => !!item);
-          const text = await askBioMarkers(pairs, key, model, filterTag, prevPairs);
+          const text = await askBioMarkers(
+            pairs,
+            key,
+            model,
+            filterTag,
+            prevPairs
+          );
           setCanvasText(text);
         } catch (err) {
           console.error(err);
@@ -154,7 +186,7 @@ export default React.memo<Props>(
             >
               <Bars3Icon className="h-6 w-6" />
             </button>
-            <div className="w-full lg:w-auto lg:flex-none">
+            <div className="w-full lg:w-auto flex-1 lg:flex-none">
               <div className="relative text-gray-400 focus-within:text-gray-200">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <MagnifyingGlassIcon className="h-5 w-5" aria-hidden="true" />
@@ -174,7 +206,9 @@ export default React.memo<Props>(
                     type="button"
                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white"
                     onClick={() => {
-                      onTextChange({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
+                      onTextChange({
+                        target: { value: "" },
+                      } as React.ChangeEvent<HTMLInputElement>);
                       searchInputRef.current?.focus();
                     }}
                     aria-label="Clear search"
@@ -185,13 +219,15 @@ export default React.memo<Props>(
               </div>
             </div>
 
-            <div className={cn(
-              "w-full lg:flex lg:flex-1 lg:items-center lg:gap-4",
-              {
-                "hidden lg:flex": !show,
-                "grid grid-cols-2 gap-2": show
-              }
-            )}>
+            <div
+              className={cn(
+                "w-full lg:flex lg:flex-1 lg:items-center lg:gap-4",
+                {
+                  "hidden lg:flex": !show,
+                  "grid grid-cols-2 gap-2": show,
+                }
+              )}
+            >
               <ul className="contents lg:flex lg:flex-row lg:gap-2 lg:items-center list-none p-0 m-0">
                 {tags.map((tag: string) => (
                   <li className="nav-item contents lg:block" key={tag}>
@@ -199,10 +235,14 @@ export default React.memo<Props>(
                       type="button"
                       data-tag={tag}
                       aria-pressed={filterTag === tag}
-                      className={cn("px-3 py-2 rounded transition-colors w-full lg:w-auto", {
-                        "bg-blue-600 text-white": filterTag == tag,
-                        "text-gray-300 hover:text-white hover:bg-gray-700": filterTag != tag,
-                      })}
+                      className={cn(
+                        "px-3 py-2 rounded transition-colors w-full lg:w-auto",
+                        {
+                          "bg-blue-600 text-white": filterTag == tag,
+                          "text-gray-300 hover:text-white hover:bg-gray-700":
+                            filterTag != tag,
+                        }
+                      )}
                       onClick={onFilterByTag}
                     >
                       {tag.slice(2)}
@@ -269,7 +309,13 @@ export default React.memo<Props>(
                     disabled={isAsking}
                     aria-busy={isAsking}
                   >
-                    {isAsking ? <><Spinner /> Asking...</> : "Ask AI"}
+                    {isAsking ? (
+                      <>
+                        <Spinner /> Asking...
+                      </>
+                    ) : (
+                      "Ask AI"
+                    )}
                   </button>
                 )}
                 {selected.map((item) => (
@@ -300,7 +346,7 @@ export default React.memo<Props>(
 
               <div className="contents lg:flex lg:ml-auto lg:flex-row lg:gap-4 lg:items-center">
                 <div className="flex items-center gap-2 w-full lg:w-auto">
-                   <select
+                  <select
                     className="flex-1 lg:flex-none px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded"
                     value={averageCount.toString()}
                     onChange={onAverageCount}
@@ -327,7 +373,7 @@ export default React.memo<Props>(
                     <option value="15">Last 15 records</option>
                   </select>
                 </div>
-                <div className="hidden lg:flex items-center gap-2 w-full lg:w-auto">
+                <div className="hidden xl:flex items-center gap-2 w-full xl:w-auto">
                   <input
                     className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
                     type="checkbox"
@@ -379,7 +425,11 @@ export default React.memo<Props>(
                       className="flex justify-between items-center text-lg font-medium leading-6 mb-4"
                     >
                       <span>Biomarker</span>
-                      <button onClick={handleClose} className="text-gray-400 hover:text-white" aria-label="Close dialog">
+                      <button
+                        onClick={handleClose}
+                        className="text-gray-400 hover:text-white"
+                        aria-label="Close dialog"
+                      >
                         <XMarkIcon className="h-6 w-6" />
                       </button>
                     </Dialog.Title>
@@ -406,7 +456,7 @@ export default React.memo<Props>(
                             const url = await createGist(
                               canvasText!,
                               gistToken,
-                              selected.join('_')
+                              selected.join("_")
                             );
                             setGistUrl(url);
                           } catch (err: any) {
@@ -416,16 +466,29 @@ export default React.memo<Props>(
                           }
                         }}
                       >
-                        {isGistLoading ? <><Spinner /> Saving...</> : "Save to Gist"}
+                        {isGistLoading ? (
+                          <>
+                            <Spinner /> Saving...
+                          </>
+                        ) : (
+                          "Save to Gist"
+                        )}
                       </button>
                       {gistUrl && (
                         <div className="mt-2">
-                          <a href={gistUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
+                          <a
+                            href={gistUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-400 hover:underline"
+                          >
                             View Gist
                           </a>
                         </div>
                       )}
-                      {gistError && <div className="mt-2 text-red-500">{gistError}</div>}
+                      {gistError && (
+                        <div className="mt-2 text-red-500">{gistError}</div>
+                      )}
                     </div>
                   </Dialog.Panel>
                 </Transition.Child>
