@@ -1,8 +1,9 @@
 import React, { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import pcorrtest from "@stdlib/stats-pcorrtest";
-import { BioMarker } from "../atom/dataAtom";
+import { useAtomValue } from "jotai";
+import { BioMarker, correlationAlphaAtom, correlationAlternativeAtom } from "../atom/dataAtom";
+import { calculateSpearman } from "../processors/stats";
 
 interface PValueProps {
   comparedSourceTarget: BioMarker[] | null;
@@ -10,6 +11,9 @@ interface PValueProps {
 }
 
 export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
+  const alpha = useAtomValue(correlationAlphaAtom);
+  const alternative = useAtomValue(correlationAlternativeAtom);
+
   const text: [string, string] | undefined = React.useMemo(() => {
     if (!Array.isArray(comparedSourceTarget)) {
       return;
@@ -17,14 +21,13 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
     const [source, target] = comparedSourceTarget;
     const sourceValues = source[1].map((v) => (v ? +v : 0));
     const targetValues = target[1].map((v) => (v ? +v : 0));
-    const result = pcorrtest(sourceValues, targetValues, {
-      alpha: 0.001,
-      // alternative: "greater",
-      // alternative: "less",
+    const result = calculateSpearman(sourceValues, targetValues, {
+      alpha,
+      alternative,
     });
     // console.log(result.print());
     return [result.print(), JSON.stringify(result, null, "\t")];
-  }, [comparedSourceTarget]);
+  }, [comparedSourceTarget, alpha, alternative]);
 
   return (
     <Transition appear show={!!text} as={Fragment}>
@@ -57,7 +60,7 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
                   as="div"
                   className="flex justify-between items-center text-lg font-medium leading-6 mb-4"
                 >
-                  <span>P-Value</span>
+                  <span>Spearman Rank Correlation</span>
                   <button
                     onClick={onClose}
                     className="text-gray-400 hover:text-white"
@@ -74,7 +77,7 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
                   {!!text && comparedSourceTarget && (
                     <div className="mb-2 font-bold">
                       {comparedSourceTarget[0][0]}
-                      <span className="mx-2">=&gt;</span>
+                      <span className="mx-2">vs</span>
                       {comparedSourceTarget[1][0]}
                     </div>
                   )}

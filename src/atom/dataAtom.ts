@@ -78,3 +78,6 @@ export const visibleDataAtom = atom((get) => {
 export const aiKeyAtom = atomWithStorage<string | null>("key", null);
 export const aiModelAtom = atomWithStorage<string>("model", "gemini-2.5-pro");
 export const gistTokenAtom = atomWithStorage<string | null>("gistToken", null);
+
+export const correlationAlphaAtom = atomWithStorage<number>("correlationAlpha", 0.01);
+export const correlationAlternativeAtom = atomWithStorage<"two-sided" | "less" | "greater">("correlationAlternative", "two-sided");
