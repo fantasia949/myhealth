@@ -18,7 +18,7 @@ import {
   gistTokenAtom,
   aiModelAtom,
 } from "../atom/dataAtom";
-import { calculateSpearman } from "../processors/stats";
+import { calculateSpearman, rankData, calculateSpearmanRanked } from "../processors/stats";
 import { averageCountAtom } from "../atom/averageValueAtom";
 import Markdown from "react-markdown";
 
@@ -137,13 +137,24 @@ export default React.memo<Props>(
             );
             const related = new Map<string, string>();
 
-            for (const source of selectedEntries) {
-              const sourceValues = source[1].map((v) => (v ? +v : 0));
-              for (const target of candidates) {
+            // Optimization: Pre-calculate ranks for all sources and candidates to avoid
+            // redundant sorting (O(V log V)) inside the O(S * N) loop.
+            // This reduces complexity from O(S * N * V log V) to O((S+N) * V log V + S * N * V).
+            const rankedSources = selectedEntries.map((source) => ({
+              source,
+              ranks: rankData(source[1].map((v) => (v ? +v : 0))),
+            }));
+
+            const rankedCandidates = candidates.map((target) => ({
+              target,
+              ranks: rankData(target[1].map((v) => (v ? +v : 0))),
+            }));
+
+            for (const { source, ranks: sourceRanks } of rankedSources) {
+              for (const { target, ranks: targetRanks } of rankedCandidates) {
                 if (related.has(target[0])) continue;
 
-                const targetValues = target[1].map((v) => (v ? +v : 0));
-                const res = calculateSpearman(sourceValues, targetValues, {
+                const res = calculateSpearmanRanked(sourceRanks, targetRanks, {
                   // TODO: should not be hardcoded?
                   alpha: 0.05,
                   alternative: "two-sided",

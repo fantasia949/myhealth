@@ -26,6 +26,15 @@ export function rankData(arr: number[]): number[] {
   return ranks;
 }
 
+export function calculateSpearmanRanked(
+  rankedX: number[],
+  rankedY: number[],
+  options: { alpha: number; alternative: "two-sided" | "less" | "greater" }
+) {
+  // Spearman correlation is Pearson correlation on ranks
+  return pcorrtest(rankedX, rankedY, options);
+}
+
 export function calculateSpearman(
   x: number[],
   y: number[],
@@ -33,6 +42,5 @@ export function calculateSpearman(
 ) {
   const rankedX = rankData(x);
   const rankedY = rankData(y);
-  // Spearman correlation is Pearson correlation on ranks
-  return pcorrtest(rankedX, rankedY, options);
+  return calculateSpearmanRanked(rankedX, rankedY, options);
 }
