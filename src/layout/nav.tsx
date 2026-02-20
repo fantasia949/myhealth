@@ -18,7 +18,7 @@ import {
   gistTokenAtom,
   aiModelAtom,
 } from "../atom/dataAtom";
-import { calculateSpearman } from "../processors/stats";
+import { calculateSpearmanRanked, rankData } from "../processors/stats";
 import { averageCountAtom } from "../atom/averageValueAtom";
 import Markdown from "react-markdown";
 
@@ -137,23 +137,41 @@ export default React.memo<Props>(
             );
             const related = new Map<string, string>();
 
-            for (const source of selectedEntries) {
-              const sourceValues = source[1].map((v) => (v ? +v : 0));
-              for (const target of candidates) {
+            const rankedSelected = selectedEntries.map((source) => ({
+              source,
+              rankedValues: rankData(source[1].map((v) => (v ? +v : 0))),
+            }));
+
+            const rankedCandidates = candidates.map((target) => ({
+              target,
+              rankedValues: rankData(target[1].map((v) => (v ? +v : 0))),
+            }));
+
+            for (const { rankedValues: sourceValues } of rankedSelected) {
+              for (const {
+                target,
+                rankedValues: targetValues,
+              } of rankedCandidates) {
                 if (related.has(target[0])) continue;
 
-                const targetValues = target[1].map((v) => (v ? +v : 0));
-                const res = calculateSpearman(sourceValues, targetValues, {
-                  // TODO: should not be hardcoded?
-                  alpha: 0.05,
-                  alternative: "two-sided",
-                });
+                const res = calculateSpearmanRanked(
+                  sourceValues,
+                  targetValues,
+                  {
+                    // TODO: should not be hardcoded?
+                    alpha: 0.05,
+                    alternative: "two-sided",
+                  }
+                );
 
                 if (res.pValue <= 0.05 && Math.abs(res.statistic) >= 0.4) {
                   const val = target[1][target[1].length - 1];
                   if (!val) {
-                    console.log('the test does not include this marker, so skip it', target[0])
-                    continue
+                    console.log(
+                      "the test does not include this marker, so skip it",
+                      target[0]
+                    );
+                    continue;
                   }
                   const unit = target[2] || "";
                   related.set(

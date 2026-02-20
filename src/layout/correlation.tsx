@@ -3,7 +3,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useAtom, useAtomValue, atom } from "jotai";
 import { dataAtom, correlationAlphaAtom, correlationAlternativeAtom } from "../atom/dataAtom";
-import { calculateSpearman } from "../processors/stats";
+import { calculateSpearmanRanked, rankData } from "../processors/stats";
 
 interface CorrelationProps {
   target: string | null;
@@ -29,6 +29,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
       return;
     }
     const sourceValues = source[1].map((v) => (v ? +v : 0));
+    const rankedSource = rankData(sourceValues);
     const entries: [string, number, number, number][] = [];
 
     for (const item of data) {
@@ -36,7 +37,8 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
         continue;
       }
       const targetValues = item[1].map((v) => (v ? +v : 0));
-      const result = calculateSpearman(sourceValues, targetValues, {
+      const rankedTarget = rankData(targetValues);
+      const result = calculateSpearmanRanked(rankedSource, rankedTarget, {
         alpha: alpha,
         alternative: alternative,
       });

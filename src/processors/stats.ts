@@ -36,3 +36,11 @@ export function calculateSpearman(
   // Spearman correlation is Pearson correlation on ranks
   return pcorrtest(rankedX, rankedY, options);
 }
+
+export function calculateSpearmanRanked(
+  rankedX: number[],
+  rankedY: number[],
+  options: { alpha: number; alternative: "two-sided" | "less" | "greater" }
+) {
+  return pcorrtest(rankedX, rankedY, options);
+}
