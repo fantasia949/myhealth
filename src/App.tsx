@@ -184,6 +184,14 @@ export default function App() {
     setCorrelationKey(null);
   }, []);
 
+  const onClearFilters = React.useCallback(() => {
+    React.startTransition(() => {
+      setFilterTag(null);
+      setFilterText("");
+      setSearchText("");
+    });
+  }, [setFilterTag, setFilterText]);
+
   const navProps = {
     selected,
     onSelect,
@@ -208,6 +216,7 @@ export default function App() {
     selected,
     onSelect,
     showRecords,
+    onClearFilters,
   };
 
   return (
