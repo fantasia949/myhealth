@@ -92,6 +92,7 @@ export default React.memo<Props>(
     const [show, setShow] = React.useState(false);
     const [isAsking, setIsAsking] = React.useState(false);
     const [isScrolled, setIsScrolled] = React.useState(false);
+    const [isFocused, setIsFocused] = React.useState(false);
     const searchInputRef = React.useRef<HTMLInputElement>(null);
 
     React.useEffect(() => {
@@ -100,6 +101,25 @@ export default React.memo<Props>(
       };
       window.addEventListener("scroll", handleScroll);
       return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
+    React.useEffect(() => {
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (
+          e.key === "/" &&
+          !e.ctrlKey &&
+          !e.metaKey &&
+          !e.altKey &&
+          !["INPUT", "TEXTAREA", "SELECT"].includes(
+            (document.activeElement as HTMLElement)?.tagName
+          )
+        ) {
+          e.preventDefault();
+          searchInputRef.current?.focus();
+        }
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
     }, []);
 
     const onToggle = () => setShow((v) => !v);
@@ -246,11 +266,20 @@ export default React.memo<Props>(
                   type="search"
                   value={filterText}
                   onChange={onTextChange}
+                  onFocus={() => setIsFocused(true)}
+                  onBlur={() => setIsFocused(false)}
                   autoFocus
                   className="w-full pl-10 pr-10 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500 placeholder-gray-500 focus:placeholder-gray-400"
                   placeholder="Search"
                   aria-label="Search biomarkers"
                 />
+                {!filterText && !isFocused && (
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <kbd className="hidden sm:inline-block border border-gray-600 rounded px-1.5 py-0.5 text-xs text-gray-500 font-sans">
+                      /
+                    </kbd>
+                  </div>
+                )}
                 {filterText && (
                   <button
                     type="button"
