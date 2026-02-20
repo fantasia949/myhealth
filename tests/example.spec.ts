@@ -2,13 +2,13 @@
 import { test, expect } from '@playwright/test';
 
 test('Chart renders correctly', async ({ page }) => {
-  await page.goto('http://localhost:8000');
+  await page.goto('http://localhost:5173');
 
   // Wait for the table to be populated
-  await page.waitForSelector('tbody tr:has-text("Fasting Glucose")');
+  await page.waitForSelector('tbody tr:has-text("Glucose máu")');
 
-  // Select "Fasting Glucose"
-  await page.check('input[id="Fasting Glucose"]');
+  // Select "Glucose máu"
+  await page.check('input[name="Glucose máu"]');
 
   // Click the "Visualize" button
   await page.click('button:has-text("Visualize")');

@@ -2,7 +2,7 @@ import SupplementsPopover from "./SupplementsPopover";
 import React from "react";
 import cn from "classnames";
 import { labels } from "../data";
-import { visibleDataAtom, notesAtom, BioMarker } from "../atom/dataAtom";
+import { visibleDataAtom, notesAtom, BioMarker, filterTextAtom, tagAtom } from "../atom/dataAtom";
 import { useAtomValue } from "jotai";
 import {
   useReactTable,
@@ -25,6 +25,7 @@ interface TableProps {
   selected: string[];
   onSelect: (name: string) => void;
   showRecords: number;
+  onClearFilters?: () => void;
 }
 
 type DisplayedEntry = {
@@ -159,10 +160,12 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
 ];
 
 export default React.memo(
-  ({ showOrigColumns, selected, onSelect, showRecords }: TableProps) => {
+  ({ showOrigColumns, selected, onSelect, showRecords, onClearFilters }: TableProps) => {
     const convertedEntries = useAtomValue(visibleDataAtom);
     const averageCountValue = useAtomValue(averageCountAtom);
     const notes = useAtomValue(notesAtom);
+    const filterText = useAtomValue(filterTextAtom);
+    const tag = useAtomValue(tagAtom);
     const [expandedRowId, setExpandedRowId] = React.useState<string | null>(null);
 
     const onCellClick = React.useCallback(async (text: string) => {
@@ -263,6 +266,13 @@ export default React.memo(
       getRowId: (originalRow) => originalRow.name + originalRow.tag,
     });
 
+    const emptyStateMessage = React.useMemo(() => {
+        if (filterText && tag) return `No biomarkers match "${filterText}" with tag "${tag.slice(2)}"`;
+        if (filterText) return `No biomarkers match "${filterText}"`;
+        if (tag) return `No biomarkers found in "${tag.slice(2)}"`;
+        return "No records found";
+    }, [filterText, tag]);
+
     return (
       <React.Suspense fallback="Loading...">
         <table className="w-full text-sm text-left border-collapse bg-dark-table-row text-dark-text">
@@ -295,8 +305,20 @@ export default React.memo(
           <tbody>
             {table.getRowModel().rows.length === 0 ? (
               <tr>
-                <td colSpan={table.getVisibleLeafColumns().length} className="p-8 text-center text-gray-400">
-                  No records found
+                <td colSpan={table.getVisibleLeafColumns().length} className="p-12 text-center border border-gray-700">
+                  <div className="flex flex-col items-center justify-center gap-4">
+                    <div className="text-gray-400 text-base">{emptyStateMessage}</div>
+                    {(filterText || tag) && onClearFilters && (
+                      <button
+                        type="button"
+                        onClick={onClearFilters}
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                        aria-label="Clear all filters"
+                      >
+                        Clear Filters
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ) : (

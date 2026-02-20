@@ -79,8 +79,8 @@ test('p-value dialog close button has aria-label', async ({ page }) => {
   await expect(dialogTitle).toBeVisible();
 
   const titleText = await dialogTitle.innerText();
-  if (!titleText.includes('P-Value')) {
-      throw new Error(`Expected dialog title to contain "P-Value", but found: "${titleText}"`);
+  if (!titleText.includes('Spearman Rank Correlation')) {
+      throw new Error(`Expected dialog title to contain "Spearman Rank Correlation", but found: "${titleText}"`);
   }
 
   // Find the close button inside that title container
