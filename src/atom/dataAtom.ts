@@ -2,6 +2,7 @@ import { atom } from "jotai";
 import { unwrap, atomWithStorage } from "jotai/utils";
 import { loadData } from "../data";
 import { processBiomarkers, processTime } from "../processors";
+import { rankData } from "../processors/stats";
 
 export type BioMarker = [string, number[], string, {
   tag: string[];
@@ -39,6 +40,16 @@ export const dataAtom = atom<BioMarker[]>((get) => {
     return loadableBioMarkers.data;
   }
   return [];
+});
+
+export const rankedDataMapAtom = atom((get) => {
+  const data = get(dataAtom);
+  const map = new Map<string, number[]>();
+  data.forEach((item) => {
+    const values = item[1].map((v) => (v ? +v : 0));
+    map.set(item[0], rankData(values));
+  });
+  return map;
 });
 
 export const filterTextAtom = atom("");

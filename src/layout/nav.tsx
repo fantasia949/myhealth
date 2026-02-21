@@ -17,8 +17,9 @@ import {
   aiKeyAtom,
   gistTokenAtom,
   aiModelAtom,
+  rankedDataMapAtom,
 } from "../atom/dataAtom";
-import { calculateSpearman, rankData, calculateSpearmanRanked } from "../processors/stats";
+import { calculateSpearman, calculateSpearmanRanked } from "../processors/stats";
 import { averageCountAtom } from "../atom/averageValueAtom";
 import Markdown from "react-markdown";
 
@@ -89,6 +90,7 @@ export default React.memo<Props>(
     const gistToken = useAtomValue(gistTokenAtom);
     const data = useAtomValue(visibleDataAtom);
     const fullData = useAtomValue(dataAtom);
+    const rankedDataMap = useAtomValue(rankedDataMapAtom);
     const [show, setShow] = React.useState(false);
     const [isAsking, setIsAsking] = React.useState(false);
     const [isScrolled, setIsScrolled] = React.useState(false);
@@ -157,22 +159,19 @@ export default React.memo<Props>(
             );
             const related = new Map<string, string>();
 
-            // Optimization: Pre-calculate ranks for all sources and candidates to avoid
+            // Optimization: Use pre-calculated ranks for all sources and candidates to avoid
             // redundant sorting (O(V log V)) inside the O(S * N) loop.
-            // This reduces complexity from O(S * N * V log V) to O((S+N) * V log V + S * N * V).
-            const rankedSources = selectedEntries.map((source) => ({
-              source,
-              ranks: rankData(source[1].map((v) => (v ? +v : 0))),
-            }));
+            // This reduces complexity from O(S * N * V log V) to O(S * N * V).
 
-            const rankedCandidates = candidates.map((target) => ({
-              target,
-              ranks: rankData(target[1].map((v) => (v ? +v : 0))),
-            }));
+            for (const source of selectedEntries) {
+              const sourceRanks = rankedDataMap.get(source[0]);
+              if (!sourceRanks) continue;
 
-            for (const { source, ranks: sourceRanks } of rankedSources) {
-              for (const { target, ranks: targetRanks } of rankedCandidates) {
+              for (const target of candidates) {
                 if (related.has(target[0])) continue;
+
+                const targetRanks = rankedDataMap.get(target[0]);
+                if (!targetRanks) continue;
 
                 const res = calculateSpearmanRanked(sourceRanks, targetRanks, {
                   // TODO: should not be hardcoded?
