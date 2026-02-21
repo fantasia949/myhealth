@@ -65,8 +65,8 @@ export default {
     "--digest-enzyme",
     // "+melyahua",
     "+chia",
-    "-bumbkin-seed",
-    "+magiesum-glycinate", // lunch
+    "-pumpkin-seed",
+    "+magnesium-glycinate", // lunch
     "*couch",
   ],
 };

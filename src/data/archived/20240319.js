@@ -68,8 +68,8 @@ export default {
     "-ashwagandha",
     "-astragalus",
     "-red-light",
-    "-olive oil",
-    "-gac oil",
+    "-olive-oil",
+    "-gac-oil",
   ],
 };
 var url =

@@ -58,7 +58,7 @@ export default {
     "+lecithin",
     "+vitamin-c",
     "-oyster",
-    "-magiesum-glycinate", // lunch
+    "-magnesium-glycinate", // lunch
     "-bromelain",
     "-lipoic-acid",
     "~~mulberry-leaf-tea",

@@ -64,8 +64,8 @@ export default {
     "-walk",
     "-boswellia",
     "~thotitu",
-    "~brazil nut",
-    "~pumbkin seed",
+    "~brazil-nut",
+    "~pumpkin-seed",
   ],
 };
 
