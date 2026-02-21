@@ -56,4 +56,4 @@ export default [
   ["Testosterone", "22.33", "nmol/L"],
 ];
 
-export const notes = ["+excersise", "+gymnema silvestre", "+curcumin"];
+export const notes = ["+excersise", "+gymnema-sylvestre", "+curcumin"];

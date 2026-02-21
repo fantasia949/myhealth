@@ -63,7 +63,7 @@ export default {
     "-niacin", // hieu chinh
     "-marrow",
     "+ems",
-    "-ashwangha",
+    "-ashwagandha",
     "-astragalus",
     "-digest-enzyme",
     "-thotitu",

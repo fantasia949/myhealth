@@ -61,7 +61,7 @@ export default {
     // "+high melatonin",
     "-aspirin",
     "+acetic",
-    "+milk thistle",
+    "+milk-thistle",
     "+cardio",
     "+taurine",
   ],

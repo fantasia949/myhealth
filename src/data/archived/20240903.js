@@ -58,9 +58,9 @@ export default {
   ],
   notes: [
     "+egg",
-    "-red light",
+    "-red-light",
     "+ems",
-    "+ashwangha",
+    "+ashwagandha",
     "-walk",
     "-boswellia",
     "~thotitu",

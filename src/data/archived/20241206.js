@@ -66,7 +66,7 @@ export default {
     // "+melyahua",
     "+chia",
     "-bumbkin-seed",
-    "+mag-lunch",
+    "+magiesum-glycinate", // lunch
     "*couch",
   ],
 };

@@ -55,7 +55,7 @@ export default {
     "+egg",
     "-casein",
     "+niacin", // 50mg
-    "+red light",
+    "+red-light",
     "+vitamin-c", // ???
   ],
 };

@@ -61,7 +61,7 @@ export default {
     "+incarin",
     "+boswellia",
     "+niacin",
-    "+redlight",
+    "+red-light",
     "+fenugreek",
     "-acetic",
   ],

@@ -57,6 +57,8 @@ export default {
     "+fenugreek",
     "+boron",
     "+magnesium-glycinate",
+    "-curcumin",
+    "-ginger",
     "~melatonin", // alcohol sublingual
     "~-cardio", // less cardio
   ],
