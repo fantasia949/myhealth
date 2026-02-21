@@ -1,3 +1,4 @@
+import { UpdateNote } from "../types/notes";
 export default {
     entries: [
         ['Số lượng hồng cầu (RBC)', '5.02', 'Tera/L'],
@@ -59,7 +60,7 @@ export default {
         ['Weight', 67.8],
         ['Sleep score', 85],
     ],
-    notes: [
+    notes: <UpdateNote[]>[
         '+magnesium-glycinate',
         '+magnesium-malate',
         '~melatonin', // gummy

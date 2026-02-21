@@ -1,3 +1,4 @@
+import { UpdateNote } from "../types/notes";
 export default {
   entries: [
     ["Số lượng hồng cầu (RBC)", "5.02", "T/L"],
@@ -59,7 +60,7 @@ export default {
     ["DHEA.SO4", "1.51", "µg/mL"],
     ["Weight", 70.5],
   ],
-  notes: [
+  notes: <UpdateNote[]>[
     "+fenugreek",
     "+HMB",
     "+theanine",

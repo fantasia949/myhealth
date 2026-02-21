@@ -1,3 +1,4 @@
+import { UpdateNote } from "../types/notes";
 export default [
   {
     entries: [
@@ -407,7 +408,7 @@ export default [
       ["Lipoprotein - APO-B", "76.49", "mg/dl"],
       ["Pheno age", "24.57"],
     ],
-    notes: [
+    notes: <UpdateNote[]>[
       "-melatonin low",
       "+melatonin",
       "-olive oil",
@@ -483,7 +484,7 @@ export default [
       ["Testosterone", "21.67", "nmol/L"],
       ["Pheno age", "18.64", {}],
     ],
-    notes: ["-aspirin", "+acetic", "+milk-thistle", "+cardio", "+taurine"],
+    notes: <UpdateNote[]>["-aspirin", "+acetic", "+milk-thistle", "+cardio", "+taurine"],
     time: "231016",
   },
   {
@@ -548,7 +549,7 @@ export default [
       ["Pheno age", "19.03", {}],
       ["Weight", 70.4],
     ],
-    notes: [
+    notes: <UpdateNote[]>[
       "-milk-thistle",
       "+glycine",
       "+fenugreek",
@@ -612,7 +613,7 @@ export default [
       ["Pheno age", "18.47", {}],
       ["Weight", 70.4],
     ],
-    notes: ["+melatonin", "+incarin", "+egg", "+casein", "-niacin"],
+    notes: <UpdateNote[]>["+melatonin", "+incarin", "+egg", "+casein", "-niacin"],
     time: "240417",
   },
   {
@@ -674,7 +675,7 @@ export default [
       ["Pheno age", "20.18", {}],
       ["Weight", 70.8],
     ],
-    notes: [
+    notes: <UpdateNote[]>[
       "+incarin",
       "+boswellia",
       "+niacin",
@@ -736,7 +737,7 @@ export default [
       ["Weight", 72],
       ["Pheno age", "22.53", {}],
     ],
-    notes: ["+egg", "-casein", "+niacin", "+red-light", "+vitamin-c"],
+    notes: <UpdateNote[]>["+egg", "-casein", "+niacin", "+red-light", "+vitamin-c"],
     time: "240801",
   },
   {
@@ -797,7 +798,7 @@ export default [
       ["Weight", 72],
       ["Pheno age", "19.82", {}],
     ],
-    notes: [
+    notes: <UpdateNote[]>[
       "+egg",
       "-red-light",
       "+ems",
@@ -869,7 +870,7 @@ export default [
       ["Weight", 73],
       ["Pheno age", "19.23", {}],
     ],
-    notes: [
+    notes: <UpdateNote[]>[
       "+melatonin",
       "-egg",
       "-niacin",
@@ -947,7 +948,7 @@ export default [
       ["Weight", 72.8],
       ["Pheno age", "22.73", {}],
     ],
-    notes: [
+    notes: <UpdateNote[]>[
       "+astragalus",
       "--digest-enzyme",
       "+chia",
@@ -1015,7 +1016,7 @@ export default [
       ["Đồng", "48.61", "μg/dL"],
       ["Weight", 72.6],
     ],
-    notes: ["-vitamin-c", "+cashew", "+gac-oil"],
+    notes: <UpdateNote[]>["-vitamin-c", "+cashew", "+gac-oil"],
     time: "241228",
   },
   {
@@ -1072,7 +1073,7 @@ export default [
       ["Đồng", "58.16", "μg/dL"],
       ["Weight", 73.6],
     ],
-    notes: [
+    notes: <UpdateNote[]>[
       "+benfotiamine",
       "+fucoidan",
       "+pregnenolone",
@@ -1141,7 +1142,7 @@ export default [
       ["Đồng", "53.32", "μg/dL"],
       ["Weight", 73.6],
     ],
-    notes: [
+    notes: <UpdateNote[]>[
       "+astragalus",
       "+lipoic-acid",
       "+melatonin",
@@ -1208,7 +1209,7 @@ export default [
       ["Insulin", "4.94", "µU/mL"],
       ["Testosterone", "26.31", "nmol/L"],
     ],
-    notes: [
+    notes: <UpdateNote[]>[
       "+bromelain",
       "+curcumin",
       "+tmg",
@@ -1287,7 +1288,7 @@ export default [
       ["Testosterone", "27.35", "nmol/L"],
       ["Weight", 73],
     ],
-    notes: [
+    notes: <UpdateNote[]>[
       "+alicin",
       "+lipoic-acid",
       "+red-light",
@@ -1351,7 +1352,7 @@ export default [
       ["DHEA.SO4", "1.50", "µg/mL"],
       ["Weight", 72.3],
     ],
-    notes: [
+    notes: <UpdateNote[]>[
       "+cinamon",
       "+incarin",
       "+melatonin",
@@ -1427,7 +1428,7 @@ export default [
       ["Testosterone", "23.51", "nmol/L"],
       ["DHEA.SO4", "3.17", "µg/mL"],
     ],
-    notes: [
+    notes: <UpdateNote[]>[
       "~cardio",
       "+DHEA",
       "+pregnenolone",
