@@ -90,7 +90,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                         <div className="ml-3 flex h-7 items-center">
                           <button
                             type="button"
-                            className="relative rounded-md text-gray-400 hover:text-white focus:outline-none"
+                            className="relative rounded-md text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                             onClick={onClose}
                           >
                             <span className="absolute -inset-2.5" />

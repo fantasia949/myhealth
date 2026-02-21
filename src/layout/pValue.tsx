@@ -63,7 +63,7 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
                   <span>Spearman Rank Correlation</span>
                   <button
                     onClick={onClose}
-                    className="text-gray-400 hover:text-white"
+                    className="text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
                     aria-label="Close dialog"
                   >
                     <XMarkIcon className="h-6 w-6" />
