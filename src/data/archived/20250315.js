@@ -59,7 +59,7 @@ export default {
     "+vitamin-c",
     "-red-light",
     "-pregnenolone",
-    "-dhea",
+    "-DHEA",
     "-cashew",
     "-ems",
     "cold?",

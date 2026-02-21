@@ -57,9 +57,9 @@ export default [
 
 export const notes = [
   "+policosanol",
-  "+melatonin low", // 20mg
+  "+melatonin", // 20mg low
   "+ellagic Acid",
   "+blue Berry extract",
   "-curcumin",
-  "+aswaganda",
+  "+ashwagandha",
 ];

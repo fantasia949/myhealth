@@ -54,7 +54,7 @@ export default {
   notes: [
     "~cardio",
     "+DHEA",
-    "+Pregnelonone",
+    "+pregnenolone",
     "-curcumin",
     "-alicin",
     "+ginkgo",

@@ -68,7 +68,8 @@ export default {
     "~cardio", // more cardio
     "~-coffee", // paper filer, fine robusta
     "+ginger",
-    "+TMG",
+    "-ginkgo",
+    "+tmg",
     "+lactoferrin",
     "-lecithin",
     "~-fish-oil", // lecithin
@@ -81,7 +82,8 @@ export default {
     "-yohourt",
     "-DHEA",
     "-cinamon",
-    "-Pregnenolone",
+    "-pregnenolone",
+    "-acetic",
     "~-melatonin", // -200mg
   ],
   review: [

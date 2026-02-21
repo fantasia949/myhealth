@@ -58,14 +58,15 @@ export default {
     "-theanine",
     "-boron",
     "-solanum-trilobatum",
+    "-lactoferrin",
     "++cardio", // more cardio
-    "-TMG",
+    "-tmg",
     "+lactoferrin",
     "+fish-oil",
     "+nac",
     "+DHEA",
     "+creatine", // lunch
-    "+Pregnenolone",
+    "+pregnenolone",
     "+lipoic-acid",
   ],
   review: [
