@@ -2,8 +2,8 @@ import React, { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useAtom, useAtomValue, atom } from "jotai";
-import { dataAtom, correlationAlphaAtom, correlationAlternativeAtom } from "../atom/dataAtom";
-import { rankData, calculateSpearmanRanked } from "../processors/stats";
+import { dataAtom, correlationAlphaAtom, correlationAlternativeAtom, rankedDataMapAtom } from "../atom/dataAtom";
+import { calculateSpearmanRanked } from "../processors/stats";
 
 interface CorrelationProps {
   target: string | null;
@@ -17,6 +17,7 @@ const nonInferredDataAtom = atom((get) => {
 
 export default React.memo(({ target, onClose }: CorrelationProps) => {
   const data = useAtomValue(nonInferredDataAtom);
+  const rankedDataMap = useAtomValue(rankedDataMapAtom);
   const [alpha, setAlpha] = useAtom(correlationAlphaAtom);
   const [alternative, setAlternative] = useAtom(correlationAlternativeAtom);
 
@@ -24,22 +25,24 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
     if (!Array.isArray(data) || !target) {
       return;
     }
-    const source = data.find((item) => item[0] === target);
-    if (!source) {
+
+    // Optimization: lookup O(1) from pre-calculated map
+    const sourceRanks = rankedDataMap.get(target);
+    if (!sourceRanks) {
       return;
     }
-    const sourceValues = source[1].map((v) => (v ? +v : 0));
-    // Optimization: Pre-calculate ranks for source to avoid repeated sorting (O(V log V))
-    // for every candidate (O(N)).
-    const sourceRanks = rankData(sourceValues);
+
     const entries: [string, number, number, number][] = [];
 
     for (const item of data) {
       if (item[0] === target) {
         continue;
       }
-      const targetValues = item[1].map((v) => (v ? +v : 0));
-      const targetRanks = rankData(targetValues);
+
+      // Optimization: lookup O(1) from pre-calculated map instead of calculating ranks O(V log V)
+      const targetRanks = rankedDataMap.get(item[0]);
+      if (!targetRanks) continue;
+
       const result = calculateSpearmanRanked(sourceRanks, targetRanks, {
         alpha: alpha,
         alternative: alternative,
@@ -51,7 +54,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
     entries.sort((a, b) => a[2] - b[2]);
 
     return entries;
-  }, [data, target, alpha, alternative]);
+  }, [data, target, alpha, alternative, rankedDataMap]);
 
   return (
     <Transition appear show={!!target} as={Fragment}>

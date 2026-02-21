@@ -2,8 +2,8 @@ import React, { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useAtomValue } from "jotai";
-import { BioMarker, correlationAlphaAtom, correlationAlternativeAtom } from "../atom/dataAtom";
-import { calculateSpearman } from "../processors/stats";
+import { BioMarker, correlationAlphaAtom, correlationAlternativeAtom, rankedDataMapAtom } from "../atom/dataAtom";
+import { calculateSpearmanRanked } from "../processors/stats";
 
 interface PValueProps {
   comparedSourceTarget: BioMarker[] | null;
@@ -11,6 +11,7 @@ interface PValueProps {
 }
 
 export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
+  const rankedDataMap = useAtomValue(rankedDataMapAtom);
   const alpha = useAtomValue(correlationAlphaAtom);
   const alternative = useAtomValue(correlationAlternativeAtom);
 
@@ -19,15 +20,21 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
       return;
     }
     const [source, target] = comparedSourceTarget;
-    const sourceValues = source[1].map((v) => (v ? +v : 0));
-    const targetValues = target[1].map((v) => (v ? +v : 0));
-    const result = calculateSpearman(sourceValues, targetValues, {
+
+    const sourceRanks = rankedDataMap.get(source[0]);
+    const targetRanks = rankedDataMap.get(target[0]);
+
+    if (!sourceRanks || !targetRanks) {
+      return;
+    }
+
+    const result = calculateSpearmanRanked(sourceRanks, targetRanks, {
       alpha,
       alternative,
     });
     // console.log(result.print());
     return [result.print(), JSON.stringify(result, null, "\t")];
-  }, [comparedSourceTarget, alpha, alternative]);
+  }, [comparedSourceTarget, alpha, alternative, rankedDataMap]);
 
   return (
     <Transition appear show={!!text} as={Fragment}>
