@@ -1,7 +1,7 @@
 # Investigation Report: PhenoAge RDW-CV Impact vs Correlation
 
 ## Issue Description
-The user observed that while RDW-CV has the "greatest impact" in the PhenoAge formula, its observed p-value and coefficient in the correlation tool do not reflect this high importance.
+The user observed that while RDW-CV has the "greatest impact" (highest coefficient) in the PhenoAge formula, its observed p-value (0.008) and correlation coefficient (0.49) in the application are lower than other non-component biomarkers like Cystatin C (0.67) and GGT (0.67).
 
 ## Findings
 
@@ -14,19 +14,27 @@ We verified the implementation of `getPhenotypicAge` in `src/processors/enrich/p
 
 This confirms that RDW-CV indeed has the highest "per unit" impact on the PhenoAge score.
 
-### 2. Data Analysis
-We analyzed the correlation of PhenoAge with its components using the provided dataset (n=20).
-- **RDW-CV Correlation:** 0.38 (p=0.09) - Moderate, not significant.
-- **Creatinine Correlation:** 0.58 (p=0.006) - Strong, significant.
-- **Age Correlation:** 0.26 (p=0.26) - Weak, not significant.
+### 2. Variance Analysis (Why RDW Drives the Score)
+We analyzed the contribution of each weighted term to the total variance of the PhenoAge score using the full dataset (n=24).
+- **RDW Contribution (Std Dev):** 0.2343 (Primary driver)
+- **Age Contribution (Std Dev):** 0.0945
+- **Creatinine Contribution (Std Dev):** 0.0759
 
-### 3. Explanation of Discrepancy
-The discrepancy between the high theoretical coefficient and low observed correlation is due to:
-1.  **Dataset Properties:** The dataset is small (n=20), making p-values highly sensitive to noise.
-2.  **Negative Correlation with Age:** In this specific dataset, RDW-CV has a strong *negative* correlation with Age (-0.52). Since Age increases PhenoAge (+0.08/year) and RDW increases PhenoAge (+0.33/unit), the fact that RDW decreases as Age increases causes their effects to partially cancel out. This reduces the net correlation of both variables with the final PhenoAge score.
-3.  **Consistency of Other Markers:** Creatinine, despite having a smaller coefficient, tracks the PhenoAge fluctuations more consistently in this dataset (possibly because it aligns better with the net aging signal or has less independent noise), resulting in a higher observed correlation.
+RDW-CV is the primary source of variation in the calculated PhenoAge score for this dataset.
+
+### 3. Explanation of Lower Correlation (The Paradox)
+Despite being the primary driver, RDW-CV's correlation with the total score (0.49-0.63) is dampened due to a **Suppression Effect** with Age:
+1.  **Negative Correlation:** In this dataset, RDW-CV has a strong negative correlation with Chronological Age (-0.52).
+2.  **Opposing Effects:**
+    -   As Age increases, it pushes the PhenoAge score **UP** (+0.08/year).
+    -   However, as Age increases, RDW-CV tends to decrease, pushing the PhenoAge score **DOWN** (+0.33/unit * decrease).
+    -   These two effects partially cancel each other out.
+3.  **Result:** The net correlation of RDW-CV with the final score is weaker than its individual contribution would suggest, because it is "fighting" the trend of Age.
+
+### 4. Comparison with Cystatin C
+Non-component markers like Cystatin C (0.67) show higher correlation because they are robust biological aging markers that align with the *net outcome* of the PhenoAge calculation (which aggregates multiple aging signals) without being subject to the specific mechanical cancellation that affects RDW-CV and Age within the formula itself.
 
 ## Conclusion
-The application is functioning correctly. The PhenoAge calculation uses the correct high-impact coefficient for RDW-CV. The low observed correlation is a correct statistical reflection of the specific dataset provided, where RDW-CV's contribution is masked by its interaction with Age and other factors.
+The application is functioning correctly. The PhenoAge calculation uses the correct high-impact coefficient for RDW-CV. The observed correlation hierarchy is a valid statistical result of the specific relationships between biomarkers in this dataset, particularly the negative interaction between RDW-CV and Age.
 
 No code changes are required to fix the calculation. A verification test `tests/verify_phenoage_coefficients.spec.ts` has been added to ensure the formula's integrity in future updates.
