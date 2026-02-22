@@ -104,7 +104,7 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
         alternative,
       });
 
-      const rho = result.statistic !== undefined ? result.statistic : result.pcorr;
+      const rho = result.pcorr;
       const pVal = result.pValue;
 
       // Filter out invalid results (e.g., if rho is NaN)
