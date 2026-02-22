@@ -2,8 +2,8 @@ import React, { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useAtomValue } from "jotai";
-import { BioMarker, correlationAlphaAtom, correlationAlternativeAtom, rankedDataMapAtom } from "../atom/dataAtom";
-import { calculateSpearmanRanked } from "../processors/stats";
+import { BioMarker, correlationAlphaAtom, correlationAlternativeAtom, rankedDataMapAtom, correlationMethodAtom } from "../atom/dataAtom";
+import { calculateSpearmanRanked, calculatePearson } from "../processors/stats";
 
 interface PValueProps {
   comparedSourceTarget: BioMarker[] | null;
@@ -14,6 +14,7 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
   const rankedDataMap = useAtomValue(rankedDataMapAtom);
   const alpha = useAtomValue(correlationAlphaAtom);
   const alternative = useAtomValue(correlationAlternativeAtom);
+  const method = useAtomValue(correlationMethodAtom);
 
   const text: [string, string] | undefined = React.useMemo(() => {
     if (!Array.isArray(comparedSourceTarget)) {
@@ -21,20 +22,43 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
     }
     const [source, target] = comparedSourceTarget;
 
-    const sourceRanks = rankedDataMap.get(source[0]);
-    const targetRanks = rankedDataMap.get(target[0]);
+    if (method === 'pearson') {
+        const sourceValues = source[1];
+        const targetValues = target[1];
 
-    if (!sourceRanks || !targetRanks) {
-      return;
+        const validIndices: number[] = [];
+        sourceValues.forEach((v, i) => {
+            if (v !== null && targetValues[i] !== null) {
+                const vNum = parseFloat(v as string);
+                const tNum = parseFloat(targetValues[i] as string);
+                if (!isNaN(vNum) && !isNaN(tNum)) {
+                    validIndices.push(i);
+                }
+            }
+        });
+
+        if (validIndices.length < 4) return undefined;
+
+        const x = validIndices.map(i => parseFloat(sourceValues[i] as string));
+        const y = validIndices.map(i => parseFloat(targetValues[i] as string));
+
+        const result = calculatePearson(x, y, { alpha, alternative });
+        return [result.print(), JSON.stringify(result, null, "\t")];
+    } else {
+        const sourceRanks = rankedDataMap.get(source[0]);
+        const targetRanks = rankedDataMap.get(target[0]);
+
+        if (!sourceRanks || !targetRanks) {
+          return;
+        }
+
+        const result = calculateSpearmanRanked(sourceRanks, targetRanks, {
+          alpha,
+          alternative,
+        });
+        return [result.print(), JSON.stringify(result, null, "\t")];
     }
-
-    const result = calculateSpearmanRanked(sourceRanks, targetRanks, {
-      alpha,
-      alternative,
-    });
-    // console.log(result.print());
-    return [result.print(), JSON.stringify(result, null, "\t")];
-  }, [comparedSourceTarget, alpha, alternative, rankedDataMap]);
+  }, [comparedSourceTarget, alpha, alternative, rankedDataMap, method]);
 
   return (
     <Transition appear show={!!text} as={Fragment}>
@@ -67,7 +91,7 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
                   as="div"
                   className="flex justify-between items-center text-lg font-medium leading-6 mb-4"
                 >
-                  <span>Spearman Rank Correlation</span>
+                  <span>{method === 'pearson' ? 'Pearson' : 'Spearman Rank'} Correlation</span>
                   <button
                     onClick={onClose}
                     className="text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
