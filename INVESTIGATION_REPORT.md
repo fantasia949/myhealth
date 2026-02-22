@@ -26,11 +26,26 @@ We analyzed the correlations of GGT with PhenoAge components in the full dataset
 GGT acts as a near-perfect **proxy for Chronological Age** in this specific dataset (rho=0.96).
 - Since **Chronological Age** is a direct component of the PhenoAge formula (+0.0804 * Age), any marker that tracks Age perfectly will also track PhenoAge very closely.
 - Unlike RDW-CV (which fights the Age trend), GGT moves in lockstep with Age. This allows it to "ride" the Age contribution to the score without the interference/cancellation effects seen with RDW-CV.
-- Effectively, GGT is ranked highly not because it drives the PhenoAge score directly, but because it is an excellent surrogate for the **Age** term in the formula for this user.
+
+## 3. eGFR vs RDW-CV Rank (Investigated)
+
+The user asked why eGFR (Estimated Glomerular Filtration Rate) is ranked higher (0.5099) than RDW-CV (0.4952).
+
+### Findings
+- **eGFR vs PhenoAge:** -0.65 (Strong negative correlation).
+- **eGFR vs Creatinine:** -0.71 (Strong negative correlation, expected as eGFR is calculated from Creatinine).
+- **Creatinine vs PhenoAge:** 0.69 (Strong positive correlation).
+
+### Explanation
+eGFR is mathematically derived directly from **Creatinine** (and Age/Cystatin C).
+- **Creatinine** is a direct component of the PhenoAge formula with a significant positive correlation (0.69) in this dataset.
+- Because eGFR is inversely proportional to Creatinine (higher Creatinine = lower eGFR), it inherits this strong correlation in the reverse direction.
+- Since Creatinine correlates better with PhenoAge than RDW-CV does (due to the RDW suppression effect explained above), eGFR (as a proxy for Creatinine) also correlates better than RDW-CV.
 
 ## Conclusion
 The application is functioning correctly.
 - RDW-CV's impact is real but masked by its negative interaction with Age.
-- GGT's high rank is a byproduct of its extremely strong correlation with Chronological Age in this dataset.
+- GGT's high rank is due to it being a proxy for Age.
+- eGFR's high rank is due to it being a proxy for Creatinine (which correlates well in this dataset).
 
 No code changes are required.
