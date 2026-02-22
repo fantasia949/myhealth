@@ -176,6 +176,19 @@ export default React.memo(
       setExpandedRowId((prev) => (prev === id ? null : id));
     }, []);
 
+    const cellBaseClasses = React.useMemo(() => {
+      const count = showRecords || labels.length;
+      return Array.from({ length: count }, (_, index) => {
+        const dist = count - 1 - index;
+        return cn("p-2 border border-gray-700 text-right cursor-pointer", {
+          "is-latest": dist === 0,
+          "hidden sm:table-cell": dist === 2,
+          "hidden md:table-cell": dist > 2 && dist <= 4,
+          "hidden lg:table-cell": dist > 4,
+        });
+      });
+    }, [showRecords, labels.length]);
+
     const displayedEntries: DisplayedEntry[] = React.useMemo(() => {
       // Optimization: Pre-calculate visible values/optimality to avoid slicing in the render loop.
       // This reduces render complexity from O(rows * cols) to O(rows), and keeps array references stable
@@ -391,19 +404,13 @@ export default React.memo(
                         {name}
                       </th>
                       {(!showOrigColumns || !extra.hasOrigin) &&
-                        visibleValues.map((value, index, array) => {
-                          // Optimization: simplify index calculations
-                          const dist = array.length - 1 - index;
+                        visibleValues.map((value, index) => {
+                          const baseClass = cellBaseClasses[index];
+                          const isBad = visibleOptimality && visibleOptimality[index];
                           return (
                             <DataCell
-                              className={cn("p-2 border border-gray-700 text-right cursor-pointer", {
-                                // Optimization: remove expensive fallback function call
-                                "v-bad": visibleOptimality && visibleOptimality[index],
-                                "is-latest": dist === 0,
-                                "hidden sm:table-cell": dist === 2,
-                                "hidden md:table-cell": dist > 2 && dist <= 4,
-                                "hidden lg:table-cell": dist > 4,
-                              })}
+                              // Optimization: use pre-calculated base classes to avoid repetitive cn() calls in render loop
+                              className={isBad ? `${baseClass} v-bad` : baseClass}
                               key={index}
                               rawValue={value != null ? value.toString() : ""}
                               displayValue={value}
