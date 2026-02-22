@@ -104,18 +104,12 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
         alternative,
       });
 
-      // Inspect result structure based on @stdlib/stats-pcorrtest types
-      // It returns an object with statistic (correlation coefficient) and pValue
-      // Types say: statistic, pValue, pcorr (alias for statistic?)
-      // Let's check both statistic and pcorr just to be safe, defaulting to rho if it existed (which user said didn't)
-      // User said: "does not have field rho"
-      // Based on docs: field is 'statistic' or 'pcorr'
-
       const rho = result.statistic !== undefined ? result.statistic : result.pcorr;
       const pVal = result.pValue;
 
       // Filter out invalid results (e.g., if rho is NaN)
-      if (rho !== undefined && !isNaN(rho)) {
+      // AND filter out results with pValue > 0.1 per requirement
+      if (rho !== undefined && !isNaN(rho) && pVal <= 0.1) {
         results.push({
           name: suppName,
           rho: rho,
@@ -180,17 +174,17 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
                         >
                           Supplement
                         </th>
-                        <th
+                         <th
                           scope="col"
                           className="py-3 px-2 text-right text-xs font-medium text-gray-400 uppercase tracking-wider bg-[#222222]"
                         >
-                          Rho
+                          P-Value
                         </th>
                         <th
                           scope="col"
                           className="py-3 pl-2 text-right text-xs font-medium text-gray-400 uppercase tracking-wider bg-[#222222]"
                         >
-                          P-Value
+                          Rho
                         </th>
                       </tr>
                     </thead>
@@ -200,15 +194,15 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
                           <td className="py-2 pr-2 text-sm text-gray-200 break-words">
                             {item.name}
                           </td>
-                          <td className="py-2 px-2 text-sm text-right font-mono text-gray-400 whitespace-nowrap">
-                            {item.rho.toFixed(3)}
-                          </td>
-                          <td
-                            className={`py-2 pl-2 text-sm text-right font-mono whitespace-nowrap ${
+                           <td
+                            className={`py-2 px-2 text-sm text-right font-mono whitespace-nowrap ${
                               item.pValue < 0.05 ? "text-green-400 font-bold" : "text-gray-400"
                             }`}
                           >
-                            {item.pValue.toExponential(2)}
+                            {item.pValue.toFixed(4)}
+                          </td>
+                          <td className="py-2 pl-2 text-sm text-right font-mono text-gray-400 whitespace-nowrap">
+                            {item.rho.toFixed(3)}
                           </td>
                         </tr>
                       ))}
@@ -218,7 +212,7 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
                             colSpan={3}
                             className="py-4 text-center text-sm text-gray-500"
                           >
-                            No correlations found (filtered for value &gt; 0).
+                            No correlations found (p &le; 0.1, filtered &gt; 0).
                           </td>
                         </tr>
                       )}
