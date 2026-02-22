@@ -96,6 +96,7 @@ export default {
         "-kava",
         "-vibration",
         "-HMB",
-        "-gingseng"
+        "-gingseng",
+        "+egg"
     ],
 }
