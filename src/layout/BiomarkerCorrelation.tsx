@@ -43,8 +43,6 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
     // Safety check: ensure lengths match
     if (rawValues.length !== noteValues.length) {
       console.warn("Biomarker values and notes length mismatch", rawValues.length, noteValues.length);
-      // We proceed, but indices might be risky if not aligned.
-      // Assuming they align by index as per codebase pattern.
     }
 
     const uniqueSupplements = new Set<string>();
@@ -57,14 +55,16 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
     uniqueSupplements.forEach((suppName) => {
       // 1. Identify valid indices: where biomarker value > 0
       const validIndices: number[] = [];
-      rawValues.forEach((val, index) => {
-        if (typeof val === 'number' && val > 0) {
+      rawValues.forEach((val: any, index) => {
+        // Cast to number just in case it's a string like "5.0"
+        const numVal = Number(val);
+        if (!isNaN(numVal) && numVal > 0) {
             validIndices.push(index);
         }
       });
 
       // If we don't have enough data points, we can't correlate
-      if (validIndices.length < 3) return; // Need at least 3 points for meaningful correlation, though 2 is mathematically possible (rho=1 or -1)
+      if (validIndices.length < 3) return;
 
       // 2. Extract filtered vectors
       const filteredBiomarkerValues: number[] = [];
@@ -75,17 +75,16 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
          // Ensure note exists at index i
          if (i < noteValues.length) {
              const note = noteValues[i];
-             filteredBiomarkerValues.push(rawValues[i]);
+             filteredBiomarkerValues.push(Number(rawValues[i]));
              filteredSuppVector.push(note && note.supps?.includes(suppName) ? 1 : 0);
          }
       });
 
       if (filteredBiomarkerValues.length < 3) return;
 
-      // Check if there is variation in the supplement vector (both 0s and 1s present)
+      // Check if there is variation in the supplement vector
       const hasSuppVariation = filteredSuppVector.some(v => v !== filteredSuppVector[0]);
       if (!hasSuppVariation) {
-        // Cannot calculate correlation if one variable is constant (e.g. supplement always present or always absent in the filtered subset)
         return;
       }
 
@@ -100,17 +99,27 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
       const rankedSupp = rankData(filteredSuppVector);
 
       // 4. Calculate Spearman correlation
-      const result = calculateSpearmanRanked(rankedBiomarker, rankedSupp, {
+      const result: any = calculateSpearmanRanked(rankedBiomarker, rankedSupp, {
         alpha,
         alternative,
       });
 
+      // Inspect result structure based on @stdlib/stats-pcorrtest types
+      // It returns an object with statistic (correlation coefficient) and pValue
+      // Types say: statistic, pValue, pcorr (alias for statistic?)
+      // Let's check both statistic and pcorr just to be safe, defaulting to rho if it existed (which user said didn't)
+      // User said: "does not have field rho"
+      // Based on docs: field is 'statistic' or 'pcorr'
+
+      const rho = result.statistic !== undefined ? result.statistic : result.pcorr;
+      const pVal = result.pValue;
+
       // Filter out invalid results (e.g., if rho is NaN)
-      if (result.rho !== undefined && !isNaN(result.rho)) {
+      if (rho !== undefined && !isNaN(rho)) {
         results.push({
           name: suppName,
-          rho: result.rho,
-          pValue: result.pValue,
+          rho: rho,
+          pValue: pVal,
         });
       }
     });
