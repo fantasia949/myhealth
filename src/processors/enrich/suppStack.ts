@@ -18,7 +18,7 @@ export default (notes: Notes) => {
         if (isNote) {
           return;
         }
-        const token = item.replaceAll(/^(\+|-)/g, "");
+        const token = item.replaceAll(/^(\+|\-|\~)*/g, "");
         if (isTransient) {
           transients.push(token);
         }
