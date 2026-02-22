@@ -1,6 +1,7 @@
 import React, { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import cn from "classnames";
 import { useAtom, useAtomValue, atom } from "jotai";
 import { dataAtom, correlationAlphaAtom, correlationAlternativeAtom, rankedDataMapAtom } from "../atom/dataAtom";
 import { calculateSpearmanRanked } from "../processors/stats";
@@ -138,28 +139,26 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                         </div>
                       </div>
 
-                      <div className="text-xs text-gray-500 mb-2 flex justify-between px-1 uppercase tracking-wider font-semibold">
-                        <span>Biomarker</span>
-                        <div className="flex gap-4">
-                          <span>P-Value</span>
-                          <span>Coeff</span>
-                        </div>
-                      </div>
-
                       {entries && entries.length > 0 ? (
                         <div className="pb-8">
-                          {entries.map((entry) => (
-                            <div
-                              key={entry[0]}
-                              className="flex justify-between items-center border-b border-gray-800 py-2 hover:bg-white/5 px-2 transition-colors rounded-sm"
-                            >
-                              <span className="text-sm truncate pr-2 text-gray-200" style={{ flex: 1 }} title={entry[0]}>{entry[0]}</span>
-                              <div className="flex gap-4 font-mono text-xs">
-                                <span className={entry[2] < 0.001 ? "text-green-400" : "text-gray-400"}>{entry[2].toFixed(6)}</span>
-                                <span className={Math.abs(entry[3]) > 0.7 ? "text-blue-400 font-bold" : "text-gray-400"}>{entry[3].toFixed(4)}</span>
-                              </div>
-                            </div>
-                          ))}
+                          <table className="w-full text-left">
+                            <thead>
+                              <tr className="border-b border-gray-800">
+                                <th scope="col" className="py-2 pl-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Biomarker</th>
+                                <th scope="col" className="py-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">P-Value</th>
+                                <th scope="col" className="py-2 pr-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider pl-4">Coeff</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-800">
+                              {entries.map((entry) => (
+                                <tr key={entry[0]} className="hover:bg-white/5 transition-colors">
+                                  <td className="py-2 pl-2 text-sm text-gray-200 truncate max-w-[150px]" title={entry[0]}>{entry[0]}</td>
+                                  <td className={cn("py-2 text-right font-mono text-xs", entry[2] < 0.001 ? "text-green-400" : "text-gray-400")}>{entry[2].toFixed(6)}</td>
+                                  <td className={cn("py-2 pr-2 text-right font-mono text-xs pl-4", Math.abs(entry[3]) > 0.7 ? "text-blue-400 font-bold" : "text-gray-400")}>{entry[3].toFixed(4)}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
                         </div>
                       ) : (
                         <div className="text-center text-gray-500 text-sm py-12 border border-dashed border-gray-700 rounded bg-white/5">

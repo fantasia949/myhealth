@@ -39,3 +39,7 @@
 ## 2026-10-25 - Scoping Checkbox Locators in Tests
 **Learning:** Generic locators like `input[type="checkbox"]` often match unexpected elements (like navigation toggles) in this layout.
 **Action:** Always scope checkbox locators to their container (e.g., `table input[type="checkbox"]`) to avoid false positives in tests.
+
+## 2025-05-18 - Semantic Tables for Data Lists
+**Learning:** When displaying structured data like correlation results (Biomarker, P-Value, Coeff), a semantic `<table>` is far superior to `div` lists for accessibility. Screen readers provide navigation modes for tables that are missing for lists.
+**Action:** Audit other data lists in dialogs and convert to tables where columns are apparent.
