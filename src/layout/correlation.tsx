@@ -17,6 +17,7 @@ const nonInferredDataAtom = atom((get) => {
 
 export default React.memo(({ target, onClose }: CorrelationProps) => {
   const data = useAtomValue(nonInferredDataAtom);
+  const fullData = useAtomValue(dataAtom); // Access full data for source lookup
   const rankedDataMap = useAtomValue(rankedDataMapAtom);
   const [alpha, setAlpha] = useAtom(correlationAlphaAtom);
   const [alternative, setAlternative] = useAtom(correlationAlternativeAtom);
@@ -29,9 +30,9 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
 
     const entries: [string, number, number, number][] = [];
 
-    // Helper to get raw numeric values for Pearson
+    // Helper to get raw numeric values for Pearson from FULL DATA
     const getValues = (name: string) => {
-       const entry = data.find(d => d[0] === name);
+       const entry = fullData.find(d => d[0] === name);
        return entry ? entry[1] : null;
     };
 
@@ -39,6 +40,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
         const sourceValues = getValues(target);
         if (!sourceValues) return;
 
+        // Iterate over filtered data (non-inferred) as targets
         for (const item of data) {
             if (item[0] === target) continue;
             const targetValues = item[1];
@@ -92,7 +94,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
     entries.sort((a, b) => a[2] - b[2]);
 
     return entries;
-  }, [data, target, alpha, alternative, rankedDataMap, method]);
+  }, [data, fullData, target, alpha, alternative, rankedDataMap, method]);
 
   return (
     <Transition appear show={!!target} as={Fragment}>
