@@ -4,7 +4,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useAtomValue } from "jotai";
 import {
   notesAtom,
-  rankedDataMapAtom,
+  dataAtom,
   correlationAlphaAtom,
   correlationAlternativeAtom,
 } from "../atom/dataAtom";
@@ -23,19 +23,30 @@ interface CorrelationResult {
 
 const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorrelationProps) => {
   const notes = useAtomValue(notesAtom);
-  const rankedDataMap = useAtomValue(rankedDataMapAtom);
-  const alpha = useAtomValue(correlationAlphaAtom);
+  const data = useAtomValue(dataAtom); // Access raw data
+  const alpha = 0.05;
   const alternative = useAtomValue(correlationAlternativeAtom);
 
   const correlations = useMemo(() => {
     if (!biomarkerId) return [];
 
-    const biomarkerRanks = rankedDataMap.get(biomarkerId);
-    if (!biomarkerRanks) return [];
+    // Find the biomarker entry in the raw data
+    const biomarkerEntry = data.find((entry) => entry[0] === biomarkerId);
+    if (!biomarkerEntry) return [];
+
+    const rawValues = biomarkerEntry[1]; // number[]
 
     // Extract all unique supplements
     // notes is an object keyed by date string. The values order corresponds to the data indices.
     const noteValues = Object.values(notes);
+
+    // Safety check: ensure lengths match
+    if (rawValues.length !== noteValues.length) {
+      console.warn("Biomarker values and notes length mismatch", rawValues.length, noteValues.length);
+      // We proceed, but indices might be risky if not aligned.
+      // Assuming they align by index as per codebase pattern.
+    }
+
     const uniqueSupplements = new Set<string>();
     noteValues.forEach((note) => {
       note.supps?.forEach((supp) => uniqueSupplements.add(supp));
@@ -44,16 +55,52 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
     const results: CorrelationResult[] = [];
 
     uniqueSupplements.forEach((suppName) => {
-      // Create binary vector: 1 if supplement is present, 0 otherwise
-      const binaryVector = noteValues.map((note) =>
-        note.supps?.includes(suppName) ? 1 : 0
-      );
+      // 1. Identify valid indices: where biomarker value > 0
+      const validIndices: number[] = [];
+      rawValues.forEach((val, index) => {
+        if (typeof val === 'number' && val > 0) {
+            validIndices.push(index);
+        }
+      });
 
-      // Rank the binary vector
-      const rankedSupp = rankData(binaryVector);
+      // If we don't have enough data points, we can't correlate
+      if (validIndices.length < 3) return; // Need at least 3 points for meaningful correlation, though 2 is mathematically possible (rho=1 or -1)
 
-      // Calculate Spearman correlation
-      const result = calculateSpearmanRanked(biomarkerRanks, rankedSupp, {
+      // 2. Extract filtered vectors
+      const filteredBiomarkerValues: number[] = [];
+      const filteredSuppVector: number[] = [];
+
+      validIndices.forEach(i => {
+         // Check if supplement was present at this index
+         // Ensure note exists at index i
+         if (i < noteValues.length) {
+             const note = noteValues[i];
+             filteredBiomarkerValues.push(rawValues[i]);
+             filteredSuppVector.push(note && note.supps?.includes(suppName) ? 1 : 0);
+         }
+      });
+
+      if (filteredBiomarkerValues.length < 3) return;
+
+      // Check if there is variation in the supplement vector (both 0s and 1s present)
+      const hasSuppVariation = filteredSuppVector.some(v => v !== filteredSuppVector[0]);
+      if (!hasSuppVariation) {
+        // Cannot calculate correlation if one variable is constant (e.g. supplement always present or always absent in the filtered subset)
+        return;
+      }
+
+      // Check variation in biomarker values
+      const hasBiomarkerVariation = filteredBiomarkerValues.some(v => v !== filteredBiomarkerValues[0]);
+      if (!hasBiomarkerVariation) {
+          return;
+      }
+
+      // 3. Rank the filtered vectors
+      const rankedBiomarker = rankData(filteredBiomarkerValues);
+      const rankedSupp = rankData(filteredSuppVector);
+
+      // 4. Calculate Spearman correlation
+      const result = calculateSpearmanRanked(rankedBiomarker, rankedSupp, {
         alpha,
         alternative,
       });
@@ -70,7 +117,7 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
 
     // Sort by P-value ascending
     return results.sort((a, b) => a.pValue - b.pValue);
-  }, [biomarkerId, notes, rankedDataMap, alpha, alternative]);
+  }, [biomarkerId, notes, data, alpha, alternative]);
 
   if (!biomarkerId) return null;
 
@@ -162,7 +209,7 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
                             colSpan={3}
                             className="py-4 text-center text-sm text-gray-500"
                           >
-                            No correlations found.
+                            No correlations found (filtered for value &gt; 0).
                           </td>
                         </tr>
                       )}
