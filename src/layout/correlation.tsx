@@ -49,7 +49,9 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
         alternative: alternative,
       });
       if (result.pValue <= alpha) {
-        entries.push([item[0], result.statistic, result.pValue, result.pcorr]);
+        // Use result.rho for the coefficient if available, otherwise fallback to pcorr
+        const rho = result.rho ?? result.pcorr;
+        entries.push([item[0], result.statistic, result.pValue, rho]);
       }
     }
     entries.sort((a, b) => a[2] - b[2]);

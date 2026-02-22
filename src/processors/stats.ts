@@ -32,7 +32,12 @@ export function calculateSpearmanRanked(
   options: { alpha: number; alternative: "two-sided" | "less" | "greater" }
 ) {
   // Spearman correlation is Pearson correlation on ranks
-  return pcorrtest(rankedX, rankedY, options);
+  const result = pcorrtest(rankedX, rankedY, options);
+  // Alias pcorr (if present) to rho for consistency
+  if (result.pcorr !== undefined && result.rho === undefined) {
+    result.rho = result.pcorr;
+  }
+  return result;
 }
 
 export function calculateSpearman(
