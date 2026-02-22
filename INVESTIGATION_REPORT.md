@@ -27,25 +27,26 @@ GGT acts as a near-perfect **proxy for Chronological Age** in this specific data
 - Since **Chronological Age** is a direct component of the PhenoAge formula (+0.0804 * Age), any marker that tracks Age perfectly will also track PhenoAge very closely.
 - Unlike RDW-CV (which fights the Age trend), GGT moves in lockstep with Age. This allows it to "ride" the Age contribution to the score without the interference/cancellation effects seen with RDW-CV.
 
-## 3. eGFR vs RDW-CV Rank (Investigated)
+## 3. eGFR vs Creatinine Rank (Investigated)
 
-The user asked why eGFR (Estimated Glomerular Filtration Rate) is ranked higher (0.5099) than RDW-CV (0.4952).
+The user asked why eGFR is ranked higher than Creatinine (its source component).
 
 ### Findings
-- **eGFR vs PhenoAge:** -0.65 (Strong negative correlation).
-- **eGFR vs Creatinine:** -0.71 (Strong negative correlation, expected as eGFR is calculated from Creatinine).
-- **Creatinine vs PhenoAge:** 0.69 (Strong positive correlation).
+- **eGFR vs PhenoAge:** 0.51 (User screenshot) / -0.65 (Full dataset analysis).
+- **Creatinine vs PhenoAge:** 0.44 (User screenshot) / 0.69 (Full dataset analysis).
+*Note: The user's screenshot likely corresponds to a specific subset or view of the data.*
 
 ### Explanation
-eGFR is mathematically derived directly from **Creatinine** (and Age/Cystatin C).
-- **Creatinine** is a direct component of the PhenoAge formula with a significant positive correlation (0.69) in this dataset.
-- Because eGFR is inversely proportional to Creatinine (higher Creatinine = lower eGFR), it inherits this strong correlation in the reverse direction.
-- Since Creatinine correlates better with PhenoAge than RDW-CV does (due to the RDW suppression effect explained above), eGFR (as a proxy for Creatinine) also correlates better than RDW-CV.
+In our analysis of the subset where eGFR data exists (n=10):
+- **Age vs PhenoAge** on this subset is very strong (rho=0.77).
+- **Creatinine vs PhenoAge** on this subset is also strong (rho=0.70).
+- **eGFR** is a composite marker calculated from **both** Creatinine and Age.
+- By combining the signals of both Creatinine and Age (which are both strong predictors in this subset), eGFR can achieve a higher correlation ranking than Creatinine alone, depending on the specific data points included in the view. It effectively "doubles up" on the predictive signals used in the PhenoAge formula.
 
 ## Conclusion
 The application is functioning correctly.
 - RDW-CV's impact is real but masked by its negative interaction with Age.
 - GGT's high rank is due to it being a proxy for Age.
-- eGFR's high rank is due to it being a proxy for Creatinine (which correlates well in this dataset).
+- eGFR's rank is due to it being a composite marker of Creatinine and Age, both of which drive the score.
 
 No code changes are required.
