@@ -16,9 +16,10 @@ import {
   GroupingState,
   ExpandedState,
 } from "@tanstack/react-table";
-import { ChevronRightIcon, ChevronDownIcon, ChartBarIcon, MinusIcon } from "@heroicons/react/24/outline";
+import { ChevronRightIcon, ChevronDownIcon, ChartBarIcon, MinusIcon, CalculatorIcon } from "@heroicons/react/24/outline";
 import { averageCountAtom } from "../atom/averageValueAtom";
 import LineChart from "./LineChart";
+import BiomarkerCorrelation from "./BiomarkerCorrelation";
 
 interface TableProps {
   showOrigColumns: boolean;
@@ -164,6 +165,7 @@ export default React.memo(
     const convertedEntries = useAtomValue(visibleDataAtom);
     const averageCountValue = useAtomValue(averageCountAtom);
     const notes = useAtomValue(notesAtom);
+    const [correlationBiomarker, setCorrelationBiomarker] = React.useState<string | null>(null);
     const filterText = useAtomValue(filterTextAtom);
     const tag = useAtomValue(tagAtom);
     const [expandedRowId, setExpandedRowId] = React.useState<string | null>(null);
@@ -382,20 +384,31 @@ export default React.memo(
                         />
                       </td>
                       <td className="p-2 border border-gray-700 text-center align-middle">
-                        <button
-                          type="button"
-                          onClick={() => toggleExpand(row.id)}
-                          title="Toggle Chart"
-                          className="block w-full hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded flex justify-center"
-                          aria-label={isExpanded ? "Collapse chart" : "Expand chart"}
-                          aria-expanded={isExpanded}
-                        >
-                          {isExpanded ? (
-                            <MinusIcon className="h-5 w-5" />
-                          ) : (
-                            <ChartBarIcon className="h-5 w-5" />
-                          )}
-                        </button>
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => toggleExpand(row.id)}
+                            title="Toggle Chart"
+                            className="hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-1"
+                            aria-label={isExpanded ? "Collapse chart" : "Expand chart"}
+                            aria-expanded={isExpanded}
+                          >
+                            {isExpanded ? (
+                              <MinusIcon className="h-5 w-5" />
+                            ) : (
+                              <ChartBarIcon className="h-5 w-5" />
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setCorrelationBiomarker(name)}
+                            title="View Correlations"
+                            className="hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-1"
+                            aria-label={`View correlations for ${name}`}
+                          >
+                            <CalculatorIcon className="h-5 w-5" />
+                          </button>
+                        </div>
                       </td>
                       <th
                         className="p-2 border border-gray-700 whitespace-nowrap sticky-left bg-dark-table-row"
@@ -471,6 +484,10 @@ export default React.memo(
             ))}
           </tfoot>
         </table>
+        <BiomarkerCorrelation
+          biomarkerId={correlationBiomarker}
+          onClose={() => setCorrelationBiomarker(null)}
+        />
       </React.Suspense>
     );
   }
