@@ -2,8 +2,8 @@ import React, { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useAtom, useAtomValue, atom } from "jotai";
-import { dataAtom, correlationAlphaAtom, correlationAlternativeAtom, rankedDataMapAtom } from "../atom/dataAtom";
-import { calculateSpearmanRanked } from "../processors/stats";
+import { dataAtom, correlationAlphaAtom, correlationAlternativeAtom, rankedDataMapAtom, correlationMethodAtom } from "../atom/dataAtom";
+import { calculateSpearmanRanked, calculatePearson } from "../processors/stats";
 
 interface CorrelationProps {
   target: string | null;
@@ -17,44 +17,84 @@ const nonInferredDataAtom = atom((get) => {
 
 export default React.memo(({ target, onClose }: CorrelationProps) => {
   const data = useAtomValue(nonInferredDataAtom);
+  const fullData = useAtomValue(dataAtom); // Access full data for source lookup
   const rankedDataMap = useAtomValue(rankedDataMapAtom);
   const [alpha, setAlpha] = useAtom(correlationAlphaAtom);
   const [alternative, setAlternative] = useAtom(correlationAlternativeAtom);
+  const [method, setMethod] = useAtom(correlationMethodAtom);
 
   const entries = React.useMemo(() => {
     if (!Array.isArray(data) || !target) {
       return;
     }
 
-    // Optimization: lookup O(1) from pre-calculated map
-    const sourceRanks = rankedDataMap.get(target);
-    if (!sourceRanks) {
-      return;
-    }
-
     const entries: [string, number, number, number][] = [];
 
-    for (const item of data) {
-      if (item[0] === target) {
-        continue;
-      }
+    // Helper to get raw numeric values for Pearson from FULL DATA
+    const getValues = (name: string) => {
+       const entry = fullData.find(d => d[0] === name);
+       return entry ? entry[1] : null;
+    };
 
-      // Optimization: lookup O(1) from pre-calculated map instead of calculating ranks O(V log V)
-      const targetRanks = rankedDataMap.get(item[0]);
-      if (!targetRanks) continue;
+    if (method === 'pearson') {
+        const sourceValues = getValues(target);
+        if (!sourceValues) return;
 
-      const result = calculateSpearmanRanked(sourceRanks, targetRanks, {
-        alpha: alpha,
-        alternative: alternative,
-      });
-      if (result.pValue <= alpha) {
-        entries.push([item[0], result.statistic, result.pValue, result.pcorr]);
-      }
+        // Iterate over filtered data (non-inferred) as targets
+        for (const item of data) {
+            if (item[0] === target) continue;
+            const targetValues = item[1];
+
+            // Pairwise deletion for Pearson
+            const validIndices: number[] = [];
+            sourceValues.forEach((v, i) => {
+               if (v !== null && targetValues[i] !== null) {
+                   // Ensure numeric
+                   const vNum = parseFloat(v as string);
+                   const tNum = parseFloat(targetValues[i] as string);
+                   if (!isNaN(vNum) && !isNaN(tNum)) {
+                       validIndices.push(i);
+                   }
+               }
+            });
+
+            if (validIndices.length < 4) continue;
+
+            const x = validIndices.map(i => parseFloat(sourceValues[i] as string));
+            const y = validIndices.map(i => parseFloat(targetValues[i] as string));
+
+            const result = calculatePearson(x, y, { alpha, alternative });
+             if (result.pValue <= alpha) {
+                entries.push([item[0], result.statistic, result.pValue, result.pcorr]);
+            }
+        }
+    } else {
+        // Spearman (existing optimization)
+        const sourceRanks = rankedDataMap.get(target);
+        if (!sourceRanks) return;
+
+        for (const item of data) {
+          if (item[0] === target) {
+            continue;
+          }
+
+          const targetRanks = rankedDataMap.get(item[0]);
+          if (!targetRanks) continue;
+
+          const result = calculateSpearmanRanked(sourceRanks, targetRanks, {
+            alpha: alpha,
+            alternative: alternative,
+          });
+          if (result.pValue <= alpha) {
+            entries.push([item[0], result.statistic, result.pValue, result.pcorr]);
+          }
+        }
     }
+
     entries.sort((a, b) => a[2] - b[2]);
 
     return entries;
-  }, [data, target, alpha, alternative, rankedDataMap]);
+  }, [data, fullData, target, alpha, alternative, rankedDataMap, method]);
 
   return (
     <Transition appear show={!!target} as={Fragment}>
@@ -106,8 +146,20 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
 
                     <div className="relative mt-2 flex-1 px-4 sm:px-6">
                       <div className="mb-4 p-3 border border-gray-700 rounded bg-dark-bg/50">
-                        <div className="text-xs font-bold mb-2 text-gray-400 uppercase tracking-wider">Spearman Correlation Settings</div>
+                        <div className="text-xs font-bold mb-2 text-gray-400 uppercase tracking-wider">{method === 'pearson' ? 'Pearson' : 'Spearman'} Correlation Settings</div>
                         <div className="flex flex-col gap-2">
+                           <div className="flex justify-between items-center">
+                            <label htmlFor="corr-method" className="text-xs text-gray-300">Method:</label>
+                            <select
+                              id="corr-method"
+                              value={method}
+                              onChange={(e) => setMethod(e.target.value as any)}
+                              className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white"
+                            >
+                              <option value="spearman">Spearman</option>
+                              <option value="pearson">Pearson</option>
+                            </select>
+                          </div>
                           <div className="flex justify-between items-center">
                             <label htmlFor="corr-alpha" className="text-xs text-gray-300">Alpha Threshold:</label>
                                                         <select

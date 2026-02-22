@@ -44,3 +44,11 @@ export function calculateSpearman(
   const rankedY = rankData(y);
   return calculateSpearmanRanked(rankedX, rankedY, options);
 }
+
+export function calculatePearson(
+  x: number[],
+  y: number[],
+  options: { alpha: number; alternative: "two-sided" | "less" | "greater" }
+) {
+  return pcorrtest(x, y, options);
+}

@@ -28,6 +28,7 @@ export function getPhenotypicAge(
   const bCrp = 0.0954;
   const bLymphocytePercent = -0.012;
   const bMcv = 0.0268;
+  // RDW has the largest coefficient (highest theoretical impact), but observed correlation may be lower depending on data distribution and interaction with Age.
   const bRdw = 0.3306;
   const bAlkalinePhosphatase = 0.00188;
   const bWhiteBloodCellCount = 0.0554;
