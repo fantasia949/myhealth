@@ -1,0 +1,15 @@
+
+> myhealth@1.0.0 dev /app
+> vite
+
+
+  VITE v7.1.12  ready in 574 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+3:57:47 AM [vite] (client) hmr update /src/index.css
+3:57:47 AM [vite] (client) hmr update /src/index.css
+3:58:31 AM [vite] (client) hmr update /src/index.css
+4:01:17 AM [vite] (client) hmr update /src/layout/correlation.tsx, /src/index.css
+4:01:23 AM [vite] (client) hmr update /src/layout/pValue.tsx, /src/index.css
+4:03:23 AM [vite] (client) hmr update /src/index.css
