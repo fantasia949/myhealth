@@ -62,7 +62,7 @@ type Props = {
   onOriginValueToggle: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onVisualize: () => void;
   onPValue: () => void;
-  onCorrelation: () => void;
+
 };
 
 export default React.memo<Props>(
@@ -82,7 +82,7 @@ export default React.memo<Props>(
     onOriginValueToggle,
     onVisualize,
     onPValue,
-    onCorrelation,
+
   }) => {
     const [averageCount, setAverageCount] = useAtom(averageCountAtom);
     const key = useAtomValue(aiKeyAtom);
@@ -381,15 +381,7 @@ export default React.memo<Props>(
                     P-Value
                   </button>
                 )}
-                {selected.length === 1 && (
-                  <button
-                    type="button"
-                    className="px-4 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-500 w-full lg:w-auto"
-                    onClick={onCorrelation}
-                  >
-                    Correlations
-                  </button>
-                )}
+
                 {selected.length > 0 && (
                   <button
                     type="button"

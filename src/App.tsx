@@ -144,7 +144,7 @@ export default function App() {
 
   const onVisualize = React.useCallback(() => {
     setChartKeys((keys) => (!keys ? selected : null));
-  }, [selected]);
+  }, []);
 
   const onPValue = React.useCallback(() => {
     let sourceTarget: (BioMarker | undefined)[] = data.filter(([name]) =>
@@ -164,14 +164,14 @@ export default function App() {
     });
   }, [selected, data]);
 
-  const onCorrelation = React.useCallback(() => {
+  const onCorrelation = React.useCallback((name: string) => {
     setCorrelationKey((v) => {
-      if (selected[0] === v) {
+      if (name === v) {
         return null;
       }
-      return selected[0];
+      return name;
     });
-  }, [selected]);
+  }, []);
 
   const onChartTypeChange = React.useCallback((type: string) => {
     setChartType(type);
@@ -208,7 +208,6 @@ export default function App() {
     onOriginValueToggle,
     onVisualize,
     onPValue,
-    onCorrelation,
   };
 
   const tableProps = {
@@ -217,6 +216,7 @@ export default function App() {
     onSelect,
     showRecords,
     onClearFilters,
+    onCorrelation,
   };
 
   return (

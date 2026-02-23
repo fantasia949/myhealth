@@ -11,31 +11,32 @@ test('Correlation controls appear and are functional', async ({ page }) => {
   const rowLocator = page.locator('tbody tr:has(input[type="checkbox"])').first();
   await expect(rowLocator).toBeVisible({ timeout: 10000 });
 
-  // Select the first row
-  const firstCheckbox = rowLocator.locator('input[type="checkbox"]');
-  await firstCheckbox.check();
-
-  // Click "Correlation" button
-  const correlationButton = page.getByRole('button', { name: 'Correlation' });
+  // Locate the new button in the first row
+  const correlationButton = rowLocator.locator('button[aria-label="Correlation Analysis"]');
   await expect(correlationButton).toBeVisible();
+
+  // Click it
   await correlationButton.click();
 
   // Check if Correlation view appears
-  const correlationView = page.getByText('Spearman Correlation Settings');
-  await expect(correlationView).toBeVisible();
+  // Use a more generic locator that is sure to be there.
+  // Wait for the panel to slide in
+  await page.waitForTimeout(2000);
+
+  // Check for the Close button using a specific locator
+  // Button with class containing "relative rounded-md text-gray-400 hover:text-white"
+  // Or just by the XMarkIcon inside it
+  const closeButton = page.locator('button').filter({ has: page.locator('svg') }).filter({ hasText: 'Close panel' });
+  await expect(closeButton).toBeVisible();
 
   // Check for new controls - now SELECT instead of INPUT for alpha
   const alphaSelect = page.locator('select#corr-alpha');
   await expect(alphaSelect).toBeVisible();
-  // Default might be 0.01 but let's check it's one of the options
-  // It's persisted, so if run before it might be different, but let's assume default or current state.
-  // We will set it explicitly.
 
   const hypothesisSelect = page.locator('select#corr-alt');
   await expect(hypothesisSelect).toBeVisible();
 
   // Change alpha using selectOption
-  // The values are numbers in the component but strings in HTML attributes
   await alphaSelect.selectOption('0.05');
 
   // Change hypothesis
@@ -47,9 +48,9 @@ test('Correlation controls appear and are functional', async ({ page }) => {
   // Wait for load again
   await expect(rowLocator).toBeVisible({ timeout: 10000 });
 
-  // Re-select and open
-  await firstCheckbox.check();
-  await correlationButton.click();
+  // Re-open using the row button
+  const newRowLocator = page.locator('tbody tr:has(input[type="checkbox"])').first();
+  await newRowLocator.locator('button[aria-label="Correlation Analysis"]').click();
 
   // Check values
   await expect(alphaSelect).toHaveValue('0.05');
