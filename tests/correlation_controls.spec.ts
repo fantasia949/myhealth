@@ -16,7 +16,7 @@ test('Correlation controls appear and are functional', async ({ page }) => {
   await firstCheckbox.check();
 
   // Click "Correlation" button
-  const correlationButton = page.getByRole('button', { name: 'Correlation' });
+  const correlationButton = page.getByRole('button', { name: 'Correlations', exact: true });
   await expect(correlationButton).toBeVisible();
   await correlationButton.click();
 
