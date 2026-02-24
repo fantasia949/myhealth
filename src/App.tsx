@@ -192,7 +192,9 @@ export default function App() {
     });
   }, [setFilterTag, setFilterText]);
 
-  const navProps = {
+  // Optimization: Memoize props passed to components to prevent unnecessary re-renders.
+  // navProps changes on every keystroke (due to searchText), so Nav will re-render, which is correct.
+  const navProps = React.useMemo(() => ({
     selected,
     onSelect,
     chartType,
@@ -208,16 +210,46 @@ export default function App() {
     onOriginValueToggle,
     onVisualize,
     onPValue,
-  };
+  }), [
+    selected,
+    onSelect,
+    chartType,
+    onChartTypeChange,
+    onClearSelection,
+    searchText,
+    filterTag,
+    showOrigColumns,
+    showRecords,
+    onShowRecordsChange,
+    onTextChange,
+    onFilterByTag,
+    onOriginValueToggle,
+    onVisualize,
+    onPValue
+  ]);
 
-  const tableProps = {
+  // Optimization: tableProps does NOT include searchText. It only includes state relevant to the table.
+  // This prevents the heavy Table component from re-rendering on every keystroke in the search input,
+  // since Table relies on the debounced filterTextAtom, not the immediate searchText.
+  const tableProps = React.useMemo(() => ({
     showOrigColumns,
     selected,
     onSelect,
     showRecords,
     onClearFilters,
     onCorrelation,
-  };
+  }), [
+    showOrigColumns,
+    selected,
+    onSelect,
+    showRecords,
+    onClearFilters,
+    onCorrelation
+  ]);
+
+  // Optimization: Memoize onClose handlers to ensure referential stability for React.memo components
+  const onPValueClose = React.useCallback(() => setSourceTarget(null), []);
+  const onCorrelationClose = React.useCallback(() => setCorrelationKey(null), []);
 
   return (
     <>
@@ -227,11 +259,11 @@ export default function App() {
       <Nav {...navProps} />
       <PValue
         comparedSourceTarget={comparedSourceTarget}
-        onClose={() => setSourceTarget(null)}
+        onClose={onPValueClose}
       />
       <Correlation
         target={corrlationKey}
-        onClose={() => setCorrelationKey(null)}
+        onClose={onCorrelationClose}
       />
       {chartKeys && chartKeys.length > 0 && chartType === 'scatter' && <ScatterChart data={data} keys={chartKeys} />}
       <Table {...tableProps} />
