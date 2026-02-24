@@ -16,12 +16,13 @@ import {
   GroupingState,
   ExpandedState,
 } from "@tanstack/react-table";
-import { ChevronRightIcon, ChevronDownIcon, ChartBarIcon, MinusIcon, CalculatorIcon } from "@heroicons/react/24/outline";
+import { ChevronRightIcon, ChevronDownIcon, ChartBarIcon, MinusIcon, CalculatorIcon, ArrowsRightLeftIcon } from "@heroicons/react/24/outline";
 import { averageCountAtom } from "../atom/averageValueAtom";
 import LineChart from "./LineChart";
 import BiomarkerCorrelation from "./BiomarkerCorrelation";
 
 interface TableProps {
+  onCorrelation: (name: string) => void;
   showOrigColumns: boolean;
   selected: string[];
   onSelect: (name: string) => void;
@@ -161,7 +162,7 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
 ];
 
 export default React.memo(
-  ({ showOrigColumns, selected, onSelect, showRecords, onClearFilters }: TableProps) => {
+  ({ showOrigColumns, selected, onSelect, showRecords, onClearFilters, onCorrelation }: TableProps) => {
     const convertedEntries = useAtomValue(visibleDataAtom);
     const averageCountValue = useAtomValue(averageCountAtom);
     const notes = useAtomValue(notesAtom);
@@ -398,6 +399,15 @@ export default React.memo(
                             ) : (
                               <ChartBarIcon className="h-5 w-5" />
                             )}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onCorrelation(name)}
+                            title="Correlation Analysis"
+                            className="hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-1"
+                            aria-label="Correlation Analysis"
+                          >
+                            <ArrowsRightLeftIcon className="h-5 w-5" />
                           </button>
                           <button
                             type="button"
