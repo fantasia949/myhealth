@@ -39,3 +39,7 @@
 ## 2026-10-25 - Scoping Checkbox Locators in Tests
 **Learning:** Generic locators like `input[type="checkbox"]` often match unexpected elements (like navigation toggles) in this layout.
 **Action:** Always scope checkbox locators to their container (e.g., `table input[type="checkbox"]`) to avoid false positives in tests.
+
+## 2026-03-05 - Refactoring Text to Icons
+**Learning:** Playwright tests often rely on text content (e.g., `hasText: "?"`) which breaks immediately when refactoring to icons.
+**Action:** When replacing text with icons, always proactively update associated tests to use robust locators like `aria-label` or `role`, and verify the new locator works before committing.
