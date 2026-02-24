@@ -141,11 +141,14 @@ test('supplements popover button has accessible label', async ({ page }) => {
 
   // Find the button with visible text "?"
   // We use filter hasText to find the button element containing "?"
-  const popoverButton = page.locator('button').filter({ hasText: '?' }).first();
+  const popoverButton = page.locator('button[aria-label="View supplements"]').first();
 
   // Verify it's visible
   await expect(popoverButton).toBeVisible();
 
   // Verify it has the expected aria-label
   await expect(popoverButton).toHaveAttribute('aria-label', 'View supplements');
+
+  // Verify it has the expected title
+  await expect(popoverButton).toHaveAttribute('title', 'View supplements taken on this date');
 });

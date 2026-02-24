@@ -13,7 +13,7 @@ test('supplements popover functionality', async ({ page }) => {
 
   // Locate the "?" button in the footer
   // Use a specific locator to avoid confusion with other "?"
-  const popoverButton = page.locator('tfoot button:has-text("?")').first();
+  const popoverButton = page.locator('tfoot button[aria-label="View supplements"]').first();
 
   // Ensure it exists
   const count = await popoverButton.count();

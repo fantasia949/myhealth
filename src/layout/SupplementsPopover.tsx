@@ -1,4 +1,5 @@
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react'
+import { BeakerIcon } from '@heroicons/react/24/outline'
 import cn from 'classnames'
 
 interface Props {
@@ -12,9 +13,10 @@ export default function SupplementsPopover({ supps }: Props) {
     <Popover className="w-full h-full flex justify-center items-center">
       <PopoverButton
         aria-label="View supplements"
-        className="w-full h-full cursor-pointer hover:bg-gray-800 hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded font-bold transition-colors flex justify-center items-center"
+        title="View supplements taken on this date"
+        className="w-full h-full cursor-pointer hover:bg-gray-800 hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded font-bold transition-colors flex justify-center items-center p-1"
       >
-        ?
+        <BeakerIcon className="h-5 w-5" />
       </PopoverButton>
       <PopoverPanel
         anchor="top"
