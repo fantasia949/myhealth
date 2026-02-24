@@ -64,6 +64,11 @@ export const visibleDataAtom = atom((get) => {
     const words = lowerFilterText.split(" ").filter(Boolean);
     const hasFilterText = !!filterText;
 
+    // Optimization: Hoist invariant check outside of filter loop.
+    if (hasFilterText && words.length === 0) {
+      return [];
+    }
+
     data = data.filter((entry) => {
       const matchedTag = !tag || entry[3].tag.includes(tag);
       if (!matchedTag) {
@@ -72,10 +77,6 @@ export const visibleDataAtom = atom((get) => {
 
       if (!hasFilterText) {
         return true;
-      }
-
-      if (words.length === 0) {
-        return false;
       }
 
       // Optimization: use pre-calculated lowercase title to avoid O(N) string allocation in filter loop

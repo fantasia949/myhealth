@@ -29,8 +29,8 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
         const validIndices: number[] = [];
         sourceValues.forEach((v, i) => {
             if (v !== null && targetValues[i] !== null) {
-                const vNum = parseFloat(v as string);
-                const tNum = parseFloat(targetValues[i] as string);
+                const vNum = Number(v);
+                const tNum = Number(targetValues[i]);
                 if (!isNaN(vNum) && !isNaN(tNum)) {
                     validIndices.push(i);
                 }
@@ -39,8 +39,8 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
 
         if (validIndices.length < 4) return undefined;
 
-        const x = validIndices.map(i => parseFloat(sourceValues[i] as string));
-        const y = validIndices.map(i => parseFloat(targetValues[i] as string));
+        const x = validIndices.map(i => Number(sourceValues[i]));
+        const y = validIndices.map(i => Number(targetValues[i]));
 
         const result = calculatePearson(x, y, { alpha, alternative });
         return [result.print(), JSON.stringify(result, null, "\t")];

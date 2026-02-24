@@ -50,8 +50,8 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
             sourceValues.forEach((v, i) => {
                if (v !== null && targetValues[i] !== null) {
                    // Ensure numeric
-                   const vNum = parseFloat(v as string);
-                   const tNum = parseFloat(targetValues[i] as string);
+                   const vNum = Number(v);
+                   const tNum = Number(targetValues[i]);
                    if (!isNaN(vNum) && !isNaN(tNum)) {
                        validIndices.push(i);
                    }
@@ -60,8 +60,8 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
 
             if (validIndices.length < 4) continue;
 
-            const x = validIndices.map(i => parseFloat(sourceValues[i] as string));
-            const y = validIndices.map(i => parseFloat(targetValues[i] as string));
+            const x = validIndices.map(i => Number(sourceValues[i]));
+            const y = validIndices.map(i => Number(targetValues[i]));
 
             const result = calculatePearson(x, y, { alpha, alternative });
              if (result.pValue <= alpha) {
@@ -190,35 +190,42 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                         </div>
                       </div>
 
-                      <div className="text-xs text-gray-500 mb-2 flex justify-between px-1 uppercase tracking-wider font-semibold">
-                        <span>Biomarker</span>
-                        <div className="flex gap-4">
-                          <span>P-Value</span>
-                          <span>Coeff</span>
-                        </div>
-                      </div>
-
-                      {entries && entries.length > 0 ? (
-                        <div className="pb-8">
-                          {entries.map((entry) => (
-                            <div
-                              key={entry[0]}
-                              className="flex justify-between items-center border-b border-gray-800 py-2 hover:bg-white/5 px-2 transition-colors rounded-sm"
-                            >
-                              <span className="text-sm truncate pr-2 text-gray-200" style={{ flex: 1 }} title={entry[0]}>{entry[0]}</span>
-                              <div className="flex gap-4 font-mono text-xs">
-                                <span className={entry[2] < 0.001 ? "text-green-400" : "text-gray-400"}>{entry[2].toFixed(6)}</span>
-                                <span className={Math.abs(entry[3]) > 0.7 ? "text-blue-400 font-bold" : "text-gray-400"}>{entry[3].toFixed(4)}</span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-center text-gray-500 text-sm py-12 border border-dashed border-gray-700 rounded bg-white/5">
-                          No significant correlations found.<br/>
-                          <span className="text-xs mt-2 block text-gray-600">Try increasing the Alpha threshold or changing the hypothesis.</span>
-                        </div>
-                      )}
+                      <table className="min-w-full mb-8">
+                        <thead>
+                          <tr className="border-b border-gray-800">
+                            <th scope="col" className="text-left text-xs text-gray-500 uppercase tracking-wider font-semibold py-2 px-1">Biomarker</th>
+                            <th scope="col" className="text-right text-xs text-gray-500 uppercase tracking-wider font-semibold py-2 px-1 w-24">P-Value</th>
+                            <th scope="col" className="text-right text-xs text-gray-500 uppercase tracking-wider font-semibold py-2 px-1 w-20">Coeff</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-800">
+                          {entries && entries.length > 0 ? (
+                            entries.map((entry) => (
+                              <tr
+                                key={entry[0]}
+                                className="hover:bg-white/5 transition-colors"
+                              >
+                                <td className="py-2 px-1 text-sm text-gray-200 truncate max-w-[200px]" title={entry[0]}>
+                                  {entry[0]}
+                                </td>
+                                <td className={`py-2 px-1 text-right font-mono text-xs whitespace-nowrap ${entry[2] < 0.001 ? "text-green-400" : "text-gray-400"}`}>
+                                  {entry[2].toFixed(6)}
+                                </td>
+                                <td className={`py-2 px-1 text-right font-mono text-xs whitespace-nowrap ${Math.abs(entry[3]) > 0.7 ? "text-blue-400 font-bold" : "text-gray-400"}`}>
+                                  {entry[3].toFixed(4)}
+                                </td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan={3} className="py-12 text-center text-sm text-gray-500 border border-dashed border-gray-700 rounded bg-white/5">
+                                No significant correlations found.<br/>
+                                <span className="text-xs mt-2 block text-gray-600">Try increasing the Alpha threshold or changing the hypothesis.</span>
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 </Dialog.Panel>
