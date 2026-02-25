@@ -6,6 +6,7 @@ import {
   XMarkIcon,
   MagnifyingGlassIcon,
   TrashIcon,
+  ClipboardDocumentIcon,
 } from "@heroicons/react/24/outline";
 import { tags } from "../processors";
 import { askBioMarkers } from "../service/askAI";
@@ -95,6 +96,7 @@ export default React.memo<Props>(
     const [isAsking, setIsAsking] = React.useState(false);
     const [isScrolled, setIsScrolled] = React.useState(false);
     const [isFocused, setIsFocused] = React.useState(false);
+    const [isCopied, setIsCopied] = React.useState(false);
     const searchInputRef = React.useRef<HTMLInputElement>(null);
 
     React.useEffect(() => {
@@ -518,7 +520,27 @@ export default React.memo<Props>(
                       <Markdown>{canvasText}</Markdown>
                     </div>
 
-                    <div className="mt-4">
+                    <div className="mt-4 flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(canvasText || "");
+                          setIsCopied(true);
+                          setTimeout(() => setIsCopied(false), 2000);
+                        }}
+                        className="px-4 py-2 border border-gray-600 text-gray-300 rounded hover:bg-gray-700 hover:text-white flex items-center justify-center gap-2 transition-colors"
+                        aria-label="Copy analysis to clipboard"
+                      >
+                        {isCopied ? (
+                          <>
+                            <ClipboardDocumentIcon className="h-5 w-5" /> Copied!
+                          </>
+                        ) : (
+                          <>
+                            <ClipboardDocumentIcon className="h-5 w-5" /> Copy Analysis
+                          </>
+                        )}
+                      </button>
                       <button
                         type="button"
                         className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50 flex items-center justify-center gap-2"
