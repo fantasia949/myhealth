@@ -97,6 +97,128 @@ const DataCell = React.memo(({ className, rawValue, onCopy, unit, displayValue }
   )
 });
 
+// Optimization: Extracted TableRow to prevent re-rendering all rows when one is selected.
+// With React.memo, only the rows whose props change (e.g. selection state) will re-render.
+const TableRow = React.memo(({
+  entry,
+  isSelected,
+  isExpanded,
+  rowId,
+  toggleExpand,
+  onSelect,
+  onCorrelation,
+  setCorrelationBiomarker,
+  cellBaseClasses,
+  showOrigColumns,
+  averageCountValue,
+  visibleLeafColumnsCount,
+  onCellClick
+}: any) => {
+  const { name, values, visibleValues, visibleOptimality, unit, extra } = entry;
+
+  return (
+    <React.Fragment>
+      <tr className="hover:bg-gray-700 odd:bg-dark-accent border-b border-gray-700">
+        <td className="p-2 border border-gray-700 text-center">
+          <input
+            type="checkbox"
+            className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
+            name={name}
+            aria-label={`Select ${name}`}
+            onChange={() => onSelect(name)}
+            checked={isSelected}
+          />
+        </td>
+        <td className="p-2 border border-gray-700 text-center align-middle">
+          <div className="flex items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => toggleExpand(rowId)}
+              title="Toggle Chart"
+              className="hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-1"
+              aria-label={isExpanded ? "Collapse chart" : "Expand chart"}
+              aria-expanded={isExpanded}
+            >
+              {isExpanded ? (
+                <MinusIcon className="h-5 w-5" />
+              ) : (
+                <ChartBarIcon className="h-5 w-5" />
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => onCorrelation(name)}
+              title="Correlation Analysis"
+              className="hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-1"
+              aria-label="Correlation Analysis"
+            >
+              <ArrowsRightLeftIcon className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setCorrelationBiomarker(name)}
+              title="View Correlations"
+              className="hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-1"
+              aria-label={`View correlations for ${name}`}
+            >
+              <CalculatorIcon className="h-5 w-5" />
+            </button>
+          </div>
+        </td>
+        <th
+          className="p-2 border border-gray-700 whitespace-nowrap sticky-left bg-dark-table-row"
+          title={extra.description}
+        >
+          {name}
+        </th>
+        {(!showOrigColumns || !extra.hasOrigin) &&
+          visibleValues.map((value: any, index: number) => {
+            const baseClass = cellBaseClasses[index];
+            const isBad = visibleOptimality && visibleOptimality[index];
+            return (
+              <DataCell
+                // Optimization: use pre-calculated base classes to avoid repetitive cn() calls in render loop
+                className={isBad ? `${baseClass} v-bad` : baseClass}
+                key={index}
+                rawValue={value != null ? value.toString() : ""}
+                displayValue={value}
+                unit={unit}
+                onCopy={onCellClick}
+              />
+            );
+          })}
+        <td className="p-2 border border-gray-700 hidden lg:table-cell">
+          {averageCountValue
+            ? extra.getSamples(+averageCountValue)
+            .join(", ")
+            : null}
+        </td>
+        {showOrigColumns &&
+          extra.hasOrigin &&
+          extra.originValues?.map((value: any, index: number) => (
+            <td key={index} className="p-2 border border-gray-700">{value}</td>
+          ))}
+        <td className="p-2 border border-gray-700 whitespace-nowrap text-center hidden md:table-cell">
+          {extra.range as any}
+        </td>
+        <td className="p-2 border border-gray-700 hidden sm:table-cell">{unit as any}</td>
+        {showOrigColumns && extra.hasOrigin && (
+          <td className="p-2 border border-gray-700 hidden lg:table-cell">{extra.originUnit}</td>
+        )}
+      </tr>
+      {isExpanded && (
+        <tr className="bg-gray-800">
+          <td colSpan={visibleLeafColumnsCount} className="border border-gray-700">
+            <div className="p-3">
+                <LineChart name={name} values={values} />
+            </div>
+          </td>
+        </tr>
+      )}
+    </React.Fragment>
+  );
+});
+
 const columns: ColumnDef<DisplayedEntry, any>[] = [
   columnHelper.accessor("selection" as any, {
     header: "",
@@ -367,110 +489,25 @@ export default React.memo(
                   );
                 }
 
-                const { name, values, visibleValues, visibleOptimality, unit, extra } = row.original;
                 const isExpanded = expandedRowId === row.id;
 
                 return (
-                  <React.Fragment key={row.id}>
-                    <tr className="hover:bg-gray-700 odd:bg-dark-accent border-b border-gray-700">
-                      <td className="p-2 border border-gray-700 text-center">
-                        <input
-                          type="checkbox"
-                          className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
-                          name={name}
-                          aria-label={`Select ${name}`}
-                          onChange={() => onSelect(name)}
-                          checked={selected.includes(name)}
-
-                        />
-                      </td>
-                      <td className="p-2 border border-gray-700 text-center align-middle">
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => toggleExpand(row.id)}
-                            title="Toggle Chart"
-                            className="hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-1"
-                            aria-label={isExpanded ? "Collapse chart" : "Expand chart"}
-                            aria-expanded={isExpanded}
-                          >
-                            {isExpanded ? (
-                              <MinusIcon className="h-5 w-5" />
-                            ) : (
-                              <ChartBarIcon className="h-5 w-5" />
-                            )}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => onCorrelation(name)}
-                            title="Correlation Analysis"
-                            className="hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-1"
-                            aria-label="Correlation Analysis"
-                          >
-                            <ArrowsRightLeftIcon className="h-5 w-5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setCorrelationBiomarker(name)}
-                            title="View Correlations"
-                            className="hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-1"
-                            aria-label={`View correlations for ${name}`}
-                          >
-                            <CalculatorIcon className="h-5 w-5" />
-                          </button>
-                        </div>
-                      </td>
-                      <th
-                        className="p-2 border border-gray-700 whitespace-nowrap sticky-left bg-dark-table-row"
-                        title={extra.description}
-                      >
-                        {name}
-                      </th>
-                      {(!showOrigColumns || !extra.hasOrigin) &&
-                        visibleValues.map((value, index) => {
-                          const baseClass = cellBaseClasses[index];
-                          const isBad = visibleOptimality && visibleOptimality[index];
-                          return (
-                            <DataCell
-                              // Optimization: use pre-calculated base classes to avoid repetitive cn() calls in render loop
-                              className={isBad ? `${baseClass} v-bad` : baseClass}
-                              key={index}
-                              rawValue={value != null ? value.toString() : ""}
-                              displayValue={value}
-                              unit={unit}
-                              onCopy={onCellClick}
-                            />
-                          );
-                        })}
-                      <td className="p-2 border border-gray-700 hidden lg:table-cell">
-                        {averageCountValue
-                          ? extra.getSamples(+averageCountValue)
-                          .join(", ")
-                          : null}
-                      </td>
-                      {showOrigColumns &&
-                        extra.hasOrigin &&
-                        extra.originValues?.map((value: any, index: number) => (
-                          <td key={index} className="p-2 border border-gray-700">{value}</td>
-                        ))}
-                      <td className="p-2 border border-gray-700 whitespace-nowrap text-center hidden md:table-cell">
-                        {extra.range as any}
-                      </td>
-                      <td className="p-2 border border-gray-700 hidden sm:table-cell">{unit as any}</td>
-                      {showOrigColumns && extra.hasOrigin && (
-                        <td className="p-2 border border-gray-700 hidden lg:table-cell">{extra.originUnit}</td>
-                      )}
-                    </tr>
-                    {isExpanded && (
-                      <tr className="bg-gray-800">
-                        <td colSpan={table.getVisibleLeafColumns().length} className="border border-gray-700">
-                          <div className="p-3">
-                             <LineChart name={name} values={values} />
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </React.Fragment>
+                  <TableRow
+                    key={row.id}
+                    entry={row.original}
+                    isSelected={selected.includes(row.original.name)}
+                    isExpanded={isExpanded}
+                    rowId={row.id}
+                    toggleExpand={toggleExpand}
+                    onSelect={onSelect}
+                    onCorrelation={onCorrelation}
+                    setCorrelationBiomarker={setCorrelationBiomarker}
+                    cellBaseClasses={cellBaseClasses}
+                    showOrigColumns={showOrigColumns}
+                    averageCountValue={averageCountValue}
+                    visibleLeafColumnsCount={table.getVisibleLeafColumns().length}
+                    onCellClick={onCellClick}
+                  />
                 );
               }))}
           </tbody>

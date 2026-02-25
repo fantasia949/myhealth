@@ -115,31 +115,38 @@ export default function App() {
     setShowOrigColumns(false);
   }, [setFilterTag, setFilterText, setCorrelationKey, setSelect, setSourceTarget]);
 
+  // Optimization: use useRef to make onSelect stable across renders
+  // This prevents the Table component from re-rendering just because onSelect was recreated
+  // when `selected` changed.
+  const selectedRef = React.useRef(selected);
+  React.useEffect(() => {
+    selectedRef.current = selected;
+  }, [selected]);
+
   const onSelect = React.useCallback(
     (name: string) => {
-      let values = selected;
-
-      const value = name;
-      const index = values.indexOf(value);
-      if (index == -1) {
-        values = [...values, value];
+      const values = selectedRef.current;
+      const index = values.indexOf(name);
+      let newValues;
+      if (index === -1) {
+        newValues = [...values, name];
       } else {
-        values = values.toSpliced(index, 1);
+        newValues = values.toSpliced(index, 1);
       }
 
-      setSelect(values);
+      setSelect(newValues);
 
       setChartKeys((keys) => {
-        if (values.length === 0) {
+        if (newValues.length === 0) {
           return null;
         }
         if (keys) {
-          return values;
+          return newValues;
         }
         return keys;
       });
     },
-    [selected, chartKeys]
+    []
   );
 
   const onVisualize = React.useCallback(() => {
@@ -185,10 +192,10 @@ export default function App() {
   }, []);
 
   const onClearFilters = React.useCallback(() => {
+    setSearchText("");
     React.startTransition(() => {
       setFilterTag(null);
       setFilterText("");
-      setSearchText("");
     });
   }, [setFilterTag, setFilterText]);
 
