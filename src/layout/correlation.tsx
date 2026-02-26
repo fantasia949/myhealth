@@ -46,22 +46,26 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
             const targetValues = item[1];
 
             // Pairwise deletion for Pearson
-            const validIndices: number[] = [];
-            sourceValues.forEach((v, i) => {
-               if (v !== null && targetValues[i] !== null) {
-                   // Ensure numeric
-                   const vNum = Number(v);
-                   const tNum = Number(targetValues[i]);
-                   if (!isNaN(vNum) && !isNaN(tNum)) {
-                       validIndices.push(i);
-                   }
-               }
-            });
+            // Optimization: Single loop avoids 3 iterations and unnecessary array allocations (validIndices)
+            const x: number[] = [];
+            const y: number[] = [];
+            const len = sourceValues.length;
 
-            if (validIndices.length < 4) continue;
+            for (let i = 0; i < len; i++) {
+              const v = sourceValues[i];
+              const t = targetValues[i];
 
-            const x = validIndices.map(i => Number(sourceValues[i]));
-            const y = validIndices.map(i => Number(targetValues[i]));
+              if (v !== null && t !== null) {
+                 const vNum = Number(v);
+                 const tNum = Number(t);
+                 if (!isNaN(vNum) && !isNaN(tNum)) {
+                     x.push(vNum);
+                     y.push(tNum);
+                 }
+              }
+            }
+
+            if (x.length < 4) continue;
 
             const result = calculatePearson(x, y, { alpha, alternative });
              if (result.pValue <= alpha) {
