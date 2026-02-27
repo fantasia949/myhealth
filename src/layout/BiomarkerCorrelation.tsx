@@ -52,35 +52,39 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
 
     const results: CorrelationResult[] = [];
 
+    // Optimization: Hoist invariant calculations outside the loop
+    // 1. Identify valid indices: where biomarker value > 0 AND note exists
+    const validIndices: number[] = [];
+    const filteredBiomarkerValues: number[] = [];
+
+    rawValues.forEach((val: any, index) => {
+      const numVal = Number(val);
+      if (!isNaN(numVal) && numVal > 0 && index < noteValues.length) {
+          validIndices.push(index);
+          filteredBiomarkerValues.push(numVal);
+      }
+    });
+
+    // If we don't have enough data points, we can't correlate
+    if (validIndices.length < 3) return [];
+
+    // Check variation in biomarker values once
+    const hasBiomarkerVariation = filteredBiomarkerValues.some(v => v !== filteredBiomarkerValues[0]);
+    if (!hasBiomarkerVariation) return [];
+
+    // Rank the filtered biomarker values once
+    const rankedBiomarker = rankData(filteredBiomarkerValues);
+
     uniqueSupplements.forEach((suppName) => {
-      // 1. Identify valid indices: where biomarker value > 0
-      const validIndices: number[] = [];
-      rawValues.forEach((val: any, index) => {
-        // Cast to number just in case it's a string like "5.0"
-        const numVal = Number(val);
-        if (!isNaN(numVal) && numVal > 0) {
-            validIndices.push(index);
-        }
-      });
-
-      // If we don't have enough data points, we can't correlate
-      if (validIndices.length < 3) return;
-
-      // 2. Extract filtered vectors
-      const filteredBiomarkerValues: number[] = [];
+      // 2. Extract filtered supplement vector using pre-calculated indices
       const filteredSuppVector: number[] = [];
 
-      validIndices.forEach(i => {
-         // Check if supplement was present at this index
-         // Ensure note exists at index i
-         if (i < noteValues.length) {
-             const note = noteValues[i];
-             filteredBiomarkerValues.push(Number(rawValues[i]));
-             filteredSuppVector.push(note && note.supps?.includes(suppName) ? 1 : 0);
-         }
-      });
-
-      if (filteredBiomarkerValues.length < 3) return;
+      // Use a standard for loop for better performance in hot path
+      for (let k = 0; k < validIndices.length; k++) {
+        const i = validIndices[k];
+        const note = noteValues[i];
+        filteredSuppVector.push(note && note.supps?.includes(suppName) ? 1 : 0);
+      }
 
       // Check if there is variation in the supplement vector
       const hasSuppVariation = filteredSuppVector.some(v => v !== filteredSuppVector[0]);
@@ -88,14 +92,8 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
         return;
       }
 
-      // Check variation in biomarker values
-      const hasBiomarkerVariation = filteredBiomarkerValues.some(v => v !== filteredBiomarkerValues[0]);
-      if (!hasBiomarkerVariation) {
-          return;
-      }
-
       // 3. Rank the filtered vectors
-      const rankedBiomarker = rankData(filteredBiomarkerValues);
+      // filteredBiomarkerValues is already ranked outside
       const rankedSupp = rankData(filteredSuppVector);
 
       // 4. Calculate Spearman correlation
