@@ -1,18 +1,17 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme {
+:root {
   --color-dark-bg: #111111;
   --color-dark-table-header: #2c2c2c80;
   --color-dark-table-row: #22222280;
   --color-dark-text: #f0f0f0;
   --color-dark-accent: #3a3a3a80;
   --color-dark-accent-solid: #3a3a3a;
-  --font-inter: "Inter", sans-serif;
-}
 
-:root {
   font-size: 12px;
-  font-family: var(--font-inter);
+  font-family: "Inter", sans-serif;
 }
 
 body {
