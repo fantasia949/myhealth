@@ -118,7 +118,12 @@ const TableRow = React.memo(({
 
   return (
     <React.Fragment>
-      <tr className="hover:bg-gray-700 odd:bg-dark-accent border-b border-gray-700">
+      <tr className={cn(
+        "border-b border-gray-700 transition-colors",
+        isSelected
+          ? "bg-blue-900/40 hover:bg-blue-900/50"
+          : "hover:bg-gray-700 odd:bg-dark-accent"
+      )}>
         <td className="p-2 border border-gray-700 text-center">
           <input
             type="checkbox"

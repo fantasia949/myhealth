@@ -43,3 +43,7 @@
 ## 2026-03-05 - Refactoring Text to Icons
 **Learning:** Playwright tests often rely on text content (e.g., `hasText: "?"`) which breaks immediately when refactoring to icons.
 **Action:** When replacing text with icons, always proactively update associated tests to use robust locators like `aria-label` or `role`, and verify the new locator works before committing.
+
+## 2026-03-25 - Visual Feedback for Row Selection
+**Learning:** Users lose context of selected items in long/wide tables if only a small checkbox indicates selection. Adding a row-level background highlight reinforces the state and aids horizontal scanning.
+**Action:** Implement conditional background styling on table rows (`tr`) based on selection state, ensuring it works alongside existing striping or hover effects.
