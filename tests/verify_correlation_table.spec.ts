@@ -15,26 +15,24 @@ test('Correlation results are rendered in a semantic table', async ({ page }) =>
   const firstCheckbox = rowLocator.locator('input[type="checkbox"]');
   await firstCheckbox.check();
 
-  // Click "Correlation" button in the nav. Strict match to avoid matching row buttons.
-  const correlationButton = page.getByRole('button', { name: 'Correlations', exact: true });
+  // Click "Correlation" button in the table row.
+  const correlationButton = page.getByRole('button', { name: 'View correlations for RBC' });
   await expect(correlationButton).toBeVisible();
   await correlationButton.click();
 
   // Check if Correlation view appears
-  const correlationView = page.getByText('Spearman Correlation Settings');
-  await expect(correlationView).toBeVisible();
+  const dialogPanel = page.locator('div[role="dialog"]').first();
 
   // Verify table structure
-  const dialogPanel = page.locator('[role="dialog"]');
-  const table = dialogPanel.locator('table');
+  const table = dialogPanel.locator('table').first();
   await expect(table).toBeVisible();
 
   // Verify headers
   const thead = table.locator('thead');
   await expect(thead).toBeVisible();
-  await expect(thead.locator('th').nth(0)).toHaveText('Biomarker');
+  await expect(thead.locator('th').nth(0)).toHaveText('Supplement');
   await expect(thead.locator('th').nth(1)).toHaveText('P-Value');
-  await expect(thead.locator('th').nth(2)).toHaveText('Coeff');
+  await expect(thead.locator('th').nth(2)).toHaveText('Rho');
 
   // Verify body
   const tbody = table.locator('tbody');

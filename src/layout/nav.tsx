@@ -354,78 +354,46 @@ export default React.memo<Props>(
               </button>
 
               {selected.length > 0 && (
-                <div className="hidden contents lg:flex lg:gap-2">
-                  <select
-                    className="px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded w-full lg:w-auto"
-                    value={chartType}
-                    onChange={(e) => onChartTypeChange(e.target.value)}
-                    aria-label="Select chart type"
-                  >
-                    <option value="scatter">Scatter Chart</option>
-                  </select>
-                  <button
-                    type="button"
-                    className="px-4 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-500 w-full lg:w-auto"
-                    onClick={onVisualize}
-                  >
-                    Visualize
-                  </button>
+                <div className="col-span-3 lg:col-span-1 lg:flex lg:flex-1 lg:items-center lg:flex-wrap lg:gap-2 bg-dark-table-row border border-gray-700 rounded-md p-1.5 lg:p-1 w-full lg:w-auto mt-2 lg:mt-0 shadow-inner">
+                  <div className="flex flex-wrap items-center gap-1.5 w-full lg:w-auto">
+                    <span className="text-xs text-gray-400 font-medium px-1">Selected:</span>
+                    {selected.map((item) => (
+                      <span key={item} className="flex items-center gap-1 px-2 py-0.5 text-xs font-medium bg-blue-900/50 text-blue-200 border border-blue-800/50 rounded-full">
+                        {item}
+                        <button type="button" onClick={() => onSelect(item)} className="hover:text-white focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-400 rounded-full" aria-label={`Remove ${item} from selection`}>
+                          <XMarkIcon className="h-3 w-3" />
+                        </button>
+                      </span>
+                    ))}
+                    {selected.length > 1 && (
+                      <button type="button" onClick={onClearSelection} className="p-1 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 transition-colors ml-0.5" aria-label="Clear all selected items" title="Clear All">
+                        <TrashIcon className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="w-full h-px lg:w-px lg:h-5 bg-gray-700 my-1.5 lg:my-0 lg:mx-1 hidden lg:block"></div>
+
+                  <div className="flex flex-wrap items-center gap-2 mt-2 lg:mt-0">
+                    {selected.length === 2 && (
+                      <button type="button" onClick={onPValue} className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors">
+                        P-Value
+                      </button>
+                    )}
+                    <button type="button" onClick={onAskAI} disabled={isAsking} className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors flex items-center justify-center gap-1 min-w-[70px]" aria-busy={isAsking}>
+                      {isAsking ? <Spinner /> : null}
+                      {isAsking ? "Asking..." : "Ask AI"}
+                    </button>
+                    <div className="w-px h-4 bg-gray-600 mx-0.5 hidden sm:block"></div>
+                    <select className="px-2 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded text-xs focus:outline-none focus:border-blue-500" value={chartType} onChange={(e) => onChartTypeChange(e.target.value)} aria-label="Select chart type">
+                      <option value="scatter">Scatter Chart</option>
+                    </select>
+                    <button type="button" onClick={onVisualize} className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors">
+                      Visualize
+                    </button>
+                  </div>
                 </div>
               )}
-
-              <div className="contents lg:flex lg:flex-wrap lg:gap-2">
-                {selected.length === 2 && (
-                  <button
-                    type="button"
-                    className="px-4 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-500 w-full lg:w-auto"
-                    onClick={onPValue}
-                  >
-                    P-Value
-                  </button>
-                )}
-
-                {selected.length > 0 && (
-                  <button
-                    type="button"
-                    className="px-4 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed w-full lg:w-auto flex items-center justify-center gap-2"
-                    onClick={onAskAI}
-                    disabled={isAsking}
-                    aria-busy={isAsking}
-                  >
-                    {isAsking ? (
-                      <>
-                        <Spinner /> Asking...
-                      </>
-                    ) : (
-                      "Ask AI"
-                    )}
-                  </button>
-                )}
-                {selected.map((item) => (
-                  <button
-                    type="button"
-                    name={item}
-                    key={item}
-                    onClick={onButtonClick}
-                    className="flex items-center gap-1 px-2 py-1 text-sm border border-yellow-500 text-yellow-500 rounded hover:bg-yellow-500 hover:text-black w-full lg:w-auto transition-colors"
-                    aria-label={`Remove ${item} from selection`}
-                  >
-                    <span>{item}</span>
-                    <XMarkIcon className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                ))}
-                {selected.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={onClearSelection}
-                    className="flex items-center gap-1 px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-500 w-full lg:w-auto transition-colors"
-                    aria-label="Clear all selected items"
-                  >
-                    <TrashIcon className="h-4 w-4" aria-hidden="true" />
-                    <span>Clear All</span>
-                  </button>
-                )}
-              </div>
 
               <div className="hidden contents lg:flex lg:ml-auto lg:flex-row lg:gap-4 lg:items-center">
                 <div className="flex items-center gap-2 w-full lg:w-auto">

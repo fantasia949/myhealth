@@ -112,15 +112,15 @@ test('selected item chips in nav are accessible and removable', async ({ page })
   await firstCheckbox.click();
 
   // Verify the chip appears in the nav
-  // The chip button has name={name}
-  const chip = page.locator(`nav button[name="${name}"]`);
+  // The chip button no longer has name={name}, it uses aria-label
+  const chip = page.locator(`nav button[aria-label="Remove ${name} from selection"]`);
   await expect(chip).toBeVisible();
 
   // Verify aria-label
   await expect(chip).toHaveAttribute('aria-label', `Remove ${name} from selection`);
 
   // Verify it contains the X icon (by class or SVG presence)
-  const icon = chip.locator('svg.h-4.w-4');
+  const icon = chip.locator('svg');
   await expect(icon).toBeVisible();
 
   // Click to remove
