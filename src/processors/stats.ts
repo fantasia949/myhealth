@@ -5,21 +5,30 @@ import pcorrtest from "@stdlib/stats-pcorrtest";
  * Ties are assigned the average rank.
  */
 export function rankData(arr: number[]): number[] {
-  const sorted = arr.map((v, i) => ({ v, i })).sort((a, b) => a.v - b.v);
-  const ranks = new Array(arr.length).fill(0);
+  const n = arr.length;
+  // Optimization: use a typed array of indices to avoid allocating `{v, i}` objects
+  const indices = new Int32Array(n);
+  for (let i = 0; i < n; i++) {
+    indices[i] = i;
+  }
+
+  // Sort indices based on array values
+  indices.sort((a, b) => arr[a] - arr[b]);
+
+  const ranks = new Array(n);
 
   let i = 0;
-  while (i < sorted.length) {
+  while (i < n) {
     let j = i;
-    while (j < sorted.length - 1 && sorted[j].v === sorted[j + 1].v) {
+    while (j < n - 1 && arr[indices[j]] === arr[indices[j + 1]]) {
       j++;
     }
-    const n = j - i + 1;
-    const rankSum = (n * (2 * (i + 1) + (n - 1))) / 2;
-    const avgRank = rankSum / n;
+    const count = j - i + 1;
+    const rankSum = (count * (2 * (i + 1) + (count - 1))) / 2;
+    const avgRank = rankSum / count;
 
     for (let k = i; k <= j; k++) {
-      ranks[sorted[k].i] = avgRank;
+      ranks[indices[k]] = avgRank;
     }
     i = j + 1;
   }
