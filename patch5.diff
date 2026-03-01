@@ -1,0 +1,38 @@
+--- src/layout/table.tsx
++++ src/layout/table.tsx
+@@ -139,7 +139,7 @@
+               type="button"
+               onClick={() => toggleExpand(rowId)}
+               title="Toggle Chart"
+-              className="hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-1"
++              className="hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
+               aria-label={isExpanded ? "Collapse chart" : "Expand chart"}
+               aria-expanded={isExpanded}
+             >
+@@ -153,7 +153,7 @@
+               type="button"
+               onClick={() => onCorrelation(name)}
+               title="Correlation Analysis"
+-              className="hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-1"
++              className="hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
+               aria-label="Correlation Analysis"
+             >
+               <ArrowsRightLeftIcon className="h-5 w-5" />
+@@ -162,7 +162,7 @@
+               type="button"
+               onClick={() => setCorrelationBiomarker(name)}
+               title="View Correlations"
+-              className="hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-1"
++              className="hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
+               aria-label={`View correlations for ${name}`}
+             >
+               <CalculatorIcon className="h-5 w-5" />
+@@ -455,7 +455,7 @@
+                       <button
+                         type="button"
+                         onClick={onClearFilters}
+-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
++                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
+                         aria-label="Clear all filters"
+                       >
+                         Clear Filters

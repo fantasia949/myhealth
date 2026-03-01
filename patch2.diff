@@ -1,0 +1,11 @@
+--- src/layout/nav.tsx
++++ src/layout/nav.tsx
+@@ -348,7 +348,7 @@
+               <button
+                 type="button"
+                 className={cn(
+-                  "lg:ml-2 px-4 py-1 text-sm bg-yellow-500 text-black rounded hover:bg-yellow-400 w-full lg:w-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-600 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1a1a1a]",
++                  "lg:ml-2 px-4 py-1 text-sm bg-yellow-500 text-black rounded hover:bg-yellow-400 w-full lg:w-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+                   { "invisible pointer-events-none": filterTag == null }
+                 )}
+                 onClick={onFilterByTag}

@@ -75,7 +75,7 @@ const DataCell = React.memo(({ className, rawValue, onCopy, unit, displayValue }
 
   return (
       <td
-          className={cn(className, "relative group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-sm")}
+          className={cn(className, "relative group focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm")}
           onClick={handleInteraction}
           tabIndex={0}
           onKeyDown={(e) => {
@@ -140,7 +140,7 @@ const TableRow = React.memo(({
               type="button"
               onClick={() => toggleExpand(rowId)}
               title="Toggle Chart"
-              className="hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
+              className="hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-1"
               aria-label={isExpanded ? "Collapse chart" : "Expand chart"}
               aria-expanded={isExpanded}
             >
@@ -154,7 +154,7 @@ const TableRow = React.memo(({
               type="button"
               onClick={() => onCorrelation(name)}
               title="Correlation Analysis"
-              className="hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
+              className="hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-1"
               aria-label="Correlation Analysis"
             >
               <ArrowsRightLeftIcon className="h-5 w-5" />
@@ -163,7 +163,7 @@ const TableRow = React.memo(({
               type="button"
               onClick={() => setCorrelationBiomarker(name)}
               title="View Correlations"
-              className="hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
+              className="hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-1"
               aria-label={`View correlations for ${name}`}
             >
               <CalculatorIcon className="h-5 w-5" />
@@ -455,7 +455,7 @@ export default React.memo(
                       <button
                         type="button"
                         onClick={onClearFilters}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                         aria-label="Clear all filters"
                       >
                         Clear Filters
