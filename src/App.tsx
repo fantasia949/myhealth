@@ -285,12 +285,8 @@ export default function App() {
             value={aiModel}
             onChange={onAiModelChange}
           >
-            <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
-            <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
-            <option value="gemini-3-flash">Gemini 3 Flash</option>
-            <option value="gemini-3-pro">Gemini 3 Pro</option>
             <option value="gemini-3-flash-preview">Gemini 3 Flash Preview</option>
-            <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
+            <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview</option>
           </select>
         </div>
         <div className="flex flex-col gap-1">
