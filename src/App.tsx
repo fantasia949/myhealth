@@ -151,7 +151,7 @@ export default function App() {
 
   const onVisualize = React.useCallback(() => {
     setChartKeys((keys) => (!keys ? selected : null));
-  }, []);
+  }, [selected]);
 
   const onPValue = React.useCallback(() => {
     let sourceTarget: (BioMarker | undefined)[] = data.filter(([name]) =>

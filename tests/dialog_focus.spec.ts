@@ -12,10 +12,10 @@ test('dialog close buttons should have visible focus styles', async ({ page }) =
   await firstCheckbox.check();
 
   // Click "Correlations" button in Nav
-  await page.getByRole('button', { name: 'Correlations' }).click();
+  await page.getByRole('button', { name: 'View correlations for RBC' }).click();
 
   // Wait for button (this implies dialog is open)
-  const closeCorrelation = page.getByRole('button', { name: 'Close panel' });
+  const closeCorrelation = page.getByRole('button', { name: 'Close dialog' }).first();
   await expect(closeCorrelation).toBeVisible();
 
   // Check for focus styles (failure condition: has outline-none but no ring)
@@ -38,7 +38,7 @@ test('dialog close buttons should have visible focus styles', async ({ page }) =
   await page.getByRole('button', { name: 'P-Value' }).click();
 
   // Wait for button
-  const closePValue = page.getByRole('button', { name: 'Close dialog' });
+  const closePValue = page.getByRole('button', { name: 'Close dialog' }).first();
   await expect(closePValue).toBeVisible();
 
   // Check for focus styles

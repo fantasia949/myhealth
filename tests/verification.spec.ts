@@ -4,7 +4,7 @@ test('take screenshot of chart', async ({ page }) => {
   await page.goto('http://localhost:5173');
 
   // Wait for 5 seconds to allow the table to render
-  await page.waitForTimeout(5000);
+  await page.waitForSelector('tbody tr input[type="checkbox"]');
 
   // Select the first biomarker, skipping group headers
   await page.locator('tbody tr input[type="checkbox"]').first().check();
@@ -13,7 +13,7 @@ test('take screenshot of chart', async ({ page }) => {
   await page.click('button:has-text("Visualize")');
 
   // Wait for the chart to be rendered
-  await page.waitForSelector('.echarts-for-react');
+  await page.waitForSelector('.echarts-for-react', { timeout: 10000 });
 
   // Take a screenshot for verification
   await page.screenshot({ path: 'final_chart_screenshot.png' });

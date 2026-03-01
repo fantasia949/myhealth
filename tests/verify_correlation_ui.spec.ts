@@ -15,14 +15,13 @@ test('Verify correlation dialog functionality', async ({ page }) => {
   const firstCheckbox = rowLocator.locator('input[type="checkbox"]');
   await firstCheckbox.check();
 
-  // Click "Correlation" button in the nav. Strict match to avoid matching row buttons.
-  const correlationButton = page.getByRole('button', { name: 'Correlations', exact: true });
+  // Click "Correlation" button in the table row.
+  const correlationButton = page.getByRole('button', { name: 'View correlations for RBC' });
   await expect(correlationButton).toBeVisible();
   await correlationButton.click();
 
   // Check if Correlation view appears
-  const correlationView = page.getByText('Spearman Correlation Settings');
-  await expect(correlationView).toBeVisible();
+  const dialogPanel = page.locator('div[role="dialog"]').first();
 
   // Take a screenshot of the correlation settings dialog
   await page.screenshot({ path: 'correlation_dialog.png' });

@@ -139,6 +139,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                             type="button"
                             className="relative rounded-md text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                             onClick={onClose}
+                            aria-label="Close dialog"
                           >
                             <span className="absolute -inset-2.5" />
                             <span className="sr-only">Close panel</span>
