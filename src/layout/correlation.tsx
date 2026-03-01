@@ -1,19 +1,14 @@
 import React, { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { useAtom, useAtomValue, atom } from "jotai";
-import { dataAtom, correlationAlphaAtom, correlationAlternativeAtom, rankedDataMapAtom, correlationMethodAtom } from "../atom/dataAtom";
+import { useAtom, useAtomValue } from "jotai";
+import { dataAtom, correlationAlphaAtom, correlationAlternativeAtom, rankedDataMapAtom, correlationMethodAtom, nonInferredDataAtom } from "../atom/dataAtom";
 import { calculateSpearmanRanked, calculatePearson } from "../processors/stats";
 
 interface CorrelationProps {
   target: string | null;
   onClose: () => void;
 }
-
-const nonInferredDataAtom = atom((get) => {
-  const data = get(dataAtom);
-  return data.filter((item) => !item[3]?.inferred);
-});
 
 export default React.memo(({ target, onClose }: CorrelationProps) => {
   const data = useAtomValue(nonInferredDataAtom);
