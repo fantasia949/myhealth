@@ -171,6 +171,7 @@ const TableRow = React.memo(({
           </div>
         </td>
         <th
+          scope="row"
           className="p-2 border border-gray-700 whitespace-nowrap sticky-left bg-dark-table-row"
           title={extra.description}
         >
