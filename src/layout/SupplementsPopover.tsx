@@ -14,7 +14,7 @@ export default function SupplementsPopover({ supps }: Props) {
       <PopoverButton
         aria-label="View supplements"
         title="View supplements taken on this date"
-        className="w-full h-full cursor-pointer hover:bg-gray-800 hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded font-bold transition-colors flex justify-center items-center p-1"
+        className="w-full h-full cursor-pointer hover:bg-gray-800 hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded font-bold transition-colors flex justify-center items-center p-1"
       >
         <BeakerIcon className="h-5 w-5" />
       </PopoverButton>

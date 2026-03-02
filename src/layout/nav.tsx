@@ -265,6 +265,7 @@ export default React.memo<Props>(
               type="button"
               onClick={onToggle}
               aria-label="Toggle menu"
+              aria-expanded={show}
             >
               <Bars3Icon className="h-6 w-6" />
             </button>
@@ -327,7 +328,7 @@ export default React.memo<Props>(
                       data-tag={tag}
                       aria-pressed={filterTag === tag}
                       className={cn(
-                        "px-3 py-2 rounded transition-colors w-full lg:w-auto",
+                        "px-3 py-2 rounded transition-colors w-full lg:w-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
                         {
                           "bg-blue-600 text-white": filterTag == tag,
                           "text-gray-300 hover:text-white hover:bg-gray-700":
@@ -345,7 +346,7 @@ export default React.memo<Props>(
               <button
                 type="button"
                 className={cn(
-                  "lg:ml-2 px-4 py-1 text-sm bg-yellow-500 text-black rounded hover:bg-yellow-400 w-full lg:w-auto",
+                  "lg:ml-2 px-4 py-1 text-sm bg-yellow-500 text-black rounded hover:bg-yellow-400 w-full lg:w-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
                   { "invisible pointer-events-none": filterTag == null }
                 )}
                 onClick={onFilterByTag}
@@ -398,7 +399,7 @@ export default React.memo<Props>(
               <div className="hidden contents lg:flex lg:ml-auto lg:flex-row lg:gap-4 lg:items-center">
                 <div className="flex items-center gap-2 w-full lg:w-auto">
                   <select
-                    className="flex-1 lg:flex-none px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded"
+                    className="flex-1 lg:flex-none px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
                     value={averageCount.toString()}
                     onChange={onAverageCount}
                     aria-label="Select average count"
@@ -412,7 +413,7 @@ export default React.memo<Props>(
                 </div>
                 <div className="hidden lg:flex items-center gap-2 lg:w-auto">
                   <select
-                    className="flex-1 lg:flex-none px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded"
+                    className="flex-1 lg:flex-none px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
                     value={showRecords.toString()}
                     onChange={onShowRecordsChange}
                     aria-label="Select number of records to show"
@@ -478,7 +479,7 @@ export default React.memo<Props>(
                       <span>Biomarker</span>
                       <button
                         onClick={handleClose}
-                        className="text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                        className="text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
                         aria-label="Close dialog"
                       >
                         <XMarkIcon className="h-6 w-6" />
