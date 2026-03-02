@@ -40,26 +40,41 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
         const sourceValues = getValues(target);
         if (!sourceValues) return;
 
+        // Optimization: Hoist invariant calculations for the source biomarker outside the target loop.
+        // Pre-parse the source values and record valid indices to avoid O(N * M) parsing and null checks.
+        const len = sourceValues.length;
+        const parsedSource = new Float64Array(len);
+        const validIndices: number[] = [];
+
+        for (let i = 0; i < len; i++) {
+          const v = sourceValues[i];
+          if (v !== null) {
+            const vNum = Number(v);
+            if (!isNaN(vNum)) {
+              parsedSource[i] = vNum;
+              validIndices.push(i);
+            }
+          }
+        }
+
         // Iterate over filtered data (non-inferred) as targets
         for (const item of data) {
             if (item[0] === target) continue;
             const targetValues = item[1];
 
             // Pairwise deletion for Pearson
-            // Optimization: Single loop avoids 3 iterations and unnecessary array allocations (validIndices)
             const x: number[] = [];
             const y: number[] = [];
-            const len = sourceValues.length;
 
-            for (let i = 0; i < len; i++) {
-              const v = sourceValues[i];
+            // Only iterate over indices where the source biomarker has a valid numeric value
+            for (let j = 0; j < validIndices.length; j++) {
+              const i = validIndices[j];
               const t = targetValues[i];
 
-              if (v !== null && t !== null) {
-                 const vNum = Number(v);
+              if (t !== null) {
                  const tNum = Number(t);
-                 if (!isNaN(vNum) && !isNaN(tNum)) {
-                     x.push(vNum);
+                 if (!isNaN(tNum)) {
+                     x.push(parsedSource[i]);
                      y.push(tNum);
                  }
               }
