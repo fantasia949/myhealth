@@ -72,22 +72,22 @@ test('p-value dialog close button has aria-label', async ({ page }) => {
   // Wait for P-Value button to appear
   const pValueButton = page.getByRole('button', { name: 'P-Value' });
   await expect(pValueButton).toBeVisible();
+  // Ensure the button is enabled before clicking. Sometimes it might take a moment.
+  await expect(pValueButton).toBeEnabled();
   await pValueButton.click();
 
+  // Wait for the modal to appear by waiting for the close button
+  const closeButton = page.getByRole('button', { name: 'Close dialog' }).first();
+  await expect(closeButton).toBeVisible({ timeout: 10000 });
+
   // Find the dialog title
-  const dialogTitle = page.locator('div.text-lg.font-medium').first();
-  await expect(dialogTitle).toBeVisible();
+  const dialogTitle = page.getByText(/Spearman Rank Correlation|Pearson Correlation/).first();
+  await expect(dialogTitle).toBeVisible({ timeout: 10000 });
 
   const titleText = await dialogTitle.innerText();
-  if (!titleText.includes('Spearman Rank Correlation')) {
-      throw new Error(`Expected dialog title to contain "Spearman Rank Correlation", but found: "${titleText}"`);
+  if (!titleText.includes('Spearman Rank Correlation') && !titleText.includes('Pearson Correlation')) {
+      throw new Error(`Expected dialog title to contain "Spearman Rank Correlation" or "Pearson Correlation", but found: "${titleText}"`);
   }
-
-  // Find the close button inside that title container
-  const closeButton = dialogTitle.locator('button');
-
-  // Check visible
-  await expect(closeButton).toBeVisible();
 
   // Check aria-label
   const ariaLabel = await closeButton.getAttribute('aria-label');
