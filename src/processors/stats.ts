@@ -128,7 +128,10 @@ function pcorrtest_manual(
       statistic: r === 1 ? Infinity : -Infinity,
       pValue: 0,
       rejected: true,
-      alpha
+      alpha,
+      print() {
+        return `Correlation: ${r.toFixed(4)}\np-value: 0.000000`;
+      }
     };
   }
 
@@ -148,7 +151,10 @@ function pcorrtest_manual(
     statistic: t,
     pValue,
     rejected: pValue <= alpha,
-    alpha
+    alpha,
+    print() {
+      return `Correlation: ${r.toFixed(4)}\np-value: ${pValue.toFixed(6)}`;
+    }
   };
 }
 
