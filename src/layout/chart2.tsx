@@ -3,7 +3,7 @@ import { ChartProvider, ChartContext } from "@echarts-readymade/core";
 import { Scatter } from "@echarts-readymade/scatter";
 import { labels } from "../data";
 import ReactECharts from "echarts-for-react";
-import { BioMarker } from "../atom/dataAtom";
+import { BioMarker } from "../types/biomarker";
 
 interface ChartProps {
   data: BioMarker[];

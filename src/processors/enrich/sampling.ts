@@ -1,4 +1,4 @@
-import { BioMarker } from "../../atom/dataAtom";
+import { BioMarker } from "../../types/biomarker";
 
 export default (entries: BioMarker[]): BioMarker[] => {
   for (const entry of entries) {

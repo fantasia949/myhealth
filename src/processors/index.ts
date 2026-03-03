@@ -2,7 +2,7 @@ import preProcess from "./pre";
 import { enrichBiomarkers, enrichTime } from "./enrich";
 import postProcess from "./post";
 import { tagKeys, unsortedTags } from "./post/tag";
-import { BioMarker } from "../atom/dataAtom";
+import { BioMarker } from "../types/biomarker";
 
 export const tags = tagKeys;
 

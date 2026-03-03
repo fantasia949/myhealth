@@ -2,7 +2,7 @@ import { memo, useRef, useEffect, useMemo } from "react";
 import { ChartProvider, ChartContext } from "@echarts-readymade/core";
 import { Line } from "@echarts-readymade/line";
 import { labels } from "../data";
-import { BioMarker } from "../atom/dataAtom";
+import { BioMarker } from "../types/biomarker";
 
 interface ChartProps {
   data: BioMarker[];

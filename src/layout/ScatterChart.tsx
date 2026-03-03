@@ -1,6 +1,6 @@
 import { memo } from "react";
 import ReactECharts from "echarts-for-react";
-import { BioMarker } from "../atom/dataAtom";
+import { BioMarker } from "../types/biomarker";
 import { labels } from "../data";
 
 interface ScatterChartProps {

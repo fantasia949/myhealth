@@ -40,7 +40,7 @@ test('PValue view shows Spearman details', async ({ page }) => {
   // But wait, the content might be loading.
   // It's synchronous though.
 
-  // Verify content contains "p-value"
+  // Verify content contains "p-value" (this tests our custom print method)
   const content = page.locator('.whitespace-pre-wrap');
   await expect(content).toContainText('p-value');
 });
