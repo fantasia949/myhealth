@@ -75,19 +75,43 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
     // Rank the filtered biomarker values once
     const rankedBiomarker = rankData(filteredBiomarkerValues);
 
-    uniqueSupplements.forEach((suppName) => {
-      // 2. Extract filtered supplement vector using pre-calculated indices
-      const filteredSuppVector: number[] = [];
+    // Optimization: Build supplement vectors in a single pass over valid indices.
+    // This avoids O(M*N) array.includes() calls inside the hot loop.
+    // M = validIndices.length, N = uniqueSupplements.size
+    const suppVectors = new Map<string, number[]>();
 
-      // Use a standard for loop for better performance in hot path
-      for (let k = 0; k < validIndices.length; k++) {
-        const i = validIndices[k];
-        const note = noteValues[i];
-        filteredSuppVector.push(note && note.supps?.includes(suppName) ? 1 : 0);
+    uniqueSupplements.forEach(supp => {
+      suppVectors.set(supp, new Array(validIndices.length).fill(0));
+    });
+
+    const numValid = validIndices.length;
+    for (let k = 0; k < numValid; k++) {
+      const i = validIndices[k];
+      const note = noteValues[i];
+      if (note && note.supps) {
+        for (let j = 0; j < note.supps.length; j++) {
+          const supp = note.supps[j];
+          const vector = suppVectors.get(supp);
+          if (vector) {
+            vector[k] = 1;
+          }
+        }
       }
+    }
+
+    uniqueSupplements.forEach((suppName) => {
+      const filteredSuppVector = suppVectors.get(suppName)!;
 
       // Check if there is variation in the supplement vector
-      const hasSuppVariation = filteredSuppVector.some(v => v !== filteredSuppVector[0]);
+      const firstVal = filteredSuppVector[0];
+      let hasSuppVariation = false;
+      for (let k = 1; k < numValid; k++) {
+        if (filteredSuppVector[k] !== firstVal) {
+          hasSuppVariation = true;
+          break;
+        }
+      }
+
       if (!hasSuppVariation) {
         return;
       }

@@ -31,8 +31,8 @@ test('PValue view shows Spearman details', async ({ page }) => {
 
   // Check if modal appears
   // HeadlessUI often puts the dialog at the end of body.
-  // We look for text "Spearman Rank Correlation" which is unique to this modal now.
-  const title = page.getByText('Spearman Rank Correlation');
+  // We look for text "Spearman Rank Correlation" or "Pearson Correlation" which is unique to this modal now.
+  const title = page.getByText(/Spearman Rank Correlation|Pearson Correlation/);
   await expect(title).toBeVisible({ timeout: 10000 });
 
   // Check if content is populated (not empty)

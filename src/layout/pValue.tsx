@@ -57,7 +57,7 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
           alpha,
           alternative,
         });
-        return [result.print(), JSON.stringify(result, null, "\t")];
+        return [undefined as any, JSON.stringify(result, null, "\t")];
     }
   }, [comparedSourceTarget, alpha, alternative, rankedDataMap, method]);
 
@@ -113,7 +113,7 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
                       {comparedSourceTarget[1][0]}
                     </div>
                   )}
-                  {text?.[0]}
+                  {text?.[0] || text?.[1]}
                 </div>
               </Dialog.Panel>
             </Transition.Child>

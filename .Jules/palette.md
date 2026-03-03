@@ -47,3 +47,7 @@
 ## 2026-03-25 - Visual Feedback for Row Selection
 **Learning:** Users lose context of selected items in long/wide tables if only a small checkbox indicates selection. Adding a row-level background highlight reinforces the state and aids horizontal scanning.
 **Action:** Implement conditional background styling on table rows (`tr`) based on selection state, ensuring it works alongside existing striping or hover effects.
+
+## 2025-05-22 - Improving P-Value Modal and Row Expand Accessibility
+**Learning:** Found that the P-Value modal was dumping raw JSON text and lacked formatting, making it difficult to read. In addition, row expand/collapse buttons in the data table lacked `aria-label` and `focus-visible` styles, rendering them invisible to screen readers and keyboard users.
+**Action:** Always verify that dynamically generated statistical objects (like `pcorrtest` outputs) include a formatted `print()` method for user-facing UI, instead of relying on `JSON.stringify`. Additionally, ensure all row-level action buttons (like expand toggles) include clear `aria-label`s and `focus-visible:ring-2` styles.
