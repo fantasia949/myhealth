@@ -14,8 +14,8 @@ import {
   aiKeyAtom,
   aiModelAtom,
   gistTokenAtom,
-  BioMarker,
 } from "./atom/dataAtom";
+import { BioMarker } from "./types/biomarker";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 const PasswordInput = React.memo(({ show, setShow, ...props }: any) => (

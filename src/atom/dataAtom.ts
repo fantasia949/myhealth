@@ -3,22 +3,7 @@ import { unwrap, atomWithStorage } from "jotai/utils";
 import { loadData } from "../data";
 import { processBiomarkers, processTime } from "../processors";
 import { rankData } from "../processors/stats";
-
-export type BioMarker = [string, number[], string, {
-  tag: string[];
-  inferred?: boolean;
-  originValues?: (string | number | null)[];
-  hasOrigin?: boolean;
-  range?: unknown;
-  description?: string;
-  isNotOptimal: (value: number) => boolean;
-  getSamples: (num: number, count?: number) => string[];
-  originUnit?: string;
-  normalizedTitle?: string;
-  sortTag?: string;
-  processedTags?: { tag: string; displayTag: string; sortKey: string }[];
-  optimality: boolean[];
-}];
+import { BioMarker } from "../types/biomarker";
 
 const sourceAtom = atom(() => loadData());
 

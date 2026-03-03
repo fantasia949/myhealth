@@ -1,7 +1,7 @@
 import inferData from "./inferData";
 import sampling from "./sampling";
 import trackSuppStack from "./suppStack";
-import { BioMarker } from "../../atom/dataAtom";
+import { BioMarker } from "../../types/biomarker";
 
 export function enrichBiomarkers(entries: BioMarker[]): BioMarker[] {
   entries = inferData(entries);

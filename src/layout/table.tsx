@@ -2,7 +2,8 @@ import SupplementsPopover from "./SupplementsPopover";
 import React from "react";
 import cn from "classnames";
 import { labels } from "../data";
-import { visibleDataAtom, notesAtom, BioMarker, filterTextAtom, tagAtom } from "../atom/dataAtom";
+import { visibleDataAtom, notesAtom, filterTextAtom, tagAtom } from "../atom/dataAtom";
+import { BioMarker } from "../types/biomarker";
 import { useAtomValue } from "jotai";
 import {
   useReactTable,

@@ -128,7 +128,10 @@ function pcorrtest_manual(
       statistic: r === 1 ? Infinity : -Infinity,
       pValue: 0,
       rejected: true,
-      alpha
+      alpha,
+      print: function () {
+        return `Pearson correlation: ${r.toFixed(4)}\np-value: 0\nt-statistic: ${r === 1 ? 'Infinity' : '-Infinity'}\nalpha: ${alpha}\nalternative: ${alternative}\nnull hypothesis rejected: true\n`;
+      }
     };
   }
 
@@ -148,7 +151,10 @@ function pcorrtest_manual(
     statistic: t,
     pValue,
     rejected: pValue <= alpha,
-    alpha
+    alpha,
+    print: function () {
+      return `Pearson correlation: ${r.toFixed(4)}\np-value: ${pValue.toExponential(4)}\nt-statistic: ${t.toFixed(4)}\nalpha: ${alpha}\nalternative: ${alternative}\nnull hypothesis rejected: ${pValue <= alpha}\n`;
+    }
   };
 }
 
