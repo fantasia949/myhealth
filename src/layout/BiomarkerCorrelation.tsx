@@ -5,9 +5,11 @@ import { useAtomValue } from "jotai";
 import {
   notesAtom,
   dataAtom,
+} from "../atom/dataAtom";
+import {
   correlationAlphaAtom,
   correlationAlternativeAtom,
-} from "../atom/dataAtom";
+} from "../atom/correlationAtom";
 import { calculateSpearmanRanked, rankData } from "../processors/stats";
 
 interface BiomarkerCorrelationProps {

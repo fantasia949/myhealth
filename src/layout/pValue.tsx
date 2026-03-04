@@ -2,7 +2,8 @@ import React, { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useAtomValue } from "jotai";
-import { correlationAlphaAtom, correlationAlternativeAtom, rankedDataMapAtom, correlationMethodAtom } from "../atom/dataAtom";
+import { rankedDataMapAtom } from "../atom/dataAtom";
+import { correlationAlphaAtom, correlationAlternativeAtom, correlationMethodAtom } from "../atom/correlationAtom";
 import { BioMarker } from "../types/biomarker";
 import { calculateSpearmanRanked, calculatePearson } from "../processors/stats";
 
