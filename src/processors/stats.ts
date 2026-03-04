@@ -199,7 +199,13 @@ export function calculateSpearmanRanked(
   options: { alpha: number; alternative: "two-sided" | "less" | "greater" }
 ) {
   // Spearman correlation is Pearson correlation on ranks
-  return pcorrtest_manual(rankedX, rankedY, options);
+  const result = pcorrtest_manual(rankedX, rankedY, options);
+  return {
+    ...result,
+    print: function () {
+      return `Spearman rank correlation: ${result.pcorr.toFixed(4)}\np-value: ${result.pValue.toExponential(4)}\nt-statistic: ${result.statistic === Infinity || result.statistic === -Infinity ? result.statistic : result.statistic.toFixed(4)}\nalpha: ${options.alpha}\nalternative: ${options.alternative}\nnull hypothesis rejected: ${result.rejected}\n`;
+    }
+  };
 }
 
 export function calculateSpearman(
