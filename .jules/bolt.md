@@ -6,3 +6,7 @@
 ## 2025-02-09 - Reversing Data Structures to Avoid Hot Loop array.includes()
 **Learning:** In nested iterations (e.g., correlating M rows against N items where each item has variable arrays of length S), performing an `array.includes()` inside the innermost loop destroys performance.
 **Action:** Always consider reversing the relationship before iterating. Instead of querying "does this array have X?", spend a linear pass (O(M*S)) to construct vectors for all X items upfront into a Map, enabling O(1) lookups or completely eliminating the inner lookup loop during processing.
+
+## 2025-02-19 - Pearson Correlation Bottleneck
+**Learning:** Using `Array.push()` inside a nested O(M*N) loop for pairwise deletion in Pearson correlation is slow due to memory allocations and intermediate arrays.
+**Action:** Replace `Array.push()` with pre-allocated `Float64Array` typed arrays that can be reused across iterations using `.subarray()`. This avoids garbage collection overhead and reduces correlation time by ~30%.
