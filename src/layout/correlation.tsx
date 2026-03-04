@@ -52,32 +52,38 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
           }
         }
 
+        // Optimization: Pre-allocate Float64Arrays for pairwise values and reuse them
+        // across targets to avoid the overhead of `[]` array allocations and `push()` inside the loop.
+        const maxLen = validIndices.length;
+        const x = new Float64Array(maxLen);
+        const y = new Float64Array(maxLen);
+
         // Iterate over filtered data (non-inferred) as targets
         for (const item of data) {
             if (item[0] === target) continue;
             const targetValues = item[1];
 
             // Pairwise deletion for Pearson
-            const x: number[] = [];
-            const y: number[] = [];
+            let count = 0;
 
             // Only iterate over indices where the source biomarker has a valid numeric value
-            for (let j = 0; j < validIndices.length; j++) {
+            for (let j = 0; j < maxLen; j++) {
               const i = validIndices[j];
               const t = targetValues[i];
 
               if (t !== null) {
                  const tNum = Number(t);
                  if (!isNaN(tNum)) {
-                     x.push(parsedSource[i]);
-                     y.push(tNum);
+                     x[count] = parsedSource[i];
+                     y[count] = tNum;
+                     count++;
                  }
               }
             }
 
-            if (x.length < 4) continue;
+            if (count < 4) continue;
 
-            const result = calculatePearson(x, y, { alpha, alternative });
+            const result = calculatePearson(x.subarray(0, count), y.subarray(0, count), { alpha, alternative });
              if (result.pValue <= alpha) {
                 entries.push([item[0], result.statistic, result.pValue, result.pcorr]);
             }
