@@ -452,7 +452,7 @@ export default React.memo(
               <tr>
                 <td colSpan={table.getVisibleLeafColumns().length} className="p-12 text-center border border-gray-700">
                   <div className="flex flex-col items-center justify-center gap-4">
-                    <div className="text-gray-400 text-base">{emptyStateMessage}</div>
+                    <div className="text-gray-400 text-base" role="status" aria-live="polite">{emptyStateMessage}</div>
                     {(filterText || tag) && onClearFilters && (
                       <button
                         type="button"

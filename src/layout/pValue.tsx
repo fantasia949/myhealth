@@ -57,7 +57,7 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
           alpha,
           alternative,
         });
-        return [undefined as any, JSON.stringify(result, null, "\t")];
+        return [result.print(), JSON.stringify(result, null, "\t")];
     }
   }, [comparedSourceTarget, alpha, alternative, rankedDataMap, method]);
 
