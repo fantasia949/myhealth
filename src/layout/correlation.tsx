@@ -240,9 +240,9 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                             ))
                           ) : (
                             <tr>
-                              <td colSpan={3} className="py-12 text-center text-sm text-gray-500 border border-dashed border-gray-700 rounded bg-white/5">
+                              <td colSpan={3} className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-700 rounded bg-white/5" role="status" aria-live="polite">
                                 No significant correlations found.<br/>
-                                <span className="text-xs mt-2 block text-gray-600">Try increasing the Alpha threshold or changing the hypothesis.</span>
+                                <span className="text-xs mt-2 block text-gray-500">Try increasing the Alpha threshold or changing the hypothesis.</span>
                               </td>
                             </tr>
                           )}
