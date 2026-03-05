@@ -86,7 +86,34 @@ const calculatePearsonValue = (x: number[] | Float64Array, y: number[] | Float64
   let sumX2 = 0;
   let sumY2 = 0;
 
-  for (let i = 0; i < n; i++) {
+  // Optimization: Unroll loop 2x with parallel accumulators to break data
+  // dependency chains allowing instruction-level parallelism for mathematical operations.
+  let i = 0;
+  let sumX1 = 0, sumX2_ = 0;
+  let sumY1 = 0, sumY2_ = 0;
+  let sumXY1 = 0, sumXY2 = 0;
+  let sumX2_1 = 0, sumX2_2 = 0;
+  let sumY2_1 = 0, sumY2_2 = 0;
+
+  for (; i < n - 1; i += 2) {
+    const x0 = x[i], y0 = y[i];
+    const x1 = x[i+1], y1 = y[i+1];
+
+    sumX1 += x0; sumY1 += y0;
+    sumX2_ += x1; sumY2_ += y1;
+
+    sumXY1 += x0 * y0; sumXY2 += x1 * y1;
+    sumX2_1 += x0 * x0; sumX2_2 += x1 * x1;
+    sumY2_1 += y0 * y0; sumY2_2 += y1 * y1;
+  }
+
+  sumX = sumX1 + sumX2_;
+  sumY = sumY1 + sumY2_;
+  sumXY = sumXY1 + sumXY2;
+  sumX2 = sumX2_1 + sumX2_2;
+  sumY2 = sumY2_1 + sumY2_2;
+
+  for (; i < n; i++) {
     const xi = x[i];
     const yi = y[i];
     sumX += xi;
