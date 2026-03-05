@@ -234,7 +234,9 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
                         <tr>
                           <td
                             colSpan={3}
-                            className="py-4 text-center text-sm text-gray-500"
+                            className="py-4 text-center text-sm text-gray-400"
+                            role="status"
+                            aria-live="polite"
                           >
                             No correlations found (p &le; 0.1, filtered &gt; 0).
                           </td>

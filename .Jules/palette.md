@@ -51,3 +51,7 @@
 ## 2025-05-22 - Improving P-Value Modal and Row Expand Accessibility
 **Learning:** Found that the P-Value modal was dumping raw JSON text and lacked formatting, making it difficult to read. In addition, row expand/collapse buttons in the data table lacked `aria-label` and `focus-visible` styles, rendering them invisible to screen readers and keyboard users.
 **Action:** Always verify that dynamically generated statistical objects (like `pcorrtest` outputs) include a formatted `print()` method for user-facing UI, instead of relying on `JSON.stringify`. Additionally, ensure all row-level action buttons (like expand toggles) include clear `aria-label`s and `focus-visible:ring-2` styles.
+
+## 2026-10-26 - Dark Theme Contrast in Empty States
+**Learning:** Text colored `text-gray-500` or darker can fail WCAG AA contrast ratios against very dark background colors common in modals and tables in this app. Lightening these informational texts to `text-gray-400` resolves the contrast issues while preserving the intended visual hierarchy. Also found that many dynamically injected empty states were missing `role="status" aria-live="polite"`, preventing screen readers from announcing when no data is found.
+**Action:** Always verify color contrast for informational text in dark mode environments. Additionally, strictly mandate the `role="status"` and `aria-live="polite"` pattern for all empty states.
