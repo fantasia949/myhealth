@@ -5,7 +5,7 @@ test('chart toggle button is accessible', async ({ page }) => {
 
   // Wait for the table to populate by waiting for the toggle button to be attached
   // We use first() because there are multiple buttons
-  const toggleButton = page.locator('button[title="Toggle Chart"]').first();
+  const toggleButton = page.locator('button[title="Expand chart"]').first();
 
   // Wait for it to be visible. This implicitly waits for the element to appear.
   await expect(toggleButton).toBeVisible({ timeout: 10000 });
@@ -18,10 +18,11 @@ test('chart toggle button is accessible', async ({ page }) => {
   await toggleButton.click();
 
   // Verify aria-label changes to "Collapse chart"
-  await expect(toggleButton).toHaveAttribute('aria-label', 'Collapse chart');
+  const expandedButton = page.locator('button[title="Collapse chart"]').first();
+  await expect(expandedButton).toHaveAttribute('aria-label', 'Collapse chart');
 
   // Verify aria-expanded changes to "true"
-  await expect(toggleButton).toHaveAttribute('aria-expanded', 'true');
+  await expect(expandedButton).toHaveAttribute('aria-expanded', 'true');
 });
 
 test('group header toggle button is accessible', async ({ page }) => {

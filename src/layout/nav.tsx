@@ -281,6 +281,15 @@ export default React.memo<Props>(
                   onChange={onTextChange}
                   onFocus={() => setIsFocused(true)}
                   onBlur={() => setIsFocused(false)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') {
+                      e.preventDefault();
+                      if (filterText) {
+                        onTextChange({ target: { value: '' } } as React.ChangeEvent<HTMLInputElement>);
+                      }
+                      e.currentTarget.blur();
+                    }
+                  }}
                   autoFocus
                   className="w-full pl-10 pr-10 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500 placeholder-gray-500 focus:placeholder-gray-400"
                   placeholder="Search"
@@ -304,6 +313,7 @@ export default React.memo<Props>(
                       searchInputRef.current?.focus();
                     }}
                     aria-label="Clear search"
+                    title="Clear search"
                   >
                     <XMarkIcon className="h-5 w-5" aria-hidden="true" />
                   </button>
@@ -481,6 +491,7 @@ export default React.memo<Props>(
                         onClick={handleClose}
                         className="text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
                         aria-label="Close dialog"
+                        title="Close dialog"
                       >
                         <XMarkIcon className="h-6 w-6" />
                       </button>
