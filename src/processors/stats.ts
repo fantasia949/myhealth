@@ -186,6 +186,29 @@ function pcorrtest_manual(
 }
 
 /**
+ * Calculates the ranks for an array containing only 0s and 1s.
+ * This avoids O(N log N) sorting by exploiting the binary nature of the data,
+ * providing an O(N) ranking process.
+ */
+export function rankBinaryData(arr: number[]): Float64Array {
+  const n = arr.length;
+  let count0 = 0;
+  for (let i = 0; i < n; i++) {
+    if (arr[i] === 0) count0++;
+  }
+  const count1 = n - count0;
+
+  const rank0 = (count0 + 1) / 2;
+  const rank1 = count0 + (count1 + 1) / 2;
+
+  const ranks = new Float64Array(n);
+  for (let i = 0; i < n; i++) {
+    ranks[i] = arr[i] === 0 ? rank0 : rank1;
+  }
+  return ranks;
+}
+
+/**
  * Calculates the ranks of the input array.
  * Ties are assigned the average rank.
  */
@@ -221,8 +244,8 @@ export function rankData(arr: number[]): number[] {
 }
 
 export function calculateSpearmanRanked(
-  rankedX: number[],
-  rankedY: number[],
+  rankedX: number[] | Float64Array,
+  rankedY: number[] | Float64Array,
   options: { alpha: number; alternative: "two-sided" | "less" | "greater" }
 ) {
   // Spearman correlation is Pearson correlation on ranks

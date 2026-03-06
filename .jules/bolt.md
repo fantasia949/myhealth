@@ -13,3 +13,7 @@
 ## 2025-05-18 - Pearson Correlation Bottleneck ILP
 **Learning:** The inline Pearson correlation calculation inside a hot loop is bounded by long data dependency chains where the accumulator waits for the previous addition/multiplication before starting the next. Due to the commutative property of addition, the loop can be unrolled with parallel accumulators to allow Instruction-Level Parallelism (ILP).
 **Action:** Unroll hot accumulation loops (e.g., 4x or 2x) by introducing multiple partial accumulators and summing them at the end. This allows the CPU to execute multiple math operations concurrently, which in this case gave a 30-40% speedup without extra memory allocation overhead.
+
+## 2025-02-17 - Optimize Binary Ranking
+**Learning:** Generic ranking algorithms using index sorting (O(N log N)) are unnecessarily slow for categorical boolean data (like supplement intake vectors represented as 0s and 1s).
+**Action:** When calculating Spearman correlation with binary variables (effectively point-biserial correlation on ranks), implement a specialized O(N) ranking function that counts the frequency of 0s and 1s and calculates their average ranks directly without sorting. This reduces the time significantly, as well as eliminates intermediate object or array allocations during sorting.
