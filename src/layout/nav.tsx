@@ -282,11 +282,10 @@ export default React.memo<Props>(
                   onFocus={() => setIsFocused(true)}
                   onBlur={() => setIsFocused(false)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Escape') {
-                      e.preventDefault();
-                      if (filterText) {
-                        onTextChange({ target: { value: '' } } as React.ChangeEvent<HTMLInputElement>);
-                      }
+                    if (e.key === "Escape") {
+                      onTextChange({
+                        target: { value: "" },
+                      } as React.ChangeEvent<HTMLInputElement>);
                       e.currentTarget.blur();
                     }
                   }}
