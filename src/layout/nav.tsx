@@ -281,6 +281,14 @@ export default React.memo<Props>(
                   onChange={onTextChange}
                   onFocus={() => setIsFocused(true)}
                   onBlur={() => setIsFocused(false)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                      onTextChange({
+                        target: { value: "" },
+                      } as React.ChangeEvent<HTMLInputElement>);
+                      e.currentTarget.blur();
+                    }
+                  }}
                   autoFocus
                   className="w-full pl-10 pr-10 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500 placeholder-gray-500 focus:placeholder-gray-400"
                   placeholder="Search"
