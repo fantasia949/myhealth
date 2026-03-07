@@ -8,7 +8,7 @@ test('table has accessible chart toggle buttons', async ({ page }) => {
   await page.waitForTimeout(2000);
 
   // Look for ANY chart toggle button using title which is stable
-  const toggleButton = page.locator('button[title="Toggle Chart"]').first();
+  const toggleButton = page.locator('button[title="Expand chart"]').first();
 
   // Check if it's visible
   await expect(toggleButton).toBeVisible();
@@ -21,9 +21,13 @@ test('table has accessible chart toggle buttons', async ({ page }) => {
   // Test interaction
   await toggleButton.click();
 
+  const expandedButton = page.locator('button[title="Collapse chart"]').first();
+
   // After click, it should be expanded true and label should change
-  await expect(toggleButton).toHaveAttribute('aria-expanded', 'true');
-  await expect(toggleButton).toHaveAttribute('aria-label', "Collapse chart");
+  await expect(expandedButton).toBeVisible();
+  await expect(expandedButton).toHaveAttribute('aria-expanded', 'true');
+  await expect(expandedButton).toHaveAttribute('aria-label', "Collapse chart");
+  await expect(expandedButton).toHaveAttribute('title', "Collapse chart");
 });
 
 test('data cells show copied feedback on click', async ({ context, page }) => {

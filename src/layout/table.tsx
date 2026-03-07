@@ -21,27 +21,7 @@ import { ChevronRightIcon, ChevronDownIcon, ChartBarIcon, MinusIcon, CalculatorI
 import { averageCountAtom } from "../atom/averageValueAtom";
 import LineChart from "./LineChart";
 import BiomarkerCorrelation from "./BiomarkerCorrelation";
-
-interface TableProps {
-  onCorrelation: (name: string) => void;
-  showOrigColumns: boolean;
-  selected: string[];
-  onSelect: (name: string) => void;
-  showRecords: number;
-  onClearFilters?: () => void;
-}
-
-type DisplayedEntry = {
-  name: string;
-  values: number[];
-  visibleValues: number[];
-  visibleOptimality: boolean[] | null;
-  unit: string;
-  extra: BioMarker[3];
-  tag: string;
-  displayTag: string;
-  sortKey: string;
-};
+import { TableProps, DisplayedEntry } from "./table.types";
 
 const columnHelper = createColumnHelper<DisplayedEntry>();
 
@@ -140,7 +120,7 @@ const TableRow = React.memo(({
             <button
               type="button"
               onClick={() => toggleExpand(rowId)}
-              title="Toggle Chart"
+              title={isExpanded ? "Collapse chart" : "Expand chart"}
               className="hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
               aria-label={isExpanded ? "Collapse chart" : "Expand chart"}
               aria-expanded={isExpanded}
@@ -478,12 +458,13 @@ export default React.memo(
                             style: {
                               cursor: row.getCanExpand()
                                 ? "pointer"
-                                : "normal",
+                                : "default",
                             },
                           }}
                           className="flex items-center gap-2 w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
                           aria-expanded={row.getIsExpanded()}
                           aria-label={`Toggle group ${row.original.displayTag}`}
+                          title={`Toggle group ${row.original.displayTag}`}
                         >
                           {row.getIsExpanded() ? (
                             <ChevronDownIcon className="h-4 w-4 text-gray-400" />

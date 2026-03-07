@@ -312,6 +312,7 @@ export default React.memo<Props>(
                       searchInputRef.current?.focus();
                     }}
                     aria-label="Clear search"
+                    title="Clear search"
                   >
                     <XMarkIcon className="h-5 w-5" aria-hidden="true" />
                   </button>
@@ -489,6 +490,7 @@ export default React.memo<Props>(
                         onClick={handleClose}
                         className="text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
                         aria-label="Close dialog"
+                        title="Close dialog"
                       >
                         <XMarkIcon className="h-6 w-6" />
                       </button>

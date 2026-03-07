@@ -55,3 +55,7 @@
 ## 2026-10-26 - Dark Theme Contrast in Empty States
 **Learning:** Text colored `text-gray-500` or darker can fail WCAG AA contrast ratios against very dark background colors common in modals and tables in this app. Lightening these informational texts to `text-gray-400` resolves the contrast issues while preserving the intended visual hierarchy. Also found that many dynamically injected empty states were missing `role="status" aria-live="polite"`, preventing screen readers from announcing when no data is found.
 **Action:** Always verify color contrast for informational text in dark mode environments. Additionally, strictly mandate the `role="status"` and `aria-live="polite"` pattern for all empty states.
+
+## 2025-10-25 - Search Escape and Invalid Cursor Pattern
+**Learning:** `cursor: normal` is an invalid CSS value (it should be `default` or `auto`) and causes browser fallback behavior, potentially confusing hover states. Furthermore, search inputs across the app lacked the standard `Escape` key support to clear text and blur focus, which is a core expectation for keyboard users. Lastly, icon-only buttons with `aria-label`s often missed the corresponding `title` tooltips, hindering mouse users.
+**Action:** Always verify CSS property values using standard definitions (e.g., `default` instead of `normal` for cursors). Bind `Escape` key down events to clear and blur search inputs for intuitive keyboard UX. Consistently pair `aria-label` with `title` on all icon-only buttons to support both screen readers and pointer devices.
