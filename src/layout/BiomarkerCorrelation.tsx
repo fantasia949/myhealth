@@ -104,23 +104,30 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
     uniqueSupplements.forEach((suppName) => {
       const filteredSuppVector = suppVectors.get(suppName)!;
 
-      // Check if there is variation in the supplement vector
-      const firstVal = filteredSuppVector[0];
-      let hasSuppVariation = false;
-      for (let k = 1; k < numValid; k++) {
-        if (filteredSuppVector[k] !== firstVal) {
-          hasSuppVariation = true;
-          break;
+      // 3. Rank the filtered vectors
+      // Optimization: Because the supplement vector is strictly binary (0 or 1),
+      // we can compute its rank array in O(N) time with a simple counting pass,
+      // avoiding the O(N log N) overhead and memory allocations of generic rankData.
+      const n = numValid;
+      let count0 = 0;
+      for (let k = 0; k < n; k++) {
+        if (filteredSuppVector[k] === 0) {
+          count0++;
         }
       }
 
-      if (!hasSuppVariation) {
+      // Check if there is variation in the supplement vector
+      if (count0 === 0 || count0 === n) {
         return;
       }
 
-      // 3. Rank the filtered vectors
-      // filteredBiomarkerValues is already ranked outside
-      const rankedSupp = rankData(filteredSuppVector);
+      const rank0 = (count0 + 1) / 2;
+      const rank1 = (count0 + 1 + n) / 2;
+
+      const rankedSupp = new Array(n);
+      for (let k = 0; k < n; k++) {
+        rankedSupp[k] = filteredSuppVector[k] === 0 ? rank0 : rank1;
+      }
 
       // 4. Calculate Spearman correlation
       const result: any = calculateSpearmanRanked(rankedBiomarker, rankedSupp, {

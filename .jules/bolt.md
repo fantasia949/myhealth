@@ -13,3 +13,7 @@
 ## 2025-05-18 - Pearson Correlation Bottleneck ILP
 **Learning:** The inline Pearson correlation calculation inside a hot loop is bounded by long data dependency chains where the accumulator waits for the previous addition/multiplication before starting the next. Due to the commutative property of addition, the loop can be unrolled with parallel accumulators to allow Instruction-Level Parallelism (ILP).
 **Action:** Unroll hot accumulation loops (e.g., 4x or 2x) by introducing multiple partial accumulators and summing them at the end. This allows the CPU to execute multiple math operations concurrently, which in this case gave a 30-40% speedup without extra memory allocation overhead.
+
+## 2025-06-12 - Spearman Correlation with Binary Vectors
+**Learning:** Using the generic `rankData` function (which requires an $O(N \log N)$ sort) on strictly binary vectors (e.g. boolean presence of supplements) is highly inefficient. Because binary variables only contain 0s and 1s, their relative ranks can be calculated in a single $O(N)$ pass by counting the frequencies of the elements and assigning the average rank.
+**Action:** When performing non-parametric correlation tests involving binary or categorical variables with a very small set of distinct values, replace generic ranking functions with a frequency-counting rank assignment to skip memory allocations and avoid $O(N \log N)$ sorting inside hot loops.
