@@ -10,7 +10,7 @@ import {
   correlationAlphaAtom,
   correlationAlternativeAtom,
 } from "../atom/correlationAtom";
-import { calculateSpearmanRanked, rankData } from "../processors/stats";
+import { calculateSpearmanRanked, rankData, rankBinaryData } from "../processors/stats";
 
 interface BiomarkerCorrelationProps {
   biomarkerId: string | null;
@@ -119,8 +119,9 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
       }
 
       // 3. Rank the filtered vectors
+      // Optimization: use rankBinaryData for O(N) ranking since the vector is purely binary
       // filteredBiomarkerValues is already ranked outside
-      const rankedSupp = rankData(filteredSuppVector);
+      const rankedSupp = rankBinaryData(filteredSuppVector);
 
       // 4. Calculate Spearman correlation
       const result: any = calculateSpearmanRanked(rankedBiomarker, rankedSupp, {
