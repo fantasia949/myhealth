@@ -86,32 +86,41 @@ const calculatePearsonValue = (x: number[] | Float64Array, y: number[] | Float64
   let sumX2 = 0;
   let sumY2 = 0;
 
-  // Optimization: Unroll loop 2x with parallel accumulators to break data
+  // Optimization: Unroll loop 4x with parallel accumulators to break data
   // dependency chains allowing instruction-level parallelism for mathematical operations.
   let i = 0;
-  let sumX1 = 0, sumX2_ = 0;
-  let sumY1 = 0, sumY2_ = 0;
-  let sumXY1 = 0, sumXY2 = 0;
-  let sumX2_1 = 0, sumX2_2 = 0;
-  let sumY2_1 = 0, sumY2_2 = 0;
+  let sumX1 = 0, sumX2_ = 0, sumX3 = 0, sumX4 = 0;
+  let sumY1 = 0, sumY2_ = 0, sumY3 = 0, sumY4 = 0;
+  let sumXY1 = 0, sumXY2 = 0, sumXY3 = 0, sumXY4 = 0;
+  let sumX2_1 = 0, sumX2_2 = 0, sumX2_3 = 0, sumX2_4 = 0;
+  let sumY2_1 = 0, sumY2_2 = 0, sumY2_3 = 0, sumY2_4 = 0;
 
-  for (; i < n - 1; i += 2) {
+  for (; i < n - 3; i += 4) {
     const x0 = x[i], y0 = y[i];
     const x1 = x[i+1], y1 = y[i+1];
+    const x2 = x[i+2], y2 = y[i+2];
+    const x3 = x[i+3], y3 = y[i+3];
 
     sumX1 += x0; sumY1 += y0;
     sumX2_ += x1; sumY2_ += y1;
+    sumX3 += x2; sumY3 += y2;
+    sumX4 += x3; sumY4 += y3;
 
     sumXY1 += x0 * y0; sumXY2 += x1 * y1;
+    sumXY3 += x2 * y2; sumXY4 += x3 * y3;
+
     sumX2_1 += x0 * x0; sumX2_2 += x1 * x1;
+    sumX2_3 += x2 * x2; sumX2_4 += x3 * x3;
+
     sumY2_1 += y0 * y0; sumY2_2 += y1 * y1;
+    sumY2_3 += y2 * y2; sumY2_4 += y3 * y3;
   }
 
-  sumX = sumX1 + sumX2_;
-  sumY = sumY1 + sumY2_;
-  sumXY = sumXY1 + sumXY2;
-  sumX2 = sumX2_1 + sumX2_2;
-  sumY2 = sumY2_1 + sumY2_2;
+  sumX = sumX1 + sumX2_ + sumX3 + sumX4;
+  sumY = sumY1 + sumY2_ + sumY3 + sumY4;
+  sumXY = sumXY1 + sumXY2 + sumXY3 + sumXY4;
+  sumX2 = sumX2_1 + sumX2_2 + sumX2_3 + sumX2_4;
+  sumY2 = sumY2_1 + sumY2_2 + sumY2_3 + sumY2_4;
 
   for (; i < n; i++) {
     const xi = x[i];
@@ -212,7 +221,7 @@ export function rankBinaryData(arr: number[]): Float64Array {
  * Calculates the ranks of the input array.
  * Ties are assigned the average rank.
  */
-export function rankData(arr: number[]): number[] {
+export function rankData(arr: number[]): Float64Array {
   const n = arr.length;
   // Optimization: use a typed array of indices to avoid allocating `{v, i}` objects
   const indices = new Int32Array(n);
@@ -223,7 +232,7 @@ export function rankData(arr: number[]): number[] {
   // Sort indices based on array values
   indices.sort((a, b) => arr[a] - arr[b]);
 
-  const ranks = new Array(n);
+  const ranks = new Float64Array(n);
 
   let i = 0;
   while (i < n) {
@@ -231,9 +240,7 @@ export function rankData(arr: number[]): number[] {
     while (j < n - 1 && arr[indices[j]] === arr[indices[j + 1]]) {
       j++;
     }
-    const count = j - i + 1;
-    const rankSum = (count * (2 * (i + 1) + (count - 1))) / 2;
-    const avgRank = rankSum / count;
+    const avgRank = (i + j + 2) / 2.0;
 
     for (let k = i; k <= j; k++) {
       ranks[indices[k]] = avgRank;
