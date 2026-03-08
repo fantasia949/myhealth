@@ -348,7 +348,7 @@ export default React.memo<Props>(
                     {selected.map((item) => (
                       <span key={item} className="flex items-center gap-1 px-2 py-0.5 text-xs font-medium bg-blue-900/50 text-blue-200 border border-blue-800/50 rounded-full">
                         {item}
-                        <button type="button" onClick={() => onSelect(item)} className="hover:text-white focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-400 rounded-full" aria-label={`Remove ${item} from selection`}>
+                        <button type="button" onClick={() => onSelect(item)} className="hover:text-white focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-400 rounded-full" aria-label={`Remove ${item} from selection`} title={`Remove ${item} from selection`}>
                           <XMarkIcon className="h-3 w-3" />
                         </button>
                       </span>
@@ -363,12 +363,16 @@ export default React.memo<Props>(
                   <div className="w-full h-px lg:w-px lg:h-5 bg-gray-700 my-1.5 lg:my-0 lg:mx-1 hidden lg:block"></div>
 
                   <div className="flex flex-wrap items-center gap-2 mt-2 lg:mt-0">
-                    {selected.length === 2 && (
-                      <button type="button" onClick={onPValue} className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors">
-                        P-Value
-                      </button>
-                    )}
-                    <button type="button" onClick={onAskAI} disabled={isAsking} className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors flex items-center justify-center gap-1 min-w-[70px]" aria-busy={isAsking}>
+                    <button
+                      type="button"
+                      onClick={onPValue}
+                      disabled={selected.length !== 2}
+                      title={selected.length !== 2 ? "Select exactly 2 items to calculate P-Value" : "Calculate P-Value"}
+                      className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors"
+                    >
+                      P-Value
+                    </button>
+                    <button type="button" onClick={onAskAI} disabled={isAsking} title={isAsking ? "Asking AI..." : "Ask AI"} className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors flex items-center justify-center gap-1 min-w-[70px]" aria-busy={isAsking}>
                       {isAsking ? <Spinner /> : null}
                       {isAsking ? "Asking..." : "Ask AI"}
                     </button>

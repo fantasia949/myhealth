@@ -111,6 +111,7 @@ const TableRow = React.memo(({
             className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
             name={name}
             aria-label={`Select ${name}`}
+            title={`Select ${name}`}
             onChange={() => onSelect(name)}
             checked={isSelected}
           />
