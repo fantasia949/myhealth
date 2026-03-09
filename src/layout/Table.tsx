@@ -67,6 +67,7 @@ const DataCell = React.memo(({ className, rawValue, onCopy, unit, displayValue }
           }}
           role="button"
           aria-label={typeof displayValue === 'string' || typeof displayValue === 'number' ? `Copy ${displayValue}` : 'Copy value'}
+          title="Copy to clipboard"
       >
            {content}
           {copied && (
