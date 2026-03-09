@@ -1,11 +1,11 @@
 import React from "react";
 import "./index.css";
 import DarkVeil from "./layout/DarkVeil";
-import Nav from "./layout/nav";
-import Table from "./layout/table";
+import Nav from "./layout/Nav";
+import Table from "./layout/Table";
 import ScatterChart from "./layout/ScatterChart";
-import PValue from "./layout/pValue";
-import Correlation from "./layout/correlation";
+import PValue from "./layout/PValue";
+import Correlation from "./layout/Correlation";
 import { useAtomValue, useAtom } from "jotai";
 import {
   getBioMarkersAtom,

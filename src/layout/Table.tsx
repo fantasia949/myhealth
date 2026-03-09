@@ -21,7 +21,7 @@ import { ChevronRightIcon, ChevronDownIcon, ChartBarIcon, MinusIcon, CalculatorI
 import { averageCountAtom } from "../atom/averageValueAtom";
 import LineChart from "./LineChart";
 import BiomarkerCorrelation from "./BiomarkerCorrelation";
-import { TableProps, DisplayedEntry } from "./table.types";
+import { TableProps, DisplayedEntry } from "./Table.types";
 
 const columnHelper = createColumnHelper<DisplayedEntry>();
 
