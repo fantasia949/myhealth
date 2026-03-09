@@ -64,7 +64,7 @@ export default {
   ],
   notes: <UpdateNote[]>['+asiatica',
     '-fenugreek',
-    '-cistance',
+    '-cistanche',
     '+yohourt',
     '-cardio',
     "-testo-binaural",
@@ -79,7 +79,9 @@ export default {
     "-HMB",
     "+egg"],
   review: [
-    'ashwagandha is not enough to lower cortisol'
+    'ashwagandha is not enough to lower cortisol',
+    'cistanche does not higher RDW',
+     'no gymnema-sylvestre is still good',
   ],
   plan: [
     '+DHEA',

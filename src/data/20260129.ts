@@ -75,7 +75,7 @@ export default {
         '+yeast',
     ],
     review: [
-        'cistance may cause high RDW?',
+        'cistanche may cause high RDW?',
         'gymnema-sylvestre does good job',
         'kava higher AST?',
         'melatonin gummy lower ALT/GGT?',
@@ -83,7 +83,7 @@ export default {
     plan: [
         '+asiatica',
         '-fenugreek',
-        '-cistance',
+        '-cistanche',
         '+yohourt',
         '-cardio',
         '-red-light',
