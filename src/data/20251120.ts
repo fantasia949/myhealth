@@ -62,7 +62,6 @@ export default {
     "-lactoferrin",
     "++cardio", // more cardio
     "-tmg",
-    "+lactoferrin",
     "+fish-oil",
     "+nac",
     "+DHEA",

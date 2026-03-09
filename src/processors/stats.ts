@@ -199,7 +199,7 @@ function pcorrtest_manual(
  * This avoids O(N log N) sorting by exploiting the binary nature of the data,
  * providing an O(N) ranking process.
  */
-export function rankBinaryData(arr: number[]): Float64Array {
+export function rankBinaryData(arr: number[] | Int8Array): Float64Array {
   const n = arr.length;
   let count0 = 0;
   for (let i = 0; i < n; i++) {

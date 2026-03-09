@@ -79,11 +79,13 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
 
     // Optimization: Build supplement vectors in a single pass over valid indices.
     // This avoids O(M*N) array.includes() calls inside the hot loop.
+    // Using Int8Array instead of standard Array provides zero-initialization by default,
+    // and significantly reduces memory overhead and object allocations during map population.
     // M = validIndices.length, N = uniqueSupplements.size
-    const suppVectors = new Map<string, number[]>();
+    const suppVectors = new Map<string, Int8Array>();
 
     uniqueSupplements.forEach(supp => {
-      suppVectors.set(supp, new Array(validIndices.length).fill(0));
+      suppVectors.set(supp, new Int8Array(validIndices.length));
     });
 
     const numValid = validIndices.length;
