@@ -65,6 +65,7 @@ export type Note =
   | "sun-light"
   | "taurine"
   | "testo-binaural"
+  | "tongkat-ali"
   | "theanine"
   | "thotitu"
   | "tmg"

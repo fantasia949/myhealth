@@ -56,11 +56,34 @@ export default {
     ["Định lượng Cortisol máu", "335.9", "nmol/L"],
     ["DHEA.SO4", "2.87", "µg/mL"],
     ["SHBG", "44.90", "nmol/L"],
+    // not test
+    ['Alkaline Phosphatase', '49.92', 'U/L'],
 
     ["Weight", 68.4],
     ["Sleep score", 84],
   ],
-  notes: <UpdateNote[]>[],
-  review: [],
-  plan: [],
+  notes: <UpdateNote[]>['+asiatica',
+    '-fenugreek',
+    '-cistance',
+    '+yohourt',
+    '-cardio',
+    "-testo-binaural",
+    '+ashwagandha',
+    '+astragalus',
+    "-yeast",
+    '-gymnema-sylvestre',
+    '-sun-light',
+    "-tmg",
+    "-theanine",
+    "-vibration",
+    "-HMB",
+    "+egg"],
+  review: [
+    'ashwagandha is not enough to lower cortisol'
+  ],
+  plan: [
+    '+DHEA',
+    '+taurine',
+    '+tongkat-ali'
+  ],
 };
