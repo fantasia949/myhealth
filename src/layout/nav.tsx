@@ -243,6 +243,7 @@ export default React.memo<Props>(
               type="button"
               onClick={onToggle}
               aria-label="Toggle menu"
+              title="Toggle menu"
               aria-expanded={show}
             >
               <Bars3Icon className="h-6 w-6" />
@@ -395,7 +396,7 @@ export default React.memo<Props>(
                     onChange={onAverageCount}
                     aria-label="Select average count"
                   >
-                    <option value=""></option>
+                    <option value="">No average</option>
                     <option value="3">Average of last 3 tests</option>
                     <option value="5">Average of last 5 tests</option>
                     <option value="10">Average of last 10 tests</option>

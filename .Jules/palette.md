@@ -62,3 +62,7 @@
 ## 2026-11-20 - Discoverability of Advanced Features
 **Learning:** Hiding conditional advanced features (like the P-Value button, which only appears when exactly 2 items are selected) severely limits their discoverability. Users won't know the feature exists or how to trigger it unless they stumble upon the exact combination.
 **Action:** Instead of conditionally rendering (`null`) action buttons based on complex selection states, render them visibly but in a `disabled` state with an explanatory `title` tooltip (e.g., "Select exactly 2 items to..."). This teaches users how to use the app proactively.
+
+## 2026-11-25 - Standardize Copy to Clipboard Interactions
+**Learning:** Raw analytical output (like ASCII correlation tables in modals) forces users to manually highlight and copy text. Additionally, clickable data cells lack explicit mouse discoverability without a `title` tooltip.
+**Action:** Always provide a dedicated "Copy Analysis" or "Copy to Clipboard" button with a temporal success state ("Copied!") when presenting raw analytical text to users. Furthermore, ensure any interactive element intended for copying (like `td` data cells) explicitly uses `title="Copy to clipboard"` to complement its `aria-label`.

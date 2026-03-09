@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon, ClipboardDocumentIcon } from "@heroicons/react/24/outline";
 import { useAtomValue } from "jotai";
 import { rankedDataMapAtom } from "../atom/dataAtom";
 import { correlationAlphaAtom, correlationAlternativeAtom, correlationMethodAtom } from "../atom/correlationAtom";
@@ -13,6 +13,7 @@ interface PValueProps {
 }
 
 export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
+  const [isCopied, setIsCopied] = React.useState(false);
   const rankedDataMap = useAtomValue(rankedDataMapAtom);
   const alpha = useAtomValue(correlationAlphaAtom);
   const alternative = useAtomValue(correlationAlternativeAtom);
@@ -117,6 +118,35 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
                   )}
                   {text?.[0] || text?.[1]}
                 </div>
+                {!!text && (
+                  <div className="mt-4 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const contentToCopy = text?.[0] || text?.[1] || "";
+                        let prefix = "";
+                        if (comparedSourceTarget) {
+                          prefix = `${comparedSourceTarget[0][0]} vs ${comparedSourceTarget[1][0]}\n\n`;
+                        }
+                        navigator.clipboard.writeText(prefix + contentToCopy);
+                        setIsCopied(true);
+                        setTimeout(() => setIsCopied(false), 2000);
+                      }}
+                      className="px-4 py-2 border border-gray-600 text-gray-300 rounded hover:bg-gray-700 hover:text-white flex items-center justify-center gap-2 transition-colors"
+                      aria-label="Copy analysis to clipboard"
+                    >
+                      {isCopied ? (
+                        <>
+                          <ClipboardDocumentIcon className="h-5 w-5" /> Copied!
+                        </>
+                      ) : (
+                        <>
+                          <ClipboardDocumentIcon className="h-5 w-5" /> Copy Analysis
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
               </Dialog.Panel>
             </Transition.Child>
           </div>
