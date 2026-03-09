@@ -24,27 +24,9 @@ import { calculateSpearman, calculateSpearmanRanked } from "../processors/stats"
 import { averageCountAtom } from "../atom/averageValueAtom";
 import Markdown from "react-markdown";
 import { Spinner } from "./Spinner";
+import { NavProps } from "./nav.types";
 
-type Props = {
-  selected: string[];
-  onSelect: (name: string) => void;
-  chartType: string;
-  onChartTypeChange: (type: string) => void;
-  onClearSelection: () => void;
-  filterText: string;
-  filterTag: string | null;
-  showOrigColumns: boolean;
-  showRecords: number;
-  onShowRecordsChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-  onTextChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onFilterByTag: (e: React.MouseEvent<HTMLElement>) => void;
-  onOriginValueToggle: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onVisualize: () => void;
-  onPValue: () => void;
-
-};
-
-export default React.memo<Props>(
+export default React.memo<NavProps>(
   ({
     selected,
     onSelect,
