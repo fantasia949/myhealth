@@ -37,7 +37,7 @@ const tag: Record<string, string[]> = {
     "LDL / HDL",
     "Triglyceride / HDL",
     "Lipoprotein - APO-B",
-    "Total Cholesterol / HDL",
+    "Total Choles / HDL",
   ],
   "5-Hormone": [
     "T3",
@@ -88,7 +88,7 @@ const tag: Record<string, string[]> = {
     "SL Eosinophil",
     "SL Basophil",
     "SL Lympho không điển hình",
-    "Neutropil / Lymphocite",
+    "Neutro / Lympho",
     "CRP-hs",
     "NLR",
     "IgM",
