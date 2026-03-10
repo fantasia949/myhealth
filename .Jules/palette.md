@@ -66,3 +66,7 @@
 ## 2026-11-25 - Standardize Copy to Clipboard Interactions
 **Learning:** Raw analytical output (like ASCII correlation tables in modals) forces users to manually highlight and copy text. Additionally, clickable data cells lack explicit mouse discoverability without a `title` tooltip.
 **Action:** Always provide a dedicated "Copy Analysis" or "Copy to Clipboard" button with a temporal success state ("Copied!") when presenting raw analytical text to users. Furthermore, ensure any interactive element intended for copying (like `td` data cells) explicitly uses `title="Copy to clipboard"` to complement its `aria-label`.
+
+## 2026-12-10 - Keyboard Navigation in Custom Selects and Modals
+**Learning:** Found that `<select>` elements and secondary action buttons (like "Copy Analysis" or "Save to Gist") in modals often lose their default browser focus rings when styled with Tailwind (e.g., using `outline-none` or custom borders). This renders them completely inaccessible to keyboard users navigating via Tab.
+**Action:** Always ensure that custom-styled form inputs and interactive elements explicitly include `focus-visible:ring-2 focus-visible:ring-blue-500` to restore clear keyboard focus indicators without adding unintended visual outlines for mouse clicks.
