@@ -10,7 +10,7 @@ import {
   correlationAlphaAtom,
   correlationAlternativeAtom,
 } from "../atom/correlationAtom";
-import { calculateSpearmanRanked, rankData, rankBinaryData } from "../processors/stats";
+import { calculatePearson, rankData } from "../processors/stats";
 
 interface BiomarkerCorrelationProps {
   biomarkerId: string | null;
@@ -120,13 +120,11 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
         return;
       }
 
-      // 3. Rank the filtered vectors
-      // Optimization: use rankBinaryData for O(N) ranking since the vector is purely binary
-      // filteredBiomarkerValues is already ranked outside
-      const rankedSupp = rankBinaryData(filteredSuppVector);
-
-      // 4. Calculate Spearman correlation
-      const result: any = calculateSpearmanRanked(rankedBiomarker, rankedSupp, {
+      // 3. Calculate correlation
+      // Optimization: For binary variables, Pearson on (Rank(X), Y) is mathematically identical
+      // to Spearman (Pearson on Rank(X), Rank(Y)). This Point-Biserial correlation completely avoids
+      // the O(N) ranking step and the Float64Array allocation for every supplement iteration.
+      const result: any = calculatePearson(rankedBiomarker, filteredSuppVector, {
         alpha,
         alternative,
       });

@@ -78,7 +78,7 @@ function studentT_cdf(t: number, df: number) {
     }
 }
 
-const calculatePearsonValue = (x: number[] | Float64Array, y: number[] | Float64Array) => {
+const calculatePearsonValue = (x: number[] | Float64Array | Int8Array, y: number[] | Float64Array | Int8Array) => {
   const n = x.length;
   let sumX = 0;
   let sumY = 0;
@@ -146,8 +146,8 @@ const calculatePearsonValue = (x: number[] | Float64Array, y: number[] | Float64
 // Optimization: Inlined Pearson correlation logic to avoid the overhead of @stdlib/stats-pcorrtest
 // Argument parsing and memory allocations in hot loops are expensive
 function pcorrtest_manual(
-  x: number[] | Float64Array,
-  y: number[] | Float64Array,
+  x: number[] | Float64Array | Int8Array,
+  y: number[] | Float64Array | Int8Array,
   options?: { alpha?: number; alternative?: "two-sided" | "less" | "greater" }
 ) {
   const alpha = options?.alpha ?? 0.05;
@@ -276,8 +276,8 @@ export function calculateSpearman(
 }
 
 export function calculatePearson(
-  x: number[] | Float64Array,
-  y: number[] | Float64Array,
+  x: number[] | Float64Array | Int8Array,
+  y: number[] | Float64Array | Int8Array,
   options: { alpha: number; alternative: "two-sided" | "less" | "greater" }
 ) {
   return pcorrtest_manual(x, y, options);
