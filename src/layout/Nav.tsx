@@ -24,7 +24,7 @@ import { calculateSpearman, calculateSpearmanRanked } from "../processors/stats"
 import { averageCountAtom } from "../atom/averageValueAtom";
 import Markdown from "react-markdown";
 import { Spinner } from "./Spinner";
-import { NavProps } from "./nav.types";
+import { NavProps } from "./Nav.types";
 
 export default React.memo<NavProps>(
   ({
