@@ -21,3 +21,7 @@
 ## 2025-03-09 - Fast Binary Ranks & Supplement Vectors
 **Learning:** Using JS `Array` initialized with `.fill(0)` and passed to O(N) binary ranking algorithms causes hidden memory allocation overhead and implicit runtime typing penalties inside hot correlation loops.
 **Action:** Always allocate `Int8Array` when building binary (0/1) indicator vectors instead of `Array(len).fill(0)`. Modifying ranking utility signatures to explicitly accept and handle `Int8Array` cuts memory allocation overhead and provides default zero-initialization, speeding up calculations ~40%.
+
+## 2025-03-10 - Point-Biserial Correlation Optimization
+**Learning:** When evaluating the Spearman correlation between a continuous variable and a boolean/binary indicator vector (like supplements), the traditional $O(N)$ ranking pass for the binary vector is mathematically unnecessary. Point-biserial correlation tells us that Pearson correlation on a continuous variable versus an unranked binary variable is mathematically identical to Pearson correlation on both of their ranks (Spearman).
+**Action:** Always bypass ranking entirely for categorical variables represented as 0/1 integers when computing Spearman correlation. Directly pass the unranked binary `Int8Array` and the ranked continuous array into the standard `calculatePearson` function to eliminate a loop pass and memory allocation.
