@@ -132,7 +132,7 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
                         setIsCopied(true);
                         setTimeout(() => setIsCopied(false), 2000);
                       }}
-                      className="px-4 py-2 border border-gray-600 text-gray-300 rounded hover:bg-gray-700 hover:text-white flex items-center justify-center gap-2 transition-colors"
+                      className="px-4 py-2 border border-gray-600 text-gray-300 rounded hover:bg-gray-700 hover:text-white flex items-center justify-center gap-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                       aria-label="Copy analysis to clipboard"
                     >
                       {isCopied ? (

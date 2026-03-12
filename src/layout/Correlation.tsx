@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon, ClipboardDocumentIcon } from "@heroicons/react/24/outline";
 import { useAtom, useAtomValue } from "jotai";
 import { dataAtom, rankedDataMapAtom, nonInferredDataAtom } from "../atom/dataAtom";
 import { correlationAlphaAtom, correlationAlternativeAtom, correlationMethodAtom } from "../atom/correlationAtom";
@@ -18,6 +18,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
   const [alpha, setAlpha] = useAtom(correlationAlphaAtom);
   const [alternative, setAlternative] = useAtom(correlationAlternativeAtom);
   const [method, setMethod] = useAtom(correlationMethodAtom);
+  const [isCopied, setIsCopied] = React.useState(false);
 
   const entries = React.useMemo(() => {
     if (!Array.isArray(data) || !target) {
@@ -148,10 +149,35 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                   <div className="flex h-full flex-col overflow-y-scroll bg-[#222222] border-l border-gray-700 shadow-xl">
                     <div className="px-4 py-6 sm:px-6">
                       <div className="flex items-start justify-between">
-                        <Dialog.Title className="text-base font-semibold leading-6 text-white">
+                        <Dialog.Title className="text-base font-semibold leading-6 text-white truncate pr-2">
                           Correlation Analysis: <span className="text-blue-400">{target}</span>
                         </Dialog.Title>
-                        <div className="ml-3 flex h-7 items-center">
+                        <div className="ml-3 flex items-center gap-2 shrink-0">
+                          {entries && entries.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const header = "Biomarker\tP-Value\tCoeff\n";
+                                const rows = entries.map(entry => `${entry[0]}\t${entry[2].toFixed(6)}\t${entry[3].toFixed(4)}`).join("\n");
+                                navigator.clipboard.writeText(header + rows);
+                                setIsCopied(true);
+                                setTimeout(() => setIsCopied(false), 2000);
+                              }}
+                              className="px-2 py-1 border border-gray-600 text-xs text-gray-300 rounded hover:bg-gray-700 hover:text-white flex items-center justify-center gap-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                              aria-label="Copy analysis to clipboard"
+                              title="Copy analysis to clipboard"
+                            >
+                              {isCopied ? (
+                                <>
+                                  <ClipboardDocumentIcon className="h-4 w-4" /> Copied!
+                                </>
+                              ) : (
+                                <>
+                                  <ClipboardDocumentIcon className="h-4 w-4" /> Copy
+                                </>
+                              )}
+                            </button>
+                          )}
                           <button
                             type="button"
                             className="relative rounded-md text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
@@ -177,7 +203,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                               id="corr-method"
                               value={method}
                               onChange={(e) => setMethod(e.target.value as any)}
-                              className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white"
+                              className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white focus-visible:ring-2 focus-visible:ring-blue-500"
                             >
                               <option value="spearman">Spearman</option>
                               <option value="pearson">Pearson</option>
@@ -189,7 +215,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                               id="corr-alpha"
                               value={alpha}
                               onChange={(e) => setAlpha(Number(e.target.value))}
-                              className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white"
+                              className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white focus-visible:ring-2 focus-visible:ring-blue-500"
                             >
                               <option value={0.05}>0.05</option>
                               <option value={0.01}>0.01</option>
@@ -203,7 +229,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                               id="corr-alt"
                               value={alternative}
                               onChange={(e) => setAlternative(e.target.value as any)}
-                              className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white"
+                              className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white focus-visible:ring-2 focus-visible:ring-blue-500"
                             >
                               <option value="two-sided">Two-sided</option>
                               <option value="less">Less</option>
@@ -216,9 +242,9 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                       <table className="min-w-full mb-8">
                         <thead>
                           <tr className="border-b border-gray-800">
-                            <th scope="col" className="text-left text-xs text-gray-500 uppercase tracking-wider font-semibold py-2 px-1">Biomarker</th>
-                            <th scope="col" className="text-right text-xs text-gray-500 uppercase tracking-wider font-semibold py-2 px-1 w-24">P-Value</th>
-                            <th scope="col" className="text-right text-xs text-gray-500 uppercase tracking-wider font-semibold py-2 px-1 w-20">Coeff</th>
+                            <th scope="col" className="text-left text-xs text-gray-400 uppercase tracking-wider font-semibold py-2 px-1">Biomarker</th>
+                            <th scope="col" className="text-right text-xs text-gray-400 uppercase tracking-wider font-semibold py-2 px-1 w-24">P-Value</th>
+                            <th scope="col" className="text-right text-xs text-gray-400 uppercase tracking-wider font-semibold py-2 px-1 w-20">Coeff</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-800">
@@ -243,7 +269,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                             <tr>
                               <td colSpan={3} className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-700 rounded bg-white/5" role="status" aria-live="polite">
                                 No significant correlations found.<br/>
-                                <span className="text-xs mt-2 block text-gray-500">Try increasing the Alpha threshold or changing the hypothesis.</span>
+                                <span className="text-xs mt-2 block text-gray-400">Try increasing the Alpha threshold or changing the hypothesis.</span>
                               </td>
                             </tr>
                           )}

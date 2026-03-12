@@ -1,6 +1,6 @@
 import React, { Fragment, useMemo } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon, ClipboardDocumentIcon } from "@heroicons/react/24/outline";
 import { useAtomValue } from "jotai";
 import {
   notesAtom,
@@ -10,10 +10,11 @@ import {
   correlationAlphaAtom,
   correlationAlternativeAtom,
 } from "../atom/correlationAtom";
-import { calculateSpearmanRanked, rankData, rankBinaryData } from "../processors/stats";
+import { rankData, calculatePearson } from "../processors/stats";
 import { BiomarkerCorrelationProps, CorrelationResult } from "./BiomarkerCorrelation.types";
 
 const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorrelationProps) => {
+  const [isCopied, setIsCopied] = React.useState(false);
   const notes = useAtomValue(notesAtom);
   const data = useAtomValue(dataAtom); // Access raw data
   const alpha = 0.05;
@@ -110,13 +111,11 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
         return;
       }
 
-      // 3. Rank the filtered vectors
-      // Optimization: use rankBinaryData for O(N) ranking since the vector is purely binary
-      // filteredBiomarkerValues is already ranked outside
-      const rankedSupp = rankBinaryData(filteredSuppVector);
-
-      // 4. Calculate Spearman correlation
-      const result: any = calculateSpearmanRanked(rankedBiomarker, rankedSupp, {
+      // 3. Calculate Spearman correlation
+      // Optimization: Point-biserial correlation is mathematically equivalent to Pearson
+      // correlation on the ranked continuous variable against the unranked binary indicator variable.
+      // This bypasses the ranking overhead for the binary vectors completely.
+      const result: any = calculatePearson(rankedBiomarker, filteredSuppVector, {
         alpha,
         alternative,
       });
@@ -172,14 +171,41 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
                   <Dialog.Title className="text-lg font-medium leading-6 truncate pr-2">
                     Correlations: {biomarkerId}
                   </Dialog.Title>
-                  <button
-                    onClick={onClose}
-                    className="text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded shrink-0"
-                    aria-label="Close dialog"
-                    title="Close dialog"
-                  >
-                    <XMarkIcon className="h-6 w-6" />
-                  </button>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {correlations && correlations.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const header = "Supplement\tP-Value\tRho\n";
+                          const rows = correlations.map(item => `${item.name}\t${item.pValue.toFixed(4)}\t${item.rho.toFixed(3)}`).join("\n");
+                          navigator.clipboard.writeText(header + rows);
+                          setIsCopied(true);
+                          setTimeout(() => setIsCopied(false), 2000);
+                        }}
+                        className="px-2 py-1 border border-gray-600 text-xs text-gray-300 rounded hover:bg-gray-700 hover:text-white flex items-center justify-center gap-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                        aria-label="Copy analysis to clipboard"
+                        title="Copy analysis to clipboard"
+                      >
+                        {isCopied ? (
+                          <>
+                            <ClipboardDocumentIcon className="h-4 w-4" /> Copied!
+                          </>
+                        ) : (
+                          <>
+                            <ClipboardDocumentIcon className="h-4 w-4" /> Copy
+                          </>
+                        )}
+                      </button>
+                    )}
+                    <button
+                      onClick={onClose}
+                      className="text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded shrink-0"
+                      aria-label="Close dialog"
+                      title="Close dialog"
+                    >
+                      <XMarkIcon className="h-6 w-6" />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="overflow-y-auto flex-grow p-6 pt-0">
