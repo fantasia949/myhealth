@@ -177,7 +177,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                               id="corr-method"
                               value={method}
                               onChange={(e) => setMethod(e.target.value as any)}
-                              className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white"
+                              className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white focus-visible:ring-2 focus-visible:ring-blue-500"
                             >
                               <option value="spearman">Spearman</option>
                               <option value="pearson">Pearson</option>
@@ -189,7 +189,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                               id="corr-alpha"
                               value={alpha}
                               onChange={(e) => setAlpha(Number(e.target.value))}
-                              className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white"
+                              className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white focus-visible:ring-2 focus-visible:ring-blue-500"
                             >
                               <option value={0.05}>0.05</option>
                               <option value={0.01}>0.01</option>
@@ -203,7 +203,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                               id="corr-alt"
                               value={alternative}
                               onChange={(e) => setAlternative(e.target.value as any)}
-                              className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white"
+                              className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white focus-visible:ring-2 focus-visible:ring-blue-500"
                             >
                               <option value="two-sided">Two-sided</option>
                               <option value="less">Less</option>
@@ -216,9 +216,9 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                       <table className="min-w-full mb-8">
                         <thead>
                           <tr className="border-b border-gray-800">
-                            <th scope="col" className="text-left text-xs text-gray-500 uppercase tracking-wider font-semibold py-2 px-1">Biomarker</th>
-                            <th scope="col" className="text-right text-xs text-gray-500 uppercase tracking-wider font-semibold py-2 px-1 w-24">P-Value</th>
-                            <th scope="col" className="text-right text-xs text-gray-500 uppercase tracking-wider font-semibold py-2 px-1 w-20">Coeff</th>
+                            <th scope="col" className="text-left text-xs text-gray-400 uppercase tracking-wider font-semibold py-2 px-1">Biomarker</th>
+                            <th scope="col" className="text-right text-xs text-gray-400 uppercase tracking-wider font-semibold py-2 px-1 w-24">P-Value</th>
+                            <th scope="col" className="text-right text-xs text-gray-400 uppercase tracking-wider font-semibold py-2 px-1 w-20">Coeff</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-800">
@@ -243,7 +243,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                             <tr>
                               <td colSpan={3} className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-700 rounded bg-white/5" role="status" aria-live="polite">
                                 No significant correlations found.<br/>
-                                <span className="text-xs mt-2 block text-gray-500">Try increasing the Alpha threshold or changing the hypothesis.</span>
+                                <span className="text-xs mt-2 block text-gray-400">Try increasing the Alpha threshold or changing the hypothesis.</span>
                               </td>
                             </tr>
                           )}
