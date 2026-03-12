@@ -472,7 +472,7 @@ export default React.memo<NavProps>(
                           setIsCopied(true);
                           setTimeout(() => setIsCopied(false), 2000);
                         }}
-                        className="px-4 py-2 border border-gray-600 text-gray-300 rounded hover:bg-gray-700 hover:text-white flex items-center justify-center gap-2 transition-colors"
+                        className="px-4 py-2 border border-gray-600 text-gray-300 rounded hover:bg-gray-700 hover:text-white flex items-center justify-center gap-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                         aria-label="Copy analysis to clipboard"
                       >
                         {isCopied ? (
@@ -487,7 +487,7 @@ export default React.memo<NavProps>(
                       </button>
                       <button
                         type="button"
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                         disabled={isGistLoading}
                         aria-busy={isGistLoading}
                         onClick={async () => {
