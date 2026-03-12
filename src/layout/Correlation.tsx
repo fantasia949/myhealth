@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon, ClipboardDocumentIcon } from "@heroicons/react/24/outline";
 import { useAtom, useAtomValue } from "jotai";
 import { dataAtom, rankedDataMapAtom, nonInferredDataAtom } from "../atom/dataAtom";
 import { correlationAlphaAtom, correlationAlternativeAtom, correlationMethodAtom } from "../atom/correlationAtom";
@@ -18,6 +18,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
   const [alpha, setAlpha] = useAtom(correlationAlphaAtom);
   const [alternative, setAlternative] = useAtom(correlationAlternativeAtom);
   const [method, setMethod] = useAtom(correlationMethodAtom);
+  const [isCopied, setIsCopied] = React.useState(false);
 
   const entries = React.useMemo(() => {
     if (!Array.isArray(data) || !target) {
@@ -148,10 +149,35 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                   <div className="flex h-full flex-col overflow-y-scroll bg-[#222222] border-l border-gray-700 shadow-xl">
                     <div className="px-4 py-6 sm:px-6">
                       <div className="flex items-start justify-between">
-                        <Dialog.Title className="text-base font-semibold leading-6 text-white">
+                        <Dialog.Title className="text-base font-semibold leading-6 text-white truncate pr-2">
                           Correlation Analysis: <span className="text-blue-400">{target}</span>
                         </Dialog.Title>
-                        <div className="ml-3 flex h-7 items-center">
+                        <div className="ml-3 flex items-center gap-2 shrink-0">
+                          {entries && entries.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const header = "Biomarker\tP-Value\tCoeff\n";
+                                const rows = entries.map(entry => `${entry[0]}\t${entry[2].toFixed(6)}\t${entry[3].toFixed(4)}`).join("\n");
+                                navigator.clipboard.writeText(header + rows);
+                                setIsCopied(true);
+                                setTimeout(() => setIsCopied(false), 2000);
+                              }}
+                              className="px-2 py-1 border border-gray-600 text-xs text-gray-300 rounded hover:bg-gray-700 hover:text-white flex items-center justify-center gap-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                              aria-label="Copy analysis to clipboard"
+                              title="Copy analysis to clipboard"
+                            >
+                              {isCopied ? (
+                                <>
+                                  <ClipboardDocumentIcon className="h-4 w-4" /> Copied!
+                                </>
+                              ) : (
+                                <>
+                                  <ClipboardDocumentIcon className="h-4 w-4" /> Copy
+                                </>
+                              )}
+                            </button>
+                          )}
                           <button
                             type="button"
                             className="relative rounded-md text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
