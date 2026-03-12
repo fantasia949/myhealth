@@ -11,17 +11,7 @@ import {
   correlationAlternativeAtom,
 } from "../atom/correlationAtom";
 import { rankData, calculatePearson } from "../processors/stats";
-
-interface BiomarkerCorrelationProps {
-  biomarkerId: string | null;
-  onClose: () => void;
-}
-
-interface CorrelationResult {
-  name: string;
-  rho: number;
-  pValue: number;
-}
+import { BiomarkerCorrelationProps, CorrelationResult } from "./BiomarkerCorrelation.types";
 
 const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorrelationProps) => {
   const [isCopied, setIsCopied] = React.useState(false);
