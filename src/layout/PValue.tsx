@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { XMarkIcon, ClipboardDocumentIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon, ClipboardDocumentIcon, CheckIcon } from "@heroicons/react/24/outline";
 import { useAtomValue } from "jotai";
 import { rankedDataMapAtom } from "../atom/dataAtom";
 import { correlationAlphaAtom, correlationAlternativeAtom, correlationMethodAtom } from "../atom/correlationAtom";
@@ -132,12 +132,16 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
                         setIsCopied(true);
                         setTimeout(() => setIsCopied(false), 2000);
                       }}
-                      className="px-4 py-2 border border-gray-600 text-gray-300 rounded hover:bg-gray-700 hover:text-white flex items-center justify-center gap-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                    className={`px-4 py-2 border rounded flex items-center justify-center gap-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 min-w-[160px] ${
+                      isCopied
+                        ? "border-green-600 text-green-400 bg-green-900/20"
+                        : "border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
+                    }`}
                       aria-label="Copy analysis to clipboard"
                     >
                       {isCopied ? (
                         <>
-                          <ClipboardDocumentIcon className="h-5 w-5" /> Copied!
+                        <CheckIcon className="h-5 w-5" /> Copied!
                         </>
                       ) : (
                         <>
