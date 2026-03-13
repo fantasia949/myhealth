@@ -6,11 +6,7 @@ import { rankedDataMapAtom } from "../atom/dataAtom";
 import { correlationAlphaAtom, correlationAlternativeAtom, correlationMethodAtom } from "../atom/correlationAtom";
 import { BioMarker } from "../types/biomarker";
 import { calculateSpearmanRanked, calculatePearson } from "../processors/stats";
-
-interface PValueProps {
-  comparedSourceTarget: BioMarker[] | null;
-  onClose: () => void;
-}
+import { PValueProps } from "./PValue.types";
 
 export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
   const [isCopied, setIsCopied] = React.useState(false);
