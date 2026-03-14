@@ -360,7 +360,7 @@ export default React.memo<NavProps>(
                       {isAsking ? "Asking..." : "Ask AI"}
                     </button>
                     <div className="w-px h-4 bg-gray-600 mx-0.5 hidden sm:block"></div>
-                    <select className="px-2 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded text-xs focus:outline-none focus:border-blue-500" value={chartType} onChange={(e) => onChartTypeChange(e.target.value)} aria-label="Select chart type">
+                    <select className="px-2 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" value={chartType} onChange={(e) => onChartTypeChange(e.target.value)} aria-label="Select chart type">
                       <option value="scatter">Scatter Chart</option>
                     </select>
                     <button type="button" onClick={onVisualize} className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors">
@@ -373,7 +373,7 @@ export default React.memo<NavProps>(
               <div className="hidden contents lg:flex lg:ml-auto lg:flex-row lg:gap-4 lg:items-center">
                 <div className="flex items-center gap-2 w-full lg:w-auto">
                   <select
-                    className="flex-1 lg:flex-none px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
+                    className="flex-1 lg:flex-none px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                     value={averageCount.toString()}
                     onChange={onAverageCount}
                     aria-label="Select average count"
@@ -387,7 +387,7 @@ export default React.memo<NavProps>(
                 </div>
                 <div className="hidden lg:flex items-center gap-2 lg:w-auto">
                   <select
-                    className="flex-1 lg:flex-none px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
+                    className="flex-1 lg:flex-none px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                     value={showRecords.toString()}
                     onChange={onShowRecordsChange}
                     aria-label="Select number of records to show"
