@@ -5,11 +5,7 @@ import { useAtom, useAtomValue } from "jotai";
 import { dataAtom, rankedDataMapAtom, nonInferredDataAtom } from "../atom/dataAtom";
 import { correlationAlphaAtom, correlationAlternativeAtom, correlationMethodAtom } from "../atom/correlationAtom";
 import { calculateSpearmanRanked, calculatePearson } from "../processors/stats";
-
-interface CorrelationProps {
-  target: string | null;
-  onClose: () => void;
-}
+import { CorrelationProps } from "./Correlation.types";
 
 export default React.memo(({ target, onClose }: CorrelationProps) => {
   const data = useAtomValue(nonInferredDataAtom);
