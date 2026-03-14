@@ -25,3 +25,7 @@
 ## 2025-03-10 - Point-Biserial Correlation Optimization
 **Learning:** When evaluating the Spearman correlation between a continuous variable and a boolean/binary indicator vector (like supplements), the traditional $O(N)$ ranking pass for the binary vector is mathematically unnecessary. Point-biserial correlation tells us that Pearson correlation on a continuous variable versus an unranked binary variable is mathematically identical to Pearson correlation on both of their ranks (Spearman).
 **Action:** Always bypass ranking entirely for categorical variables represented as 0/1 integers when computing Spearman correlation. Directly pass the unranked binary `Int8Array` and the ranked continuous array into the standard `calculatePearson` function to eliminate a loop pass and memory allocation.
+
+## 2025-03-12 - Math Data Processing Overhead
+**Learning:** When preparing continuous numerical data for hot mathematical functions (like correlation) inside React components (e.g., inside `useMemo`), chaining `Array.forEach()`, `Array.push()`, and `Array.map()` creates massive overhead. It introduces closure overhead, generates multiple intermediate garbage-collected arrays, and prevents engine optimization.
+**Action:** Always pre-allocate a `Float64Array` sized to the source length, use a single standard `for` loop to filter/assign valid items manually tracking `count`, and then pass `myArray.subarray(0, count)` to the math function. This avoids allocation and closure overhead entirely.
