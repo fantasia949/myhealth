@@ -47,22 +47,39 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
 
     // Optimization: Hoist invariant calculations outside the loop
     // 1. Identify valid indices: where biomarker value > 0 AND note exists
-    const validIndices: number[] = [];
-    const filteredBiomarkerValues: number[] = [];
+    // Pre-allocate typed arrays to avoid Array.push() overhead in the hot loop
+    const maxLen = rawValues.length;
+    const validIndicesArray = new Int32Array(maxLen);
+    const filteredBiomarkerValuesArray = new Float64Array(maxLen);
+    let count = 0;
 
-    rawValues.forEach((val: any, index) => {
-      const numVal = Number(val);
-      if (!isNaN(numVal) && numVal > 0 && index < noteValues.length) {
-          validIndices.push(index);
-          filteredBiomarkerValues.push(numVal);
+    for (let index = 0; index < maxLen; index++) {
+      const val = rawValues[index];
+      if (val !== null && val !== undefined) {
+        const numVal = Number(val);
+        if (!isNaN(numVal) && numVal > 0 && index < noteValues.length) {
+          validIndicesArray[count] = index;
+          filteredBiomarkerValuesArray[count] = numVal;
+          count++;
+        }
       }
-    });
+    }
+
+    const validIndices = validIndicesArray.subarray(0, count);
+    const filteredBiomarkerValues = filteredBiomarkerValuesArray.subarray(0, count);
 
     // If we don't have enough data points, we can't correlate
-    if (validIndices.length < 3) return [];
+    if (count < 3) return [];
 
     // Check variation in biomarker values once
-    const hasBiomarkerVariation = filteredBiomarkerValues.some(v => v !== filteredBiomarkerValues[0]);
+    let hasBiomarkerVariation = false;
+    const firstBioVal = filteredBiomarkerValues[0];
+    for (let i = 1; i < count; i++) {
+      if (filteredBiomarkerValues[i] !== firstBioVal) {
+        hasBiomarkerVariation = true;
+        break;
+      }
+    }
     if (!hasBiomarkerVariation) return [];
 
     // Rank the filtered biomarker values once
@@ -76,11 +93,10 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
     const suppVectors = new Map<string, Int8Array>();
 
     uniqueSupplements.forEach(supp => {
-      suppVectors.set(supp, new Int8Array(validIndices.length));
+      suppVectors.set(supp, new Int8Array(count));
     });
 
-    const numValid = validIndices.length;
-    for (let k = 0; k < numValid; k++) {
+    for (let k = 0; k < count; k++) {
       const i = validIndices[k];
       const note = noteValues[i];
       if (note && note.supps) {
@@ -100,7 +116,7 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
       // Check if there is variation in the supplement vector
       const firstVal = filteredSuppVector[0];
       let hasSuppVariation = false;
-      for (let k = 1; k < numValid; k++) {
+      for (let k = 1; k < count; k++) {
         if (filteredSuppVector[k] !== firstVal) {
           hasSuppVariation = true;
           break;

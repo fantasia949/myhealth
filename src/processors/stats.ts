@@ -221,7 +221,7 @@ export function rankBinaryData(arr: number[] | Int8Array): Float64Array {
  * Calculates the ranks of the input array.
  * Ties are assigned the average rank.
  */
-export function rankData(arr: number[]): Float64Array {
+export function rankData(arr: number[] | Float64Array): Float64Array {
   const n = arr.length;
   // Optimization: use a typed array of indices to avoid allocating `{v, i}` objects
   const indices = new Int32Array(n);
