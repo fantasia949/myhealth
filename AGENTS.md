@@ -12,17 +12,17 @@ MyHealth is a **client-side personal health tracking and biomarker analysis dash
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| UI framework | React 19 + TypeScript 5 |
-| Bundler | Vite 7 |
-| Styling | Tailwind CSS 4 |
-| State management | Jotai 2 (atomic, async atoms) |
-| Data tables | TanStack React Table 8 |
-| Charts | ECharts 5 + echarts-for-react, OGL (3D WebGL) |
-| Statistics | @stdlib/stats-pcorrtest, echarts-stat |
-| Testing | Playwright 1 (E2E only) |
-| Package manager | **pnpm** (use pnpm for all install/run commands) |
+| Layer            | Technology                                       |
+| ---------------- | ------------------------------------------------ |
+| UI framework     | React 19 + TypeScript 5                          |
+| Bundler          | Vite 7                                           |
+| Styling          | Tailwind CSS 4                                   |
+| State management | Jotai 2 (atomic, async atoms)                    |
+| Data tables      | TanStack React Table 8                           |
+| Charts           | ECharts 5 + echarts-for-react, OGL (3D WebGL)    |
+| Statistics       | @stdlib/stats-pcorrtest, echarts-stat            |
+| Testing          | Playwright 1 (E2E only)                          |
+| Package manager  | **pnpm** (use pnpm for all install/run commands) |
 
 ---
 
@@ -133,6 +133,12 @@ pnpm build
 # Preview production build locally
 pnpm preview
 
+# Format files
+pnpm fmt
+
+# Verify formatting without writing files.
+pnpm fmt:check
+
 # Run all E2E tests (headless)
 npx playwright test
 
@@ -143,8 +149,6 @@ npx playwright test tests/example.spec.ts
 npx playwright test --ui
 ```
 
-> **Note:** There is no ESLint or Prettier configuration in this repository. TypeScript strict mode (`"strict": true`) acts as the primary code quality gate.
-
 ---
 
 ## Testing
@@ -152,6 +156,7 @@ npx playwright test --ui
 All tests live in `tests/` and use **Playwright** for end-to-end browser automation. There are no unit or integration test frameworks (e.g. Vitest, Jest) in this project.
 
 When adding or modifying features:
+
 - Add or update the relevant `tests/*.spec.ts` file.
 - Keep tests self-contained and deterministic — avoid relying on network calls.
 - Run `npx playwright test` before submitting changes to ensure no regressions.
@@ -172,16 +177,16 @@ When adding or modifying features:
 
 ## Key Files for Common Tasks
 
-| Task | Files to read / modify |
-|---|---|
-| Add a new chart | `src/layout/`, `src/atom/dataAtom.ts` |
-| Add a new data processor | `src/processors/{pre,enrich,post}/` |
-| Add a new biomarker field | `src/data/`, `src/processors/`, `src/types/biomarker.ts` |
-| Change state / derived data | `src/atom/` |
-| Integrate a new external service | `src/service/` |
-| Update the data table | `src/layout/Table.tsx` |
-| Adjust correlation logic | `src/processors/stats.ts`, `src/atom/correlationAtom.ts` |
-| Update PhenoAge algorithm | `src/processors/enrich/phenoAge.ts` |
+| Task                             | Files to read / modify                                   |
+| -------------------------------- | -------------------------------------------------------- |
+| Add a new chart                  | `src/layout/`, `src/atom/dataAtom.ts`                    |
+| Add a new data processor         | `src/processors/{pre,enrich,post}/`                      |
+| Add a new biomarker field        | `src/data/`, `src/processors/`, `src/types/biomarker.ts` |
+| Change state / derived data      | `src/atom/`                                              |
+| Integrate a new external service | `src/service/`                                           |
+| Update the data table            | `src/layout/Table.tsx`                                   |
+| Adjust correlation logic         | `src/processors/stats.ts`, `src/atom/correlationAtom.ts` |
+| Update PhenoAge algorithm        | `src/processors/enrich/phenoAge.ts`                      |
 
 ---
 
