@@ -61,7 +61,7 @@ export default memo(({ data, keys }: ScatterChartProps) => {
         name: key,
         type: 'scatter',
         yAxisIndex: index,
-        data: bioMarker ? bioMarker[1].map((value, i) => [formatTime(labels[i]), value]) : [],
+        data: bioMarker ? bioMarker[1].map((value: number | null, i: number) => [formatTime(labels[i]), value]) : [],
       }
     })
   }, [data, keys])

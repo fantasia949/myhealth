@@ -145,7 +145,7 @@ export default memo(({ data, keys }: ChartProps) => {
       .reduce((result: any[][], entry) => {
         if (entry) {
           const [key, values] = entry
-          values.forEach((v, i) => {
+          values.forEach((v: number | null, i: number) => {
             if (!result[i]) {
               result[i] = [labels[i].slice(0, -2)]
             }
@@ -217,7 +217,7 @@ export default memo(({ data, keys }: ChartProps) => {
             series: [{ symbolSize: 40 }],
             dataZoom: options.dataZoom,
           },
-          // { notMerge: true }
+          { notMerge: true }
         )
         // console.log("ch1", instance.getOption());
       }

@@ -77,7 +77,7 @@ export default memo(({ data, keys }: ChartProps) => {
               connectNulls: true,
             },
           ],
-        })
+        }, { notMerge: true })
       }
     }
     return () => {
