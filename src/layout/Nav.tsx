@@ -252,7 +252,7 @@ export default React.memo<NavProps>(
                     }
                   }}
                   autoFocus
-                  className="w-full pl-10 pr-10 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500 placeholder-gray-500 focus:placeholder-gray-400"
+                  className="w-full pl-10 pr-10 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 placeholder-gray-500 focus:placeholder-gray-400"
                   placeholder="Search"
                   aria-label="Search biomarkers"
                 />
@@ -364,7 +364,7 @@ export default React.memo<NavProps>(
                     <select className="px-2 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" value={chartType} onChange={(e) => onChartTypeChange(e.target.value)} aria-label="Select chart type">
                       <option value="scatter">Scatter Chart</option>
                     </select>
-                    <button type="button" onClick={onVisualize} className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors">
+                    <button type="button" onClick={onVisualize} title="Visualize selected biomarkers" className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors">
                       Visualize
                     </button>
                   </div>
