@@ -4,7 +4,7 @@ import { XMarkIcon, ClipboardDocumentIcon, CheckIcon } from "@heroicons/react/24
 import { useAtomValue } from "jotai";
 import {
   notesAtom,
-  dataAtom,
+  dataMapAtom,
 } from "../atom/dataAtom";
 import {
   correlationAlphaAtom,
@@ -16,7 +16,7 @@ import { BiomarkerCorrelationProps, CorrelationResult } from "./BiomarkerCorrela
 const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorrelationProps) => {
   const [isCopied, setIsCopied] = React.useState(false);
   const notes = useAtomValue(notesAtom);
-  const data = useAtomValue(dataAtom); // Access raw data
+  const dataMap = useAtomValue(dataMapAtom); // Access pre-calculated O(1) map
   const alpha = 0.05;
   const alternative = useAtomValue(correlationAlternativeAtom);
 
@@ -24,7 +24,7 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
     if (!biomarkerId) return [];
 
     // Find the biomarker entry in the raw data
-    const biomarkerEntry = data.find((entry) => entry[0] === biomarkerId);
+    const biomarkerEntry = dataMap.get(biomarkerId);
     if (!biomarkerEntry) return [];
 
     const rawValues = biomarkerEntry[1]; // number[]
@@ -152,7 +152,7 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
 
     // Sort by P-value ascending
     return results.sort((a, b) => a.pValue - b.pValue);
-  }, [biomarkerId, notes, data, alpha, alternative]);
+  }, [biomarkerId, notes, dataMap, alpha, alternative]);
 
   if (!biomarkerId) return null;
 
