@@ -4,6 +4,15 @@
   "description": "",
   "keywords": [],
   "main": "src/index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "lint": "oxlint --ignore-pattern archived/**",
+    "lint:fix": "oxlint --fix  --ignore-pattern archived/**"
+  },
   "dependencies": {
     "@echarts-readymade/core": "1.2.0",
     "@echarts-readymade/line": "1.2.0",
@@ -39,15 +48,6 @@
     "typescript": "5.9.3",
     "vite": "^8.0.0",
     "vite-plugin-pwa": "^1.2.0"
-  },
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "fmt": "oxfmt --ignore-pattern archived/**",
-    "fmt:check": "oxfmt --check  --ignore-pattern archived/**",
-    "lint": "oxlint --ignore-pattern archived/**",
-    "lint:fix": "oxlint --fix  --ignore-pattern archived/**"
   },
   "browserslist": [
     ">0.2%",

@@ -1,6 +1,6 @@
-import { BioMarker } from "../types/biomarker";
+import { BioMarker } from '../types/biomarker'
 
 export interface PValueProps {
-  comparedSourceTarget: BioMarker[] | null;
-  onClose: () => void;
+  comparedSourceTarget: BioMarker[] | null
+  onClose: () => void
 }

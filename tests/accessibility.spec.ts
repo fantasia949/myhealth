@@ -1,155 +1,160 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test'
 
 test('chart toggle button is accessible', async ({ page }) => {
-  await page.goto('http://localhost:5173');
+  await page.goto('http://localhost:5173')
 
   // Wait for the table to populate by waiting for the toggle button to be attached
   // We use first() because there are multiple buttons
-  const toggleButton = page.locator('button[title="Expand chart"]').first();
+  const toggleButton = page.locator('button[title="Expand chart"]').first()
 
   // Wait for it to be visible. This implicitly waits for the element to appear.
-  await expect(toggleButton).toBeVisible({ timeout: 10000 });
+  await expect(toggleButton).toBeVisible({ timeout: 10000 })
 
   // Verify it has aria-expanded="false"
-  await expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
-  await expect(toggleButton).toHaveAttribute('aria-label', 'Expand chart');
+  await expect(toggleButton).toHaveAttribute('aria-expanded', 'false')
+  await expect(toggleButton).toHaveAttribute('aria-label', 'Expand chart')
 
   // Click it
-  await toggleButton.click();
+  await toggleButton.click()
 
   // Verify aria-label changes to "Collapse chart"
-  const expandedButton = page.locator('button[title="Collapse chart"]').first();
-  await expect(expandedButton).toHaveAttribute('aria-label', 'Collapse chart');
+  const expandedButton = page.locator('button[title="Collapse chart"]').first()
+  await expect(expandedButton).toHaveAttribute('aria-label', 'Collapse chart')
 
   // Verify aria-expanded changes to "true"
-  await expect(expandedButton).toHaveAttribute('aria-expanded', 'true');
-});
+  await expect(expandedButton).toHaveAttribute('aria-expanded', 'true')
+})
 
 test('group header toggle button is accessible', async ({ page }) => {
-  await page.goto('http://localhost:5173');
+  await page.goto('http://localhost:5173')
 
   // Wait for table to load
-  await page.waitForSelector('table');
+  await page.waitForSelector('table')
 
   // Locate the first group header button
   // It's inside a tr with specific classes and td
-  const groupButton = page.locator('tr.bg-dark-accent.font-bold button').first();
+  const groupButton = page.locator('tr.bg-dark-accent.font-bold button').first()
 
-  await expect(groupButton).toBeVisible();
+  await expect(groupButton).toBeVisible()
 
   // Check initial state (expanded by default)
-  await expect(groupButton).toHaveAttribute('aria-expanded', 'true');
+  await expect(groupButton).toHaveAttribute('aria-expanded', 'true')
 
   // Click to collapse
-  await groupButton.click();
+  await groupButton.click()
 
   // Check collapsed state
-  await expect(groupButton).toHaveAttribute('aria-expanded', 'false');
+  await expect(groupButton).toHaveAttribute('aria-expanded', 'false')
 
   // Click to expand again
-  await groupButton.click();
-  await expect(groupButton).toHaveAttribute('aria-expanded', 'true');
-});
+  await groupButton.click()
+  await expect(groupButton).toHaveAttribute('aria-expanded', 'true')
+})
 
 test('p-value dialog close button has aria-label', async ({ page }) => {
-  await page.goto('http://localhost:5173/');
+  await page.goto('http://localhost:5173/')
 
   // Wait for table to load
-  await page.waitForSelector('table');
-  await page.waitForSelector('tbody tr');
+  await page.waitForSelector('table')
+  await page.waitForSelector('tbody tr')
 
   // Select two checkboxes from the table
-  const tableCheckboxes = page.locator('tbody tr input[type="checkbox"]');
-  const count = await tableCheckboxes.count();
+  const tableCheckboxes = page.locator('tbody tr input[type="checkbox"]')
+  const count = await tableCheckboxes.count()
 
   if (count < 2) {
-      throw new Error(`Not enough checkboxes found in table: ${count}`);
+    throw new Error(`Not enough checkboxes found in table: ${count}`)
   }
 
   // Click the first two
-  await tableCheckboxes.nth(0).click();
-  await tableCheckboxes.nth(1).click();
+  await tableCheckboxes.nth(0).click()
+  await tableCheckboxes.nth(1).click()
 
   // Wait for P-Value button to appear
-  const pValueButton = page.getByRole('button', { name: 'P-Value' });
-  await expect(pValueButton).toBeVisible();
+  const pValueButton = page.getByRole('button', { name: 'P-Value' })
+  await expect(pValueButton).toBeVisible()
   // Ensure the button is enabled before clicking. Sometimes it might take a moment.
-  await expect(pValueButton).toBeEnabled();
-  await pValueButton.click();
+  await expect(pValueButton).toBeEnabled()
+  await pValueButton.click()
 
   // Wait for the modal to appear by waiting for the close button
-  const closeButton = page.getByRole('button', { name: 'Close dialog' }).first();
-  await expect(closeButton).toBeVisible({ timeout: 10000 });
+  const closeButton = page.getByRole('button', { name: 'Close dialog' }).first()
+  await expect(closeButton).toBeVisible({ timeout: 10000 })
 
   // Find the dialog title
-  const dialogTitle = page.getByText(/Spearman Rank Correlation|Pearson Correlation/).first();
-  await expect(dialogTitle).toBeVisible({ timeout: 10000 });
+  const dialogTitle = page.getByText(/Spearman Rank Correlation|Pearson Correlation/).first()
+  await expect(dialogTitle).toBeVisible({ timeout: 10000 })
 
-  const titleText = await dialogTitle.innerText();
-  if (!titleText.includes('Spearman Rank Correlation') && !titleText.includes('Pearson Correlation')) {
-      throw new Error(`Expected dialog title to contain "Spearman Rank Correlation" or "Pearson Correlation", but found: "${titleText}"`);
+  const titleText = await dialogTitle.innerText()
+  if (
+    !titleText.includes('Spearman Rank Correlation') &&
+    !titleText.includes('Pearson Correlation')
+  ) {
+    throw new Error(
+      `Expected dialog title to contain "Spearman Rank Correlation" or "Pearson Correlation", but found: "${titleText}"`,
+    )
   }
 
   // Check aria-label
-  const ariaLabel = await closeButton.getAttribute('aria-label');
+  const ariaLabel = await closeButton.getAttribute('aria-label')
 
   if (ariaLabel !== 'Close dialog') {
-      throw new Error(`FAIL: aria-label is missing or incorrect. Found: "${ariaLabel}"`);
+    throw new Error(`FAIL: aria-label is missing or incorrect. Found: "${ariaLabel}"`)
   }
-});
+})
 
 test('selected item chips in nav are accessible and removable', async ({ page }) => {
-  await page.goto('http://localhost:5173');
+  await page.goto('http://localhost:5173')
 
   // Wait for table to load
-  await page.waitForSelector('table');
-  await page.waitForSelector('tbody tr');
+  await page.waitForSelector('table')
+  await page.waitForSelector('tbody tr')
 
   // Select the first checkbox
-  const firstCheckbox = page.locator('tbody tr input[type="checkbox"]').first();
-  const name = await firstCheckbox.getAttribute('name');
-  if (!name) throw new Error('Checkbox does not have a name attribute');
+  const firstCheckbox = page.locator('tbody tr input[type="checkbox"]').first()
+  const name = await firstCheckbox.getAttribute('name')
+  if (!name) throw new Error('Checkbox does not have a name attribute')
 
-  await firstCheckbox.click();
+  await firstCheckbox.click()
 
   // Verify the chip appears in the nav
   // The chip button no longer has name={name}, it uses aria-label
-  const chip = page.locator(`nav button[aria-label="Remove ${name} from selection"]`);
-  await expect(chip).toBeVisible();
+  const chip = page.locator(`nav button[aria-label="Remove ${name} from selection"]`)
+  await expect(chip).toBeVisible()
 
   // Verify aria-label
-  await expect(chip).toHaveAttribute('aria-label', `Remove ${name} from selection`);
+  await expect(chip).toHaveAttribute('aria-label', `Remove ${name} from selection`)
 
   // Verify it contains the X icon (by class or SVG presence)
-  const icon = chip.locator('svg');
-  await expect(icon).toBeVisible();
+  const icon = chip.locator('svg')
+  await expect(icon).toBeVisible()
 
   // Click to remove
-  await chip.click();
+  await chip.click()
 
   // Verify chip is gone
-  await expect(chip).toBeHidden();
+  await expect(chip).toBeHidden()
 
   // Verify checkbox is unchecked
-  await expect(firstCheckbox).not.toBeChecked();
-});
+  await expect(firstCheckbox).not.toBeChecked()
+})
 
 test('supplements popover button has accessible label', async ({ page }) => {
-  await page.goto('http://localhost:5173');
+  await page.goto('http://localhost:5173')
 
   // Wait for table to load
-  await page.waitForSelector('table');
+  await page.waitForSelector('table')
 
   // Find the button with visible text "?"
   // We use filter hasText to find the button element containing "?"
-  const popoverButton = page.locator('button[aria-label="View supplements"]').first();
+  const popoverButton = page.locator('button[aria-label="View supplements"]').first()
 
   // Verify it's visible
-  await expect(popoverButton).toBeVisible();
+  await expect(popoverButton).toBeVisible()
 
   // Verify it has the expected aria-label
-  await expect(popoverButton).toHaveAttribute('aria-label', 'View supplements');
+  await expect(popoverButton).toHaveAttribute('aria-label', 'View supplements')
 
   // Verify it has the expected title
-  await expect(popoverButton).toHaveAttribute('title', 'View supplements taken on this date');
-});
+  await expect(popoverButton).toHaveAttribute('title', 'View supplements taken on this date')
+})

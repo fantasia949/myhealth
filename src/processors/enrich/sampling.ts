@@ -1,35 +1,35 @@
-import { BioMarker } from "../../types/biomarker";
+import { BioMarker } from '../../types/biomarker'
 
 export default (entries: BioMarker[]): BioMarker[] => {
   for (const entry of entries) {
-    const extra = entry[3];
-    const values = entry[1];
+    const extra = entry[3]
+    const values = entry[1]
     if (extra) {
       extra.getSamples = (num: number, count = 1) => {
         if (num <= 1) {
-          return values.map(String);
+          return values.map(String)
         }
-        const output: string[] = [];
+        const output: string[] = []
         for (let i = values.length - 1; i >= 0; i = i - num) {
-          let actualNum = 0;
-          let sum = 0;
+          let actualNum = 0
+          let sum = 0
           for (let j = 0; j < num; j++) {
-            const value = values[i - j];
+            const value = values[i - j]
             if (value) {
-              sum += +value || 0;
-              actualNum++;
+              sum += +value || 0
+              actualNum++
             }
           }
-          output.unshift((sum / actualNum).toFixed(2));
+          output.unshift((sum / actualNum).toFixed(2))
 
           if (count && output.length >= count) {
-            break;
+            break
           }
         }
-        return output;
-      };
+        return output
+      }
     }
   }
 
-  return entries;
-};
+  return entries
+}

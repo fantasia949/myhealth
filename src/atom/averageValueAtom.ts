@@ -1,5 +1,5 @@
-import { atom } from "jotai";
+import { atom } from 'jotai'
 
-export const averageValuesAtom = atom("");
+export const averageValuesAtom = atom('')
 
-export const averageCountAtom = atom("");
+export const averageCountAtom = atom('')

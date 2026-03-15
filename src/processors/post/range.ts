@@ -1,6 +1,6 @@
-import { converter } from "../pre/convertUnit";
+import { converter } from '../pre/convertUnit'
 
-const MAX_VALUE = 9999;
+const MAX_VALUE = 9999
 
 const range: Record<string, number[]> = {
   Glucose: [3.9, 6.4],
@@ -8,15 +8,15 @@ const range: Record<string, number[]> = {
   Uric: [202.3, 416.5],
   Magnesium: [0.66, 1.07],
   Ferritin: [30, 400],
-  "CRP-hs": [0, 5],
+  'CRP-hs': [0, 5],
   Insulin: [2.6, 24.9],
   Albumin: [35, 52],
-  "IGF-1": [120, 160], //  116, 250 ["M: 116 ", " 250; F: 107 ", " 263 ng/ml"],
+  'IGF-1': [120, 160], //  116, 250 ["M: 116 ", " 250; F: 107 ", " 263 ng/ml"],
   Triglyceride: [0, 1.7],
   Cholesterol: [2.6, 5.2],
   HDL: [1.03, 2.07],
   LDL: [0, 3.4],
-  "Vitamin D Total": [40, 70],
+  'Vitamin D Total': [40, 70],
   T3: [1.3, 3.1],
   FT3: [3.1, 6.8],
   T4: [66, 181],
@@ -27,13 +27,13 @@ const range: Record<string, number[]> = {
   TSH: [0.27, 4.2],
   AST: [10, 30],
   ALT: [10, 26],
-  "Bilirubin toàn phần": [0, 21],
-  "Bilirubin trực tiếp": [0, 5],
-  "Bilirubin gián tiếp": [0, 16],
+  'Bilirubin toàn phần': [0, 21],
+  'Bilirubin trực tiếp': [0, 5],
+  'Bilirubin gián tiếp': [0, 16],
   GGT: [8, 20],
   HBsAg: [0, 1.0],
-  "HBsAb định lượng": [0, 10],
-  "HCV Ab": [0, 1],
+  'HBsAb định lượng': [0, 10],
+  'HCV Ab': [0, 1],
   ALP: [35, 105],
   Ure: [2.76, 8.07],
   Creatinin: [62, 106],
@@ -45,36 +45,36 @@ const range: Record<string, number[]> = {
   MCV: [82, 92],
   MCH: [28, 32],
   MCHC: [32, 35],
-  "RDW-CV": [11.5, 13],
+  'RDW-CV': [11.5, 13],
   PLT: [150, 350],
   MPV: [4, 11],
   PCT: [0.1, 1],
   PDW: [10, 16.5],
   WBC: [3.5, 6], // 10.5
-  "% Neutrophil": [43, 76],
-  "% Lymphocyte": [17, 48],
-  "% Monocyte": [4, 8],
-  "% Eosinophil": [0, 7],
-  "% Basophil": [0, 2.5],
-  "% Lympho không điển hình": [0, 2.5],
-  "% Các TB non lớn": [0, 3],
-  "SL Neutrophil": [2, 6.9],
-  "SL Lymphocyte": [0.6, 3.4],
-  "SL Monocyte": [0, 0.9],
-  "SL Eosinophil": [0, 0.7],
-  "SL Basophil": [0, 0.2],
-  "SL Lympho không điển hình": [0, 0.25],
-  "SL TB non lớn": [0, 0.3],
-  "RDW-SD": [35, 56],
-  "SL tiểu cầu KT lớn": [8, 129],
-  "Tỉ lệ tiểu cầu có KT lớn": [5, 29],
-  "Neutropil / Lymphocite": [1.2, 2],
-  "TG / HDL": [0, 2],
-  "Total Cholesterol / HDL": [1, 3],
-  "HOMA-IR": [0, 2],
+  '% Neutrophil': [43, 76],
+  '% Lymphocyte': [17, 48],
+  '% Monocyte': [4, 8],
+  '% Eosinophil': [0, 7],
+  '% Basophil': [0, 2.5],
+  '% Lympho không điển hình': [0, 2.5],
+  '% Các TB non lớn': [0, 3],
+  'SL Neutrophil': [2, 6.9],
+  'SL Lymphocyte': [0.6, 3.4],
+  'SL Monocyte': [0, 0.9],
+  'SL Eosinophil': [0, 0.7],
+  'SL Basophil': [0, 0.2],
+  'SL Lympho không điển hình': [0, 0.25],
+  'SL TB non lớn': [0, 0.3],
+  'RDW-SD': [35, 56],
+  'SL tiểu cầu KT lớn': [8, 129],
+  'Tỉ lệ tiểu cầu có KT lớn': [5, 29],
+  'Neutropil / Lymphocite': [1.2, 2],
+  'TG / HDL': [0, 2],
+  'Total Cholesterol / HDL': [1, 3],
+  'HOMA-IR': [0, 2],
   LDH: [140, 180],
-  "Serum iron": [10.744, 23.2787],
-  "Protein Total": [64, 83],
+  'Serum iron': [10.744, 23.2787],
+  'Protein Total': [64, 83],
   Tranferrin: [25.2, 45.4],
   Đồng: [62, 140],
   Kẽm: [80, 120],
@@ -88,15 +88,15 @@ const range: Record<string, number[]> = {
   LH: [1.7, 8.6],
   VLDL: [5, 40],
   IgM: [22, 240],
-  "DHEA.SO4": [0.889, 4.27],
-};
+  'DHEA.SO4': [0.889, 4.27],
+}
 
 const strictRange: Record<string, number[]> = {
   Glucose: [3.9, 4.7], // 70 - 85
   Uric: [210, 330], // 3.5 - 5.5
   Natri: [137, 142],
   Kali: [4.0, 4.5],
-  "CRP-hs": [0, 1],
+  'CRP-hs': [0, 1],
   //   Calcium: [9.0, 9.8]
   // Creatinine: 0.7–1.1
   // BUN: 8–16
@@ -105,50 +105,47 @@ const strictRange: Record<string, number[]> = {
   // Triglycerides: <90 mg/dL
   // HDL-C: ≥50 mg/dL
   // Testosterone: 500–900 ng/dL (
-};
+}
 
 export default (entry: Entry, strict?: boolean): Entry => {
-  const [name, values, _unit, extra] = entry;
-  let appliedRange = { ...range };
+  const [name, values, _unit, extra] = entry
+  let appliedRange = { ...range }
 
   if (strict) {
-    appliedRange = { ...appliedRange, ...strictRange };
+    appliedRange = { ...appliedRange, ...strictRange }
   }
 
-  let rangeValues: (number | string)[] = appliedRange[name];
+  let rangeValues: (number | string)[] = appliedRange[name]
   if (rangeValues && extra) {
-    const convert = converter[name];
+    const convert = converter[name]
 
-    let min = rangeValues[0] as number;
-    let max = rangeValues[1] as number;
+    let min = rangeValues[0] as number
+    let max = rangeValues[1] as number
 
     if (extra.originUnit && convert) {
-      if (min !== MAX_VALUE) min = +convert(min).toFixed(2);
-      if (max !== MAX_VALUE) max = +convert(max).toFixed(2);
+      if (min !== MAX_VALUE) min = +convert(min).toFixed(2)
+      if (max !== MAX_VALUE) max = +convert(max).toFixed(2)
 
-      rangeValues = rangeValues.map((x) =>
-        x != MAX_VALUE ? convert(x as number).toFixed(2) : "-"
-      );
+      rangeValues = rangeValues.map((x) => (x != MAX_VALUE ? convert(x as number).toFixed(2) : '-'))
     }
 
     if (rangeValues.includes(MAX_VALUE)) {
-      extra.range = ">=" + rangeValues[0];
+      extra.range = '>=' + rangeValues[0]
     } else {
-      extra.range = rangeValues.join(" - ");
+      extra.range = rangeValues.join(' - ')
     }
 
     extra.isNotOptimal = (val: string | number | undefined) => {
-      if (val === undefined || val === null) return false;
-      const value = typeof val === 'string' ? parseFloat(val) : val;
-      return !isNaN(value) && (value < min || value > max);
-    };
+      if (val === undefined || val === null) return false
+      const value = typeof val === 'string' ? parseFloat(val) : val
+      return !isNaN(value) && (value < min || value > max)
+    }
 
     // Optimization: pre-calculate optimality to avoid repeated calculations in render loops
-    extra.optimality = values.map((val) => extra.isNotOptimal(val));
-
+    extra.optimality = values.map((val) => extra.isNotOptimal(val))
   } else if (extra) {
-    extra.isNotOptimal = (value: any) => false;
-    extra.optimality = values.map(() => false);
+    extra.isNotOptimal = (value: any) => false
+    extra.optimality = values.map(() => false)
   }
-  return entry;
-};
+  return entry
+}

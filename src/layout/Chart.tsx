@@ -1,39 +1,39 @@
-import { memo, useRef, useEffect, useMemo } from "react";
-import { ChartProvider, ChartContext } from "@echarts-readymade/core";
-import { Line } from "@echarts-readymade/line";
-import { labels } from "../data";
-import { BioMarker } from "../types/biomarker";
+import { memo, useRef, useEffect, useMemo } from 'react'
+import { ChartProvider, ChartContext } from '@echarts-readymade/core'
+import { Line } from '@echarts-readymade/line'
+import { labels } from '../data'
+import { BioMarker } from '../types/biomarker'
 
 interface ChartProps {
-  data: BioMarker[];
-  keys: string[];
+  data: BioMarker[]
+  keys: string[]
 }
 
 const dimension = [
   {
-    fieldKey: "d1",
-    fieldName: "date",
+    fieldKey: 'd1',
+    fieldName: 'date',
   },
-];
+]
 
 const echartsOptions: any = {
   style: { height: 400 },
-  theme: "dark",
+  theme: 'dark',
   option: {
     grid: { top: 40, bottom: 20 },
-    backgroundColor: 'transparent'
+    backgroundColor: 'transparent',
   },
-};
+}
 
 export default memo(({ data, keys }: ChartProps) => {
   const valueList = keys.map((k, i) => ({
-    fieldKey: "v" + i,
+    fieldKey: 'v' + i,
     fieldName: k,
     decimalLength: 2,
     yAxisIndex: i,
-  }));
+  }))
 
-  console.log(data, keys);
+  console.log(data, keys)
 
   const yAxis: any[] = useMemo(
     () =>
@@ -41,51 +41,51 @@ export default memo(({ data, keys }: ChartProps) => {
         scale: true,
         name: k,
       })),
-    [keys]
-  );
+    [keys],
+  )
 
   const dict = data
     .filter(([key]) => keys.includes(key))
     .reduce((result: Record<number, any>, [key, values]) => {
       values.forEach((v, i) => {
         if (!result[i]) {
-          result[i] = { d1: labels[i] };
+          result[i] = { d1: labels[i] }
         }
-        const k = valueList.find((entry) => entry.fieldName === key);
+        const k = valueList.find((entry) => entry.fieldName === key)
         if (k) {
-          result[i][k.fieldKey] = v;
+          result[i][k.fieldKey] = v
         }
-      });
-      return result;
-    }, {});
+      })
+      return result
+    }, {})
 
-  const chartData = Object.values(dict);
+  const chartData = Object.values(dict)
 
-  const ref = useRef<any>(null);
+  const ref = useRef<any>(null)
 
   useEffect(() => {
-    let instance: any = null;
+    let instance: any = null
     if (ref.current) {
-      instance = ref.current.getEchartsInstance();
+      instance = ref.current.getEchartsInstance()
       if (instance) {
         instance.setOption({
           yAxis,
           grid: { top: 40, bottom: 20 },
           series: [
             {
-              type: "line",
+              type: 'line',
               connectNulls: true,
             },
           ],
-        });
+        })
       }
     }
     return () => {
       if (instance) {
-        instance.destroy();
+        instance.destroy()
       }
-    };
-  }, [ref.current, keys, yAxis]);
+    }
+  }, [ref.current, keys, yAxis])
 
   return (
     <ChartProvider data={chartData} echartsOptions={echartsOptions}>
@@ -97,5 +97,5 @@ export default memo(({ data, keys }: ChartProps) => {
         valueList={valueList}
       />
     </ChartProvider>
-  );
-});
+  )
+})

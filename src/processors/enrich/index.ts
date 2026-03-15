@@ -1,17 +1,17 @@
-import inferData from "./inferData";
-import sampling from "./sampling";
-import trackSuppStack from "./suppStack";
-import { BioMarker } from "../../types/biomarker";
+import inferData from './inferData'
+import sampling from './sampling'
+import trackSuppStack from './suppStack'
+import { BioMarker } from '../../types/biomarker'
 
 export function enrichBiomarkers(entries: BioMarker[]): BioMarker[] {
-  entries = inferData(entries);
-  entries = sampling(entries);
+  entries = inferData(entries)
+  entries = sampling(entries)
   // console.log(entries[0][3].getSamples(3));
 
-  return entries;
+  return entries
 }
 
 export function enrichTime(notes: Notes) {
-  notes = trackSuppStack(notes);
-  return notes;
+  notes = trackSuppStack(notes)
+  return notes
 }

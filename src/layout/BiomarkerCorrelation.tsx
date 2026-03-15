@@ -1,130 +1,128 @@
-import React, { Fragment, useMemo } from "react";
-import { Dialog, Transition } from "@headlessui/react";
-import { XMarkIcon, ClipboardDocumentIcon, CheckIcon } from "@heroicons/react/24/outline";
-import { useAtomValue } from "jotai";
-import {
-  notesAtom,
-  dataMapAtom,
-} from "../atom/dataAtom";
-import {
-  correlationAlphaAtom,
-  correlationAlternativeAtom,
-} from "../atom/correlationAtom";
-import { rankData, calculatePearson } from "../processors/stats";
-import { BiomarkerCorrelationProps, CorrelationResult } from "./BiomarkerCorrelation.types";
+import React, { Fragment, useMemo } from 'react'
+import { Dialog, Transition } from '@headlessui/react'
+import { XMarkIcon, ClipboardDocumentIcon, CheckIcon } from '@heroicons/react/24/outline'
+import { useAtomValue } from 'jotai'
+import { notesAtom, dataMapAtom } from '../atom/dataAtom'
+import { correlationAlphaAtom, correlationAlternativeAtom } from '../atom/correlationAtom'
+import { rankData, calculatePearson } from '../processors/stats'
+import { BiomarkerCorrelationProps, CorrelationResult } from './BiomarkerCorrelation.types'
 
 const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorrelationProps) => {
-  const [isCopied, setIsCopied] = React.useState(false);
-  const notes = useAtomValue(notesAtom);
-  const dataMap = useAtomValue(dataMapAtom); // Access pre-calculated O(1) map
-  const alpha = 0.05;
-  const alternative = useAtomValue(correlationAlternativeAtom);
+  const [isCopied, setIsCopied] = React.useState(false)
+  const notes = useAtomValue(notesAtom)
+  const dataMap = useAtomValue(dataMapAtom) // Access pre-calculated O(1) map
+  const alpha = 0.05
+  const alternative = useAtomValue(correlationAlternativeAtom)
 
   const correlations = useMemo(() => {
-    if (!biomarkerId) return [];
+    if (!biomarkerId) return []
 
     // Find the biomarker entry in the raw data
-    const biomarkerEntry = dataMap.get(biomarkerId);
-    if (!biomarkerEntry) return [];
+    const biomarkerEntry = dataMap.get(biomarkerId)
+    if (!biomarkerEntry) return []
 
-    const rawValues = biomarkerEntry[1]; // number[]
+    const rawValues = biomarkerEntry[1] // number[]
 
     // Extract all unique supplements
     // notes is an object keyed by date string. The values order corresponds to the data indices.
-    const noteValues = Object.values(notes);
+    const noteValues = Object.values(notes)
 
     // Safety check: ensure lengths match
     if (rawValues.length !== noteValues.length) {
-      console.warn("Biomarker values and notes length mismatch", rawValues.length, noteValues.length);
+      console.warn(
+        'Biomarker values and notes length mismatch',
+        rawValues.length,
+        noteValues.length,
+      )
     }
 
-    const uniqueSupplements = new Set<string>();
+    const uniqueSupplements = new Set<string>()
     noteValues.forEach((note) => {
-      note.supps?.forEach((supp) => uniqueSupplements.add(supp));
-    });
+      note.supps?.forEach((supp) => uniqueSupplements.add(supp))
+    })
 
-    const results: CorrelationResult[] = [];
+    const results: CorrelationResult[] = []
 
     // Optimization: Hoist invariant calculations outside the loop
     // 1. Identify valid indices: where biomarker value > 0 AND note exists
     // Pre-allocate typed arrays to avoid Array.push() overhead in the hot loop
-    const maxLen = rawValues.length;
-    const validIndicesArray = new Int32Array(maxLen);
-    const filteredBiomarkerValuesArray = new Float64Array(maxLen);
-    let count = 0;
+    const maxLen = rawValues.length
+    const validIndicesArray = new Int32Array(maxLen)
+    const filteredBiomarkerValuesArray = new Float64Array(maxLen)
+    let count = 0
 
     for (let index = 0; index < maxLen; index++) {
-      const val = rawValues[index];
+      const val = rawValues[index]
       if (val !== null && val !== undefined) {
-        const numVal = Number(val);
+        const numVal = Number(val)
         if (!isNaN(numVal) && numVal > 0 && index < noteValues.length) {
-          validIndicesArray[count] = index;
-          filteredBiomarkerValuesArray[count] = numVal;
-          count++;
+          validIndicesArray[count] = index
+          filteredBiomarkerValuesArray[count] = numVal
+          count++
         }
       }
     }
 
-    const validIndices = validIndicesArray.subarray(0, count);
-    const filteredBiomarkerValues = filteredBiomarkerValuesArray.subarray(0, count);
+    const validIndices = validIndicesArray.subarray(0, count)
+    const filteredBiomarkerValues = filteredBiomarkerValuesArray.subarray(0, count)
 
     // If we don't have enough data points, we can't correlate
-    if (count < 3) return [];
+    if (count < 3) return []
 
     // Check variation in biomarker values once
-    let hasBiomarkerVariation = false;
-    const firstBioVal = filteredBiomarkerValues[0];
+    let hasBiomarkerVariation = false
+    const firstBioVal = filteredBiomarkerValues[0]
     for (let i = 1; i < count; i++) {
       if (filteredBiomarkerValues[i] !== firstBioVal) {
-        hasBiomarkerVariation = true;
-        break;
+        hasBiomarkerVariation = true
+        break
       }
     }
-    if (!hasBiomarkerVariation) return [];
+    if (!hasBiomarkerVariation) return []
 
     // Rank the filtered biomarker values once
-    const rankedBiomarker = rankData(filteredBiomarkerValues);
+    const rankedBiomarker = rankData(filteredBiomarkerValues)
 
     // Optimization: Build supplement vectors in a single pass over valid indices.
     // This avoids O(M*N) array.includes() calls inside the hot loop.
     // Using Int8Array instead of standard Array provides zero-initialization by default,
     // and significantly reduces memory overhead and object allocations during map population.
     // M = validIndices.length, N = uniqueSupplements.size
-    const suppVectors = new Map<string, Int8Array>();
+    const suppVectors = new Map<string, Int8Array>()
 
-    uniqueSupplements.forEach(supp => {
-      suppVectors.set(supp, new Int8Array(count));
-    });
+    uniqueSupplements.forEach((supp) => {
+      suppVectors.set(supp, new Int8Array(count))
+    })
 
     for (let k = 0; k < count; k++) {
-      const i = validIndices[k];
-      const note = noteValues[i];
+      const i = validIndices[k]
+      const note = noteValues[i]
       if (note && note.supps) {
         for (let j = 0; j < note.supps.length; j++) {
-          const supp = note.supps[j];
-          const vector = suppVectors.get(supp);
+          const supp = note.supps[j]
+          const vector = suppVectors.get(supp)
           if (vector) {
-            vector[k] = 1;
+            vector[k] = 1
           }
         }
       }
     }
 
     uniqueSupplements.forEach((suppName) => {
-      const filteredSuppVector = suppVectors.get(suppName)!;
+      const filteredSuppVector = suppVectors.get(suppName)!
 
       // Check if there is variation in the supplement vector
-      const firstVal = filteredSuppVector[0];
-      let hasSuppVariation = false;
+      const firstVal = filteredSuppVector[0]
+      let hasSuppVariation = false
       for (let k = 1; k < count; k++) {
         if (filteredSuppVector[k] !== firstVal) {
-          hasSuppVariation = true;
-          break;
+          hasSuppVariation = true
+          break
         }
       }
 
       if (!hasSuppVariation) {
-        return;
+        return
       }
 
       // 3. Calculate Spearman correlation
@@ -134,10 +132,10 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
       const result: any = calculatePearson(rankedBiomarker, filteredSuppVector, {
         alpha,
         alternative,
-      });
+      })
 
-      const rho = result.pcorr;
-      const pVal = result.pValue;
+      const rho = result.pcorr
+      const pVal = result.pValue
 
       // Filter out invalid results (e.g., if rho is NaN)
       // AND filter out results with pValue > 0.1 per requirement
@@ -146,15 +144,15 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
           name: suppName,
           rho: rho,
           pValue: pVal,
-        });
+        })
       }
-    });
+    })
 
     // Sort by P-value ascending
-    return results.sort((a, b) => a.pValue - b.pValue);
-  }, [biomarkerId, notes, dataMap, alpha, alternative]);
+    return results.sort((a, b) => a.pValue - b.pValue)
+  }, [biomarkerId, notes, dataMap, alpha, alternative])
 
-  if (!biomarkerId) return null;
+  if (!biomarkerId) return null
 
   return (
     <Transition appear show={!!biomarkerId} as={Fragment}>
@@ -192,16 +190,21 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
                       <button
                         type="button"
                         onClick={() => {
-                          const header = "Supplement\tP-Value\tRho\n";
-                          const rows = correlations.map(item => `${item.name}\t${item.pValue.toFixed(4)}\t${item.rho.toFixed(3)}`).join("\n");
-                          navigator.clipboard.writeText(header + rows);
-                          setIsCopied(true);
-                          setTimeout(() => setIsCopied(false), 2000);
+                          const header = 'Supplement\tP-Value\tRho\n'
+                          const rows = correlations
+                            .map(
+                              (item) =>
+                                `${item.name}\t${item.pValue.toFixed(4)}\t${item.rho.toFixed(3)}`,
+                            )
+                            .join('\n')
+                          navigator.clipboard.writeText(header + rows)
+                          setIsCopied(true)
+                          setTimeout(() => setIsCopied(false), 2000)
                         }}
                         className={`px-2 py-1 border text-xs rounded flex items-center justify-center gap-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 min-w-[70px] ${
                           isCopied
-                            ? "border-green-600 text-green-400 bg-green-900/20"
-                            : "border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
+                            ? 'border-green-600 text-green-400 bg-green-900/20'
+                            : 'border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white'
                         }`}
                         aria-label="Copy analysis to clipboard"
                         title="Copy analysis to clipboard"
@@ -238,7 +241,7 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
                         >
                           Supplement
                         </th>
-                         <th
+                        <th
                           scope="col"
                           className="py-3 px-2 text-right text-xs font-medium text-gray-400 uppercase tracking-wider bg-[#222222]"
                         >
@@ -258,9 +261,9 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
                           <td className="py-2 pr-2 text-sm text-gray-200 break-words">
                             {item.name}
                           </td>
-                           <td
+                          <td
                             className={`py-2 px-2 text-sm text-right font-mono whitespace-nowrap ${
-                              item.pValue < 0.05 ? "text-green-400 font-bold" : "text-gray-400"
+                              item.pValue < 0.05 ? 'text-green-400 font-bold' : 'text-gray-400'
                             }`}
                           >
                             {item.pValue.toFixed(4)}
@@ -291,7 +294,7 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
         </div>
       </Dialog>
     </Transition>
-  );
-});
+  )
+})
 
-export default BiomarkerCorrelation;
+export default BiomarkerCorrelation

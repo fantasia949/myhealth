@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   --color-dark-bg: #111111;
@@ -7,7 +7,7 @@
   --color-dark-text: #f0f0f0;
   --color-dark-accent: #3a3a3a80;
   --color-dark-accent-solid: #3a3a3a;
-  --font-inter: "Inter", sans-serif;
+  --font-inter: 'Inter', sans-serif;
 }
 
 :root {
@@ -56,9 +56,9 @@ body {
 }
 
 /* Hide default search clear button */
-input[type="search"]::-webkit-search-decoration,
-input[type="search"]::-webkit-search-cancel-button,
-input[type="search"]::-webkit-search-results-button,
-input[type="search"]::-webkit-search-results-decoration {
+input[type='search']::-webkit-search-decoration,
+input[type='search']::-webkit-search-cancel-button,
+input[type='search']::-webkit-search-results-button,
+input[type='search']::-webkit-search-results-decoration {
   display: none;
 }

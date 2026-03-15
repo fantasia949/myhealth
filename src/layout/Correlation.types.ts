@@ -1,4 +1,4 @@
 export interface CorrelationProps {
-  target: string | null;
-  onClose: () => void;
+  target: string | null
+  onClose: () => void
 }

@@ -139,6 +139,12 @@ pnpm fmt
 # Verify formatting without writing files.
 pnpm fmt:check
 
+# lint files
+pnpm lint
+
+# Quick fix lint issues.
+pnpm lint:fix
+
 # Run all E2E tests (headless)
 npx playwright test
 

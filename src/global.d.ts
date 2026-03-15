@@ -1,6 +1,6 @@
 type RawEntry = {
-    entries: Array<RawSubEntry>
-    notes?: Array<string>
+  entries: Array<RawSubEntry>
+  notes?: Array<string>
 }
 
 type RawSubEntry = [name: string, value: string, unit: string, extra?: Record<string, any>]
@@ -8,8 +8,8 @@ type RawSubEntry = [name: string, value: string, unit: string, extra?: Record<st
 type Entry = [name: string, values: Array<string>, unit: string, extra?: Record<string, any>]
 
 type Note = {
-  date: string,
-  items: string[],
+  date: string
+  items: string[]
   supps: string[]
 }
 

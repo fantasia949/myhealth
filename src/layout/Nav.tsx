@@ -1,6 +1,6 @@
-import React, { Fragment } from "react";
-import cn from "classnames";
-import { Dialog, Transition } from "@headlessui/react";
+import React, { Fragment } from 'react'
+import cn from 'classnames'
+import { Dialog, Transition } from '@headlessui/react'
 import {
   Bars3Icon,
   XMarkIcon,
@@ -8,11 +8,11 @@ import {
   TrashIcon,
   ClipboardDocumentIcon,
   CheckIcon,
-} from "@heroicons/react/24/outline";
-import { tags } from "../processors";
-import { askBioMarkers } from "../service/askAI";
-import { createGist } from "../service/gist";
-import { useAtom, useAtomValue } from "jotai";
+} from '@heroicons/react/24/outline'
+import { tags } from '../processors'
+import { askBioMarkers } from '../service/askAI'
+import { createGist } from '../service/gist'
+import { useAtom, useAtomValue } from 'jotai'
 import {
   visibleDataAtom,
   dataAtom,
@@ -20,12 +20,12 @@ import {
   gistTokenAtom,
   aiModelAtom,
   rankedDataMapAtom,
-} from "../atom/dataAtom";
-import { calculateSpearman, calculateSpearmanRanked } from "../processors/stats";
-import { averageCountAtom } from "../atom/averageValueAtom";
-import Markdown from "react-markdown";
-import { Spinner } from "./Spinner";
-import { NavProps } from "./Nav.types";
+} from '../atom/dataAtom'
+import { calculateSpearman, calculateSpearmanRanked } from '../processors/stats'
+import { averageCountAtom } from '../atom/averageValueAtom'
+import Markdown from 'react-markdown'
+import { Spinner } from './Spinner'
+import { NavProps } from './Nav.types'
 
 export default React.memo<NavProps>(
   ({
@@ -44,180 +44,162 @@ export default React.memo<NavProps>(
     onOriginValueToggle,
     onVisualize,
     onPValue,
-
   }) => {
-    const [averageCount, setAverageCount] = useAtom(averageCountAtom);
-    const key = useAtomValue(aiKeyAtom);
-    const model = useAtomValue(aiModelAtom);
-    const gistToken = useAtomValue(gistTokenAtom);
-    const data = useAtomValue(visibleDataAtom);
-    const fullData = useAtomValue(dataAtom);
-    const rankedDataMap = useAtomValue(rankedDataMapAtom);
-    const [show, setShow] = React.useState(false);
-    const [isAsking, setIsAsking] = React.useState(false);
-    const [isScrolled, setIsScrolled] = React.useState(false);
-    const [isFocused, setIsFocused] = React.useState(false);
-    const [isCopied, setIsCopied] = React.useState(false);
-    const searchInputRef = React.useRef<HTMLInputElement>(null);
+    const [averageCount, setAverageCount] = useAtom(averageCountAtom)
+    const key = useAtomValue(aiKeyAtom)
+    const model = useAtomValue(aiModelAtom)
+    const gistToken = useAtomValue(gistTokenAtom)
+    const data = useAtomValue(visibleDataAtom)
+    const fullData = useAtomValue(dataAtom)
+    const rankedDataMap = useAtomValue(rankedDataMapAtom)
+    const [show, setShow] = React.useState(false)
+    const [isAsking, setIsAsking] = React.useState(false)
+    const [isScrolled, setIsScrolled] = React.useState(false)
+    const [isFocused, setIsFocused] = React.useState(false)
+    const [isCopied, setIsCopied] = React.useState(false)
+    const searchInputRef = React.useRef<HTMLInputElement>(null)
 
     React.useEffect(() => {
       const handleScroll = () => {
-        setIsScrolled(window.scrollY > 10);
-      };
-      window.addEventListener("scroll", handleScroll);
-      return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
+        setIsScrolled(window.scrollY > 10)
+      }
+      window.addEventListener('scroll', handleScroll)
+      return () => window.removeEventListener('scroll', handleScroll)
+    }, [])
 
     React.useEffect(() => {
       const handleKeyDown = (e: KeyboardEvent) => {
         if (
-          e.key === "/" &&
+          e.key === '/' &&
           !e.ctrlKey &&
           !e.metaKey &&
           !e.altKey &&
-          !["INPUT", "TEXTAREA", "SELECT"].includes(
-            (document.activeElement as HTMLElement)?.tagName
+          !['INPUT', 'TEXTAREA', 'SELECT'].includes(
+            (document.activeElement as HTMLElement)?.tagName,
           )
         ) {
-          e.preventDefault();
-          searchInputRef.current?.focus();
+          e.preventDefault()
+          searchInputRef.current?.focus()
         }
-      };
-      window.addEventListener("keydown", handleKeyDown);
-      return () => window.removeEventListener("keydown", handleKeyDown);
-    }, []);
+      }
+      window.addEventListener('keydown', handleKeyDown)
+      return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [])
 
-    const onToggle = () => setShow((v) => !v);
+    const onToggle = () => setShow((v) => !v)
 
     const onAskAI = React.useCallback(
       async (e: React.MouseEvent<HTMLButtonElement>) => {
         if (selected.length === 0) {
-          return;
+          return
         }
-        setIsAsking(true);
+        setIsAsking(true)
 
         try {
           const pairs = data
             .filter(([key]) => selected.includes(key))
-            .map(
-              ([key, values, unit]) =>
-                `${key} ${values[values.length - 1]} ${unit || ""}`
-            );
+            .map(([key, values, unit]) => `${key} ${values[values.length - 1]} ${unit || ''}`)
           const prevPairs = data
             .filter(([key]) => selected.includes(key))
             .map(([key, values, unit]) =>
-              values.length > 1
-                ? `${key} ${values[values.length - 2]} ${unit || ""}`
-                : undefined
+              values.length > 1 ? `${key} ${values[values.length - 2]} ${unit || ''}` : undefined,
             )
-            .filter((item): item is string => !!item);
+            .filter((item): item is string => !!item)
           const relatedContext = (() => {
-            if (!fullData || fullData.length === 0) return undefined;
+            if (!fullData || fullData.length === 0) return undefined
 
-            const selectedEntries = fullData.filter((d) =>
-              selected.includes(d[0])
-            );
-            const candidates = fullData.filter(
-              (d) => !d[3].inferred && !selected.includes(d[0])
-            );
-            const related = new Map<string, string>();
+            const selectedEntries = fullData.filter((d) => selected.includes(d[0]))
+            const candidates = fullData.filter((d) => !d[3].inferred && !selected.includes(d[0]))
+            const related = new Map<string, string>()
 
             // Optimization: Use pre-calculated ranks for all sources and candidates to avoid
             // redundant sorting (O(V log V)) inside the O(S * N) loop.
             // This reduces complexity from O(S * N * V log V) to O(S * N * V).
 
             for (const source of selectedEntries) {
-              const sourceRanks = rankedDataMap.get(source[0]);
-              if (!sourceRanks) continue;
+              const sourceRanks = rankedDataMap.get(source[0])
+              if (!sourceRanks) continue
 
               for (const target of candidates) {
-                if (related.has(target[0])) continue;
+                if (related.has(target[0])) continue
 
-                const targetRanks = rankedDataMap.get(target[0]);
-                if (!targetRanks) continue;
+                const targetRanks = rankedDataMap.get(target[0])
+                if (!targetRanks) continue
 
                 const res = calculateSpearmanRanked(sourceRanks, targetRanks, {
                   // TODO: should not be hardcoded?
                   alpha: 0.05,
-                  alternative: "two-sided",
-                });
+                  alternative: 'two-sided',
+                })
 
                 if (res.pValue <= 0.05 && Math.abs(res.statistic) >= 0.4) {
-                  const val = target[1][target[1].length - 1];
+                  const val = target[1][target[1].length - 1]
                   if (!val) {
                     console.log('the test does not include this marker, so skip it', target[0])
                     continue
                   }
-                  const unit = target[2] || "";
+                  const unit = target[2] || ''
                   related.set(
                     target[0],
                     `- ${target[0]}: ${val} ${unit} (Correlation: ${res.statistic.toFixed(
-                      2
-                    )}, P-Value: ${res.pValue.toFixed(4)})`
-                  );
+                      2,
+                    )}, P-Value: ${res.pValue.toFixed(4)})`,
+                  )
                 }
               }
             }
-            if (related.size === 0) return undefined;
+            if (related.size === 0) return undefined
             return (
-              "Related Biomarkers (Significant Correlations):\n" +
-              Array.from(related.values()).join("\n")
-            );
-          })();
+              'Related Biomarkers (Significant Correlations):\n' +
+              Array.from(related.values()).join('\n')
+            )
+          })()
 
-          const text = await askBioMarkers(
-            pairs,
-            key,
-            model,
-            filterTag,
-            prevPairs,
-            relatedContext
-          );
-          setCanvasText(text);
+          const text = await askBioMarkers(pairs, key, model, filterTag, prevPairs, relatedContext)
+          setCanvasText(text)
         } catch (err) {
-          console.error(err);
-          alert(err);
+          console.error(err)
+          alert(err)
         } finally {
-          setIsAsking(false);
+          setIsAsking(false)
         }
       },
-      [selected, data, filterTag, key, model, fullData]
-    );
+      [selected, data, filterTag, key, model, fullData],
+    )
 
-    const [canvasText, setCanvasText] = React.useState<string | null>(null);
-    const [gistUrl, setGistUrl] = React.useState<string | null>(null);
-    const [gistError, setGistError] = React.useState<string | null>(null);
-    const [isGistLoading, setIsGistLoading] = React.useState(false);
+    const [canvasText, setCanvasText] = React.useState<string | null>(null)
+    const [gistUrl, setGistUrl] = React.useState<string | null>(null)
+    const [gistError, setGistError] = React.useState<string | null>(null)
+    const [isGistLoading, setIsGistLoading] = React.useState(false)
 
     const handleClose = React.useCallback(() => {
-      setCanvasText(null);
-      setGistUrl(null);
-      setGistError(null);
-      setIsGistLoading(false);
-    }, []);
+      setCanvasText(null)
+      setGistUrl(null)
+      setGistError(null)
+      setIsGistLoading(false)
+    }, [])
 
     const onAverageCount = React.useCallback(
-      (e: React.ChangeEvent<HTMLSelectElement>) =>
-        setAverageCount(e.target.value),
-      []
-    );
+      (e: React.ChangeEvent<HTMLSelectElement>) => setAverageCount(e.target.value),
+      [],
+    )
 
     const onButtonClick = React.useCallback(
       (e: React.MouseEvent<HTMLButtonElement>) => {
-        onSelect(e.currentTarget.name);
+        onSelect(e.currentTarget.name)
       },
-      [onSelect]
-    );
+      [onSelect],
+    )
 
     return (
       <>
         <nav
           className={cn(
-            "flex flex-wrap items-center justify-between p-4 sticky top-0 left-0 z-20 gap-3 transition-colors duration-300 ease-in-out",
+            'flex flex-wrap items-center justify-between p-4 sticky top-0 left-0 z-20 gap-3 transition-colors duration-300 ease-in-out',
             {
-              "bg-dark-accent": !isScrolled,
-              "bg-dark-accent-solid": isScrolled,
-            }
+              'bg-dark-accent': !isScrolled,
+              'bg-dark-accent-solid': isScrolled,
+            },
           )}
         >
           <div className="flex flex-wrap lg:flex-nowrap w-full items-center justify-between px-3 gap-3">
@@ -244,11 +226,11 @@ export default React.memo<NavProps>(
                   onFocus={() => setIsFocused(true)}
                   onBlur={() => setIsFocused(false)}
                   onKeyDown={(e) => {
-                    if (e.key === "Escape") {
+                    if (e.key === 'Escape') {
                       onTextChange({
-                        target: { value: "" },
-                      } as React.ChangeEvent<HTMLInputElement>);
-                      e.currentTarget.blur();
+                        target: { value: '' },
+                      } as React.ChangeEvent<HTMLInputElement>)
+                      e.currentTarget.blur()
                     }
                   }}
                   autoFocus
@@ -269,9 +251,9 @@ export default React.memo<NavProps>(
                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-sm"
                     onClick={() => {
                       onTextChange({
-                        target: { value: "" },
-                      } as React.ChangeEvent<HTMLInputElement>);
-                      searchInputRef.current?.focus();
+                        target: { value: '' },
+                      } as React.ChangeEvent<HTMLInputElement>)
+                      searchInputRef.current?.focus()
                     }}
                     aria-label="Clear search"
                     title="Clear search"
@@ -283,13 +265,10 @@ export default React.memo<NavProps>(
             </div>
 
             <div
-              className={cn(
-                "w-full lg:flex lg:flex-1 lg:items-center lg:gap-4",
-                {
-                  "hidden lg:flex": !show,
-                  "grid grid-cols-3 gap-2": show,
-                }
-              )}
+              className={cn('w-full lg:flex lg:flex-1 lg:items-center lg:gap-4', {
+                'hidden lg:flex': !show,
+                'grid grid-cols-3 gap-2': show,
+              })}
             >
               <ul className="contents lg:flex lg:flex-row xl:gap-1 lg:items-center list-none p-0 m-0">
                 {tags.map((tag: string) => (
@@ -299,12 +278,11 @@ export default React.memo<NavProps>(
                       data-tag={tag}
                       aria-pressed={filterTag === tag}
                       className={cn(
-                        "px-3 py-2 rounded transition-colors w-full lg:w-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+                        'px-3 py-2 rounded transition-colors w-full lg:w-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
                         {
-                          "bg-blue-600 text-white": filterTag == tag,
-                          "text-gray-300 hover:text-white hover:bg-gray-700":
-                            filterTag != tag,
-                        }
+                          'bg-blue-600 text-white': filterTag == tag,
+                          'text-gray-300 hover:text-white hover:bg-gray-700': filterTag != tag,
+                        },
                       )}
                       onClick={onFilterByTag}
                     >
@@ -317,8 +295,8 @@ export default React.memo<NavProps>(
               <button
                 type="button"
                 className={cn(
-                  "lg:ml-2 px-4 py-1 text-sm bg-yellow-500 text-black rounded hover:bg-yellow-400 w-full lg:w-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
-                  { "invisible pointer-events-none": filterTag == null }
+                  'lg:ml-2 px-4 py-1 text-sm bg-yellow-500 text-black rounded hover:bg-yellow-400 w-full lg:w-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
+                  { 'invisible pointer-events-none': filterTag == null },
                 )}
                 onClick={onFilterByTag}
               >
@@ -330,15 +308,30 @@ export default React.memo<NavProps>(
                   <div className="flex flex-wrap items-center gap-1.5 w-full lg:w-auto">
                     <span className="text-xs text-gray-400 font-medium px-1">Selected:</span>
                     {selected.map((item) => (
-                      <span key={item} className="flex items-center gap-1 px-2 py-0.5 text-xs font-medium bg-blue-900/50 text-blue-200 border border-blue-800/50 rounded-full">
+                      <span
+                        key={item}
+                        className="flex items-center gap-1 px-2 py-0.5 text-xs font-medium bg-blue-900/50 text-blue-200 border border-blue-800/50 rounded-full"
+                      >
                         {item}
-                        <button type="button" onClick={() => onSelect(item)} className="hover:text-white focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-400 rounded-full" aria-label={`Remove ${item} from selection`} title={`Remove ${item} from selection`}>
+                        <button
+                          type="button"
+                          onClick={() => onSelect(item)}
+                          className="hover:text-white focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-400 rounded-full"
+                          aria-label={`Remove ${item} from selection`}
+                          title={`Remove ${item} from selection`}
+                        >
                           <XMarkIcon className="h-3 w-3" />
                         </button>
                       </span>
                     ))}
                     {selected.length > 1 && (
-                      <button type="button" onClick={onClearSelection} className="p-1 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 transition-colors ml-0.5" aria-label="Clear all selected items" title="Clear All">
+                      <button
+                        type="button"
+                        onClick={onClearSelection}
+                        className="p-1 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 transition-colors ml-0.5"
+                        aria-label="Clear all selected items"
+                        title="Clear All"
+                      >
                         <TrashIcon className="h-4 w-4" />
                       </button>
                     )}
@@ -351,20 +344,41 @@ export default React.memo<NavProps>(
                       type="button"
                       onClick={onPValue}
                       disabled={selected.length !== 2}
-                      title={selected.length !== 2 ? "Select exactly 2 items to calculate P-Value" : "Calculate P-Value"}
+                      title={
+                        selected.length !== 2
+                          ? 'Select exactly 2 items to calculate P-Value'
+                          : 'Calculate P-Value'
+                      }
                       className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors"
                     >
                       P-Value
                     </button>
-                    <button type="button" onClick={onAskAI} disabled={isAsking} title={isAsking ? "Asking AI..." : "Ask AI"} className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors flex items-center justify-center gap-1 min-w-[70px]" aria-busy={isAsking}>
+                    <button
+                      type="button"
+                      onClick={onAskAI}
+                      disabled={isAsking}
+                      title={isAsking ? 'Asking AI...' : 'Ask AI'}
+                      className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors flex items-center justify-center gap-1 min-w-[70px]"
+                      aria-busy={isAsking}
+                    >
                       {isAsking ? <Spinner /> : null}
-                      {isAsking ? "Asking..." : "Ask AI"}
+                      {isAsking ? 'Asking...' : 'Ask AI'}
                     </button>
                     <div className="w-px h-4 bg-gray-600 mx-0.5 hidden sm:block"></div>
-                    <select className="px-2 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" value={chartType} onChange={(e) => onChartTypeChange(e.target.value)} aria-label="Select chart type">
+                    <select
+                      className="px-2 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                      value={chartType}
+                      onChange={(e) => onChartTypeChange(e.target.value)}
+                      aria-label="Select chart type"
+                    >
                       <option value="scatter">Scatter Chart</option>
                     </select>
-                    <button type="button" onClick={onVisualize} title="Visualize selected biomarkers" className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors">
+                    <button
+                      type="button"
+                      onClick={onVisualize}
+                      title="Visualize selected biomarkers"
+                      className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors"
+                    >
                       Visualize
                     </button>
                   </div>
@@ -469,20 +483,20 @@ export default React.memo<NavProps>(
                       <button
                         type="button"
                         onClick={() => {
-                          navigator.clipboard.writeText(canvasText || "");
-                          setIsCopied(true);
-                          setTimeout(() => setIsCopied(false), 2000);
+                          navigator.clipboard.writeText(canvasText || '')
+                          setIsCopied(true)
+                          setTimeout(() => setIsCopied(false), 2000)
                         }}
-                    className={`px-4 py-2 border rounded flex items-center justify-center gap-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 min-w-[160px] ${
-                      isCopied
-                        ? "border-green-600 text-green-400 bg-green-900/20"
-                        : "border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
-                    }`}
+                        className={`px-4 py-2 border rounded flex items-center justify-center gap-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 min-w-[160px] ${
+                          isCopied
+                            ? 'border-green-600 text-green-400 bg-green-900/20'
+                            : 'border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white'
+                        }`}
                         aria-label="Copy analysis to clipboard"
                       >
                         {isCopied ? (
                           <>
-                        <CheckIcon className="h-5 w-5" /> Copied!
+                            <CheckIcon className="h-5 w-5" /> Copied!
                           </>
                         ) : (
                           <>
@@ -496,25 +510,21 @@ export default React.memo<NavProps>(
                         disabled={isGistLoading}
                         aria-busy={isGistLoading}
                         onClick={async () => {
-                          setIsGistLoading(true);
-                          setGistError(null);
-                          setGistUrl(null);
+                          setIsGistLoading(true)
+                          setGistError(null)
+                          setGistUrl(null)
                           if (!gistToken) {
-                            setGistError("Please provide a Gist token.");
-                            setIsGistLoading(false);
-                            return;
+                            setGistError('Please provide a Gist token.')
+                            setIsGistLoading(false)
+                            return
                           }
                           try {
-                            const url = await createGist(
-                              canvasText!,
-                              gistToken,
-                              selected.join("_")
-                            );
-                            setGistUrl(url);
+                            const url = await createGist(canvasText!, gistToken, selected.join('_'))
+                            setGistUrl(url)
                           } catch (err: any) {
-                            setGistError(err.message);
+                            setGistError(err.message)
                           } finally {
-                            setIsGistLoading(false);
+                            setIsGistLoading(false)
                           }
                         }}
                       >
@@ -523,7 +533,7 @@ export default React.memo<NavProps>(
                             <Spinner /> Saving...
                           </>
                         ) : (
-                          "Save to Gist"
+                          'Save to Gist'
                         )}
                       </button>
                       {gistUrl && (
@@ -538,9 +548,7 @@ export default React.memo<NavProps>(
                           </a>
                         </div>
                       )}
-                      {gistError && (
-                        <div className="mt-2 text-red-500">{gistError}</div>
-                      )}
+                      {gistError && <div className="mt-2 text-red-500">{gistError}</div>}
                     </div>
                   </Dialog.Panel>
                 </Transition.Child>
@@ -549,6 +557,6 @@ export default React.memo<NavProps>(
           </Dialog>
         </Transition>
       </>
-    );
-  }
-);
+    )
+  },
+)

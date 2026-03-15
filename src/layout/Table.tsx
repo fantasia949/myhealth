@@ -1,10 +1,10 @@
-import SupplementsPopover from "./SupplementsPopover";
-import React from "react";
-import cn from "classnames";
-import { labels } from "../data";
-import { visibleDataAtom, notesAtom, filterTextAtom, tagAtom } from "../atom/dataAtom";
-import { BioMarker } from "../types/biomarker";
-import { useAtomValue } from "jotai";
+import SupplementsPopover from './SupplementsPopover'
+import React from 'react'
+import cn from 'classnames'
+import { labels } from '../data'
+import { visibleDataAtom, notesAtom, filterTextAtom, tagAtom } from '../atom/dataAtom'
+import { BioMarker } from '../types/biomarker'
+import { useAtomValue } from 'jotai'
 import {
   useReactTable,
   getCoreRowModel,
@@ -16,30 +16,37 @@ import {
   getExpandedRowModel,
   GroupingState,
   ExpandedState,
-} from "@tanstack/react-table";
-import { ChevronRightIcon, ChevronDownIcon, ChartBarIcon, MinusIcon, CalculatorIcon, ArrowsRightLeftIcon } from "@heroicons/react/24/outline";
-import { averageCountAtom } from "../atom/averageValueAtom";
-import LineChart from "./LineChart";
-import BiomarkerCorrelation from "./BiomarkerCorrelation";
-import { TableProps, DisplayedEntry } from "./Table.types";
+} from '@tanstack/react-table'
+import {
+  ChevronRightIcon,
+  ChevronDownIcon,
+  ChartBarIcon,
+  MinusIcon,
+  CalculatorIcon,
+  ArrowsRightLeftIcon,
+} from '@heroicons/react/24/outline'
+import { averageCountAtom } from '../atom/averageValueAtom'
+import LineChart from './LineChart'
+import BiomarkerCorrelation from './BiomarkerCorrelation'
+import { TableProps, DisplayedEntry } from './Table.types'
 
-const columnHelper = createColumnHelper<DisplayedEntry>();
+const columnHelper = createColumnHelper<DisplayedEntry>()
 
 function getKeyFromTime(label: string) {
-  return label.slice(0, 2) + "/" + label.slice(2, 4);
+  return label.slice(0, 2) + '/' + label.slice(2, 4)
 }
 
 // Optimization: DataCell accepts stable props (unit, displayValue) instead of children
 // to ensure React.memo works effectively. Passing JSX as children (e.g. <a...>)
 // creates new object references on every render, defeating memoization.
 const DataCell = React.memo(({ className, rawValue, onCopy, unit, displayValue }: any) => {
-  const [copied, setCopied] = React.useState(false);
+  const [copied, setCopied] = React.useState(false)
 
   const handleInteraction = React.useCallback(async () => {
-      if (onCopy) await onCopy(rawValue);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-  }, [onCopy, rawValue]);
+    if (onCopy) await onCopy(rawValue)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }, [onCopy, rawValue])
 
   const content = (unit as any)?.url ? (
     <a
@@ -52,177 +59,190 @@ const DataCell = React.memo(({ className, rawValue, onCopy, unit, displayValue }
     </a>
   ) : (
     displayValue
-  );
+  )
 
   return (
-      <td
-          className={cn(className, "relative group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-sm")}
-          onClick={handleInteraction}
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              handleInteraction();
-            }
-          }}
-          role="button"
-          aria-label={typeof displayValue === 'string' || typeof displayValue === 'number' ? `Copy ${displayValue}` : 'Copy value'}
-          title="Copy to clipboard"
-      >
-           {content}
-          {copied && (
-               <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 text-xs text-white bg-blue-600 rounded shadow-lg z-50 animate-fade-in-out pointer-events-none whitespace-nowrap" aria-live="polite">
-                  Copied!
-               </span>
-          )}
-      </td>
+    <td
+      className={cn(
+        className,
+        'relative group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-sm',
+      )}
+      onClick={handleInteraction}
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          handleInteraction()
+        }
+      }}
+      role="button"
+      aria-label={
+        typeof displayValue === 'string' || typeof displayValue === 'number'
+          ? `Copy ${displayValue}`
+          : 'Copy value'
+      }
+      title="Copy to clipboard"
+    >
+      {content}
+      {copied && (
+        <span
+          className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 text-xs text-white bg-blue-600 rounded shadow-lg z-50 animate-fade-in-out pointer-events-none whitespace-nowrap"
+          aria-live="polite"
+        >
+          Copied!
+        </span>
+      )}
+    </td>
   )
-});
+})
 
 // Optimization: Extracted TableRow to prevent re-rendering all rows when one is selected.
 // With React.memo, only the rows whose props change (e.g. selection state) will re-render.
-const TableRow = React.memo(({
-  entry,
-  isSelected,
-  isExpanded,
-  rowId,
-  toggleExpand,
-  onSelect,
-  onCorrelation,
-  setCorrelationBiomarker,
-  cellBaseClasses,
-  showOrigColumns,
-  averageCountValue,
-  visibleLeafColumnsCount,
-  onCellClick
-}: any) => {
-  const { name, values, visibleValues, visibleOptimality, unit, extra } = entry;
+const TableRow = React.memo(
+  ({
+    entry,
+    isSelected,
+    isExpanded,
+    rowId,
+    toggleExpand,
+    onSelect,
+    onCorrelation,
+    setCorrelationBiomarker,
+    cellBaseClasses,
+    showOrigColumns,
+    averageCountValue,
+    visibleLeafColumnsCount,
+    onCellClick,
+  }: any) => {
+    const { name, values, visibleValues, visibleOptimality, unit, extra } = entry
 
-  return (
-    <React.Fragment>
-      <tr className={cn(
-        "border-b border-gray-700 transition-colors",
-        isSelected
-          ? "bg-blue-900/40 hover:bg-blue-900/50"
-          : "hover:bg-gray-700 odd:bg-dark-accent"
-      )}>
-        <td className="p-2 border border-gray-700 text-center">
-          <input
-            type="checkbox"
-            className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
-            name={name}
-            aria-label={`Select ${name}`}
-            title={`Select ${name}`}
-            onChange={() => onSelect(name)}
-            checked={isSelected}
-          />
-        </td>
-        <td className="p-2 border border-gray-700 text-center align-middle">
-          <div className="flex items-center justify-center gap-2">
-            <button
-              type="button"
-              onClick={() => toggleExpand(rowId)}
-              title={isExpanded ? "Collapse chart" : "Expand chart"}
-              className="hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
-              aria-label={isExpanded ? "Collapse chart" : "Expand chart"}
-              aria-expanded={isExpanded}
-            >
-              {isExpanded ? (
-                <MinusIcon className="h-5 w-5" />
-              ) : (
-                <ChartBarIcon className="h-5 w-5" />
-              )}
-            </button>
-            <button
-              type="button"
-              onClick={() => onCorrelation(name)}
-              title="Correlation Analysis"
-              className="hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
-              aria-label="Correlation Analysis"
-            >
-              <ArrowsRightLeftIcon className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setCorrelationBiomarker(name)}
-              title="View Correlations"
-              className="hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
-              aria-label={`View correlations for ${name}`}
-            >
-              <CalculatorIcon className="h-5 w-5" />
-            </button>
-          </div>
-        </td>
-        <th
-          scope="row"
-          className="p-2 border border-gray-700 whitespace-nowrap sticky-left bg-dark-table-row"
-          title={extra.description}
+    return (
+      <React.Fragment>
+        <tr
+          className={cn(
+            'border-b border-gray-700 transition-colors',
+            isSelected
+              ? 'bg-blue-900/40 hover:bg-blue-900/50'
+              : 'hover:bg-gray-700 odd:bg-dark-accent',
+          )}
         >
-          {name}
-        </th>
-        {(!showOrigColumns || !extra.hasOrigin) &&
-          visibleValues.map((value: any, index: number) => {
-            const baseClass = cellBaseClasses[index];
-            const isBad = visibleOptimality && visibleOptimality[index];
-            return (
-              <DataCell
-                // Optimization: use pre-calculated base classes to avoid repetitive cn() calls in render loop
-                className={isBad ? `${baseClass} v-bad` : baseClass}
-                key={index}
-                rawValue={value != null ? value.toString() : ""}
-                displayValue={value}
-                unit={unit}
-                onCopy={onCellClick}
-              />
-            );
-          })}
-        <td className="p-2 border border-gray-700 hidden lg:table-cell">
-          {averageCountValue
-            ? extra.getSamples(+averageCountValue)
-            .join(", ")
-            : null}
-        </td>
-        {showOrigColumns &&
-          extra.hasOrigin &&
-          extra.originValues?.map((value: any, index: number) => (
-            <td key={index} className="p-2 border border-gray-700">{value}</td>
-          ))}
-        <td className="p-2 border border-gray-700 whitespace-nowrap text-center hidden md:table-cell">
-          {extra.range as any}
-        </td>
-        <td className="p-2 border border-gray-700 hidden sm:table-cell">{unit as any}</td>
-        {showOrigColumns && extra.hasOrigin && (
-          <td className="p-2 border border-gray-700 hidden lg:table-cell">{extra.originUnit}</td>
-        )}
-      </tr>
-      {isExpanded && (
-        <tr className="bg-gray-800">
-          <td colSpan={visibleLeafColumnsCount} className="border border-gray-700">
-            <div className="p-3">
-                <LineChart name={name} values={values} />
+          <td className="p-2 border border-gray-700 text-center">
+            <input
+              type="checkbox"
+              className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
+              name={name}
+              aria-label={`Select ${name}`}
+              title={`Select ${name}`}
+              onChange={() => onSelect(name)}
+              checked={isSelected}
+            />
+          </td>
+          <td className="p-2 border border-gray-700 text-center align-middle">
+            <div className="flex items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => toggleExpand(rowId)}
+                title={isExpanded ? 'Collapse chart' : 'Expand chart'}
+                className="hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
+                aria-label={isExpanded ? 'Collapse chart' : 'Expand chart'}
+                aria-expanded={isExpanded}
+              >
+                {isExpanded ? (
+                  <MinusIcon className="h-5 w-5" />
+                ) : (
+                  <ChartBarIcon className="h-5 w-5" />
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => onCorrelation(name)}
+                title="Correlation Analysis"
+                className="hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
+                aria-label="Correlation Analysis"
+              >
+                <ArrowsRightLeftIcon className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setCorrelationBiomarker(name)}
+                title="View Correlations"
+                className="hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
+                aria-label={`View correlations for ${name}`}
+              >
+                <CalculatorIcon className="h-5 w-5" />
+              </button>
             </div>
           </td>
+          <th
+            scope="row"
+            className="p-2 border border-gray-700 whitespace-nowrap sticky-left bg-dark-table-row"
+            title={extra.description}
+          >
+            {name}
+          </th>
+          {(!showOrigColumns || !extra.hasOrigin) &&
+            visibleValues.map((value: any, index: number) => {
+              const baseClass = cellBaseClasses[index]
+              const isBad = visibleOptimality && visibleOptimality[index]
+              return (
+                <DataCell
+                  // Optimization: use pre-calculated base classes to avoid repetitive cn() calls in render loop
+                  className={isBad ? `${baseClass} v-bad` : baseClass}
+                  key={index}
+                  rawValue={value != null ? value.toString() : ''}
+                  displayValue={value}
+                  unit={unit}
+                  onCopy={onCellClick}
+                />
+              )
+            })}
+          <td className="p-2 border border-gray-700 hidden lg:table-cell">
+            {averageCountValue ? extra.getSamples(+averageCountValue).join(', ') : null}
+          </td>
+          {showOrigColumns &&
+            extra.hasOrigin &&
+            extra.originValues?.map((value: any, index: number) => (
+              <td key={index} className="p-2 border border-gray-700">
+                {value}
+              </td>
+            ))}
+          <td className="p-2 border border-gray-700 whitespace-nowrap text-center hidden md:table-cell">
+            {extra.range as any}
+          </td>
+          <td className="p-2 border border-gray-700 hidden sm:table-cell">{unit as any}</td>
+          {showOrigColumns && extra.hasOrigin && (
+            <td className="p-2 border border-gray-700 hidden lg:table-cell">{extra.originUnit}</td>
+          )}
         </tr>
-      )}
-    </React.Fragment>
-  );
-});
+        {isExpanded && (
+          <tr className="bg-gray-800">
+            <td colSpan={visibleLeafColumnsCount} className="border border-gray-700">
+              <div className="p-3">
+                <LineChart name={name} values={values} />
+              </div>
+            </td>
+          </tr>
+        )}
+      </React.Fragment>
+    )
+  },
+)
 
 const columns: ColumnDef<DisplayedEntry, any>[] = [
-  columnHelper.accessor("selection" as any, {
-    header: "",
+  columnHelper.accessor('selection' as any, {
+    header: '',
   }),
   columnHelper.display({
-    id: "expand",
-    header: "",
+    id: 'expand',
+    header: '',
   }),
-  columnHelper.accessor("tag" as any, {
-    header: "Tag",
+  columnHelper.accessor('tag' as any, {
+    header: 'Tag',
     getGroupingValue: (row) => row.tag,
   }),
-  columnHelper.accessor("name" as any, {
-    header: "Name",
-    footer: "Supp",
+  columnHelper.accessor('name' as any, {
+    header: 'Name',
+    footer: 'Supp',
   }),
   ...labels.map((label, index) =>
     columnHelper.accessor(label as any, {
@@ -232,112 +252,128 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
         isLatest: index === labels.length - 1,
         title: label,
         className: (() => {
-          const dist = labels.length - 1 - index;
-          if (dist <= 1) return "";
-          if (dist === 2) return "hidden sm:table-cell";
-          if (dist <= 4) return "hidden md:table-cell";
-          if (dist > 4) return "hidden lg:table-cell";
+          const dist = labels.length - 1 - index
+          if (dist <= 1) return ''
+          if (dist === 2) return 'hidden sm:table-cell'
+          if (dist <= 4) return 'hidden md:table-cell'
+          if (dist > 4) return 'hidden lg:table-cell'
         })(),
       },
-    })
+    }),
   ),
-  columnHelper.accessor("placeholder" as any, {
-    header: "",
+  columnHelper.accessor('placeholder' as any, {
+    header: '',
     meta: {
       placehoder: true,
-      className: "hidden lg:table-cell",
+      className: 'hidden lg:table-cell',
     },
   }),
-  columnHelper.accessor("range" as any, {
-    header: "Range",
+  columnHelper.accessor('range' as any, {
+    header: 'Range',
     meta: {
       ref: true,
-      align: "center",
-      className: "hidden md:table-cell",
+      align: 'center',
+      className: 'hidden md:table-cell',
     },
   }),
-  columnHelper.accessor("unit" as any, {
-    header: "Unit",
+  columnHelper.accessor('unit' as any, {
+    header: 'Unit',
     meta: {
       ref: true,
-      className: "hidden sm:table-cell",
+      className: 'hidden sm:table-cell',
     },
   }),
-  columnHelper.accessor("origUnit" as any, {
-    header: "Orig Unit",
+  columnHelper.accessor('origUnit' as any, {
+    header: 'Orig Unit',
     meta: {
       ref: true,
-      className: "hidden lg:table-cell",
+      className: 'hidden lg:table-cell',
     },
   }),
-];
+]
 
 export default React.memo(
-  ({ showOrigColumns, selected, onSelect, showRecords, onClearFilters, onCorrelation }: TableProps) => {
-    const convertedEntries = useAtomValue(visibleDataAtom);
-    const averageCountValue = useAtomValue(averageCountAtom);
-    const notes = useAtomValue(notesAtom);
-    const [correlationBiomarker, setCorrelationBiomarker] = React.useState<string | null>(null);
-    const filterText = useAtomValue(filterTextAtom);
-    const tag = useAtomValue(tagAtom);
-    const [expandedRowId, setExpandedRowId] = React.useState<string | null>(null);
+  ({
+    showOrigColumns,
+    selected,
+    onSelect,
+    showRecords,
+    onClearFilters,
+    onCorrelation,
+  }: TableProps) => {
+    const convertedEntries = useAtomValue(visibleDataAtom)
+    const averageCountValue = useAtomValue(averageCountAtom)
+    const notes = useAtomValue(notesAtom)
+    const [correlationBiomarker, setCorrelationBiomarker] = React.useState<string | null>(null)
+    const filterText = useAtomValue(filterTextAtom)
+    const tag = useAtomValue(tagAtom)
+    const [expandedRowId, setExpandedRowId] = React.useState<string | null>(null)
 
     const onCellClick = React.useCallback(async (text: string) => {
-      await navigator.clipboard.writeText(text);
-    }, []);
+      await navigator.clipboard.writeText(text)
+    }, [])
 
     const toggleExpand = React.useCallback((id: string) => {
-      setExpandedRowId((prev) => (prev === id ? null : id));
-    }, []);
+      setExpandedRowId((prev) => (prev === id ? null : id))
+    }, [])
 
     const cellBaseClasses = React.useMemo(() => {
-      const count = showRecords || labels.length;
+      const count = showRecords || labels.length
       return Array.from({ length: count }, (_, index) => {
-        const dist = count - 1 - index;
-        return cn("p-2 border border-gray-700 text-right cursor-pointer", {
-          "is-latest": dist === 0,
-          "hidden sm:table-cell": dist === 2,
-          "hidden md:table-cell": dist > 2 && dist <= 4,
-          "hidden lg:table-cell": dist > 4,
-        });
-      });
-    }, [showRecords, labels.length]);
+        const dist = count - 1 - index
+        return cn('p-2 border border-gray-700 text-right cursor-pointer', {
+          'is-latest': dist === 0,
+          'hidden sm:table-cell': dist === 2,
+          'hidden md:table-cell': dist > 2 && dist <= 4,
+          'hidden lg:table-cell': dist > 4,
+        })
+      })
+    }, [showRecords, labels.length])
 
     const displayedEntries: DisplayedEntry[] = React.useMemo(() => {
       // Optimization: Pre-calculate visible values/optimality to avoid slicing in the render loop.
       // This reduces render complexity from O(rows * cols) to O(rows), and keeps array references stable
       // when showRecords doesn't change, allowing React.memo to work effectively on cells.
-      return convertedEntries
-        .filter(([_, values]) => !showRecords || (values && values.length > 0 && values[values.length - 1] !== null && values[values.length - 1] !== undefined))
-        .flatMap(([name, values, unit, extra]) => {
-          const sliceArg = showRecords ? -showRecords : 0;
-          // Use original array if showing all records to avoid copy overhead
-          const visibleValues = showRecords ? values.slice(sliceArg) : values;
-          const visibleOptimality = extra.optimality
-            ? (showRecords ? extra.optimality.slice(sliceArg) : extra.optimality)
-            : null;
+      return (
+        convertedEntries
+          .filter(
+            ([_, values]) =>
+              !showRecords ||
+              (values &&
+                values.length > 0 &&
+                values[values.length - 1] !== null &&
+                values[values.length - 1] !== undefined),
+          )
+          .flatMap(([name, values, unit, extra]) => {
+            const sliceArg = showRecords ? -showRecords : 0
+            // Use original array if showing all records to avoid copy overhead
+            const visibleValues = showRecords ? values.slice(sliceArg) : values
+            const visibleOptimality = extra.optimality
+              ? showRecords
+                ? extra.optimality.slice(sliceArg)
+                : extra.optimality
+              : null
 
-          // Optimization: use pre-calculated tags to avoid repetitive substring and regex in render loop
-          return extra.processedTags!.map(({ tag, displayTag, sortKey }) => ({
-            name,
-            values,
-            visibleValues,
-            visibleOptimality,
-            unit,
-            extra,
-            tag,
-            displayTag,
-            sortKey,
-          }));
-        })
-        // Optimization: use standard comparison instead of localeCompare for ASCII keys
-        .sort((a, b) =>
-          a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0
-        );
-    }, [convertedEntries, showRecords]);
+            // Optimization: use pre-calculated tags to avoid repetitive substring and regex in render loop
+            return extra.processedTags!.map(({ tag, displayTag, sortKey }) => ({
+              name,
+              values,
+              visibleValues,
+              visibleOptimality,
+              unit,
+              extra,
+              tag,
+              displayTag,
+              sortKey,
+            }))
+          })
+          // Optimization: use standard comparison instead of localeCompare for ASCII keys
+          .sort((a, b) => (a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0))
+      )
+    }, [convertedEntries, showRecords])
 
     const columnState = React.useMemo(() => {
-      let state: Record<string, boolean> = { tag: false };
+      let state: Record<string, boolean> = { tag: false }
 
       if (showRecords) {
         state = {
@@ -345,25 +381,25 @@ export default React.memo(
           ...Object.fromEntries(
             labels
               .filter((_, index) => index < labels.length - showRecords)
-              .map((label) => [label, false])
+              .map((label) => [label, false]),
           ),
-        };
+        }
       }
 
       if (!showOrigColumns) {
-        state.origUnit = false;
+        state.origUnit = false
       }
 
-      return state;
-    }, [showRecords, showOrigColumns]);
+      return state
+    }, [showRecords, showOrigColumns])
 
     const rowSelection = React.useMemo(
       () => Object.fromEntries(selected.map((item) => [item, true])),
-      [selected]
-    );
+      [selected],
+    )
 
-    const [grouping, setGrouping] = React.useState<GroupingState>(['tag']);
-    const [expanded, setExpanded] = React.useState<ExpandedState>(true);
+    const [grouping, setGrouping] = React.useState<GroupingState>(['tag'])
+    const [expanded, setExpanded] = React.useState<ExpandedState>(true)
 
     const table = useReactTable({
       data: displayedEntries,
@@ -378,10 +414,10 @@ export default React.memo(
       autoResetExpanded: false,
       groupedColumnMode: false,
       onRowSelectionChange: (updater) => {
-        const newState = typeof updater === 'function' ? updater(rowSelection) : updater;
-        const selectedRow = Object.keys(newState)[0];
+        const newState = typeof updater === 'function' ? updater(rowSelection) : updater
+        const selectedRow = Object.keys(newState)[0]
         if (selectedRow) {
-          onSelect(selectedRow);
+          onSelect(selectedRow)
         }
       },
       state: {
@@ -391,14 +427,14 @@ export default React.memo(
         expanded,
       },
       getRowId: (originalRow) => originalRow.name + originalRow.tag,
-    });
+    })
 
     const emptyStateMessage = React.useMemo(() => {
-        if (filterText && tag) return `No biomarkers match "${filterText}" with tag "${tag.slice(2)}"`;
-        if (filterText) return `No biomarkers match "${filterText}"`;
-        if (tag) return `No biomarkers found in "${tag.slice(2)}"`;
-        return "No records found";
-    }, [filterText, tag]);
+      if (filterText && tag) return `No biomarkers match "${filterText}" with tag "${tag.slice(2)}"`
+      if (filterText) return `No biomarkers match "${filterText}"`
+      if (tag) return `No biomarkers found in "${tag.slice(2)}"`
+      return 'No records found'
+    }, [filterText, tag])
 
     return (
       <React.Suspense fallback="Loading...">
@@ -409,21 +445,22 @@ export default React.memo(
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    title={notes[(header.column.columnDef.meta as any)?.title as string]?.items?.join(
-                      "\n"
+                    title={notes[
+                      (header.column.columnDef.meta as any)?.title as string
+                    ]?.items?.join('\n')}
+                    className={cn(
+                      'p-2 border border-gray-700 relative whitespace-nowrap',
+                      {
+                        'text-right': (header.column.columnDef.meta as any)?.isRecord,
+                        'text-center': (header.column.columnDef.meta as any)?.align === 'center',
+                        'is-latest': (header.column.columnDef.meta as any)?.isLatest,
+                        'sticky-left bg-dark-table-header': header.id === 'name',
+                        'w-1/4': (header.column.columnDef.meta as any)?.placehoder,
+                      },
+                      (header.column.columnDef.meta as any)?.className,
                     )}
-                    className={cn("p-2 border border-gray-700 relative whitespace-nowrap", {
-                      "text-right": (header.column.columnDef.meta as any)?.isRecord,
-                      "text-center": (header.column.columnDef.meta as any)?.align === "center",
-                      "is-latest": (header.column.columnDef.meta as any)?.isLatest,
-                      "sticky-left bg-dark-table-header": header.id === "name",
-                      "w-1/4": (header.column.columnDef.meta as any)?.placehoder,
-                    }, (header.column.columnDef.meta as any)?.className)}
                   >
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
+                    {flexRender(header.column.columnDef.header, header.getContext())}
                   </th>
                 ))}
               </tr>
@@ -432,9 +469,14 @@ export default React.memo(
           <tbody>
             {table.getRowModel().rows.length === 0 ? (
               <tr>
-                <td colSpan={table.getVisibleLeafColumns().length} className="p-12 text-center border border-gray-700">
+                <td
+                  colSpan={table.getVisibleLeafColumns().length}
+                  className="p-12 text-center border border-gray-700"
+                >
                   <div className="flex flex-col items-center justify-center gap-4">
-                    <div className="text-gray-400 text-base" role="status" aria-live="polite">{emptyStateMessage}</div>
+                    <div className="text-gray-400 text-base" role="status" aria-live="polite">
+                      {emptyStateMessage}
+                    </div>
                     {(filterText || tag) && onClearFilters && (
                       <button
                         type="button"
@@ -458,9 +500,7 @@ export default React.memo(
                           {...{
                             onClick: row.getToggleExpandedHandler(),
                             style: {
-                              cursor: row.getCanExpand()
-                                ? "pointer"
-                                : "default",
+                              cursor: row.getCanExpand() ? 'pointer' : 'default',
                             },
                           }}
                           className="flex items-center gap-2 w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
@@ -477,10 +517,10 @@ export default React.memo(
                         </button>
                       </td>
                     </tr>
-                  );
+                  )
                 }
 
-                const isExpanded = expandedRowId === row.id;
+                const isExpanded = expandedRowId === row.id
 
                 return (
                   <TableRow
@@ -499,8 +539,9 @@ export default React.memo(
                     visibleLeafColumnsCount={table.getVisibleLeafColumns().length}
                     onCellClick={onCellClick}
                   />
-                );
-              }))}
+                )
+              })
+            )}
           </tbody>
           <tfoot>
             {table.getFooterGroups().map((headerGroup) => (
@@ -508,14 +549,23 @@ export default React.memo(
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-
-                    className={cn("border border-gray-700 text-center relative p-0 h-full", {
-                      "is-latest": (header.column.columnDef.meta as any)?.isLatest,
-                      "sticky-left bg-dark-table-row": header.id === "name",
-                      "w-1/4": (header.column.columnDef.meta as any)?.placehoder,
-                    }, (header.column.columnDef.meta as any)?.className)}
+                    className={cn(
+                      'border border-gray-700 text-center relative p-0 h-full',
+                      {
+                        'is-latest': (header.column.columnDef.meta as any)?.isLatest,
+                        'sticky-left bg-dark-table-row': header.id === 'name',
+                        'w-1/4': (header.column.columnDef.meta as any)?.placehoder,
+                      },
+                      (header.column.columnDef.meta as any)?.className,
+                    )}
                   >
-                    {notes[(header.column.columnDef.meta as any)?.title as string]?.supps ? (<SupplementsPopover supps={notes[(header.column.columnDef.meta as any)?.title as string]?.supps!} />) : null}
+                    {notes[(header.column.columnDef.meta as any)?.title as string]?.supps ? (
+                      <SupplementsPopover
+                        supps={
+                          notes[(header.column.columnDef.meta as any)?.title as string]?.supps!
+                        }
+                      />
+                    ) : null}
                   </th>
                 ))}
               </tr>
@@ -527,6 +577,6 @@ export default React.memo(
           onClose={() => setCorrelationBiomarker(null)}
         />
       </React.Suspense>
-    );
-  }
-);
+    )
+  },
+)

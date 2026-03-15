@@ -4,31 +4,41 @@
 **Action:** When performing statistical analysis inside nested loops with React rendering (like Pearson comparisons), consider pulling exact implementations into native JS over generic external routines.
 
 ## 2025-02-09 - Reversing Data Structures to Avoid Hot Loop array.includes()
+
 **Learning:** In nested iterations (e.g., correlating M rows against N items where each item has variable arrays of length S), performing an `array.includes()` inside the innermost loop destroys performance.
-**Action:** Always consider reversing the relationship before iterating. Instead of querying "does this array have X?", spend a linear pass (O(M*S)) to construct vectors for all X items upfront into a Map, enabling O(1) lookups or completely eliminating the inner lookup loop during processing.
+**Action:** Always consider reversing the relationship before iterating. Instead of querying "does this array have X?", spend a linear pass (O(M\*S)) to construct vectors for all X items upfront into a Map, enabling O(1) lookups or completely eliminating the inner lookup loop during processing.
 
 ## 2025-02-19 - Pearson Correlation Bottleneck
-**Learning:** Using `Array.push()` inside a nested O(M*N) loop for pairwise deletion in Pearson correlation is slow due to memory allocations and intermediate arrays.
+
+**Learning:** Using `Array.push()` inside a nested O(M\*N) loop for pairwise deletion in Pearson correlation is slow due to memory allocations and intermediate arrays.
 **Action:** Replace `Array.push()` with pre-allocated `Float64Array` typed arrays that can be reused across iterations using `.subarray()`. This avoids garbage collection overhead and reduces correlation time by ~30%.
+
 ## 2025-05-18 - Pearson Correlation Bottleneck ILP
+
 **Learning:** The inline Pearson correlation calculation inside a hot loop is bounded by long data dependency chains where the accumulator waits for the previous addition/multiplication before starting the next. Due to the commutative property of addition, the loop can be unrolled with parallel accumulators to allow Instruction-Level Parallelism (ILP).
 **Action:** Unroll hot accumulation loops (e.g., 4x or 2x) by introducing multiple partial accumulators and summing them at the end. This allows the CPU to execute multiple math operations concurrently, which in this case gave a 30-40% speedup without extra memory allocation overhead.
 
 ## 2025-02-17 - Optimize Binary Ranking
+
 **Learning:** Generic ranking algorithms using index sorting (O(N log N)) are unnecessarily slow for categorical boolean data (like supplement intake vectors represented as 0s and 1s).
 **Action:** When calculating Spearman correlation with binary variables (effectively point-biserial correlation on ranks), implement a specialized O(N) ranking function that counts the frequency of 0s and 1s and calculates their average ranks directly without sorting. This reduces the time significantly, as well as eliminates intermediate object or array allocations during sorting.
 
 ## 2025-03-09 - Fast Binary Ranks & Supplement Vectors
+
 **Learning:** Using JS `Array` initialized with `.fill(0)` and passed to O(N) binary ranking algorithms causes hidden memory allocation overhead and implicit runtime typing penalties inside hot correlation loops.
 **Action:** Always allocate `Int8Array` when building binary (0/1) indicator vectors instead of `Array(len).fill(0)`. Modifying ranking utility signatures to explicitly accept and handle `Int8Array` cuts memory allocation overhead and provides default zero-initialization, speeding up calculations ~40%.
 
 ## 2025-03-10 - Point-Biserial Correlation Optimization
+
 **Learning:** When evaluating the Spearman correlation between a continuous variable and a boolean/binary indicator vector (like supplements), the traditional $O(N)$ ranking pass for the binary vector is mathematically unnecessary. Point-biserial correlation tells us that Pearson correlation on a continuous variable versus an unranked binary variable is mathematically identical to Pearson correlation on both of their ranks (Spearman).
 **Action:** Always bypass ranking entirely for categorical variables represented as 0/1 integers when computing Spearman correlation. Directly pass the unranked binary `Int8Array` and the ranked continuous array into the standard `calculatePearson` function to eliminate a loop pass and memory allocation.
 
 ## 2025-03-12 - Math Data Processing Overhead
+
 **Learning:** When preparing continuous numerical data for hot mathematical functions (like correlation) inside React components (e.g., inside `useMemo`), chaining `Array.forEach()`, `Array.push()`, and `Array.map()` creates massive overhead. It introduces closure overhead, generates multiple intermediate garbage-collected arrays, and prevents engine optimization.
 **Action:** Always pre-allocate a `Float64Array` sized to the source length, use a single standard `for` loop to filter/assign valid items manually tracking `count`, and then pass `myArray.subarray(0, count)` to the math function. This avoids allocation and closure overhead entirely.
-## 2025-05-18 - Replacing O(N*M) Array.find with O(1) Map Lookups
+
+## 2025-05-18 - Replacing O(N\*M) Array.find with O(1) Map Lookups
+
 **Learning:** Re-running `Array.find()` across arrays of data inside loops and rendering methods like `Array.map()` causes an unnecessary (N \times K)$ bottleneck, specifically seen in chart rendering components (`Chart2.tsx`, `ScatterChart.tsx`) where the `data` array is iterated repeatedly.
 **Action:** Always pre-compute and leverage local `Map` structures ((1)$ lookups) via `useMemo` or global state atoms (`jotai`) before engaging in large mapping or filtering procedures. This bounds the operation complexity to (N + K)$ without loss of functionality.
