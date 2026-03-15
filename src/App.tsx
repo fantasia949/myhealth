@@ -264,7 +264,7 @@ export default function App() {
           </label>
           <select
             id="ai-model"
-            className="px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500"
+            className="px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500"
             value={aiModel}
             onChange={onAiModelChange}
           >
