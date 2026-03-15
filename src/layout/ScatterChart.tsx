@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import ReactECharts from "echarts-for-react";
 import { BioMarker } from "../types/biomarker";
 import { labels } from "../data";
@@ -47,17 +47,26 @@ export default memo(({ data, keys }: ScatterChartProps) => {
     return `20${label.slice(0, 2)}/${label.slice(2, 4)}/${label.slice(4, 6)}`;
   };
 
-  const chartData = keys.map((key, index) => {
-    const bioMarker = data.find((bm) => bm[0] === key);
-    return {
-      name: key,
-      type: "scatter",
-      yAxisIndex: index,
-      data: bioMarker
-        ? bioMarker[1].map((value, i) => [formatTime(labels[i]), value])
-        : [],
-    };
-  });
+  const chartData = useMemo(() => {
+    // Optimization: use a local O(1) map for data lookups instead of O(N) array.find inside a map.
+    // This reduces lookup complexity from O(N*K) to O(N + K).
+    const dataMap = new Map();
+    for (let i = 0; i < data.length; i++) {
+      dataMap.set(data[i][0], data[i]);
+    }
+
+    return keys.map((key, index) => {
+      const bioMarker = dataMap.get(key);
+      return {
+        name: key,
+        type: "scatter",
+        yAxisIndex: index,
+        data: bioMarker
+          ? bioMarker[1].map((value, i) => [formatTime(labels[i]), value])
+          : [],
+      };
+    });
+  }, [data, keys]);
 
   const options = {
     ...echartsOptions,

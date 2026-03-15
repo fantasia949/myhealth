@@ -131,9 +131,16 @@ export default memo(({ data, keys }: ChartProps) => {
   ];
 
   const [scatterData, scatterData2] = useMemo(() => {
+    // Optimization: use a local O(1) map for data lookups instead of O(N) array.find inside a map.
+    // This reduces lookup complexity from O(N*K) to O(N + K).
+    const dataMap = new Map();
+    for (let i = 0; i < data.length; i++) {
+      dataMap.set(data[i][0], data[i]);
+    }
+
     const matchedData = keys
       .map((key) => {
-        return data.find(([k]) => key === k);
+        return dataMap.get(key);
       })
       .reduce((result: any[][], entry) => {
         if (entry) {

@@ -27,6 +27,17 @@ export const dataAtom = atom<BioMarker[]>((get) => {
   return [];
 });
 
+
+export const dataMapAtom = atom((get) => {
+  const data = get(dataAtom);
+  const map = new Map<string, BioMarker>();
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i];
+    map.set(item[0], item);
+  }
+  return map;
+});
+
 export const rankedDataMapAtom = atom((get) => {
   const data = get(dataAtom);
   const map = new Map<string, Float64Array>();

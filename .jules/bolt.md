@@ -29,3 +29,6 @@
 ## 2025-03-12 - Math Data Processing Overhead
 **Learning:** When preparing continuous numerical data for hot mathematical functions (like correlation) inside React components (e.g., inside `useMemo`), chaining `Array.forEach()`, `Array.push()`, and `Array.map()` creates massive overhead. It introduces closure overhead, generates multiple intermediate garbage-collected arrays, and prevents engine optimization.
 **Action:** Always pre-allocate a `Float64Array` sized to the source length, use a single standard `for` loop to filter/assign valid items manually tracking `count`, and then pass `myArray.subarray(0, count)` to the math function. This avoids allocation and closure overhead entirely.
+## 2025-05-18 - Replacing O(N*M) Array.find with O(1) Map Lookups
+**Learning:** Re-running `Array.find()` across arrays of data inside loops and rendering methods like `Array.map()` causes an unnecessary (N \times K)$ bottleneck, specifically seen in chart rendering components (`Chart2.tsx`, `ScatterChart.tsx`) where the `data` array is iterated repeatedly.
+**Action:** Always pre-compute and leverage local `Map` structures ((1)$ lookups) via `useMemo` or global state atoms (`jotai`) before engaging in large mapping or filtering procedures. This bounds the operation complexity to (N + K)$ without loss of functionality.
