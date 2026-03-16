@@ -40,10 +40,28 @@ const getAge = (label: string) => {
 }
 
 export default (entries: BioMarker[]): BioMarker[] => {
+  if (entries.length === 0 || entries[0][1].length === 0) return entries
+
+  const periods = entries[0][1].length
+
+  // Optimization: Pre-compute a lookup map of entry values to avoid O(N) Array.find()
+  // calls inside the nested periods loop. This reduces complexity from O(R*P*F*N) to O(N + R*P*F).
+  const entryMap = new Map<string, number[]>()
+  for (let i = 0; i < entries.length; i++) {
+    entryMap.set(entries[i][0], entries[i][1])
+  }
+
   const data = recipes.map(([name, fields, func, extra = {}]) => {
-    const periods = entries[0][1].length
+    // Look up required field arrays once per recipe
+    const fieldArrays = fields.map((field) => entryMap.get(field))
+
+    // If any required field is entirely missing, all calculated values for this recipe will be null
+    const hasMissingField = fieldArrays.some((arr) => arr === undefined)
+
     const values = Array.from({ length: periods }).map((_v, i) => {
-      const fieldValues = fields.map((field) => entries.find(([name]) => name === field)?.[1][i])
+      if (hasMissingField) return null
+
+      const fieldValues = fieldArrays.map((arr) => arr![i])
 
       if (fieldValues.some((v) => !v)) {
         return null

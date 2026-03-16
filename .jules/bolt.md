@@ -42,3 +42,7 @@
 
 **Learning:** Re-running `Array.find()` across arrays of data inside loops and rendering methods like `Array.map()` causes an unnecessary (N \times K)$ bottleneck, specifically seen in chart rendering components (`Chart2.tsx`, `ScatterChart.tsx`) where the `data` array is iterated repeatedly.
 **Action:** Always pre-compute and leverage local `Map` structures ((1)$ lookups) via `useMemo` or global state atoms (`jotai`) before engaging in large mapping or filtering procedures. This bounds the operation complexity to (N + K)$ without loss of functionality.
+
+## 2025-03-16 - Optimize inferData with O(1) field lookup
+**Learning:** In data enrichment pipelines like `src/processors/enrich/inferData.ts`, deeply nested `Array.find()` calls inside `map` loops across multiple periods and recipes create an O(Recipes * Periods * Fields * Entries) complexity that needlessly searches the same array repeatedly.
+**Action:** Always pre-compute a lookup `Map` (e.g., `Map<string, number[]>`) for dataset entries before executing nested iterations over time-series data. Looking up required field vectors once per recipe avoids O(N) searches inside hot loops and reduces overall complexity to O(Entries + Recipes * Periods * Fields).
