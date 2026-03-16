@@ -19,6 +19,24 @@ const echartsOptions = {
   series: [] as any[],
   tooltip: {
     trigger: 'item',
+    backgroundColor: '#111111',
+    borderColor: '#3a3a3a80',
+    textStyle: {
+      color: '#f0f0f0'
+    },
+    formatter: (params: any) => {
+      const { seriesName, value } = params
+      const date = value[0]
+      const val = value[1]
+      const unit = value[2] ? ` ${value[2]}` : ''
+      return `
+        <div style="max-width: 250px; white-space: normal; line-height: 1.4;">
+          <div style="font-size: 12px; color: #999;">${date}</div>
+          <div style="font-weight: bold; margin-top: 4px;">${seriesName}</div>
+          <div style="margin-top: 4px;">${val}${unit}</div>
+        </div>
+      `
+    }
   },
   legend: {
     data: [] as string[],
@@ -57,11 +75,30 @@ export default memo(({ data, keys }: ScatterChartProps) => {
 
     return keys.map((key, index) => {
       const bioMarker = dataMap.get(key)
+      if (!bioMarker) {
+        return {
+          name: key,
+          type: 'scatter',
+          yAxisIndex: index,
+          data: [],
+        }
+      }
+
+      const values = bioMarker[1]
+      const unit = bioMarker[2]
+
+      const validData = []
+      for (let i = 0; i < values.length; i++) {
+        if (values[i] !== null && values[i] !== undefined) {
+          validData.push([formatTime(labels[i]), values[i], unit])
+        }
+      }
+
       return {
         name: key,
         type: 'scatter',
         yAxisIndex: index,
-        data: bioMarker ? bioMarker[1].map((value: number | null, i: number) => [formatTime(labels[i]), value]) : [],
+        data: validData,
       }
     })
   }, [data, keys])
