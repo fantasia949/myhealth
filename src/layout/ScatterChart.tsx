@@ -12,6 +12,20 @@ const echartsOptions = {
   style: { height: 400 },
   theme: 'dark',
   backgroundColor: 'transparent',
+  color: [
+    '#c23531',
+    '#ADD4EF',
+    '#BFDAA7',
+    '#FCAC65',
+    '#C6C1D2',
+    '#7598E4',
+    '#CF6D6C',
+    '#4979CF',
+    '#E1934B',
+    '#829649',
+    '#7D70AC',
+    '#2559B7',
+  ],
   xAxis: {
     type: 'time',
   },
@@ -19,6 +33,17 @@ const echartsOptions = {
   series: [] as any[],
   tooltip: {
     trigger: 'item',
+    backgroundColor: '#111111',
+    borderColor: '#3a3a3a80',
+    textStyle: {
+      color: '#f0f0f0',
+    },
+    formatter: (params: any) => {
+      const date = params.value[0]
+      const value = params.value[1]
+      const unit = params.value[2] ? ` ${params.value[2]}` : ''
+      return `${params.seriesName}<br/>${date}<br/><strong>${value}${unit}</strong>`
+    },
   },
   legend: {
     data: [] as string[],
@@ -61,7 +86,11 @@ export default memo(({ data, keys }: ScatterChartProps) => {
         name: key,
         type: 'scatter',
         yAxisIndex: index,
-        data: bioMarker ? bioMarker[1].map((value: number | null, i: number) => [formatTime(labels[i]), value]) : [],
+        data: bioMarker
+          ? bioMarker[1]
+              .map((value: number | null, i: number) => [formatTime(labels[i]), value, bioMarker[2]])
+              .filter((item: any) => item[1] !== null && item[1] !== undefined)
+          : [],
       }
     })
   }, [data, keys])
