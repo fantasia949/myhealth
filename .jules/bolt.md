@@ -47,3 +47,8 @@
 
 **Learning:** When generating binary categorical feature vectors (e.g. tracking historical supplement intake over test periods), collecting a global `Set` of all historical keys and pre-allocating an `Int8Array` for every possible item creates severe memory overhead, as most supplements will not intersect with a specific biomarker's filtered timeframe.
 **Action:** Replace the full-history global sweep with a dynamic, single-pass Map allocation loop during the generation step. If the item appears, allocate its `Int8Array` vector on-demand. This reduces memory allocation and iteration complexity to scale linearly with the relevant filtered timeframe rather than the entire historical dataset length.
+
+## 2025-03-16 - Optimize inferData with O(1) field lookup
+
+**Learning:** In data enrichment pipelines like `src/processors/enrich/inferData.ts`, deeply nested `Array.find()` calls inside `map` loops across multiple periods and recipes create an O(Recipes * Periods * Fields * Entries) complexity that needlessly searches the same array repeatedly.
+**Action:** Always pre-compute a lookup `Map` (e.g., `Map<string, number[]>`) for dataset entries before executing nested iterations over time-series data. Looking up required field vectors once per recipe avoids O(N) searches inside hot loops and reduces overall complexity to O(Entries + Recipes * Periods * Fields).

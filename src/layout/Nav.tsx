@@ -416,7 +416,7 @@ export default React.memo<NavProps>(
                 </div>
                 <div className="hidden xl:flex items-center gap-2 w-full xl:w-auto">
                   <input
-                    className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
+                    className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                     type="checkbox"
                     checked={showOrigColumns}
                     onChange={onOriginValueToggle}

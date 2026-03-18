@@ -129,7 +129,7 @@ const TableRow = React.memo(
           <td className="p-2 border border-gray-700 text-center">
             <input
               type="checkbox"
-              className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
+              className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               name={name}
               aria-label={`Select ${name}`}
               title={`Select ${name}`}

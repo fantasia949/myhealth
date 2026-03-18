@@ -44,22 +44,34 @@ export default memo(({ data, keys }: ChartProps) => {
     [keys],
   )
 
-  const dict = data
-    .filter(([key]) => keys.includes(key))
-    .reduce((result: Record<number, any>, [key, values]) => {
-      values.forEach((v, i) => {
-        if (!result[i]) {
-          result[i] = { d1: labels[i] }
-        }
+  const chartData = useMemo(() => {
+    // Optimization: use a local O(1) map for data lookups instead of O(N) array.find inside a map.
+    // This reduces lookup complexity from O(N*K) to O(N + K).
+    const dataMap = new Map()
+    for (let i = 0; i < data.length; i++) {
+      dataMap.set(data[i][0], data[i])
+    }
+
+    const dict = keys.reduce((result: Record<number, any>, key) => {
+      const entry = dataMap.get(key)
+      if (entry) {
+        const values = entry[1]
+        // Hoist the fieldKey resolution outside the inner loop to avoid O(K * L) overhead
         const k = valueList.find((entry) => entry.fieldName === key)
         if (k) {
-          result[i][k.fieldKey] = v
+          values.forEach((v: number | null, i: number) => {
+            if (!result[i]) {
+              result[i] = { d1: labels[i] }
+            }
+            result[i][k.fieldKey] = v
+          })
         }
-      })
+      }
       return result
     }, {})
 
-  const chartData = Object.values(dict)
+    return Object.values(dict)
+  }, [data, keys, valueList, labels])
 
   const ref = useRef<any>(null)
 
