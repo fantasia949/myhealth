@@ -36,6 +36,7 @@ const echartsOptions = {
   yAxis: {
     type: 'value',
     name: 'Value',
+    scale: true,
     splitArea: {
       show: true
     }
