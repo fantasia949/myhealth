@@ -27,6 +27,7 @@ import {
 } from '@heroicons/react/24/outline'
 import { averageCountAtom } from '../atom/averageValueAtom'
 import LineChart from './LineChart'
+import BoxplotChart from './BoxplotChart'
 import BiomarkerCorrelation from './BiomarkerCorrelation'
 import { TableProps, DisplayedEntry } from './Table.types'
 
@@ -217,8 +218,9 @@ const TableRow = React.memo(
         {isExpanded && (
           <tr className="bg-gray-800">
             <td colSpan={visibleLeafColumnsCount} className="border border-gray-700">
-              <div className="p-3">
+              <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <LineChart name={name} values={values} />
+                <BoxplotChart name={name} values={values} />
               </div>
             </td>
           </tr>
