@@ -1,5 +1,6 @@
 import React, { memo } from 'react'
 import ReactECharts from 'echarts-for-react'
+import { labels } from '../data'
 
 interface BoxplotChartProps {
   name: string
@@ -23,7 +24,6 @@ const echartsOptions = {
   },
   xAxis: {
     type: 'category',
-    data: ['Distribution'],
     boundaryGap: true,
     nameGap: 30,
     splitArea: {
@@ -105,16 +105,51 @@ function prepareBoxplotData(data: number[][]) {
 }
 
 export default memo(({ name, values }: BoxplotChartProps) => {
-  // Filter out null/undefined values before passing to stats
-  const validData = values.filter((item) => item !== null && item !== undefined)
+  // Group values by 6-month period (H1/H2)
+  const groupedData: Record<string, number[]> = {}
 
-  if (validData.length === 0) return null
+  values.forEach((item, index) => {
+    if (item === null || item === undefined) return
+
+    const label = labels[index]
+    if (!label || label.length < 6) return
+
+    // Label is YYMMDD
+    const yy = label.slice(0, 2)
+    const mm = parseInt(label.slice(2, 4), 10)
+
+    const year = `20${yy}`
+    const half = mm <= 6 ? 'H1' : 'H2'
+    const period = `${half} ${year}`
+
+    if (!groupedData[period]) {
+      groupedData[period] = []
+    }
+    groupedData[period].push(item)
+  })
+
+  // Ensure chronological ordering by sorting keys
+  const periods = Object.keys(groupedData).sort((a, b) => {
+    // a and b are like 'H1 2023', 'H2 2023'
+    const [halfA, yearA] = a.split(' ')
+    const [halfB, yearB] = b.split(' ')
+    if (yearA !== yearB) return yearA.localeCompare(yearB)
+    return halfA.localeCompare(halfB)
+  })
+
+  const datasets = periods.map(p => groupedData[p])
+
+  if (datasets.length === 0) return null
 
   // prepareBoxplotData expects an array of datasets
-  const data = prepareBoxplotData([validData])
+  const data = prepareBoxplotData(datasets)
 
   const options = {
     ...echartsOptions,
+    xAxis: {
+      ...echartsOptions.xAxis,
+      data: periods
+    },
     title: {
       text: `${name} Distribution`,
       left: 'center',
