@@ -11,18 +11,28 @@ type Entry = [
   name: string,
   values: Array<string>,
   unit: string,
-  extra?: {
+  extra?: Record<string, any> & {
     hasOrigin?: boolean
     range?: unknown
     originValues?: Array<unknown>
     trend?: number
-    originUnit: string
-    isNotOptimal: () => boolean
-    description: string
+    originUnit?: string
+    isNotOptimal?: (val?: any) => boolean
+    description?: string
     getSamples?(testsPerSample: number): Array<string>
     optimality?: boolean[]
+    tag?: string[]
+    normalizedTitle?: string
+    sortTag?: string
+    processedTags?: Array<{ tag: string; displayTag: string; sortKey: string }>
   },
 ]
 
-type Notes = Record<string, NoteItem>
-type NoteItem = { items: string[]; supps: string[] }
+type Note = {
+  date: string
+  items: string[]
+  supps: string[]
+}
+
+type Notes = Record<string, Note>
+type NoteItem = Note
