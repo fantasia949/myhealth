@@ -50,6 +50,7 @@ const echartsOptions = {
   },
   grid: {
     right: 40,
+    left: 80,
   },
 }
 
@@ -122,7 +123,8 @@ export default memo(({ data, keys }: ScatterChartProps) => {
       data: keys,
     },
     grid: {
-      right: keys.length * 60,
+      left: keys.length * 80,
+      right: 40,
     },
   }
 
