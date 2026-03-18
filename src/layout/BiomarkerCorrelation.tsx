@@ -36,11 +36,6 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
       )
     }
 
-    const uniqueSupplements = new Set<string>()
-    noteValues.forEach((note) => {
-      note.supps?.forEach((supp) => uniqueSupplements.add(supp))
-    })
-
     const results: CorrelationResult[] = []
 
     // Optimization: Hoist invariant calculations outside the loop
@@ -83,16 +78,11 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
     // Rank the filtered biomarker values once
     const rankedBiomarker = rankData(filteredBiomarkerValues)
 
-    // Optimization: Build supplement vectors in a single pass over valid indices.
-    // This avoids O(M*N) array.includes() calls inside the hot loop.
-    // Using Int8Array instead of standard Array provides zero-initialization by default,
-    // and significantly reduces memory overhead and object allocations during map population.
-    // M = validIndices.length, N = uniqueSupplements.size
+    // Optimization: Build supplement vectors dynamically over valid indices.
+    // This avoids allocating O(K) arrays for supplements that were never taken
+    // during the timeframe when this specific biomarker was tested.
+    // Using Int8Array instead of standard Array provides zero-initialization by default.
     const suppVectors = new Map<string, Int8Array>()
-
-    uniqueSupplements.forEach((supp) => {
-      suppVectors.set(supp, new Int8Array(count))
-    })
 
     for (let k = 0; k < count; k++) {
       const i = validIndices[k]
@@ -100,17 +90,17 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
       if (note && note.supps) {
         for (let j = 0; j < note.supps.length; j++) {
           const supp = note.supps[j]
-          const vector = suppVectors.get(supp)
-          if (vector) {
-            vector[k] = 1
+          let vector = suppVectors.get(supp)
+          if (!vector) {
+            vector = new Int8Array(count)
+            suppVectors.set(supp, vector)
           }
+          vector[k] = 1
         }
       }
     }
 
-    uniqueSupplements.forEach((suppName) => {
-      const filteredSuppVector = suppVectors.get(suppName)!
-
+    suppVectors.forEach((filteredSuppVector, suppName) => {
       // Check if there is variation in the supplement vector
       const firstVal = filteredSuppVector[0]
       let hasSuppVariation = false
