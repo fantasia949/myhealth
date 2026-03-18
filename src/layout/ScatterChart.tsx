@@ -12,6 +12,20 @@ const echartsOptions = {
   style: { height: 400 },
   theme: 'dark',
   backgroundColor: 'transparent',
+  color: [
+    '#c23531',
+    '#ADD4EF',
+    '#BFDAA7',
+    '#FCAC65',
+    '#C6C1D2',
+    '#7598E4',
+    '#CF6D6C',
+    '#4979CF',
+    '#E1934B',
+    '#829649',
+    '#7D70AC',
+    '#2559B7',
+  ],
   xAxis: {
     type: 'time',
   },
@@ -22,21 +36,14 @@ const echartsOptions = {
     backgroundColor: '#111111',
     borderColor: '#3a3a3a80',
     textStyle: {
-      color: '#f0f0f0'
+      color: '#f0f0f0',
     },
     formatter: (params: any) => {
-      const { seriesName, value } = params
-      const date = value[0]
-      const val = value[1]
-      const unit = value[2] ? ` ${value[2]}` : ''
-      return `
-        <div style="max-width: 250px; white-space: normal; line-height: 1.4;">
-          <div style="font-size: 12px; color: #999;">${date}</div>
-          <div style="font-weight: bold; margin-top: 4px;">${seriesName}</div>
-          <div style="margin-top: 4px;">${val}${unit}</div>
-        </div>
-      `
-    }
+      const date = params.value[0]
+      const value = params.value[1]
+      const unit = params.value[2] ? ` ${params.value[2]}` : ''
+      return `${params.seriesName}<br/>${date}<br/><strong>${value}${unit}</strong>`
+    },
   },
   legend: {
     data: [] as string[],
