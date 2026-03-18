@@ -82,15 +82,30 @@ export default memo(({ data, keys }: ScatterChartProps) => {
 
     return keys.map((key, index) => {
       const bioMarker = dataMap.get(key)
+      if (!bioMarker) {
+        return {
+          name: key,
+          type: 'scatter',
+          yAxisIndex: index,
+          data: [],
+        }
+      }
+
+      const values = bioMarker[1]
+      const unit = bioMarker[2]
+
+      const validData = []
+      for (let i = 0; i < values.length; i++) {
+        if (values[i] !== null && values[i] !== undefined) {
+          validData.push([formatTime(labels[i]), values[i], unit])
+        }
+      }
+
       return {
         name: key,
         type: 'scatter',
         yAxisIndex: index,
-        data: bioMarker
-          ? bioMarker[1]
-              .map((value: number | null, i: number) => [formatTime(labels[i]), value, bioMarker[2]])
-              .filter((item: any) => item[1] !== null && item[1] !== undefined)
-          : [],
+        data: validData,
       }
     })
   }, [data, keys])
