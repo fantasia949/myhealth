@@ -294,11 +294,11 @@ export default React.memo<NavProps>(
 
               <button
                 type="button"
-                className={cn(
-                  'lg:ml-2 px-4 py-1 text-sm bg-yellow-500 text-black rounded hover:bg-yellow-400 w-full lg:w-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
-                  { 'invisible pointer-events-none': filterTag == null },
-                )}
+                className="lg:ml-2 px-4 py-1 text-sm bg-yellow-500 text-black rounded hover:bg-yellow-400 w-full lg:w-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={onFilterByTag}
+                disabled={filterTag == null}
+                title={filterTag == null ? 'Select a tag to filter' : 'Reset tag filter'}
+                aria-label="Reset tag filter"
               >
                 Reset
               </button>
