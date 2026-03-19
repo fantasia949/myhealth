@@ -96,11 +96,15 @@ export default React.memo<NavProps>(
         setIsAsking(true)
 
         try {
+          // Optimization: Use a Set for O(1) lookups instead of O(N) array.includes inside multiple filter loops.
+          // This reduces overall filtering complexity from O(M * N * 4) to O(M + N * 4).
+          const selectedSet = new Set(selected)
+
           const pairs = data
-            .filter(([key]) => selected.includes(key))
+            .filter(([key]) => selectedSet.has(key))
             .map(([key, values, unit]) => `${key} ${values[values.length - 1]} ${unit || ''}`)
           const prevPairs = data
-            .filter(([key]) => selected.includes(key))
+            .filter(([key]) => selectedSet.has(key))
             .map(([key, values, unit]) =>
               values.length > 1 ? `${key} ${values[values.length - 2]} ${unit || ''}` : undefined,
             )
@@ -108,8 +112,8 @@ export default React.memo<NavProps>(
           const relatedContext = (() => {
             if (!fullData || fullData.length === 0) return undefined
 
-            const selectedEntries = fullData.filter((d) => selected.includes(d[0]))
-            const candidates = fullData.filter((d) => !d[3].inferred && !selected.includes(d[0]))
+            const selectedEntries = fullData.filter((d) => selectedSet.has(d[0]))
+            const candidates = fullData.filter((d) => !d[3].inferred && !selectedSet.has(d[0]))
             const related = new Map<string, string>()
 
             // Optimization: Use pre-calculated ranks for all sources and candidates to avoid

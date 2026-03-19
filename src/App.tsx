@@ -130,8 +130,16 @@ export default function App() {
   }, [selected])
 
   const onPValue = React.useCallback(() => {
-    let sourceTarget: (BioMarker | undefined)[] = data.filter(([name]) => selected.includes(name))
-    sourceTarget = selected.map((name) => sourceTarget.find((i) => i && i[0] === name))
+    // Optimization: Use a Set for O(1) lookups instead of O(N) array.includes inside the filter loop.
+    // This reduces complexity from O(M * N) to O(M + N).
+    const selectedSet = new Set(selected)
+    let sourceTarget: (BioMarker | undefined)[] = data.filter(([name]) => selectedSet.has(name))
+
+    // Optimization: Use a Map for O(1) lookups instead of O(N) array.find inside the map loop.
+    // This reduces complexity from O(K * N) to O(K + N).
+    const sourceTargetMap = new Map(sourceTarget.map(item => [item![0], item]))
+    sourceTarget = selected.map((name) => sourceTargetMap.get(name))
+
     if (sourceTarget.some((i) => !i)) {
       return
     }
