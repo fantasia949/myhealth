@@ -154,7 +154,7 @@ export default memo(({ data, keys }: ChartProps) => {
         }
         return result
       }, [])
-      .filter((v) => v[1] && v[2])
+      .filter((v) => v[1] !== null && v[1] !== undefined && v[2] !== null && v[2] !== undefined)
 
     const excludedDate: number[][] = matchedData.map((v) => [+v[2], +v[1]])
 
@@ -175,33 +175,46 @@ export default memo(({ data, keys }: ChartProps) => {
     ;(yAxis as any[])[0].name = keys[1]
 
     const scatterData = scatterData2.map((v) => [v[1], v[0]])
-    ;(series as any[])[1].datasetIndex = 1
 
-    const dataset = [
-      { source: scatterData },
-      {
+    const dataset: any[] = [{ source: scatterData }]
+
+    // Guard against regression transform crash on <2 points
+    if (scatterData.length >= 2) {
+      dataset.push({
         transform: {
           type: 'ecStat:regression',
-          // 'linear' by default.
-          // config: { method: 'linear', formulaOn: 'end'}
         },
-      },
+      })
+    }
+
+    const nextSeries = [
+      series[0],
+      // Only include the regression series if dataset contains it
+      ...(scatterData.length >= 2 ? [{
+        ...series[1],
+        datasetIndex: 1,
+        tooltip: {
+          formatter: (params: any) => {
+            return `<strong>Regression Trend</strong>`
+          }
+        }
+      }] : [])
     ]
 
     return {
       ...echartsOptions,
       dataset,
-      series,
+      series: nextSeries,
       dataZoom: [
         {
           ...(echartsOptions.dataZoom as any[])[0],
-          startValue: Math.min(...scatterData.map((item) => item[0])),
-          endValue: Math.max(...scatterData.map((item) => item[0])),
+          startValue: scatterData.length > 0 ? Math.min(...scatterData.map((item) => item[0])) : 0,
+          endValue: scatterData.length > 0 ? Math.max(...scatterData.map((item) => item[0])) : 100,
         },
         {
           ...(echartsOptions.dataZoom as any[])[1],
-          startValue: Math.min(...scatterData.map((item) => item[1])),
-          endValue: Math.max(...scatterData.map((item) => item[1])),
+          startValue: scatterData.length > 0 ? Math.min(...scatterData.map((item) => item[1])) : 0,
+          endValue: scatterData.length > 0 ? Math.max(...scatterData.map((item) => item[1])) : 100,
         },
       ],
     }
