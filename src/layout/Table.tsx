@@ -440,7 +440,7 @@ export default React.memo(
 
     return (
       <React.Suspense fallback="Loading...">
-        <table className="w-full text-sm text-left border-collapse bg-dark-table-row text-dark-text">
+        <table className="block w-full max-w-[100vw] overflow-x-auto overflow-y-visible text-sm text-left border-collapse bg-dark-table-row text-dark-text">
           <thead className="sticky top-[39px] z-10 bg-dark-table-header">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
