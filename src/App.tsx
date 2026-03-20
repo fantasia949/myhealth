@@ -3,10 +3,12 @@ import './index.css'
 import DarkVeil from './layout/DarkVeil'
 import Nav from './layout/Nav'
 import Table from './layout/Table'
-import ScatterChart from './layout/ScatterChart'
 import PValue from './layout/PValue'
 import Correlation from './layout/Correlation'
 import { useAtomValue, useAtom } from 'jotai'
+
+const ScatterChart = React.lazy(() => import('./layout/ScatterChart'))
+const RadarChart = React.lazy(() => import('./layout/RadarChart'))
 import {
   getBioMarkersAtom,
   filterTextAtom,
@@ -245,9 +247,14 @@ export default function App() {
       <Nav {...navProps} />
       <PValue comparedSourceTarget={comparedSourceTarget} onClose={onPValueClose} />
       <Correlation target={corrlationKey} onClose={onCorrelationClose} />
-      {chartKeys && chartKeys.length > 0 && chartType === 'scatter' && (
-        <ScatterChart data={data} keys={chartKeys} />
-      )}
+      <React.Suspense fallback={<div className="text-center p-4 text-gray-400">Loading chart...</div>}>
+        {filterTag && (!chartKeys || chartKeys.length === 0) && (
+          <RadarChart data={data.filter(([_, __, ___, extra]) => extra?.tag?.includes(filterTag))} tag={filterTag} />
+        )}
+        {chartKeys && chartKeys.length > 0 && chartType === 'scatter' && (
+          <ScatterChart data={data} keys={chartKeys} />
+        )}
+      </React.Suspense>
       <Table {...tableProps} />
       <div className="flex flex-wrap justify-center gap-4 mt-4 pb-8">
         <div className="flex flex-col gap-1">

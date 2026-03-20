@@ -26,10 +26,11 @@ import {
   ArrowsRightLeftIcon,
 } from '@heroicons/react/24/outline'
 import { averageCountAtom } from '../atom/averageValueAtom'
-import LineChart from './LineChart'
-import BoxplotChart from './BoxplotChart'
 import BiomarkerCorrelation from './BiomarkerCorrelation'
 import { TableProps, DisplayedEntry } from './Table.types'
+
+const LineChart = React.lazy(() => import('./LineChart'))
+const BoxplotChart = React.lazy(() => import('./BoxplotChart'))
 
 const columnHelper = createColumnHelper<DisplayedEntry>()
 
@@ -218,10 +219,12 @@ const TableRow = React.memo(
         {isExpanded && (
           <tr className="bg-gray-800">
             <td colSpan={visibleLeafColumnsCount} className="border border-gray-700">
-              <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <LineChart name={name} values={values} />
-                <BoxplotChart name={name} values={values} />
-              </div>
+              <React.Suspense fallback={<div className="p-4 text-center text-gray-400">Loading charts...</div>}>
+                <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <LineChart name={name} values={values} />
+                  <BoxplotChart name={name} values={values} />
+                </div>
+              </React.Suspense>
             </td>
           </tr>
         )}

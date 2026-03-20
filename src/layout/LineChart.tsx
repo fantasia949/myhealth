@@ -11,8 +11,14 @@ const echartsOptions = {
   style: { height: 300, width: '100%' },
   theme: 'dark',
   backgroundColor: 'transparent',
+  animation: false,
   tooltip: {
     trigger: 'axis',
+    backgroundColor: '#111111',
+    borderColor: '#3a3a3a80',
+    textStyle: {
+      color: '#f0f0f0',
+    },
   },
   grid: {
     left: '3%',
