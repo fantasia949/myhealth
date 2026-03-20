@@ -6,6 +6,7 @@ import Table from './layout/Table'
 import ScatterChart from './layout/ScatterChart'
 import PValue from './layout/PValue'
 import Correlation from './layout/Correlation'
+import RadarChart from './layout/RadarChart'
 import { useAtomValue, useAtom } from 'jotai'
 import {
   getBioMarkersAtom,
@@ -245,6 +246,9 @@ export default function App() {
       <Nav {...navProps} />
       <PValue comparedSourceTarget={comparedSourceTarget} onClose={onPValueClose} />
       <Correlation target={corrlationKey} onClose={onCorrelationClose} />
+      {filterTag && (!chartKeys || chartKeys.length === 0) && (
+        <RadarChart data={data.filter(([_, __, ___, extra]) => extra?.tag?.includes(filterTag))} tag={filterTag} />
+      )}
       {chartKeys && chartKeys.length > 0 && chartType === 'scatter' && (
         <ScatterChart data={data} keys={chartKeys} />
       )}
