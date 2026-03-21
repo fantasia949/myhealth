@@ -116,7 +116,7 @@ const TableRow = React.memo(
     visibleLeafColumnsCount,
     onCellClick,
   }: any) => {
-    const { name, values, visibleValues, visibleOptimality, unit, extra } = entry
+    const { name, values, visibleValues, visibleOptimality, visibleOriginValues, unit, extra } = entry
 
     return (
       <React.Fragment>
@@ -203,7 +203,7 @@ const TableRow = React.memo(
           </td>
           {showOrigColumns &&
             extra.hasOrigin &&
-            extra.originValues?.map((value: any, index: number) => (
+            visibleOriginValues?.map((value: any, index: number) => (
               <td key={index} className="p-2 border border-gray-700">
                 {value}
               </td>
@@ -359,12 +359,19 @@ export default React.memo(
                 : extra.optimality
               : null
 
+            const visibleOriginValues = extra.originValues
+              ? showRecords
+                ? extra.originValues.slice(sliceArg)
+                : extra.originValues
+              : extra.originValues
+
             // Optimization: use pre-calculated tags to avoid repetitive substring and regex in render loop
             return extra.processedTags!.map(({ tag, displayTag, sortKey }) => ({
               name,
               values,
               visibleValues,
               visibleOptimality,
+              visibleOriginValues,
               unit,
               extra,
               tag,

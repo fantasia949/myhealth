@@ -14,6 +14,7 @@ export type DisplayedEntry = {
   values: number[]
   visibleValues: number[]
   visibleOptimality: boolean[] | null
+  visibleOriginValues: (number | string | null)[] | null | undefined
   unit: string
   extra: BioMarker[3]
   tag: string
