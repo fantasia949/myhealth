@@ -104,7 +104,7 @@ export default ([name, values, unit, extra]: Entry): Entry => {
 
   const newExtra = extra || {}
   newExtra.hasOrigin = mappedResult.some((entry) => entry[2] !== undefined)
-  newExtra.originValues = mappedResult.map((entry) => entry[2])
+  newExtra.originValues = mappedResult.map((entry) => entry[2] ?? null)
   newExtra.originUnit = mappedResult.map((entry) => entry[3]).filter(Boolean)[0]
 
   return [name, newValues, newUnit, newExtra]

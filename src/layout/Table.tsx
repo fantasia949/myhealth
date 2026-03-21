@@ -116,7 +116,7 @@ const TableRow = React.memo(
     visibleLeafColumnsCount,
     onCellClick,
   }: any) => {
-    const { name, values, visibleValues, visibleOptimality, unit, extra } = entry
+    const { name, values, visibleValues, visibleOptimality, visibleOriginValues, unit, extra } = entry
 
     return (
       <React.Fragment>
@@ -182,7 +182,7 @@ const TableRow = React.memo(
           >
             {name}
           </th>
-          {(!showOrigColumns || !extra.hasOrigin) &&
+          {(!showOrigColumns || !extra.hasOrigin) ? (
             visibleValues.map((value: any, index: number) => {
               const baseClass = cellBaseClasses[index]
               const isBad = visibleOptimality && visibleOptimality[index]
@@ -197,17 +197,26 @@ const TableRow = React.memo(
                   onCopy={onCellClick}
                 />
               )
-            })}
+            })
+          ) : (
+            visibleOriginValues?.map((value: any, index: number) => {
+              const baseClass = cellBaseClasses[index]
+              const isBad = visibleOptimality && visibleOptimality[index]
+              return (
+                <DataCell
+                  className={isBad ? `${baseClass} v-bad` : baseClass}
+                  key={index}
+                  rawValue={value != null ? value.toString() : ''}
+                  displayValue={value}
+                  unit={extra.originUnit}
+                  onCopy={onCellClick}
+                />
+              )
+            })
+          )}
           <td className="p-2 border border-gray-700 hidden lg:table-cell">
             {averageCountValue ? extra.getSamples(+averageCountValue).join(', ') : null}
           </td>
-          {showOrigColumns &&
-            extra.hasOrigin &&
-            extra.originValues?.map((value: any, index: number) => (
-              <td key={index} className="p-2 border border-gray-700">
-                {value}
-              </td>
-            ))}
           <td className="p-2 border border-gray-700 whitespace-nowrap text-center hidden md:table-cell">
             {extra.range as any}
           </td>
@@ -359,12 +368,19 @@ export default React.memo(
                 : extra.optimality
               : null
 
+            const visibleOriginValues = extra.originValues
+              ? showRecords
+                ? extra.originValues.slice(sliceArg)
+                : extra.originValues
+              : extra.originValues
+
             // Optimization: use pre-calculated tags to avoid repetitive substring and regex in render loop
             return extra.processedTags!.map(({ tag, displayTag, sortKey }) => ({
               name,
               values,
               visibleValues,
               visibleOptimality,
+              visibleOriginValues,
               unit,
               extra,
               tag,
