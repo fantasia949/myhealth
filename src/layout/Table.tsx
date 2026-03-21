@@ -441,6 +441,11 @@ export default React.memo(
       return 'No records found'
     }, [filterText, tag])
 
+    // Optimization: Replace O(N) Array.includes with O(1) Set.has lookup
+    // inside the TableRow render loop.
+    // Impact: Reduces complexity of row selection from O(Rows * SelectedItems) to O(Rows + SelectedItems).
+    const selectedSet = React.useMemo(() => new Set(selected), [selected])
+
     return (
       <React.Suspense fallback="Loading...">
         <table className="w-full text-sm text-left border-collapse bg-dark-table-row text-dark-text">
@@ -531,7 +536,7 @@ export default React.memo(
                   <TableRow
                     key={row.id}
                     entry={row.original}
-                    isSelected={selected.includes(row.original.name)}
+                    isSelected={selectedSet.has(row.original.name)}
                     isExpanded={isExpanded}
                     rowId={row.id}
                     toggleExpand={toggleExpand}

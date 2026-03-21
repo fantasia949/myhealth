@@ -52,3 +52,8 @@
 
 **Learning:** In data enrichment pipelines like `src/processors/enrich/inferData.ts`, deeply nested `Array.find()` calls inside `map` loops across multiple periods and recipes create an O(Recipes * Periods * Fields * Entries) complexity that needlessly searches the same array repeatedly.
 **Action:** Always pre-compute a lookup `Map` (e.g., `Map<string, number[]>`) for dataset entries before executing nested iterations over time-series data. Looking up required field vectors once per recipe avoids O(N) searches inside hot loops and reduces overall complexity to O(Entries + Recipes * Periods * Fields).
+
+## 2025-07-20 - Array.includes in React Loops
+
+**Learning:** Calling `array.includes()` inside mapping operations (like rendering list items via `table.getRowModel().rows.map`) scales poorly (O(N*M)) as the number of elements increases.
+**Action:** Always construct an O(1) local hash map or object via `Object.fromEntries` inside a `useMemo` specifically for selection and filtering lookups, rather than relying on linear searches inside the render path.
