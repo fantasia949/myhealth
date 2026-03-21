@@ -182,7 +182,7 @@ const TableRow = React.memo(
           >
             {name}
           </th>
-          {(!showOrigColumns || !extra.hasOrigin) &&
+          {(!showOrigColumns || !extra.hasOrigin) ? (
             visibleValues.map((value: any, index: number) => {
               const baseClass = cellBaseClasses[index]
               const isBad = visibleOptimality && visibleOptimality[index]
@@ -197,17 +197,26 @@ const TableRow = React.memo(
                   onCopy={onCellClick}
                 />
               )
-            })}
+            })
+          ) : (
+            visibleOriginValues?.map((value: any, index: number) => {
+              const baseClass = cellBaseClasses[index]
+              const isBad = visibleOptimality && visibleOptimality[index]
+              return (
+                <DataCell
+                  className={isBad ? `${baseClass} v-bad` : baseClass}
+                  key={index}
+                  rawValue={value != null ? value.toString() : ''}
+                  displayValue={value}
+                  unit={extra.originUnit}
+                  onCopy={onCellClick}
+                />
+              )
+            })
+          )}
           <td className="p-2 border border-gray-700 hidden lg:table-cell">
             {averageCountValue ? extra.getSamples(+averageCountValue).join(', ') : null}
           </td>
-          {showOrigColumns &&
-            extra.hasOrigin &&
-            visibleOriginValues?.map((value: any, index: number) => (
-              <td key={index} className="p-2 border border-gray-700">
-                {value !== null && value !== undefined ? value : ''}
-              </td>
-            ))}
           <td className="p-2 border border-gray-700 whitespace-nowrap text-center hidden md:table-cell">
             {extra.range as any}
           </td>
