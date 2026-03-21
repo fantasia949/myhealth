@@ -497,6 +497,7 @@ export default React.memo<NavProps>(
                             : 'border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white'
                         }`}
                         aria-label="Copy analysis to clipboard"
+                        title="Copy analysis to clipboard"
                       >
                         {isCopied ? (
                           <>
@@ -514,6 +515,7 @@ export default React.memo<NavProps>(
                         disabled={isGistLoading}
                         aria-busy={isGistLoading}
                         aria-label="Save analysis to Gist"
+                        title="Save analysis to Gist"
                         onClick={async () => {
                           setIsGistLoading(true)
                           setGistError(null)
