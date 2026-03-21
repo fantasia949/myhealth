@@ -588,7 +588,7 @@ export default React.memo(
                     {notes[(header.column.columnDef.meta as any)?.title as string]?.supps ? (
                       <SupplementsPopover
                         supps={
-                          notes[(header.column.columnDef.meta as any)?.title as string]?.supps!
+                          notes[(header.column.columnDef.meta as any)?.title as string]?.supps ?? []
                         }
                       />
                     ) : null}
