@@ -205,7 +205,7 @@ const TableRow = React.memo(
             extra.hasOrigin &&
             visibleOriginValues?.map((value: any, index: number) => (
               <td key={index} className="p-2 border border-gray-700">
-                {value}
+                {value !== null && value !== undefined ? value : ''}
               </td>
             ))}
           <td className="p-2 border border-gray-700 whitespace-nowrap text-center hidden md:table-cell">
