@@ -57,17 +57,36 @@ export default (entries: BioMarker[]): BioMarker[] => {
 
     // If any required field is entirely missing, all calculated values for this recipe will be null
     const hasMissingField = fieldArrays.some((arr) => arr === undefined)
+    const numFields = fieldArrays.length
 
-    const values = Array.from({ length: periods }).map((_v, i) => {
-      if (hasMissingField) return null
-
-      const fieldValues = fieldArrays.map((arr) => arr![i])
-
-      if (fieldValues.some((v) => !v)) {
-        return null
+    // Optimization: Avoid chaining Array.from({ length }).map() and inner array.map().some()
+    // inside hot loops to reduce multiple array allocations and closure overheads per period.
+    const values = new Array(periods)
+    if (hasMissingField) {
+      for (let i = 0; i < periods; i++) {
+        values[i] = null
       }
-      return func(...fieldValues, getAge(labels[i]))
-    })
+    } else {
+      for (let i = 0; i < periods; i++) {
+        let missing = false
+        const fieldValues = new Array(numFields)
+        for (let j = 0; j < numFields; j++) {
+          const v = fieldArrays[j]![i]
+          if (!v) {
+            missing = true
+            break
+          }
+          fieldValues[j] = v
+        }
+
+        if (missing) {
+          values[i] = null
+        } else {
+          values[i] = func(...fieldValues, getAge(labels[i]))
+        }
+      }
+    }
+
     if (!(extra as any).originValues) {
       ;(extra as any).originValues = Array.from({ length: periods })
     }
