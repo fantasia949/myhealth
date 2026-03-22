@@ -269,7 +269,7 @@ export default React.memo<NavProps>(
             </div>
 
             <div
-              className={cn('w-full lg:flex lg:flex-1 lg:items-center lg:gap-4', {
+              className={cn('w-full lg:flex lg:flex-1 lg:items-center lg:gap-4 lg:h-8', {
                 'hidden lg:flex': !show,
                 'grid grid-cols-3 gap-2': show,
               })}
@@ -308,7 +308,7 @@ export default React.memo<NavProps>(
               </button>
 
               {selected.length > 0 && (
-                <div className="col-span-3 lg:col-span-1 lg:flex lg:flex-1 lg:items-center lg:flex-wrap lg:gap-2 bg-dark-table-row border border-gray-700 rounded-md p-1.5 lg:p-1 w-full lg:w-auto mt-2 lg:mt-0 shadow-inner">
+                <div className="col-span-3 lg:col-span-1 lg:flex lg:flex-1 lg:items-center lg:flex-wrap lg:gap-2 lg:self-baseline bg-dark-table-row border border-gray-700 rounded-md p-1.5 lg:p-1 w-full lg:w-auto mt-2 lg:mt-0 shadow-inner">
                   <div className="flex flex-wrap items-center gap-1.5 w-full lg:w-auto">
                     <span className="text-xs text-gray-400 font-medium px-1">Selected:</span>
                     {selected.map((item) => (
