@@ -20,6 +20,14 @@ const echartsOptions = {
     textStyle: {
       color: '#f0f0f0',
     },
+    formatter: (params: any) => {
+      // ECharts axis trigger passes an array of series data for that axis index
+      const p = Array.isArray(params) ? params[0] : params
+      if (!p || p.value[1] === '-' || p.value[1] === null || p.value[1] === undefined) {
+        return ''
+      }
+      return `${p.seriesName}<br/>${p.value[0]}<br/><strong>${p.value[1]}</strong>`
+    },
   },
   grid: {
     left: '3%',
@@ -43,12 +51,12 @@ const formatTime = (label: string) => {
 }
 
 export default memo(({ name, values, rangeStr }: LineChartProps) => {
-  // Filter out null/undefined values and pair them with labels
+  // Map null/undefined values to '-' and pair them with labels
+  // Preserving missing points prevents misrepresenting data gaps (connectNulls: false by default)
   const data = values
     .map((value, index) => {
-      return [formatTime(labels[index]), value]
+      return [formatTime(labels[index]), value !== null && value !== undefined ? value : '-']
     })
-    .filter((item) => item[1] !== null && item[1] !== undefined)
 
   let markArea: any = undefined
 
