@@ -5,6 +5,7 @@ import { labels } from '../data'
 interface LineChartProps {
   name: string
   values: number[]
+  rangeStr?: string
 }
 
 const echartsOptions = {
@@ -41,13 +42,48 @@ const formatTime = (label: string) => {
   return `20${label.slice(0, 2)}/${label.slice(2, 4)}/${label.slice(4, 6)}`
 }
 
-export default memo(({ name, values }: LineChartProps) => {
+export default memo(({ name, values, rangeStr }: LineChartProps) => {
   // Filter out null/undefined values and pair them with labels
   const data = values
     .map((value, index) => {
       return [formatTime(labels[index]), value]
     })
     .filter((item) => item[1] !== null && item[1] !== undefined)
+
+  let markArea: any = undefined
+
+  if (rangeStr) {
+    let min: number | undefined
+    let max: number | undefined
+
+    if (rangeStr.includes(' - ')) {
+      const parts = rangeStr.split(' - ')
+      min = parseFloat(parts[0])
+      max = parseFloat(parts[1])
+    } else if (rangeStr.startsWith('>=')) {
+      min = parseFloat(rangeStr.slice(2))
+    } else if (rangeStr.startsWith('<=')) {
+      max = parseFloat(rangeStr.slice(2))
+    }
+
+    if (min !== undefined || max !== undefined) {
+      markArea = {
+        itemStyle: {
+          color: 'rgba(84, 112, 198, 0.1)',
+        },
+        data: [
+          [
+            {
+              yAxis: min !== undefined && !isNaN(min) ? min : undefined,
+            },
+            {
+              yAxis: max !== undefined && !isNaN(max) ? max : undefined,
+            },
+          ],
+        ],
+      }
+    }
+  }
 
   const options = {
     ...echartsOptions,
@@ -66,6 +102,7 @@ export default memo(({ name, values }: LineChartProps) => {
         smooth: true, // Make the line smooth
         symbol: 'circle',
         symbolSize: 6,
+        markArea: markArea,
       },
     ],
   }
