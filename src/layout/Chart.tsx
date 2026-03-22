@@ -63,7 +63,7 @@ export default memo(({ data, keys }: ChartProps) => {
             if (!result[i]) {
               result[i] = { d1: labels[i] }
             }
-            result[i][k.fieldKey] = v
+            result[i][k.fieldKey] = v !== null && v !== undefined ? v : '-'
           })
         }
       }
