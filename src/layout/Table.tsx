@@ -230,7 +230,7 @@ const TableRow = React.memo(
             <td colSpan={visibleLeafColumnsCount} className="border border-gray-700">
               <React.Suspense fallback={<div className="p-4 text-center text-gray-400">Loading charts...</div>}>
                 <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <LineChart name={name} values={values} />
+                  <LineChart name={name} values={values} rangeStr={typeof extra.range === 'string' ? extra.range : undefined} />
                   <BoxplotChart name={name} values={values} />
                 </div>
               </React.Suspense>

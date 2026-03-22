@@ -83,12 +83,10 @@ export default memo(({ data, keys }: ChartProps) => {
         instance.setOption({
           yAxis,
           grid: { top: 40, bottom: 20 },
-          series: [
-            {
-              type: 'line',
-              connectNulls: true,
-            },
-          ],
+          series: keys.map(() => ({
+            type: 'line',
+            connectNulls: false,
+          })),
         }, { notMerge: true })
       }
     }
