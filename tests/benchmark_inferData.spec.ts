@@ -53,9 +53,8 @@ test('benchmark inferData optimization', async () => {
 
   // Baseline
   const start1 = performance.now()
-  let result1;
-  for (let iter = 0; iter < 100; iter++) {
-    result1 = recipes.map(([name, fields, func, extra = {}]) => {
+    for (let iter = 0; iter < 100; iter++) {
+    recipes.map(([name, fields, func, extra = {}]) => {
       const values = Array.from({ length: periods }).map((_v, i) => {
         const fieldValues = fields.map((field) => entries.find(([n]) => n === field)?.[1][i])
 
@@ -76,15 +75,14 @@ test('benchmark inferData optimization', async () => {
 
   // Optimized
   const start2 = performance.now()
-  let result2;
-  for (let iter = 0; iter < 100; iter++) {
+    for (let iter = 0; iter < 100; iter++) {
     // Build a map of entry vectors ONCE per iter instead of calling find O(M * N) times
     const entryMap = new Map<string, number[]>()
     for (let i = 0; i < entries.length; i++) {
       entryMap.set(entries[i][0], entries[i][1])
     }
 
-    result2 = recipes.map(([name, fields, func, extra = {}]) => {
+    recipes.map(([name, fields, func, extra = {}]) => {
       // Look up vectors once per field
       const fieldArrays = fields.map(field => entryMap.get(field))
 
