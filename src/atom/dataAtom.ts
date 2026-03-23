@@ -38,10 +38,22 @@ export const dataMapAtom = atom((get) => {
 export const rankedDataMapAtom = atom((get) => {
   const data = get(dataAtom)
   const map = new Map<string, Float64Array>()
-  data.forEach((item) => {
-    const values = item[1].map((v) => (v ? +v : 0))
+  // Optimization: Replacing Array.forEach and Array.map with a traditional for-loop
+  // and a pre-allocated Float64Array to avoid object allocation and garbage collection
+  // overhead inside derived atoms. This also provides a fast zero-copy path for rankData.
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i]
+    const rawValues = item[1]
+    const len = rawValues.length
+    const values = new Float64Array(len)
+    for (let j = 0; j < len; j++) {
+      const v = rawValues[j]
+      if (v) {
+        values[j] = +v
+      }
+    }
     map.set(item[0], rankData(values))
-  })
+  }
   return map
 })
 
