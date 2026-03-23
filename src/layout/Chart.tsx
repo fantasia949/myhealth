@@ -22,7 +22,39 @@ const echartsOptions: any = {
   option: {
     grid: { top: 40, bottom: 20 },
     backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: '#111111',
+      borderColor: '#3a3a3a80',
+      textStyle: {
+        color: '#f0f0f0',
+      },
+      formatter: (params: any) => {
+        const pArray = Array.isArray(params) ? params : [params]
+        if (pArray.length === 0) return ''
+
+        let tooltipStr = `${pArray[0].value.d1}`
+        let hasValidValues = false
+
+        pArray.forEach((p) => {
+          const dimName = p.dimensionNames[p.encode.y[0]]
+          const val = p.value[dimName]
+
+          if (val !== '-' && val !== null && val !== undefined) {
+            tooltipStr += `<br/>${p.marker} ${p.seriesName}: <strong>${val}</strong>`
+            hasValidValues = true
+          }
+        })
+
+        return hasValidValues ? tooltipStr : ''
+      },
+    },
   },
+}
+
+const formatTime = (label: string) => {
+  if (!label || label.length < 6) return label
+  return `20${label.slice(0, 2)}/${label.slice(2, 4)}/${label.slice(4, 6)}`
 }
 
 export default memo(({ data, keys }: ChartProps) => {
@@ -61,7 +93,7 @@ export default memo(({ data, keys }: ChartProps) => {
         if (k) {
           values.forEach((v: number | null, i: number) => {
             if (!result[i]) {
-              result[i] = { d1: labels[i] }
+              result[i] = { d1: formatTime(labels[i]) }
             }
             result[i][k.fieldKey] = v !== null && v !== undefined ? v : '-'
           })

@@ -1,3 +1,22 @@
+**Part 1 — Implementation Report**
+
+**The Issue:**
+In `src/layout/Chart.tsx`, the multi-axis line chart lacked a custom tooltip formatter and was passing raw 6-digit `labels[i]` (e.g., "YYMMDD") directly into the X-axis dimension (`d1`). This caused the ECharts default tooltip to show unformatted dates and render `"SeriesName: -"` for any missing data points (nulls mapped to `'-'`), violating the null-suppression UX pattern.
+
+**Discovery Signal:**
+Scan 1 (Null Value Handling) & Scan 2 (Tooltip Quality). Found that the tooltip showed unformatted dates and raw `'-'` for null biomarker values.
+
+**context7 Reference:**
+Confirmed `option.tooltip.formatter` callback parameters for `trigger: 'axis'` and the `dataset` format structure for ECharts 5.6.0.
+
+**The Fix:**
+- Added a `formatTime(label)` helper to `src/layout/Chart.tsx`.
+- Updated the `chartData` generation to pass formatted dates `formatTime(labels[i])` into `d1`.
+- Added a custom `tooltip.formatter` to `echartsOptions.option` that intercepts `axis` triggers, unpacks the dataset rows via `p.dimensionNames[p.encode.y[0]]`, and only appends series to the tooltip string if their value `!== '-' && !== null && !== undefined`.
+
+**The Benefit:**
+The X-axis and tooltip now display correctly formatted readable dates (20YY/MM/DD). Tooltips are now completely clean of missing values, ensuring users only see data that was actually measured at a specific time point without distracting empty/null placeholders.
+
 ---
 
 **Proposal 1 of 3: Tag Group vs Optimal Range Radar**
