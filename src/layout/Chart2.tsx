@@ -190,15 +190,19 @@ export default memo(({ data, keys }: ChartProps) => {
     const nextSeries = [
       series[0],
       // Only include the regression series if dataset contains it
-      ...(scatterData.length >= 2 ? [{
-        ...series[1],
-        datasetIndex: 1,
-        tooltip: {
-          formatter: (params: any) => {
-            return `<strong>Regression Trend</strong>`
-          }
-        }
-      }] : [])
+      ...(scatterData.length >= 2
+        ? [
+            {
+              ...series[1],
+              datasetIndex: 1,
+              tooltip: {
+                formatter: (params: any) => {
+                  return `<strong>Regression Trend</strong>`
+                },
+              },
+            },
+          ]
+        : []),
     ]
 
     return {
@@ -230,7 +234,7 @@ export default memo(({ data, keys }: ChartProps) => {
             series: [{ symbolSize: 40 }],
             dataZoom: options.dataZoom,
           },
-          { notMerge: true }
+          { notMerge: true },
         )
         // console.log("ch1", instance.getOption());
       }

@@ -10,6 +10,7 @@ Scan 1 (Null Value Handling) & Scan 2 (Tooltip Quality). Found that the tooltip 
 Confirmed `option.tooltip.formatter` callback parameters for `trigger: 'axis'` and the `dataset` format structure for ECharts 5.6.0.
 
 **The Fix:**
+
 - Added a `formatTime(label)` helper to `src/layout/Chart.tsx`.
 - Updated the `chartData` generation to pass formatted dates `formatTime(labels[i])` into `d1`.
 - Added a custom `tooltip.formatter` to `echartsOptions.option` that intercepts `axis` triggers, unpacks the dataset rows via `p.dimensionNames[p.encode.y[0]]`, and only appends series to the tooltip string if their value `!== '-' && !== null && !== undefined`.
