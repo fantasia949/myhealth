@@ -41,7 +41,7 @@ function betacf(a: number, b: number, x: number) {
 function gammln(xx: number) {
   let x, y, tmp, ser
   const cof = [
-    76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155,
+    76.18009172947146, -86.50532032941678, 24.01409824083091, -1.231739572450155,
     0.1208650973866179e-2, -0.5395239384953e-5,
   ]
   y = xx
@@ -52,7 +52,7 @@ function gammln(xx: number) {
   for (let j = 0; j <= 5; j++) {
     ser += cof[j] / ++y
   }
-  return -tmp + Math.log((2.5066282746310005 * ser) / x)
+  return -tmp + Math.log((2.5066282746310007 * ser) / x)
 }
 
 function betai(a: number, b: number, x: number) {
