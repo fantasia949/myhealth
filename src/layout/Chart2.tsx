@@ -52,6 +52,11 @@ const echartsOptions: any = {
   ],
   tooltip: {
     triggerOn: 'mousemove',
+    backgroundColor: '#111111',
+    borderColor: '#3a3a3a80',
+    textStyle: {
+      color: '#f0f0f0',
+    },
   },
   grid: {
     top: 40,
@@ -109,6 +114,11 @@ const echartsOptions: any = {
   ],
 }
 
+const formatTime = (label: string) => {
+  if (!label || label.length < 6) return label
+  return `20${label.slice(0, 2)}/${label.slice(2, 4)}/${label.slice(4, 6)}`
+}
+
 export default memo(({ data, keys }: ChartProps) => {
   const valueList = [
     { fieldKey: keys[0], fieldName: keys[0], decimalLength: 2 },
@@ -147,7 +157,7 @@ export default memo(({ data, keys }: ChartProps) => {
           const [key, values] = entry
           values.forEach((v: number | null, i: number) => {
             if (!result[i]) {
-              result[i] = [labels[i].slice(0, -2)]
+              result[i] = [labels[i]]
             }
             result[i].push(v)
           })
@@ -156,12 +166,15 @@ export default memo(({ data, keys }: ChartProps) => {
       }, [])
       .filter((v) => v[1] !== null && v[1] !== undefined && v[2] !== null && v[2] !== undefined)
 
-    const excludedDate: number[][] = matchedData.map((v) => [+v[2], +v[1]])
+    const unit0 = dataMap.get(keys[0])?.[2] || ''
+    const unit1 = dataMap.get(keys[1])?.[2] || ''
+
+    const excludedDate: any[] = matchedData.map((v) => [+v[2], +v[1], v[0], unit0, unit1])
 
     const scatterData: Record<string, any>[] = matchedData.map((v) => ({
       [keys[0]]: v[1],
       [keys[1]]: v[2],
-      date: v[0],
+      date: formatTime(v[0]),
     }))
 
     return [scatterData, excludedDate]
@@ -174,7 +187,7 @@ export default memo(({ data, keys }: ChartProps) => {
     ;(xAxis as any[])[0].name = keys[0]
     ;(yAxis as any[])[0].name = keys[1]
 
-    const scatterData = scatterData2.map((v) => [v[1], v[0]])
+    const scatterData = scatterData2.map((v) => [v[1], v[0], formatTime(v[2]), v[3], v[4]])
 
     const dataset: any[] = [{ source: scatterData }]
 
@@ -203,6 +216,22 @@ export default memo(({ data, keys }: ChartProps) => {
 
     return {
       ...echartsOptions,
+      tooltip: {
+        ...echartsOptions.tooltip,
+        formatter: (params: any) => {
+          if (params.seriesType === 'scatter') {
+            const val1 = params.value[0]
+            const val2 = params.value[1]
+            const dateStr = params.value[2]
+            const u0 = params.value[3] ? ` ${params.value[3]}` : ''
+            const u1 = params.value[4] ? ` ${params.value[4]}` : ''
+            return `<strong>${dateStr}</strong><br/>` +
+                   `${params.marker} ${keys[0]}: <strong>${val1}${u0}</strong><br/>` +
+                   `${params.marker} ${keys[1]}: <strong>${val2}${u1}</strong>`
+          }
+          return `<strong>Regression Trend</strong>`
+        }
+      },
       dataset,
       series: nextSeries,
       dataZoom: [
