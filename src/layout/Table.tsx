@@ -131,7 +131,8 @@ const TableRow = React.memo(
           <td className="p-2 border border-gray-700 text-center">
             <input
               type="checkbox"
-              className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              id={`select-${String(rowId).replace(/[^a-zA-Z0-9-_]/g, '-')}`}
+              className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
               name={name}
               aria-label={`Select ${name}`}
               title={`Select ${name}`}
@@ -180,7 +181,12 @@ const TableRow = React.memo(
             className="p-2 border border-gray-700 whitespace-nowrap sticky-left bg-dark-table-row"
             title={extra.description}
           >
-            {name}
+            <label
+              htmlFor={`select-${String(rowId).replace(/[^a-zA-Z0-9-_]/g, '-')}`}
+              className="cursor-pointer hover:text-blue-400 transition-colors"
+            >
+              {name}
+            </label>
           </th>
           {(!showOrigColumns || !extra.hasOrigin) ? (
             visibleValues.map((value: any, index: number) => {
