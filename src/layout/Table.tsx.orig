@@ -117,7 +117,6 @@ const TableRow = React.memo(
     onCellClick,
   }: any) => {
     const { name, values, visibleValues, visibleOptimality, visibleOriginValues, unit, extra } = entry
-    const safeId = String(name).replace(/[^a-zA-Z0-9-_]/g, '-')
 
     return (
       <React.Fragment>
@@ -132,7 +131,6 @@ const TableRow = React.memo(
           <td className="p-2 border border-gray-700 text-center">
             <input
               type="checkbox"
-              id={`checkbox-${safeId}`}
               className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               name={name}
               aria-label={`Select ${name}`}
@@ -182,9 +180,7 @@ const TableRow = React.memo(
             className="p-2 border border-gray-700 whitespace-nowrap sticky-left bg-dark-table-row"
             title={extra.description}
           >
-            <label htmlFor={`checkbox-${safeId}`} className="cursor-pointer select-none">
-              {name}
-            </label>
+            {name}
           </th>
           {(!showOrigColumns || !extra.hasOrigin) ? (
             visibleValues.map((value: any, index: number) => {

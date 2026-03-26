@@ -92,3 +92,8 @@
 
 **Learning:** Found that `<select>` elements and secondary action buttons (like "Copy Analysis" or "Save to Gist") in modals often lose their default browser focus rings when styled with Tailwind (e.g., using `outline-none` or custom borders). This renders them completely inaccessible to keyboard users navigating via Tab.
 **Action:** Always ensure that custom-styled form inputs and interactive elements explicitly include `focus-visible:ring-2 focus-visible:ring-blue-500` to restore clear keyboard focus indicators without adding unintended visual outlines for mouse clicks.
+
+## 2026-03-26 - Increasing Click Targets for Table Rows
+
+**Learning:** Data grids with small selection checkboxes force users to be extremely precise. Wrapping the row's primary label (e.g., the name cell `<th>`) in a semantic `<label>` linked to the checkbox `id` instantly makes the entire text area clickable. Adding `cursor-pointer` and `select-none` prevents accidental text highlighting during rapid clicks.
+**Action:** Always look for opportunities to increase click targets for form controls by linking semantic text with `<label htmlFor="...">`. Remember to sanitize data-driven IDs (e.g., `String(name).replace(/[^a-zA-Z0-9-_]/g, '-')`) to prevent invalid HTML selectors.
