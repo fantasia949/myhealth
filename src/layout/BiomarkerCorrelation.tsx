@@ -3,7 +3,7 @@ import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon, ClipboardDocumentIcon, CheckIcon } from '@heroicons/react/24/outline'
 import { useAtomValue } from 'jotai'
 import { notesAtom, dataMapAtom } from '../atom/dataAtom'
-import { correlationAlphaAtom, correlationAlternativeAtom } from '../atom/correlationAtom'
+import { correlationAlternativeAtom } from '../atom/correlationAtom'
 import { rankData, calculatePearson } from '../processors/stats'
 import { BiomarkerCorrelationProps, CorrelationResult } from './BiomarkerCorrelation.types'
 

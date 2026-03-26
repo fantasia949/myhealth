@@ -144,7 +144,7 @@ export default memo(({ data, keys }: ChartProps) => {
       })
       .reduce((result: any[][], entry) => {
         if (entry) {
-          const [key, values] = entry
+          const [, values] = entry
           values.forEach((v: number | null, i: number) => {
             if (!result[i]) {
               result[i] = [labels[i].slice(0, -2)]
@@ -194,7 +194,7 @@ export default memo(({ data, keys }: ChartProps) => {
         ...series[1],
         datasetIndex: 1,
         tooltip: {
-          formatter: (params: any) => {
+          formatter: (_params: any) => {
             return `<strong>Regression Trend</strong>`
           }
         }

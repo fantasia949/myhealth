@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test } from '@playwright/test'
 import { rankData, calculateSpearmanRanked } from '../src/processors/stats'
 
 function rankBinaryDataArray(arr: number[]): Float64Array {

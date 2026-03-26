@@ -1,6 +1,5 @@
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react'
 import { BeakerIcon } from '@heroicons/react/24/outline'
-import cn from 'classnames'
 
 interface Props {
   supps: string[]
