@@ -2,14 +2,14 @@ import React, { Fragment, useMemo } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon, ClipboardDocumentIcon, CheckIcon } from '@heroicons/react/24/outline'
 import { useAtomValue } from 'jotai'
-import { notesAtom, dataMapAtom } from '../atom/dataAtom'
+import { noteValuesAtom, dataMapAtom } from '../atom/dataAtom'
 import { correlationAlphaAtom, correlationAlternativeAtom } from '../atom/correlationAtom'
 import { rankData, calculatePearson } from '../processors/stats'
 import { BiomarkerCorrelationProps, CorrelationResult } from './BiomarkerCorrelation.types'
 
 const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorrelationProps) => {
   const [isCopied, setIsCopied] = React.useState(false)
-  const notes = useAtomValue(notesAtom)
+  const noteValues = useAtomValue(noteValuesAtom)
   const dataMap = useAtomValue(dataMapAtom) // Access pre-calculated O(1) map
   const alpha = 0.05
   const alternative = useAtomValue(correlationAlternativeAtom)
@@ -24,8 +24,7 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
     const rawValues = biomarkerEntry[1] // number[]
 
     // Extract all unique supplements
-    // notes is an object keyed by date string. The values order corresponds to the data indices.
-    const noteValues = Object.values(notes)
+    // noteValues order corresponds to the data indices.
 
     // Safety check: ensure lengths match
     if (rawValues.length !== noteValues.length) {
@@ -140,7 +139,7 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
 
     // Sort by P-value ascending
     return results.sort((a, b) => a.pValue - b.pValue)
-  }, [biomarkerId, notes, dataMap, alpha, alternative])
+  }, [biomarkerId, noteValues, dataMap, alpha, alternative])
 
   if (!biomarkerId) return null
 

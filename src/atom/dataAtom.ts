@@ -13,6 +13,11 @@ export const getBioMarkersAtom = atom((get) =>
 
 export const notesAtom = atom((get) => get(sourceAtom).then(([_, notes]) => processTime(notes)))
 
+export const noteValuesAtom = atom(async (get) => {
+  const notes = await get(notesAtom)
+  return Object.values(notes)
+})
+
 import { loadable } from 'jotai/utils'
 
 const loadableBioMarkersAtom = loadable(getBioMarkersAtom)
