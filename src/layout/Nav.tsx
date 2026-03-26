@@ -21,7 +21,7 @@ import {
   aiModelAtom,
   rankedDataMapAtom,
 } from '../atom/dataAtom'
-import { calculateSpearman, calculateSpearmanRanked } from '../processors/stats'
+import { calculateSpearmanRanked } from '../processors/stats'
 import { averageCountAtom } from '../atom/averageValueAtom'
 import Markdown from 'react-markdown'
 import { Spinner } from './Spinner'
@@ -89,7 +89,7 @@ export default React.memo<NavProps>(
     const onToggle = () => setShow((v) => !v)
 
     const onAskAI = React.useCallback(
-      async (e: React.MouseEvent<HTMLButtonElement>) => {
+      async () => {
         if (selected.length === 0) {
           return
         }
@@ -188,14 +188,6 @@ export default React.memo<NavProps>(
       (e: React.ChangeEvent<HTMLSelectElement>) => setAverageCount(e.target.value),
       [],
     )
-
-    const onButtonClick = React.useCallback(
-      (e: React.MouseEvent<HTMLButtonElement>) => {
-        onSelect(e.currentTarget.name)
-      },
-      [onSelect],
-    )
-
     return (
       <>
         <nav

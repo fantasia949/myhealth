@@ -1,5 +1,3 @@
-import pcorrtest from '@stdlib/stats-pcorrtest'
-
 // Beta function approximation or exact implementation
 function betacf(a: number, b: number, x: number) {
   const MAXIT = 100

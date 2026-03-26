@@ -18,7 +18,6 @@ import {
   gistTokenAtom,
 } from './atom/dataAtom'
 import { BioMarker } from './types/biomarker'
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
 import { PasswordInput } from './layout/PasswordInput'
 
 export default function App() {
