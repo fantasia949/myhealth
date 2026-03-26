@@ -40,7 +40,7 @@ function betacf(a: number, b: number, x: number) {
 // Since gammln is called repeatedly in a hot path during correlation calculation
 // (via betai -> studentT_cdf), avoiding the array reallocation significantly reduces overhead.
 const COF = [
-  76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155,
+  76.18009172947146, -86.50532032941678, 24.01409824083091, -1.231739572450155,
   0.1208650973866179e-2, -0.5395239384953e-5,
 ]
 
