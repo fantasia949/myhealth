@@ -257,7 +257,7 @@ export default memo(({ data, keys }: ChartProps) => {
             series: [{ symbolSize: 40 }],
             dataZoom: options.dataZoom,
           },
-          { notMerge: true }
+          { notMerge: true },
         )
         // console.log("ch1", instance.getOption());
       }

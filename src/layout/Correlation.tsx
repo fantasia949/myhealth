@@ -37,6 +37,11 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
       const sourceValues = getValues(target)
       if (!sourceValues) return
 
+      // ⚡ Bolt Optimization: Hoist options object outside the loop to avoid recreating it
+      // on every iteration. This reduces memory allocations and garbage collection overhead
+      // during hundreds of cross-correlation calculations.
+      const options = { alpha, alternative }
+
       // Optimization: Hoist invariant calculations for the source biomarker outside the target loop.
       // Pre-parse the source values and record valid indices to avoid O(N * M) parsing and null checks.
       const len = sourceValues.length
@@ -85,10 +90,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
 
         if (count < 4) continue
 
-        const result = calculatePearson(x.subarray(0, count), y.subarray(0, count), {
-          alpha,
-          alternative,
-        })
+        const result = calculatePearson(x.subarray(0, count), y.subarray(0, count), options)
         if (result.pValue <= alpha) {
           entries.push([item[0], result.statistic, result.pValue, result.pcorr])
         }
@@ -98,6 +100,10 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
       const sourceRanks = rankedDataMap.get(target)
       if (!sourceRanks) return
 
+      // ⚡ Bolt Optimization: Hoist options object outside the loop to avoid recreating it
+      // on every iteration. This reduces memory allocations and garbage collection overhead.
+      const options = { alpha, alternative }
+
       for (const item of data) {
         if (item[0] === target) {
           continue
@@ -106,10 +112,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
         const targetRanks = rankedDataMap.get(item[0])
         if (!targetRanks) continue
 
-        const result = calculateSpearmanRanked(sourceRanks, targetRanks, {
-          alpha: alpha,
-          alternative: alternative,
-        })
+        const result = calculateSpearmanRanked(sourceRanks, targetRanks, options)
         if (result.pValue <= alpha) {
           entries.push([item[0], result.statistic, result.pValue, result.pcorr])
         }

@@ -84,6 +84,10 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
     // Using Int8Array instead of standard Array provides zero-initialization by default.
     const suppVectors = new Map<string, Int8Array>()
 
+    // ⚡ Bolt Optimization: Hoist options object outside the loop to avoid recreating it
+    // on every iteration. This reduces memory allocations and garbage collection overhead.
+    const options = { alpha, alternative }
+
     for (let k = 0; k < count; k++) {
       const i = validIndices[k]
       const note = noteValues[i]
@@ -119,10 +123,7 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
       // Optimization: Point-biserial correlation is mathematically equivalent to Pearson
       // correlation on the ranked continuous variable against the unranked binary indicator variable.
       // This bypasses the ranking overhead for the binary vectors completely.
-      const result: any = calculatePearson(rankedBiomarker, filteredSuppVector, {
-        alpha,
-        alternative,
-      })
+      const result: any = calculatePearson(rankedBiomarker, filteredSuppVector, options)
 
       const rho = result.pcorr
       const pVal = result.pValue

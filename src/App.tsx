@@ -138,7 +138,7 @@ export default function App() {
 
     // Optimization: Use a Map for O(1) lookups instead of O(N) array.find inside the map loop.
     // This reduces complexity from O(K * N) to O(K + N).
-    const sourceTargetMap = new Map(sourceTarget.map(item => [item![0], item]))
+    const sourceTargetMap = new Map(sourceTarget.map((item) => [item![0], item]))
     sourceTarget = selected.map((name) => sourceTargetMap.get(name))
 
     if (sourceTarget.some((i) => !i)) {
@@ -246,9 +246,14 @@ export default function App() {
       <Nav {...navProps} />
       <PValue comparedSourceTarget={comparedSourceTarget} onClose={onPValueClose} />
       <Correlation target={corrlationKey} onClose={onCorrelationClose} />
-      <React.Suspense fallback={<div className="text-center p-4 text-gray-400">Loading chart...</div>}>
+      <React.Suspense
+        fallback={<div className="text-center p-4 text-gray-400">Loading chart...</div>}
+      >
         {filterTag && (!chartKeys || chartKeys.length === 0) && (
-          <RadarChart data={data.filter(([_, __, ___, extra]) => extra?.tag?.includes(filterTag))} tag={filterTag} />
+          <RadarChart
+            data={data.filter(([_, __, ___, extra]) => extra?.tag?.includes(filterTag))}
+            tag={filterTag}
+          />
         )}
         {chartKeys && chartKeys.length > 0 && chartType === 'scatter' && (
           <ScatterChart data={data} keys={chartKeys} />

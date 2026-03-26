@@ -14,11 +14,23 @@ type BioMarker = [string, number[], string, any]
 type Recipe = [string, string[], (...args: any[]) => string, Partial<BioMarker[3]>?]
 
 const recipes: Recipe[] = [
-  ['Neutro / Lympho', ['SL Neutrophil', 'SL Lymphocyte'], (value1, value2) => (value1 / value2).toFixed(1)],
+  [
+    'Neutro / Lympho',
+    ['SL Neutrophil', 'SL Lymphocyte'],
+    (value1, value2) => (value1 / value2).toFixed(1),
+  ],
   ['TG / HDL', ['Triglyceride', 'HDL'], (value1, value2) => (value1 / value2).toFixed(1)],
   ['Total Choles / HDL', ['Cholesterol', 'HDL'], (value1, value2) => (value1 / value2).toFixed(1)],
-  ['PhenoAge1', ['Albumin', 'Creatinin', 'Glucose', 'CRP-hs', '% Lymphocyte', 'MCV', 'RDW-CV', 'ALP', 'WBC'], () => '1.0'],
-  ['PhenoAge2', ['Albumin', 'Creatinin', 'Glucose', 'CRP-hs', '% Lymphocyte', 'MCV', 'RDW-CV', 'ALP', 'WBC'], () => '1.0'],
+  [
+    'PhenoAge1',
+    ['Albumin', 'Creatinin', 'Glucose', 'CRP-hs', '% Lymphocyte', 'MCV', 'RDW-CV', 'ALP', 'WBC'],
+    () => '1.0',
+  ],
+  [
+    'PhenoAge2',
+    ['Albumin', 'Creatinin', 'Glucose', 'CRP-hs', '% Lymphocyte', 'MCV', 'RDW-CV', 'ALP', 'WBC'],
+    () => '1.0',
+  ],
   ['VLDL', ['Triglyceride'], (triglyceride) => (triglyceride / 5).toFixed(0)],
   ['Age', [], (age) => age.toFixed(1)],
 ]
@@ -47,7 +59,7 @@ test('benchmark inferData optimization', async () => {
       name,
       Array.from({ length: periods }, () => Math.random() * 100),
       'unit',
-      {}
+      {},
     ] as BioMarker
   })
 
@@ -84,16 +96,16 @@ test('benchmark inferData optimization', async () => {
 
     recipes.map(([name, fields, func, extra = {}]) => {
       // Look up vectors once per field
-      const fieldArrays = fields.map(field => entryMap.get(field))
+      const fieldArrays = fields.map((field) => entryMap.get(field))
 
       // Optimization check: if a required field is missing, all periods will be null
-      const hasMissingField = fieldArrays.some(arr => arr === undefined)
+      const hasMissingField = fieldArrays.some((arr) => arr === undefined)
 
       const values = Array.from({ length: periods }).map((_v, i) => {
         if (hasMissingField) return null
 
-        const fieldValues = fieldArrays.map(arr => arr![i])
-        if (fieldValues.some(v => !v)) return null
+        const fieldValues = fieldArrays.map((arr) => arr![i])
+        if (fieldValues.some((v) => !v)) return null
 
         return func(...fieldValues, getAge(labels[i]))
       })
