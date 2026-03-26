@@ -1,26 +1,3 @@
-## Part 1 — Implementation Report
-
-**The Issue:**
-`src/layout/Chart2.tsx` line 53. The scatter chart tooltips did not have dark theme styling (`backgroundColor`, `borderColor`, `textStyle.color`) configured, breaking visual consistency with other charts. Additionally, the tooltip displayed raw `[x, y]` values without dates or units because the date information was discarded during data transformation.
-
-**Discovery Signal:**
-Scan 2 — Tooltip Quality. Found that the tooltip was unreadable on dark backgrounds (no explicit dark theme config) and missing dates and units.
-
-**context7 Reference:**
-ECharts 5.6.0 documentation confirmed via script: `tooltip.backgroundColor`, `tooltip.borderColor`, `tooltip.textStyle.color` and `series[type=scatter].tooltip.formatter`.
-
-**The Fix:**
-1. Injected the date (`v[0]`), `unit0`, and `unit1` into the `excludedDate` array mapping.
-2. Updated the `scatterData` mapped source to preserve `[val1, val2, formattedDate, unit0, unit1]`.
-3. Applied the global dark theme variables directly to `echartsOptions.tooltip` (`#111111` bg, `#3a3a3a80` border, `#f0f0f0` text).
-4. Provided a custom formatter for the scatter series type within `options` that unpacks `params.value` and renders the date, axis labels, correctly formatted numeric values, and units, while preserving the `"Regression Trend"` string for the regression dataset.
-
-**The Benefit:**
-Users can now clearly read the tooltip in dark mode, and immediately see the exact test date and proper measurement units when hovering over individual points in the two-biomarker correlation scatterplot.
-
----
-
-## Part 2 — Proposals
 
 **Recommended implementation order:** Proposal 1 first (highest insight, lowest effort), then Proposal 2, then Proposal 3.
 
@@ -92,3 +69,5 @@ Auto-renders when the user clicks a specific tag button (e.g., "3-Liver") in the
 (High: requires a new data transformation step to normalize values from completely different units/ranges onto a single comparable percentage or standard-deviation scale for the bar chart.)
 
 **ECharts 5.6.0 API confirmed via context7:** yes - `series[type=bar].markLine` path checked.
+
+Recommended implementation order: Proposal 2 first (highest insight, medium effort), then Proposal 1, then Proposal 3.
