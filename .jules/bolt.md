@@ -9,3 +9,7 @@
 ## 2025-03-05 - Avoid repetitive array allocations in component hot paths
 **Learning:** Utilizing functions like `Object.values(notes)` directly inside component `useMemo` blocks creates unnecessary garbage collection overhead when the component depends on derived inputs and is frequently triggered (like UI settings changes), since it spins up a new object allocation every single time regardless of whether the `notes` actually changed.
 **Action:** Extract generic array allocations or object iteration mappings (like `Object.values()`) out of component `useMemo` blocks and into dedicated Jotai derived atoms (e.g. `noteValuesAtom`). This leverages state caching, ensuring the expensive array generation only occurs when the source data (`notes`) strictly changes.
+
+## 2025-03-04 - Eliminate garbage collection overhead by hoisting invariants
+**Learning:** React component memoization (`useMemo`) is often not enough for heavy statistical operations (like P-value / Correlation mapping across datasets). Object literals inside hot loops (e.g., passing `{ alpha: 0.05 }` to a statistical test) or repeatedly allocating math coefficients inside pure functions will flood the engine with short-lived objects. This triggers garbage collection spikes that block the main thread.
+**Action:** Always hoist configuration objects (`options`) to the top of loops/closures or to module scope. For mathematical function constants, extract them directly to module-scoped `const` arrays instead of allocating them dynamically within the function call.

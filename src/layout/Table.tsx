@@ -3,7 +3,6 @@ import React from 'react'
 import cn from 'classnames'
 import { labels } from '../data'
 import { visibleDataAtom, notesAtom, filterTextAtom, tagAtom } from '../atom/dataAtom'
-import { BioMarker } from '../types/biomarker'
 import { useAtomValue } from 'jotai'
 import {
   useReactTable,
@@ -117,6 +116,7 @@ const TableRow = React.memo(
     onCellClick,
   }: any) => {
     const { name, values, visibleValues, visibleOptimality, visibleOriginValues, unit, extra } = entry
+    const safeNameId = String(name).replace(/[^a-zA-Z0-9-_]/g, '-')
 
     return (
       <React.Fragment>
@@ -130,8 +130,9 @@ const TableRow = React.memo(
         >
           <td className="p-2 border border-gray-700 text-center">
             <input
+              id={safeNameId}
               type="checkbox"
-              className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
               name={name}
               aria-label={`Select ${name}`}
               title={`Select ${name}`}
@@ -180,40 +181,40 @@ const TableRow = React.memo(
             className="p-2 border border-gray-700 whitespace-nowrap sticky-left bg-dark-table-row"
             title={extra.description}
           >
-            {name}
+            <label htmlFor={safeNameId} className="cursor-pointer hover:text-blue-400 block w-full h-full">
+              {name}
+            </label>
           </th>
-          {(!showOrigColumns || !extra.hasOrigin) ? (
-            visibleValues.map((value: any, index: number) => {
-              const baseClass = cellBaseClasses[index]
-              const isBad = visibleOptimality && visibleOptimality[index]
-              return (
-                <DataCell
-                  // Optimization: use pre-calculated base classes to avoid repetitive cn() calls in render loop
-                  className={isBad ? `${baseClass} v-bad` : baseClass}
-                  key={index}
-                  rawValue={value != null ? value.toString() : ''}
-                  displayValue={value}
-                  unit={unit}
-                  onCopy={onCellClick}
-                />
-              )
-            })
-          ) : (
-            visibleOriginValues?.map((value: any, index: number) => {
-              const baseClass = cellBaseClasses[index]
-              const isBad = visibleOptimality && visibleOptimality[index]
-              return (
-                <DataCell
-                  className={isBad ? `${baseClass} v-bad` : baseClass}
-                  key={index}
-                  rawValue={value != null ? value.toString() : ''}
-                  displayValue={value}
-                  unit={extra.originUnit}
-                  onCopy={onCellClick}
-                />
-              )
-            })
-          )}
+          {!showOrigColumns || !extra.hasOrigin
+            ? visibleValues.map((value: any, index: number) => {
+                const baseClass = cellBaseClasses[index]
+                const isBad = visibleOptimality && visibleOptimality[index]
+                return (
+                  <DataCell
+                    // Optimization: use pre-calculated base classes to avoid repetitive cn() calls in render loop
+                    className={isBad ? `${baseClass} v-bad` : baseClass}
+                    key={index}
+                    rawValue={value != null ? value.toString() : ''}
+                    displayValue={value}
+                    unit={unit}
+                    onCopy={onCellClick}
+                  />
+                )
+              })
+            : visibleOriginValues?.map((value: any, index: number) => {
+                const baseClass = cellBaseClasses[index]
+                const isBad = visibleOptimality && visibleOptimality[index]
+                return (
+                  <DataCell
+                    className={isBad ? `${baseClass} v-bad` : baseClass}
+                    key={index}
+                    rawValue={value != null ? value.toString() : ''}
+                    displayValue={value}
+                    unit={extra.originUnit}
+                    onCopy={onCellClick}
+                  />
+                )
+              })}
           <td className="p-2 border border-gray-700 hidden lg:table-cell">
             {averageCountValue ? extra.getSamples(+averageCountValue).join(', ') : null}
           </td>
@@ -228,9 +229,15 @@ const TableRow = React.memo(
         {isExpanded && (
           <tr className="bg-gray-800">
             <td colSpan={visibleLeafColumnsCount} className="border border-gray-700">
-              <React.Suspense fallback={<div className="p-4 text-center text-gray-400">Loading charts...</div>}>
+              <React.Suspense
+                fallback={<div className="p-4 text-center text-gray-400">Loading charts...</div>}
+              >
                 <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <LineChart name={name} values={values} rangeStr={typeof extra.range === 'string' ? extra.range : undefined} />
+                  <LineChart
+                    name={name}
+                    values={values}
+                    rangeStr={typeof extra.range === 'string' ? extra.range : undefined}
+                  />
                   <BoxplotChart name={name} values={values} />
                 </div>
               </React.Suspense>
