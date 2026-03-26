@@ -14,33 +14,33 @@ const echartsOptions = {
   tooltip: {
     trigger: 'item',
     axisPointer: {
-      type: 'shadow'
-    }
+      type: 'shadow',
+    },
   },
   grid: {
     left: '10%',
     right: '10%',
-    bottom: '15%'
+    bottom: '15%',
   },
   xAxis: {
     type: 'category',
     boundaryGap: true,
     nameGap: 30,
     splitArea: {
-      show: false
+      show: false,
     },
     splitLine: {
-      show: false
-    }
+      show: false,
+    },
   },
   yAxis: {
     type: 'value',
     name: 'Value',
     scale: true,
     splitArea: {
-      show: true
-    }
-  }
+      show: true,
+    },
+  },
 }
 
 // Custom implementation of prepareBoxplotData to avoid ecStat version issues
@@ -94,7 +94,7 @@ function prepareBoxplotData(data: number[][]) {
       q1,
       median,
       q3,
-      actualMax === -Number.MAX_VALUE ? max : actualMax
+      actualMax === -Number.MAX_VALUE ? max : actualMax,
     ])
 
     for (const out of seriesOutliers) {
@@ -138,7 +138,7 @@ export default memo(({ name, values }: BoxplotChartProps) => {
     return halfA.localeCompare(halfB)
   })
 
-  const datasets = periods.map(p => groupedData[p])
+  const datasets = periods.map((p) => groupedData[p])
 
   if (datasets.length === 0) return null
 
@@ -149,7 +149,7 @@ export default memo(({ name, values }: BoxplotChartProps) => {
     ...echartsOptions,
     xAxis: {
       ...echartsOptions.xAxis,
-      data: periods
+      data: periods,
     },
     title: {
       text: `${name} Distribution`,
@@ -166,7 +166,7 @@ export default memo(({ name, values }: BoxplotChartProps) => {
         data: data.boxData,
         itemStyle: {
           color: '#5470C688',
-          borderColor: '#5470C6'
+          borderColor: '#5470C6',
         },
         tooltip: {
           formatter: function (param: any) {
@@ -176,10 +176,10 @@ export default memo(({ name, values }: BoxplotChartProps) => {
               'Q3: ' + param.data[4].toFixed(2),
               'Median: ' + param.data[3].toFixed(2),
               'Q1: ' + param.data[2].toFixed(2),
-              'Min: ' + param.data[1].toFixed(2)
-            ].join('<br/>');
-          }
-        }
+              'Min: ' + param.data[1].toFixed(2),
+            ].join('<br/>')
+          },
+        },
       },
       {
         name: 'outlier',
@@ -187,14 +187,14 @@ export default memo(({ name, values }: BoxplotChartProps) => {
         datasetIndex: 1,
         data: data.outliers,
         itemStyle: {
-          color: '#CF6D6C'
+          color: '#CF6D6C',
         },
         tooltip: {
           formatter: function (param: any) {
             return `<strong>Outlier</strong><br/>Value: ${param.data[1]}`
-          }
-        }
-      }
+          },
+        },
+      },
     ],
   }
 

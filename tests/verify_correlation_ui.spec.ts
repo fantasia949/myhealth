@@ -21,7 +21,6 @@ test('Verify correlation dialog functionality', async ({ page }) => {
   await correlationButton.click()
 
   // Check if Correlation view appears
-  const dialogPanel = page.locator('div[role="dialog"]').first()
 
   // Take a screenshot of the correlation settings dialog
   await page.screenshot({ path: 'correlation_dialog.png' })

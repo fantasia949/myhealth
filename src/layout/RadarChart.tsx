@@ -52,7 +52,10 @@ export default memo(({ data, tag }: RadarChartProps) => {
           _actualValue: latestValue,
           _unit: unit,
           _range: rangeStr,
-          _isNotOptimal: extra.optimality && extra.optimality.length > latestIndex ? extra.optimality[latestIndex] : false
+          _isNotOptimal:
+            extra.optimality && extra.optimality.length > latestIndex
+              ? extra.optimality[latestIndex]
+              : false,
         })
         values.push(latestValue)
       }
@@ -81,25 +84,25 @@ export default memo(({ data, tag }: RadarChartProps) => {
             html += `<span style="color:${color}">${indicator.name}</span>: ${val} ${indicator._unit} <span style="color:#888;font-size:12px;">(Range: ${indicator._range})</span><br/>`
           })
           return html
-        }
+        },
       },
       radar: {
         indicator: indicators,
         splitArea: {
           areaStyle: {
             color: ['rgba(250,250,250,0.05)', 'rgba(200,200,200,0.02)'],
-          }
+          },
         },
         axisLine: {
           lineStyle: {
-            color: 'rgba(255, 255, 255, 0.2)'
-          }
+            color: 'rgba(255, 255, 255, 0.2)',
+          },
         },
         splitLine: {
           lineStyle: {
-            color: 'rgba(255, 255, 255, 0.2)'
-          }
-        }
+            color: 'rgba(255, 255, 255, 0.2)',
+          },
+        },
       },
       series: [
         {
@@ -110,19 +113,19 @@ export default memo(({ data, tag }: RadarChartProps) => {
               value: values,
               name: 'Latest Test',
               areaStyle: {
-                color: 'rgba(84, 112, 198, 0.4)'
+                color: 'rgba(84, 112, 198, 0.4)',
               },
               lineStyle: {
                 color: '#5470C6',
-                width: 2
+                width: 2,
               },
               itemStyle: {
-                color: '#5470C6'
-              }
-            }
-          ]
-        }
-      ]
+                color: '#5470C6',
+              },
+            },
+          ],
+        },
+      ],
     }
   }, [data, tag])
 

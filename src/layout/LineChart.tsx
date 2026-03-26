@@ -53,10 +53,9 @@ const formatTime = (label: string) => {
 export default memo(({ name, values, rangeStr }: LineChartProps) => {
   // Map null/undefined values to '-' and pair them with labels
   // Preserving missing points prevents misrepresenting data gaps (connectNulls: false by default)
-  const data = values
-    .map((value, index) => {
-      return [formatTime(labels[index]), value !== null && value !== undefined ? value : '-']
-    })
+  const data = values.map((value, index) => {
+    return [formatTime(labels[index]), value !== null && value !== undefined ? value : '-']
+  })
 
   let markArea: any = undefined
 

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { calculateSpearmanRanked, calculatePearson } from '../src/processors/stats'
+import { calculatePearson } from '../src/processors/stats'
 
 test('compare logic edge cases', async () => {
   let x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
