@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test } from '@playwright/test'
 import { calculateSpearmanRanked, rankData } from '../src/processors/stats'
 
 test('benchmark biomarker correlation optimized v4', async () => {

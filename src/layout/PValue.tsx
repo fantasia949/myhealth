@@ -8,7 +8,6 @@ import {
   correlationAlternativeAtom,
   correlationMethodAtom,
 } from '../atom/correlationAtom'
-import { BioMarker } from '../types/biomarker'
 import { calculateSpearmanRanked, calculatePearson } from '../processors/stats'
 import { PValueProps } from './PValue.types'
 

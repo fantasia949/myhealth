@@ -112,14 +112,17 @@ export default memo(({ data, keys }: ChartProps) => {
     if (ref.current) {
       instance = ref.current.getEchartsInstance()
       if (instance) {
-        instance.setOption({
-          yAxis,
-          grid: { top: 40, bottom: 20 },
-          series: keys.map(() => ({
-            type: 'line',
-            connectNulls: false,
-          })),
-        }, { notMerge: true })
+        instance.setOption(
+          {
+            yAxis,
+            grid: { top: 40, bottom: 20 },
+            series: keys.map(() => ({
+              type: 'line',
+              connectNulls: false,
+            })),
+          },
+          { notMerge: true },
+        )
       }
     }
     return () => {

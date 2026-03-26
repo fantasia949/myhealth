@@ -21,7 +21,7 @@ import {
   aiModelAtom,
   rankedDataMapAtom,
 } from '../atom/dataAtom'
-import { calculateSpearman, calculateSpearmanRanked } from '../processors/stats'
+import { calculateSpearmanRanked } from '../processors/stats'
 import { averageCountAtom } from '../atom/averageValueAtom'
 import Markdown from 'react-markdown'
 import { Spinner } from './Spinner'
@@ -89,7 +89,7 @@ export default React.memo<NavProps>(
     const onToggle = () => setShow((v) => !v)
 
     const onAskAI = React.useCallback(
-      async (e: React.MouseEvent<HTMLButtonElement>) => {
+      async () => {
         if (selected.length === 0) {
           return
         }
@@ -120,6 +120,11 @@ export default React.memo<NavProps>(
             // redundant sorting (O(V log V)) inside the O(S * N) loop.
             // This reduces complexity from O(S * N * V log V) to O(S * N * V).
 
+            // ⚡ Bolt Optimization: Hoist options object outside the inner loop to avoid recreating it
+            // on every iteration. This reduces memory allocations and garbage collection overhead.
+            // TODO: should not be hardcoded?
+            const options = { alpha: 0.05, alternative: 'two-sided' } as const
+
             for (const source of selectedEntries) {
               const sourceRanks = rankedDataMap.get(source[0])
               if (!sourceRanks) continue
@@ -130,11 +135,7 @@ export default React.memo<NavProps>(
                 const targetRanks = rankedDataMap.get(target[0])
                 if (!targetRanks) continue
 
-                const res = calculateSpearmanRanked(sourceRanks, targetRanks, {
-                  // TODO: should not be hardcoded?
-                  alpha: 0.05,
-                  alternative: 'two-sided',
-                })
+                const res = calculateSpearmanRanked(sourceRanks, targetRanks, options)
 
                 if (res.pValue <= 0.05 && Math.abs(res.statistic) >= 0.4) {
                   const val = target[1][target[1].length - 1]
@@ -187,14 +188,6 @@ export default React.memo<NavProps>(
       (e: React.ChangeEvent<HTMLSelectElement>) => setAverageCount(e.target.value),
       [],
     )
-
-    const onButtonClick = React.useCallback(
-      (e: React.MouseEvent<HTMLButtonElement>) => {
-        onSelect(e.currentTarget.name)
-      },
-      [onSelect],
-    )
-
     return (
       <>
         <nav
