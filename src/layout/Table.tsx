@@ -115,8 +115,8 @@ const TableRow = React.memo(
     visibleLeafColumnsCount,
     onCellClick,
   }: any) => {
-    const { name, values, visibleValues, visibleOptimality, visibleOriginValues, unit, extra } =
-      entry
+    const { name, values, visibleValues, visibleOptimality, visibleOriginValues, unit, extra } = entry
+    const safeNameId = String(name).replace(/[^a-zA-Z0-9-_]/g, '-')
 
     return (
       <React.Fragment>
@@ -130,8 +130,8 @@ const TableRow = React.memo(
         >
           <td className="p-2 border border-gray-700 text-center">
             <input
+              id={safeNameId}
               type="checkbox"
-              id={`select-${String(rowId).replace(/[^a-zA-Z0-9-_]/g, '-')}`}
               className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
               name={name}
               aria-label={`Select ${name}`}
@@ -181,10 +181,7 @@ const TableRow = React.memo(
             className="p-2 border border-gray-700 whitespace-nowrap sticky-left bg-dark-table-row"
             title={extra.description}
           >
-            <label
-              htmlFor={`select-${String(rowId).replace(/[^a-zA-Z0-9-_]/g, '-')}`}
-              className="cursor-pointer hover:text-blue-400 transition-colors"
-            >
+            <label htmlFor={safeNameId} className="cursor-pointer hover:text-blue-400 block w-full h-full">
               {name}
             </label>
           </th>
