@@ -54,7 +54,7 @@ function gammln(xx: number) {
   for (let j = 0; j <= 5; j++) {
     ser += COF[j] / ++y
   }
-  return -tmp + Math.log((2.5066282746310005 * ser) / x)
+  return -tmp + Math.log((2.5066282746310007 * ser) / x)
 }
 
 function betai(a: number, b: number, x: number) {
