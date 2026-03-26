@@ -125,6 +125,11 @@ const echartsOptions: any = {
   ],
 }
 
+const formatTime = (label: string) => {
+  if (!label || label.length < 6) return label
+  return `20${label.slice(0, 2)}/${label.slice(2, 4)}/${label.slice(4, 6)}`
+}
+
 export default memo(({ data, keys }: ChartProps) => {
   const valueList = [
     { fieldKey: keys[0], fieldName: keys[0], decimalLength: 2 },
@@ -177,8 +182,8 @@ export default memo(({ data, keys }: ChartProps) => {
       }, [])
       .filter((v) => v[1] !== null && v[1] !== undefined && v[2] !== null && v[2] !== undefined)
 
-    const unitX = dataMap.get(keys[0])?.[2] || '';
-    const unitY = dataMap.get(keys[1])?.[2] || '';
+    const unitX = dataMap.get(keys[0])?.[2] || ''
+    const unitY = dataMap.get(keys[1])?.[2] || ''
 
     const mappedScatterData: any[][] = matchedData.map((v) => [v[1], v[2], formatTime(v[0]), unitX, unitY])
 
@@ -230,6 +235,22 @@ export default memo(({ data, keys }: ChartProps) => {
 
     return {
       ...echartsOptions,
+      tooltip: {
+        ...echartsOptions.tooltip,
+        formatter: (params: any) => {
+          if (params.seriesType === 'scatter') {
+            const val1 = params.value[0]
+            const val2 = params.value[1]
+            const dateStr = params.value[2]
+            const u0 = params.value[3] ? ` ${params.value[3]}` : ''
+            const u1 = params.value[4] ? ` ${params.value[4]}` : ''
+            return `<strong>${dateStr}</strong><br/>` +
+                   `${params.marker} ${keys[0]}: <strong>${val1}${u0}</strong><br/>` +
+                   `${params.marker} ${keys[1]}: <strong>${val2}${u1}</strong>`
+          }
+          return `<strong>Regression Trend</strong>`
+        }
+      },
       dataset,
       series: nextSeries,
       dataZoom: [

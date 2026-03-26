@@ -1,92 +1,73 @@
-**Part 1 — Implementation Report**
 
-**The Issue:**
-In `src/layout/Chart.tsx`, the multi-axis line chart lacked a custom tooltip formatter and was passing raw 6-digit `labels[i]` (e.g., "YYMMDD") directly into the X-axis dimension (`d1`). This caused the ECharts default tooltip to show unformatted dates and render `"SeriesName: -"` for any missing data points (nulls mapped to `'-'`), violating the null-suppression UX pattern.
-
-**Discovery Signal:**
-Scan 1 (Null Value Handling) & Scan 2 (Tooltip Quality). Found that the tooltip showed unformatted dates and raw `'-'` for null biomarker values.
-
-**context7 Reference:**
-Confirmed `option.tooltip.formatter` callback parameters for `trigger: 'axis'` and the `dataset` format structure for ECharts 5.6.0.
-
-**The Fix:**
-
-- Added a `formatTime(label)` helper to `src/layout/Chart.tsx`.
-- Updated the `chartData` generation to pass formatted dates `formatTime(labels[i])` into `d1`.
-- Added a custom `tooltip.formatter` to `echartsOptions.option` that intercepts `axis` triggers, unpacks the dataset rows via `p.dimensionNames[p.encode.y[0]]`, and only appends series to the tooltip string if their value `!== '-' && !== null && !== undefined`.
-
-**The Benefit:**
-The X-axis and tooltip now display correctly formatted readable dates (20YY/MM/DD). Tooltips are now completely clean of missing values, ensuring users only see data that was actually measured at a specific time point without distracting empty/null placeholders.
+**Recommended implementation order:** Proposal 1 first (highest insight, lowest effort), then Proposal 2, then Proposal 3.
 
 ---
 
-**Proposal 1 of 3: Tag Group vs Optimal Range Radar**
+**Proposal 1 of 3: Range Deviation VisualMap**
 
-**ECharts type:** `radar`
+**ECharts type:** `visualMap`
 
 **Which existing data it uses:**
-It uses `extra.optimality[]` pre-computed in `src/processors/post/range.ts`, the `extra.tag` field for filtering by a specific group (e.g., `2-Metabolic`), and `extra.range` to format tooltip bounds.
+Uses the boolean array `extra.optimality[]` from `src/processors/post/range.ts` (available inside `dataAtom`'s `BioMarker`) to indicate whether each test value is within the optimal bounds.
 
 **What it reveals that current charts don't:**
-It shows whether all biomarkers in a specific tag group (like all 9 Metabolic markers) are simultaneously within their optimal ranges at a glance. Instead of requiring the user to scan each table row individually and track them over time, this provides a single "shape of health" for a specific subsystem at the latest time point.
+Color-encodes the main line graph in `LineChart.tsx` or `Chart.tsx` (e.g., green when within range, red when out of bounds), revealing exactly when a biomarker drifted into an unhealthy state without requiring the user to cross-reference against shaded `markArea` zones manually.
 
 **Where it would live:**
-A new `src/layout/RadarChart.tsx` component, rendered dynamically below the main ScatterChart when a specific tag filter is active (via `tagAtom` in `App.tsx` or `Nav.tsx`).
+Enhancement to existing `src/layout/LineChart.tsx` (the single biomarker line inside table row expander).
 
 **Trigger / entry point:**
-The existing tag filter buttons in `Nav.tsx` already set `tagAtom`; the radar chart could auto-render when a single valid tag group is selected.
+Triggered automatically whenever a user expands a table row to view a single biomarker's time-series chart.
 
 **Implementation complexity:** Low
-`extra.optimality[]` and `extra.range` are already computed; only a new ECharts `radar` option config mapped from the filtered `visibleDataAtom` is needed.
+(Low: `extra.optimality[]` is already fully pre-computed per value in parallel with the data array; only requires mapping this into a `visualMap.pieces` config option inside the line chart.)
 
-**ECharts 5.6.0 API confirmed via context7:** yes - `radar` and `series-radar` options verified.
+**ECharts 5.6.0 API confirmed via context7:** yes - `visualMap.pieces` and `visualMap.dimension` path checked.
 
 ---
 
-**Proposal 2 of 3: Biomarker Correlation Matrix Heatmap**
+**Proposal 2 of 3: Optimal Proximity Gauge**
 
-**ECharts type:** `heatmap`
+**ECharts type:** `gauge`
 
 **Which existing data it uses:**
-It uses the pre-computed correlations available in the `correlationAtom` (which uses `correlationMethodAtom` for Spearman vs Pearson) and the `rankedDataMapAtom` cache for fast data fetching.
+Uses `extra.range` (parsed into min/max bounds) and the most recent valid value from `biomarkerValues[]` within the active `BioMarker` from `dataAtom`.
 
 **What it reveals that current charts don't:**
-It instantly visualizes the strength and direction of relationships across all tracked biomarkers simultaneously. Currently, users must manually select pairs or read the raw text output in the `BiomarkerCorrelation` table to find strong relationships. A heatmap provides a global view of how all markers influence each other (e.g., how metabolic markers cluster).
+Visually represents how dangerously close the current biomarker value is to the edge of the optimal range. While the table shows absolute numbers, the gauge instantly contextualizes the risk of drifting out-of-bounds.
 
 **Where it would live:**
-A new `src/layout/CorrelationHeatmap.tsx` component, replacing or living alongside the existing `BiomarkerCorrelation.tsx` table when viewing the correlation analysis page.
+New `src/layout/GaugeChart.tsx` component, rendered as a small summary visualization inside the table row expander section next to the `LineChart.tsx`.
 
 **Trigger / entry point:**
-A toggle button in the correlation analysis view to switch between the "Table View" (current) and "Matrix View" (new heatmap).
+Accessible immediately upon expanding any biomarker row in the main `Table.tsx` view.
 
 **Implementation complexity:** Medium
-The math is already done and cached via `correlationAtom`. The challenge is formatting the NxN matrix data correctly for the ECharts `heatmap` series and ensuring the visual map scaling correctly handles [-1, 1] correlation bounds.
+(Medium: requires parsing the string `extra.range` bounds correctly to set the gauge `min` and `max` limits dynamically, and calculating color thresholds for the gauge axis.)
 
-**ECharts 5.6.0 API confirmed via context7:** yes - `series-heatmap` and `visualMap` options verified.
+**ECharts 5.6.0 API confirmed via context7:** yes - `series[type=gauge]` path checked.
 
 ---
 
-**Proposal 3 of 3: Single Biomarker Drift Boxplot**
+**Proposal 3 of 3: Tag Group Outlier Bar Analysis**
 
-**ECharts type:** `boxplot`
+**ECharts type:** `bar` + `markLine`
 
 **Which existing data it uses:**
-It uses the raw values array (`bioMarker[1]`) for a single biomarker across all time points, ignoring nulls.
+Uses the latest values of all biomarkers grouped by the active tag in `tagAtom`, along with their corresponding `extra.range` values to normalize the variance.
 
 **What it reveals that current charts don't:**
-It shows the distribution (min, max, median, quartiles) and outliers of a single biomarker over time. While the LineChart shows the exact path, a boxplot clearly identifies if a marker has high variance (widely spread boxes) or is tightly controlled, and instantly flags historical outlier readings that might represent acute events rather than chronic drift.
+Instantly highlights which specific biomarkers within an entire physiological category (e.g., all 9 Metabolic markers) are the most severely out of optimal range at the time of the latest test, ranking them by standard deviation or absolute offset from normal.
 
 **Where it would live:**
-A new `src/layout/BoxplotChart.tsx`, optionally rendered as a secondary tab inside the expanded row view of `Table.tsx` (next to the current `LineChart.tsx`).
+New `src/layout/DeviationChart.tsx`, rendered conditionally in `App.tsx` or `Nav.tsx` view area when a specific tag filter is active.
 
 **Trigger / entry point:**
-A small toggle inside the expanded table row: "Line Chart" vs "Distribution (Boxplot)".
+Auto-renders when the user clicks a specific tag button (e.g., "3-Liver") in the top navigation area, complementing the existing radar chart.
 
-**Implementation complexity:** Low
-We only need to map the non-null values of the selected biomarker into the standard ECharts boxplot format. We can use the `@echarts-readymade/core` or `echarts-for-react` wrapper.
+**Implementation complexity:** High
+(High: requires a new data transformation step to normalize values from completely different units/ranges onto a single comparable percentage or standard-deviation scale for the bar chart.)
 
-**ECharts 5.6.0 API confirmed via context7:** yes - `series-boxplot` option verified.
-
----
+**ECharts 5.6.0 API confirmed via context7:** yes - `series[type=bar].markLine` path checked.
 
 Recommended implementation order: Proposal 2 first (highest insight, medium effort), then Proposal 1, then Proposal 3.
