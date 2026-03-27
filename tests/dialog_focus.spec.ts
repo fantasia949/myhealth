@@ -12,7 +12,7 @@ test('dialog close buttons should have visible focus styles', async ({ page }) =
   await firstCheckbox.check()
 
   // Click "Correlations" button in Nav
-  await page.getByRole('button', { name: 'View correlations for RBC' }).click()
+  await page.getByRole('button', { name: 'Correlate RBC with supplements' }).click()
 
   // Wait for button (this implies dialog is open)
   const closeCorrelation = page.getByRole('button', { name: 'Close dialog' }).first()

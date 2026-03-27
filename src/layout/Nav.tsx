@@ -204,11 +204,11 @@ export default React.memo<NavProps>(
               className="lg:hidden p-2 text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
               type="button"
               onClick={onToggle}
-              aria-label="Toggle menu"
-              title="Toggle menu"
+              aria-label={show ? "Close menu" : "Open menu"}
+              title={show ? "Close menu" : "Open menu"}
               aria-expanded={show}
             >
-              <Bars3Icon className="h-6 w-6" />
+              {show ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
             </button>
             <div className="w-full min-w-40 lg:w-auto flex-1 lg:flex-none">
               <div className="relative text-gray-400 focus-within:text-gray-200">

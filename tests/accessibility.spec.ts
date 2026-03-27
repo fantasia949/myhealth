@@ -5,21 +5,24 @@ test('chart toggle button is accessible', async ({ page }) => {
 
   // Wait for the table to populate by waiting for the toggle button to be attached
   // We use first() because there are multiple buttons
-  const toggleButton = page.locator('button[title="Expand chart"]').first()
+  const toggleButton = page.locator('button[title^="Expand chart for"]').first()
 
   // Wait for it to be visible. This implicitly waits for the element to appear.
   await expect(toggleButton).toBeVisible({ timeout: 10000 })
 
+  const title = await toggleButton.getAttribute('title')
+  const biomarkerName = title?.replace('Expand chart for ', '') || ''
+
   // Verify it has aria-expanded="false"
   await expect(toggleButton).toHaveAttribute('aria-expanded', 'false')
-  await expect(toggleButton).toHaveAttribute('aria-label', 'Expand chart')
+  await expect(toggleButton).toHaveAttribute('aria-label', `Expand chart for ${biomarkerName}`)
 
   // Click it
   await toggleButton.click()
 
-  // Verify aria-label changes to "Collapse chart"
-  const expandedButton = page.locator('button[title="Collapse chart"]').first()
-  await expect(expandedButton).toHaveAttribute('aria-label', 'Collapse chart')
+  // Verify aria-label changes to "Collapse chart for <name>"
+  const expandedButton = page.locator(`button[title="Collapse chart for ${biomarkerName}"]`).first()
+  await expect(expandedButton).toHaveAttribute('aria-label', `Collapse chart for ${biomarkerName}`)
 
   // Verify aria-expanded changes to "true"
   await expect(expandedButton).toHaveAttribute('aria-expanded', 'true')
@@ -147,14 +150,14 @@ test('supplements popover button has accessible label', async ({ page }) => {
 
   // Find the button with visible text "?"
   // We use filter hasText to find the button element containing "?"
-  const popoverButton = page.locator('button[aria-label="View supplements"]').first()
+  const popoverButton = page.locator('button[aria-label^="View "][aria-label$=" supplement"]').or(page.locator('button[aria-label^="View "][aria-label$=" supplements"]')).first()
 
   // Verify it's visible
   await expect(popoverButton).toBeVisible()
 
   // Verify it has the expected aria-label
-  await expect(popoverButton).toHaveAttribute('aria-label', 'View supplements')
+  await expect(popoverButton).toHaveAttribute('aria-label', /^View \d+ supplements?$/)
 
   // Verify it has the expected title
-  await expect(popoverButton).toHaveAttribute('title', 'View supplements taken on this date')
+  await expect(popoverButton).toHaveAttribute('title', /^View \d+ supplements? taken on this date$/)
 })
