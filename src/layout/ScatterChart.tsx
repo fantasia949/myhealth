@@ -128,5 +128,5 @@ export default memo(({ data, keys }: ScatterChartProps) => {
     },
   }
 
-  return <ReactECharts option={options} style={options.style} />
+  return <ReactECharts option={options} style={options.style} notMerge={true} theme="dark" />
 })
