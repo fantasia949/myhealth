@@ -125,11 +125,6 @@ const echartsOptions: any = {
   ],
 }
 
-const formatTime = (label: string) => {
-  if (!label || label.length < 6) return label
-  return `20${label.slice(0, 2)}/${label.slice(2, 4)}/${label.slice(4, 6)}`
-}
-
 export default memo(({ data, keys }: ChartProps) => {
   const valueList = [
     { fieldKey: keys[0], fieldName: keys[0], decimalLength: 2 },
