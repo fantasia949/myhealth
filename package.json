@@ -22,7 +22,7 @@
     "@stdlib/stats-pcorrtest": "0.2.3",
     "@tanstack/react-table": "^8.21.3",
     "classnames": "2.5.1",
-    "echarts": "5.6.0",
+    "echarts": "6.0.0",
     "echarts-for-react": "^3.0.6",
     "echarts-stat": "^1.2.0",
     "jotai": "^2.18.1",
