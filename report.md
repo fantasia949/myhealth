@@ -1,69 +1,71 @@
 # Implementation Report
 
 **The Issue:**
-In `src/layout/ScatterChart.tsx`, `src/layout/LineChart.tsx`, and `src/layout/Chart2.tsx`, the ECharts wrapper components were missing `theme="dark"` and `notMerge={true}` props, causing them to fall back occasionally to default styling or merge stale line series when selecting/deselecting multiple keys. Additionally, `src/layout/Chart.tsx` failed to include the standard 12-color palette in its multi-series line chart configuration, meaning it deviated from the visual identity.
+In `src/layout/ScatterChart.tsx`, when 4 or more biomarkers were selected (e.g. RBC, Hb, HCT, MCV), the generated Y-axes all defaulted to `position: 'left'` and stacked their labels on top of each other using an `offset: index * 80` that eventually overflowed the chart container. Additionally, the Vietnamese biomarker names were too long and were not truncated, further overlapping with the grid and other axes.
 
 **Discovery Signal:**
-Scan 5 (`setOption` correctness causing stale renders if `notMerge` isn't handled correctly when updating `keys`) and Scan 7 (Visual Consistency checking `theme="dark"` and the 12-color palette across all layout files).
+Scan 3 — Multi-Axis Legibility (ScatterChart): "Y-axes use `offset: index * 80`. For 4+ biomarkers does the rightmost axis overflow the chart container? Are axis names truncating?"
 
 **context7 Reference:**
-`echarts-for-react` component props include `theme` and `notMerge` booleans (ECharts 5.6.0). ECharts `color` array within the `option` object handles multi-series palettes.
+`yAxis.position`, `yAxis.offset`, `yAxis.nameTextStyle.width`, `yAxis.nameTextStyle.overflow`, `grid.left`, and `grid.right` (ECharts 5.6 docs).
 
 **The Fix:**
-I added the `notMerge={true}` and `theme="dark"` props to the `<ReactECharts />` components in `src/layout/ScatterChart.tsx`, `src/layout/LineChart.tsx`, and `src/layout/Chart2.tsx`. I also copied the exact 12-color hex array from `Chart2` into the `echartsOptions.option` configuration inside `src/layout/Chart.tsx`.
+I modified the dynamic Y-axis generation in `src/layout/ScatterChart.tsx` to:
+1. Alternate axis placement by checking `index % 2 === 0 ? 'left' : 'right'`.
+2. Group the offsets for each side using `Math.floor(index / 2) * 80`.
+3. Add `nameTextStyle: { width: 70, overflow: 'truncate' }` to ensure long names don't bleed into other axis lanes.
+4. Dynamically calculate and expand `grid.left` and `grid.right` based on the maximum offset needed by the active axes on each side.
 
 **The Benefit:**
-Changing selected biomarkers in the UI no longer causes "ghost lines" to remain incorrectly rendered due to option merging, and all charts reliably enforce the global dark theme and specific data color codes perfectly.
+Users can now reliably select 4+ biomarkers simultaneously and compare them on the scatter plot. All Y-axes are distinctly readable, evenly distributed across the left and right sides of the chart container, and properly padded so no text overflows off-screen or overlaps with the data grid.
 
 ---
 
 # Visualization Proposals
 
----
+**Proposal 1 of 3: Range Deviation VisualMap**
 
-**Proposal 1 of 3: Correlation Matrix Heatmap**
-
-**ECharts type:** `heatmap`
+**ECharts type:** `visualMap`
 
 **Which existing data it uses:**
-It uses the precomputed pairwise correlation results from `correlationAtom` (which already calculates Pearson/Spearman coefficients) found in `src/atom/correlationAtom.ts`.
+Uses the boolean array `extra.optimality[]` from `src/processors/post/range.ts` (available inside `dataAtom`'s `BioMarker`) to indicate whether each test value is within the optimal bounds.
 
 **What it reveals that current charts don't:**
-Shows a comprehensive 2D grid matrix of all available biomarkers against one another, allowing users to rapidly spot unexpected physiological links (like a dense red spot revealing that strong Lipid-Hormone linkage exists) at a glance without having to select each pair manually on a scatter chart.
+Color-encodes the main line graph in `LineChart.tsx` (e.g., green when within range, red when out of bounds), revealing exactly when a biomarker drifted into an unhealthy state without requiring the user to cross-reference against shaded `markArea` zones manually.
 
 **Where it would live:**
-New `src/layout/CorrelationHeatmap.tsx`, rendered in a "Matrix" tab right beside the existing `BiomarkerCorrelation` table view.
+Enhancement to existing `src/layout/LineChart.tsx` (the single biomarker line inside table row expander).
 
 **Trigger / entry point:**
-A toggle button in the Biomarker Correlation view switches between the tabular list and the 2D Heatmap visual matrix.
+Triggered automatically whenever a user expands a table row to view a single biomarker's time-series chart.
 
-**Implementation complexity:** Medium
-The math is already done in `correlationAtom`. Creating the chart simply requires mapping the `[keyA, keyB, score]` tuples into the `[xIndex, yIndex, value]` format expected by ECharts, and defining a generic `visualMap` from -1 to 1.
+**Implementation complexity:** Low
+`extra.optimality[]` is already fully pre-computed per value in parallel with the data array; only requires mapping this into a `visualMap.pieces` config option inside the line chart.
 
-**ECharts 5.6.0 API confirmed via context7:** yes (`series-heatmap.data`, `visualMap`)
+**ECharts 5.6.0 API confirmed via context7:** yes (checked `visualMap.pieces` and `visualMap.dimension`)
 
 ---
 
-**Proposal 2 of 3: Biomarker Value Distribution**
+**Proposal 2 of 3: Single-Biomarker Boxplot Distribution**
 
-**ECharts type:** `bar` with dataset transform `ecStat:histogram`
+**ECharts type:** `boxplot`
 
 **Which existing data it uses:**
 The raw historical values array (`number[]`) for any single `BioMarker` accessed from `dataAtom` in `src/atom/dataAtom.ts`.
 
 **What it reveals that current charts don't:**
-Reveals the statistical distribution of a single biomarker. Instead of a messy time-series line, it clearly shows if your Glucose historically clusters heavily around one number (normal distribution), or if there are two distinct clusters indicating different physiological states over the years.
+Reveals the statistical distribution of a single biomarker. Instead of a messy time-series line, a boxplot clearly shows the median, quartiles, and outliers of a biomarker over the entire 2008-present timeframe, highlighting long-term structural variance vs normal fluctuations.
 
 **Where it would live:**
-A new `src/layout/HistogramChart.tsx`.
+A new `src/layout/BoxplotChart.tsx`.
 
 **Trigger / entry point:**
-When a user expands a specific biomarker row in the data table, the existing `LineChart` could be accompanied by a small segmented control to toggle between "Time View" (line) and "Distribution View" (histogram).
+When a user expands a specific biomarker row in the data table, the existing `LineChart` could be accompanied by a small segmented control to toggle between "Time View" (line) and "Distribution View" (boxplot).
 
-**Implementation complexity:** Low
-The exact array of numbers is already passed to the LineChart. We just need to load it into a generic ECharts dataset and declare the `transform: { type: 'ecStat:histogram' }` option, requiring almost no custom JS logic.
+**Implementation complexity:** Medium
+The exact array of numbers is already passed to the LineChart. We just need to load it into a generic ECharts dataset and declare the `transform: { type: 'boxplot' }` option (via ECharts built-in data transform), requiring very little custom JS logic.
 
-**ECharts 5.6.0 API confirmed via context7:** yes (`dataset.transform.type = 'ecStat:histogram'`)
+**ECharts 5.6.0 API confirmed via context7:** yes (checked `dataset.transform.type = 'boxplot'`)
 
 ---
 
@@ -72,22 +74,22 @@ The exact array of numbers is already passed to the LineChart. We just need to l
 **ECharts type:** `calendar` + `heatmap`
 
 **Which existing data it uses:**
-The values array (`number[]`) and the time-series labels (`labels[]` strings) mapped to the `BioMarker`.
+The values array (`number[]`) and the time-series labels (`labels[]` strings) mapped to the `BioMarker` in `dataAtom`.
 
 **What it reveals that current charts don't:**
-Highlights seasonal or structural patterns that traditional line charts obscure. For slowly-changing metrics, a calendar view immediately exposes if values tend to spike during the winter holidays, or drop sharply on weekends, mapped directly to actual days of the week and months.
+Highlights seasonal or structural patterns that traditional line charts obscure. For slowly-changing metrics (like Weight, Vitamin D, or Glucose), a calendar view immediately exposes if values tend to spike during the winter holidays or drop sharply in specific months, mapped directly to a year view.
 
 **Where it would live:**
 New `src/layout/CalendarHeatmap.tsx`.
 
 **Trigger / entry point:**
-An additional chart view option selectable from the main dashboard when viewing high-density biomarkers (ones measured frequently enough over the 2008–present window to populate a calendar).
+An additional chart view option selectable from the main dashboard or specific biomarker rows when viewing high-density biomarkers (ones measured frequently enough to populate a calendar).
 
 **Implementation complexity:** Medium
-Requires formatting the existing `YYMMDD` string tags from `labels[]` into proper Date objects/strings compatible with the ECharts `calendar` coordinate system, but no new state atoms are required.
+Requires formatting the existing `YYMMDD` string tags from `labels[]` into proper Date objects/strings compatible with the ECharts `calendar` coordinate system, but no new state atoms or complex data fetching are required.
 
-**ECharts 5.6.0 API confirmed via context7:** yes (`calendar`, `series-heatmap.coordinateSystem = 'calendar'`)
+**ECharts 5.6.0 API confirmed via context7:** yes (checked `calendar`, `series-heatmap.coordinateSystem = 'calendar'`)
 
 ---
 
-> Recommended implementation order: Proposal 1 first (highest insight, lowest effort relative to impact, as it uses the already-expensive math atom), then 2, then 3.
+> Recommended implementation order: Proposal 1 first (highest insight, lowest effort), then 2, then 3.
