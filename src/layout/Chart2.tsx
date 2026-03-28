@@ -10,24 +10,26 @@ interface ChartProps {
   keys: string[]
 }
 
+export const CHART_PALETTE = [
+  '#c23531',
+  '#ADD4EF',
+  '#BFDAA7',
+  '#FCAC65',
+  '#C6C1D2',
+  '#7598E4',
+  '#CF6D6C',
+  '#4979CF',
+  '#E1934B',
+  '#829649',
+  '#7D70AC',
+  '#2559B7',
+]
+
 const echartsOptions: any = {
   style: { height: 400, maxWidth: 800 },
   theme: 'dark',
   backgroundColor: 'transparent',
-  color: [
-    '#c23531',
-    '#ADD4EF',
-    '#BFDAA7',
-    '#FCAC65',
-    '#C6C1D2',
-    '#7598E4',
-    '#CF6D6C',
-    '#4979CF',
-    '#E1934B',
-    '#829649',
-    '#7D70AC',
-    '#2559B7',
-  ],
+  color: CHART_PALETTE,
   colorBy: 'series',
   xAxis: [
     {
@@ -285,7 +287,7 @@ export default memo(({ data, keys }: ChartProps) => {
   return (
     <div>
       <ChartProvider data={scatterData} echartsOptions={options}>
-        <ReactECharts option={options} style={options.style} />
+        <ReactECharts option={options} style={options.style} notMerge={true} theme="dark" />
         <Scatter
           ref={scatterRef}
           context={ChartContext}

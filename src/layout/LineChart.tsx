@@ -114,5 +114,5 @@ export default memo(({ name, values, rangeStr }: LineChartProps) => {
     ],
   }
 
-  return <ReactECharts option={options} style={echartsOptions.style} />
+  return <ReactECharts option={options} style={echartsOptions.style} notMerge={true} theme="dark" />
 })

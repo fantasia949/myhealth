@@ -3,6 +3,7 @@ import { ChartProvider, ChartContext } from '@echarts-readymade/core'
 import { Line } from '@echarts-readymade/line'
 import { labels } from '../data'
 import { BioMarker } from '../types/biomarker'
+import { CHART_PALETTE } from './Chart2'
 
 interface ChartProps {
   data: BioMarker[]
@@ -20,6 +21,7 @@ const echartsOptions: any = {
   style: { height: 400 },
   theme: 'dark',
   option: {
+    color: CHART_PALETTE,
     grid: { top: 40, bottom: 20 },
     backgroundColor: 'transparent',
     tooltip: {
