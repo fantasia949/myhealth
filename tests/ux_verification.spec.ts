@@ -8,7 +8,7 @@ test('table has accessible chart toggle buttons', async ({ page }) => {
   await page.waitForTimeout(2000)
 
   // Look for ANY chart toggle button using title which is stable
-  const toggleButton = page.locator('button[title="Expand chart"]').first()
+  const toggleButton = page.locator('button[title^="Expand chart"]').first()
 
   // Check if it's visible
   await expect(toggleButton).toBeVisible()
@@ -16,18 +16,18 @@ test('table has accessible chart toggle buttons', async ({ page }) => {
   // Check ARIA attributes (initial state)
   // It should be expanded false initially
   await expect(toggleButton).toHaveAttribute('aria-expanded', 'false')
-  await expect(toggleButton).toHaveAttribute('aria-label', 'Expand chart')
+  await expect(toggleButton).toHaveAttribute('aria-label', /^Expand chart for /)
 
   // Test interaction
   await toggleButton.click()
 
-  const expandedButton = page.locator('button[title="Collapse chart"]').first()
+  const expandedButton = page.locator('button[title^="Collapse chart"]').first()
 
   // After click, it should be expanded true and label should change
   await expect(expandedButton).toBeVisible()
   await expect(expandedButton).toHaveAttribute('aria-expanded', 'true')
-  await expect(expandedButton).toHaveAttribute('aria-label', 'Collapse chart')
-  await expect(expandedButton).toHaveAttribute('title', 'Collapse chart')
+  await expect(expandedButton).toHaveAttribute('aria-label', /^Collapse chart for /)
+  await expect(expandedButton).toHaveAttribute('title', /^Collapse chart for /)
 })
 
 test('data cells show copied feedback on click', async ({ context, page }) => {
