@@ -55,19 +55,29 @@ const echartsOptions = {
 }
 
 export default memo(({ data, keys }: ScatterChartProps) => {
-  const yAxes = keys.map((key, index) => ({
-    type: 'value',
-    name: key,
-    position: 'left',
-    offset: index * 80,
-    axisLine: {
-      show: true,
-    },
-    axisLabel: {
-      formatter: '{value}',
-    },
-    min: 'dataMin',
-  }))
+  const yAxes = keys.map((key, index) => {
+    const isEven = index % 2 === 0
+    const sideOffset = Math.floor(index / 2) * 80
+
+    return {
+      type: 'value',
+      name: key,
+      position: isEven ? 'left' : 'right',
+      offset: sideOffset,
+      nameTextStyle: {
+        width: 70,
+        overflow: 'truncate',
+        ellipsis: '...',
+      },
+      axisLine: {
+        show: true,
+      },
+      axisLabel: {
+        formatter: '{value}',
+      },
+      min: 'dataMin',
+    }
+  })
 
   const formatTime = (label: string) => {
     return `20${label.slice(0, 2)}/${label.slice(2, 4)}/${label.slice(4, 6)}`
@@ -123,8 +133,8 @@ export default memo(({ data, keys }: ScatterChartProps) => {
       data: keys,
     },
     grid: {
-      left: keys.length * 80,
-      right: 40,
+      left: Math.ceil(keys.length / 2) * 80,
+      right: Math.max(Math.floor(keys.length / 2) * 80, 40),
     },
   }
 
