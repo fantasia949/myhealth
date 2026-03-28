@@ -122,7 +122,7 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
       // Optimization: Point-biserial correlation is mathematically equivalent to Pearson
       // correlation on the ranked continuous variable against the unranked binary indicator variable.
       // This bypasses the ranking overhead for the binary vectors completely.
-      const result: any = calculatePearson(rankedBiomarker, filteredSuppVector, options)
+      const result = calculatePearson(rankedBiomarker, filteredSuppVector, options)
 
       const rho = result.pcorr
       const pVal = result.pValue
