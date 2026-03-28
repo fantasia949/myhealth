@@ -9,7 +9,7 @@ test('verify supplements popover functionality', async ({ page }) => {
   // Locate the first supplements popover button (beaker icon) in the footer
   // It's in the tfoot > tr > th > button
   // We can select by aria-label "View supplements"
-  const popoverButton = page.locator('button[aria-label="View supplements"]').first()
+  const popoverButton = page.locator('button[aria-label^="View "]').first()
 
   await expect(popoverButton).toBeVisible()
 

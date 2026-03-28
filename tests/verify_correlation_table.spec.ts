@@ -16,7 +16,7 @@ test('Correlation results are rendered in a semantic table', async ({ page }) =>
   await firstCheckbox.check()
 
   // Click "Correlation" button in the table row.
-  const correlationButton = page.getByRole('button', { name: 'View correlations for RBC' })
+  const correlationButton = page.getByRole('button', { name: 'Correlate RBC with supplements' })
   await expect(correlationButton).toBeVisible()
   await correlationButton.click()
 

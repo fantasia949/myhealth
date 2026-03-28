@@ -9,7 +9,7 @@ test('Verify Pearson correlation functionality and performance', async ({ page }
   await expect(rowLocator).toBeVisible({ timeout: 15000 })
 
   // 3. Click "Correlation Analysis" on the first row
-  const correlationButton = rowLocator.locator('button[aria-label="Correlation Analysis"]')
+  const correlationButton = rowLocator.locator('button[title^="Correlate "][title$=" other biomarkers"]')
   await expect(correlationButton).toBeVisible()
   await correlationButton.click()
 

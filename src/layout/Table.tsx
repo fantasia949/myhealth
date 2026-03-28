@@ -145,9 +145,9 @@ const TableRow = React.memo(
               <button
                 type="button"
                 onClick={() => toggleExpand(rowId)}
-                title={isExpanded ? 'Collapse chart' : 'Expand chart'}
+                title={isExpanded ? `Collapse chart for ${name}` : `Expand chart for ${name}`}
                 className="hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
-                aria-label={isExpanded ? 'Collapse chart' : 'Expand chart'}
+                aria-label={isExpanded ? `Collapse chart for ${name}` : `Expand chart for ${name}`}
                 aria-expanded={isExpanded}
               >
                 {isExpanded ? (
@@ -159,18 +159,18 @@ const TableRow = React.memo(
               <button
                 type="button"
                 onClick={() => onCorrelation(name)}
-                title="Correlation Analysis"
+                title={`Correlate ${name} with other biomarkers`}
                 className="hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
-                aria-label="Correlation Analysis"
+                aria-label={`Correlate ${name} with other biomarkers`}
               >
                 <ArrowsRightLeftIcon className="h-5 w-5" />
               </button>
               <button
                 type="button"
                 onClick={() => setCorrelationBiomarker(name)}
-                title="View Correlations"
+                title={`Correlate ${name} with supplements`}
                 className="hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
-                aria-label={`View correlations for ${name}`}
+                aria-label={`Correlate ${name} with supplements`}
               >
                 <CalculatorIcon className="h-5 w-5" />
               </button>
