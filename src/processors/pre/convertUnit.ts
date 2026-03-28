@@ -98,14 +98,40 @@ const valueMapper = (
 }
 
 export default ([name, values, unit, extra]: Entry): Entry => {
-  const mappedResult = values.map((value) => valueMapper(value, unit, name))
-  const newValues = mappedResult.map((entry) => entry[0] as string)
-  const newUnit = mappedResult.map((entry) => entry[1]).filter(Boolean)[0] || unit
+  // Optimization: Consolidate multiple O(N) array iterations (.map, .filter, .some)
+  // into a single-pass O(N) loop with pre-allocated arrays.
+  // This significantly reduces closure creation and garbage collection overhead in the data pipeline.
+  const len = values.length
+  const newValues = new Array(len)
+  const originValues = new Array(len)
+
+  let newUnit = ''
+  let originUnit = ''
+  let hasOrigin = false
+
+  for (let i = 0; i < len; i++) {
+    const [resVal, resUnit, origVal, origUnit] = valueMapper(values[i], unit, name)
+
+    newValues[i] = resVal as string
+    originValues[i] = origVal ?? null
+
+    if (resUnit && !newUnit) {
+      newUnit = resUnit
+    }
+
+    if (origVal !== undefined) {
+      hasOrigin = true
+    }
+
+    if (origUnit && !originUnit) {
+      originUnit = origUnit
+    }
+  }
 
   const newExtra = extra || {}
-  newExtra.hasOrigin = mappedResult.some((entry) => entry[2] !== undefined)
-  newExtra.originValues = mappedResult.map((entry) => entry[2] ?? null)
-  newExtra.originUnit = mappedResult.map((entry) => entry[3]).filter(Boolean)[0]
+  newExtra.hasOrigin = hasOrigin
+  newExtra.originValues = originValues
+  newExtra.originUnit = originUnit || undefined
 
-  return [name, newValues, newUnit, newExtra]
+  return [name, newValues, newUnit || unit, newExtra]
 }

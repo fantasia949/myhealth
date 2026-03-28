@@ -13,3 +13,7 @@
 ## 2025-03-04 - Eliminate garbage collection overhead by hoisting invariants
 **Learning:** React component memoization (`useMemo`) is often not enough for heavy statistical operations (like P-value / Correlation mapping across datasets). Object literals inside hot loops (e.g., passing `{ alpha: 0.05 }` to a statistical test) or repeatedly allocating math coefficients inside pure functions will flood the engine with short-lived objects. This triggers garbage collection spikes that block the main thread.
 **Action:** Always hoist configuration objects (`options`) to the top of loops/closures or to module scope. For mathematical function constants, extract them directly to module-scoped `const` arrays instead of allocating them dynamically within the function call.
+
+## 2025-03-28 - Optimizing `Array.map().filter().some()` chains
+**Learning:** Chained array methods like `.map().filter(Boolean)[0]` or `.some()` inside the data processing pipeline (`convertUnit.ts`) create unnecessary O(N*M) iterations and repeated memory allocations, triggering garbage collection delays on hot paths.
+**Action:** Replace chained array methods with a single-pass `for` loop, allocating the output array directly (`new Array(len)`) and updating flags concurrently.
