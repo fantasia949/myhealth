@@ -5,19 +5,19 @@ type RawEntry = {
   notes?: Array<string>
 }
 
-type RawSubEntry = [name: string, value: string, unit: string, extra?: Record<string, any>]
+type RawSubEntry = [name: string, value: string, unit: string, extra?: Record<string, unknown>]
 
 type Entry = [
   name: string,
   values: Array<string>,
   unit: string,
-  extra?: Record<string, any> & {
+  extra?: Record<string, unknown> & {
     hasOrigin?: boolean
-    range?: unknown
-    originValues?: Array<unknown>
+    range?: string
+    originValues?: Array<string | number | null>
     trend?: number
     originUnit?: string
-    isNotOptimal?: (val?: any) => boolean
+    isNotOptimal?: (val: number) => boolean
     description?: string
     getSamples?(testsPerSample: number): Array<string>
     optimality?: boolean[]
