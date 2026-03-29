@@ -51,5 +51,5 @@ test('Copy AI response to clipboard', async ({ page }) => {
   await copyButton.click()
 
   // Check feedback
-  await expect(copyButton).toHaveText(/Copied!/)
+  await expect(page.getByRole('button', { name: 'Copied!' })).toBeVisible()
 })

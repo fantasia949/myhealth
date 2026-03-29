@@ -88,89 +88,86 @@ export default React.memo<NavProps>(
 
     const onToggle = () => setShow((v) => !v)
 
-    const onAskAI = React.useCallback(
-      async () => {
-        if (selected.length === 0) {
-          return
-        }
-        setIsAsking(true)
+    const onAskAI = React.useCallback(async () => {
+      if (selected.length === 0) {
+        return
+      }
+      setIsAsking(true)
 
-        try {
-          // Optimization: Use a Set for O(1) lookups instead of O(N) array.includes inside multiple filter loops.
-          // This reduces overall filtering complexity from O(M * N * 4) to O(M + N * 4).
-          const selectedSet = new Set(selected)
+      try {
+        // Optimization: Use a Set for O(1) lookups instead of O(N) array.includes inside multiple filter loops.
+        // This reduces overall filtering complexity from O(M * N * 4) to O(M + N * 4).
+        const selectedSet = new Set(selected)
 
-          const pairs = data
-            .filter(([key]) => selectedSet.has(key))
-            .map(([key, values, unit]) => `${key} ${values[values.length - 1]} ${unit || ''}`)
-          const prevPairs = data
-            .filter(([key]) => selectedSet.has(key))
-            .map(([key, values, unit]) =>
-              values.length > 1 ? `${key} ${values[values.length - 2]} ${unit || ''}` : undefined,
-            )
-            .filter((item): item is string => !!item)
-          const relatedContext = (() => {
-            if (!fullData || fullData.length === 0) return undefined
+        const pairs = data
+          .filter(([key]) => selectedSet.has(key))
+          .map(([key, values, unit]) => `${key} ${values[values.length - 1]} ${unit || ''}`)
+        const prevPairs = data
+          .filter(([key]) => selectedSet.has(key))
+          .map(([key, values, unit]) =>
+            values.length > 1 ? `${key} ${values[values.length - 2]} ${unit || ''}` : undefined,
+          )
+          .filter((item): item is string => !!item)
+        const relatedContext = (() => {
+          if (!fullData || fullData.length === 0) return undefined
 
-            const selectedEntries = fullData.filter((d) => selectedSet.has(d[0]))
-            const candidates = fullData.filter((d) => !d[3].inferred && !selectedSet.has(d[0]))
-            const related = new Map<string, string>()
+          const selectedEntries = fullData.filter((d) => selectedSet.has(d[0]))
+          const candidates = fullData.filter((d) => !d[3].inferred && !selectedSet.has(d[0]))
+          const related = new Map<string, string>()
 
-            // Optimization: Use pre-calculated ranks for all sources and candidates to avoid
-            // redundant sorting (O(V log V)) inside the O(S * N) loop.
-            // This reduces complexity from O(S * N * V log V) to O(S * N * V).
+          // Optimization: Use pre-calculated ranks for all sources and candidates to avoid
+          // redundant sorting (O(V log V)) inside the O(S * N) loop.
+          // This reduces complexity from O(S * N * V log V) to O(S * N * V).
 
-            // ⚡ Bolt Optimization: Hoist options object outside the inner loop to avoid recreating it
-            // on every iteration. This reduces memory allocations and garbage collection overhead.
-            // TODO: should not be hardcoded?
-            const options = { alpha: 0.05, alternative: 'two-sided' } as const
+          // ⚡ Bolt Optimization: Hoist options object outside the inner loop to avoid recreating it
+          // on every iteration. This reduces memory allocations and garbage collection overhead.
+          // TODO: should not be hardcoded?
+          const options = { alpha: 0.05, alternative: 'two-sided' } as const
 
-            for (const source of selectedEntries) {
-              const sourceRanks = rankedDataMap.get(source[0])
-              if (!sourceRanks) continue
+          for (const source of selectedEntries) {
+            const sourceRanks = rankedDataMap.get(source[0])
+            if (!sourceRanks) continue
 
-              for (const target of candidates) {
-                if (related.has(target[0])) continue
+            for (const target of candidates) {
+              if (related.has(target[0])) continue
 
-                const targetRanks = rankedDataMap.get(target[0])
-                if (!targetRanks) continue
+              const targetRanks = rankedDataMap.get(target[0])
+              if (!targetRanks) continue
 
-                const res = calculateSpearmanRanked(sourceRanks, targetRanks, options)
+              const res = calculateSpearmanRanked(sourceRanks, targetRanks, options)
 
-                if (res.pValue <= 0.05 && Math.abs(res.statistic) >= 0.4) {
-                  const val = target[1][target[1].length - 1]
-                  if (!val) {
-                    console.log('the test does not include this marker, so skip it', target[0])
-                    continue
-                  }
-                  const unit = target[2] || ''
-                  related.set(
-                    target[0],
-                    `- ${target[0]}: ${val} ${unit} (Correlation: ${res.statistic.toFixed(
-                      2,
-                    )}, P-Value: ${res.pValue.toFixed(4)})`,
-                  )
+              if (res.pValue <= 0.05 && Math.abs(res.statistic) >= 0.4) {
+                const val = target[1][target[1].length - 1]
+                if (!val) {
+                  console.log('the test does not include this marker, so skip it', target[0])
+                  continue
                 }
+                const unit = target[2] || ''
+                related.set(
+                  target[0],
+                  `- ${target[0]}: ${val} ${unit} (Correlation: ${res.statistic.toFixed(
+                    2,
+                  )}, P-Value: ${res.pValue.toFixed(4)})`,
+                )
               }
             }
-            if (related.size === 0) return undefined
-            return (
-              'Related Biomarkers (Significant Correlations):\n' +
-              Array.from(related.values()).join('\n')
-            )
-          })()
+          }
+          if (related.size === 0) return undefined
+          return (
+            'Related Biomarkers (Significant Correlations):\n' +
+            Array.from(related.values()).join('\n')
+          )
+        })()
 
-          const text = await askBioMarkers(pairs, key, model, filterTag, prevPairs, relatedContext)
-          setCanvasText(text)
-        } catch (err) {
-          console.error(err)
-          alert(err)
-        } finally {
-          setIsAsking(false)
-        }
-      },
-      [selected, data, filterTag, key, model, fullData],
-    )
+        const text = await askBioMarkers(pairs, key, model, filterTag, prevPairs, relatedContext)
+        setCanvasText(text)
+      } catch (err) {
+        console.error(err)
+        alert(err)
+      } finally {
+        setIsAsking(false)
+      }
+    }, [selected, data, filterTag, key, model, fullData])
 
     const [canvasText, setCanvasText] = React.useState<string | null>(null)
     const [gistUrl, setGistUrl] = React.useState<string | null>(null)
@@ -204,8 +201,8 @@ export default React.memo<NavProps>(
               className="lg:hidden p-2 text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
               type="button"
               onClick={onToggle}
-              aria-label={show ? "Close menu" : "Open menu"}
-              title={show ? "Close menu" : "Open menu"}
+              aria-label={show ? 'Close menu' : 'Open menu'}
+              title={show ? 'Close menu' : 'Open menu'}
               aria-expanded={show}
             >
               {show ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
@@ -489,7 +486,6 @@ export default React.memo<NavProps>(
                             ? 'border-green-600 text-green-400 bg-green-900/20'
                             : 'border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white'
                         }`}
-                        aria-label="Copy analysis to clipboard"
                         title="Copy analysis to clipboard"
                       >
                         {isCopied ? (
@@ -507,7 +503,6 @@ export default React.memo<NavProps>(
                         className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                         disabled={isGistLoading}
                         aria-busy={isGistLoading}
-                        aria-label="Save analysis to Gist"
                         title="Save analysis to Gist"
                         onClick={async () => {
                           setIsGistLoading(true)

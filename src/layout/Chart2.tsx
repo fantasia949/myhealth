@@ -63,13 +63,13 @@ const echartsOptions: any = {
       // Return custom formatted string for scatter data points
       if (params.seriesType === 'scatter' && params.value && params.value.length >= 3) {
         // value[0] is X, value[1] is Y, value[2] is Date string, value[3] is Unit 1, value[4] is Unit 2
-        const [x, y, date, unitX, unitY] = params.value;
-        const dispX = unitX ? `${x} ${unitX}` : x;
-        const dispY = unitY ? `${y} ${unitY}` : y;
-        return `${date}<br/><strong>${params.dimensionNames[0]}:</strong> ${dispX}<br/><strong>${params.dimensionNames[1]}:</strong> ${dispY}`;
+        const [x, y, date, unitX, unitY] = params.value
+        const dispX = unitX ? `${x} ${unitX}` : x
+        const dispY = unitY ? `${y} ${unitY}` : y
+        return `${date}<br/><strong>${params.dimensionNames[0]}:</strong> ${dispX}<br/><strong>${params.dimensionNames[1]}:</strong> ${dispY}`
       }
-      return params.name || params.seriesName || '';
-    }
+      return params.name || params.seriesName || ''
+    },
   },
   grid: {
     top: 40,
@@ -182,7 +182,13 @@ export default memo(({ data, keys }: ChartProps) => {
     const unitX = dataMap.get(keys[0])?.[2] || ''
     const unitY = dataMap.get(keys[1])?.[2] || ''
 
-    const mappedScatterData: any[][] = matchedData.map((v) => [v[1], v[2], formatTime(v[0]), unitX, unitY])
+    const mappedScatterData: any[][] = matchedData.map((v) => [
+      v[1],
+      v[2],
+      formatTime(v[0]),
+      unitX,
+      unitY,
+    ])
 
     const scatterData: Record<string, any>[] = matchedData.map((v) => ({
       [keys[0]]: v[1],
@@ -219,15 +225,19 @@ export default memo(({ data, keys }: ChartProps) => {
     const nextSeries = [
       series[0],
       // Only include the regression series if dataset contains it
-      ...(mappedScatterData.length >= 2 ? [{
-        ...series[1],
-        datasetIndex: 1,
-        tooltip: {
-          formatter: (_params: any) => {
-            return `<strong>Regression Trend</strong>`
-          }
-        }
-      }] : [])
+      ...(mappedScatterData.length >= 2
+        ? [
+            {
+              ...series[1],
+              datasetIndex: 1,
+              tooltip: {
+                formatter: (_params: any) => {
+                  return `<strong>Regression Trend</strong>`
+                },
+              },
+            },
+          ]
+        : []),
     ]
 
     return {
@@ -241,25 +251,39 @@ export default memo(({ data, keys }: ChartProps) => {
             const dateStr = params.value[2]
             const u0 = params.value[3] ? ` ${params.value[3]}` : ''
             const u1 = params.value[4] ? ` ${params.value[4]}` : ''
-            return `<strong>${dateStr}</strong><br/>` +
-                   `${params.marker} ${keys[0]}: <strong>${val1}${u0}</strong><br/>` +
-                   `${params.marker} ${keys[1]}: <strong>${val2}${u1}</strong>`
+            return (
+              `<strong>${dateStr}</strong><br/>` +
+              `${params.marker} ${keys[0]}: <strong>${val1}${u0}</strong><br/>` +
+              `${params.marker} ${keys[1]}: <strong>${val2}${u1}</strong>`
+            )
           }
           return `<strong>Regression Trend</strong>`
-        }
+        },
       },
       dataset,
       series: nextSeries,
       dataZoom: [
         {
           ...(echartsOptions.dataZoom as any[])[0],
-          startValue: mappedScatterData.length > 0 ? Math.min(...mappedScatterData.map((item) => item[0])) : 0,
-          endValue: mappedScatterData.length > 0 ? Math.max(...mappedScatterData.map((item) => item[0])) : 100,
+          startValue:
+            mappedScatterData.length > 0
+              ? Math.min(...mappedScatterData.map((item) => item[0]))
+              : 0,
+          endValue:
+            mappedScatterData.length > 0
+              ? Math.max(...mappedScatterData.map((item) => item[0]))
+              : 100,
         },
         {
           ...(echartsOptions.dataZoom as any[])[1],
-          startValue: mappedScatterData.length > 0 ? Math.min(...mappedScatterData.map((item) => item[1])) : 0,
-          endValue: mappedScatterData.length > 0 ? Math.max(...mappedScatterData.map((item) => item[1])) : 100,
+          startValue:
+            mappedScatterData.length > 0
+              ? Math.min(...mappedScatterData.map((item) => item[1]))
+              : 0,
+          endValue:
+            mappedScatterData.length > 0
+              ? Math.max(...mappedScatterData.map((item) => item[1]))
+              : 100,
         },
       ],
     }

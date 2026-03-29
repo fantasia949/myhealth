@@ -92,6 +92,13 @@
 
 **Learning:** Found that `<select>` elements and secondary action buttons (like "Copy Analysis" or "Save to Gist") in modals often lose their default browser focus rings when styled with Tailwind (e.g., using `outline-none` or custom borders). This renders them completely inaccessible to keyboard users navigating via Tab.
 **Action:** Always ensure that custom-styled form inputs and interactive elements explicitly include `focus-visible:ring-2 focus-visible:ring-blue-500` to restore clear keyboard focus indicators without adding unintended visual outlines for mouse clicks.
+
 ## 2025-05-24 - Enhance clarity and accessibility of repeating table buttons
+
 **Learning:** Repeating icon-only buttons in table rows (like 'Expand chart' or 'Correlation Analysis') create a highly ambiguous experience for screen reader users and those reliant on tooltips, as they lack row-specific context.
 **Action:** When rendering lists or tables with repeated action buttons, inject dynamic row-specific context into the `aria-label` and `title` attributes (e.g., `aria-label="Expand chart for ${itemName}"`) to eliminate ambiguity and provide clearer tooltips. Update corresponding Playwright tests using CSS prefix/suffix selectors (e.g., `locator('button[title^="Expand chart for"]')`) to ensure robust validation.
+
+## 2026-12-11 - Static ARIA Labels Hiding Dynamic Text States
+
+**Learning:** Static `aria-label`s on buttons with dynamic text content (like "Copy" changing to "Copied!", or "Save" changing to "Saving...") completely hide the state change from screen readers. This is because the `aria-label` attribute takes precedence in the accessible name calculation, overriding any visible text changes.
+**Action:** Remove redundant `aria-label`s from buttons that have clear visible text, allowing the screen reader to announce the actual text content and any dynamic changes to it naturally.

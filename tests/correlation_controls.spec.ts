@@ -12,7 +12,9 @@ test('Correlation controls appear and are functional', async ({ page }) => {
   await expect(rowLocator).toBeVisible({ timeout: 10000 })
 
   // Locate the new button in the first row
-  const correlationButton = rowLocator.locator('button[title^="Correlate "][title$=" other biomarkers"]')
+  const correlationButton = rowLocator.locator(
+    'button[title^="Correlate "][title$=" other biomarkers"]',
+  )
   await expect(correlationButton).toBeVisible()
 
   // Click it

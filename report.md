@@ -11,6 +11,7 @@ Scan 3 — Multi-Axis Legibility (ScatterChart): "Y-axes use `offset: index * 80
 
 **The Fix:**
 I modified the dynamic Y-axis generation in `src/layout/ScatterChart.tsx` to:
+
 1. Alternate axis placement by checking `index % 2 === 0 ? 'left' : 'right'`.
 2. Group the offsets for each side using `Math.floor(index / 2) * 80`.
 3. Add `nameTextStyle: { width: 70, overflow: 'truncate' }` to ensure long names don't bleed into other axis lanes.

@@ -1,6 +1,5 @@
 import pcorrtest from '@stdlib/stats-pcorrtest'
 
-
 // ... existing code ...
 
 export function pcorrtest_manual(
@@ -8,7 +7,6 @@ export function pcorrtest_manual(
   y: number[],
   options?: { alpha?: number; alternative?: 'two-sided' | 'less' | 'greater' },
 ) {
-
   // We can calculate the t-statistic threshold corresponding to alpha.
   // Instead of evaluating the CDF to get the exact p-value for every calculation,
   // we can use pcorrtest only when the correlation exceeds the critical t-value,
