@@ -13,3 +13,7 @@
 ## 2025-03-04 - Eliminate garbage collection overhead by hoisting invariants
 **Learning:** React component memoization (`useMemo`) is often not enough for heavy statistical operations (like P-value / Correlation mapping across datasets). Object literals inside hot loops (e.g., passing `{ alpha: 0.05 }` to a statistical test) or repeatedly allocating math coefficients inside pure functions will flood the engine with short-lived objects. This triggers garbage collection spikes that block the main thread.
 **Action:** Always hoist configuration objects (`options`) to the top of loops/closures or to module scope. For mathematical function constants, extract them directly to module-scoped `const` arrays instead of allocating them dynamically within the function call.
+
+## 2025-07-28 - ECharts data transformation: Replace chained Array methods with single-pass loops
+**Learning:** Extracting multiple series from a multi-dimensional array for chart rendering (like mapping keys to entries, reducing to pairs, and filtering out nulls) via chained `.map().reduce().filter()` creates severe object allocation and closure overhead on every re-render (e.g. `useMemo` in ReactECharts components like Scatter charts).
+**Action:** Replace `Array.map().reduce().filter()` combinations with a traditional `for` loop that iterates over a fixed length (like the data labels length) and performs all extraction, matching, and null-checking in a single pass before pushing only the valid points into a final array.
