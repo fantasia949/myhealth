@@ -161,23 +161,24 @@ export default memo(({ data, keys }: ChartProps) => {
       dataMap.set(data[i][0], data[i])
     }
 
-    const matchedData = keys
-      .map((key) => {
-        return dataMap.get(key)
-      })
-      .reduce((result: any[][], entry) => {
-        if (entry) {
-          const [, values] = entry
-          values.forEach((v: number | null, i: number) => {
-            if (!result[i]) {
-              result[i] = [labels[i]]
-            }
-            result[i].push(v)
-          })
+    // Optimization: Replace O(K*N) chained .map(), .reduce(), and .filter() array allocations
+    // with a single-pass O(N) loop to eliminate closure creation and garbage collection overhead.
+    const matchedData: any[][] = []
+    const entry0 = dataMap.get(keys[0])
+    const entry1 = dataMap.get(keys[1])
+
+    if (entry0 && entry1) {
+      const values0 = entry0[1]
+      const values1 = entry1[1]
+      const len = labels.length
+      for (let i = 0; i < len; i++) {
+        const v0 = values0[i]
+        const v1 = values1[i]
+        if (v0 !== null && v0 !== undefined && v1 !== null && v1 !== undefined) {
+          matchedData.push([labels[i], v0, v1])
         }
-        return result
-      }, [])
-      .filter((v) => v[1] !== null && v[1] !== undefined && v[2] !== null && v[2] !== undefined)
+      }
+    }
 
     const unitX = dataMap.get(keys[0])?.[2] || ''
     const unitY = dataMap.get(keys[1])?.[2] || ''
