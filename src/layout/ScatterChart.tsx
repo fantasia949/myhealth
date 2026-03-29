@@ -2,6 +2,7 @@ import { memo, useMemo } from 'react'
 import ReactECharts from 'echarts-for-react'
 import { BioMarker } from '../types/biomarker'
 import { labels } from '../data'
+import { CHART_PALETTE } from './Chart2'
 
 interface ScatterChartProps {
   data: BioMarker[]
@@ -12,20 +13,7 @@ const echartsOptions = {
   style: { height: 400 },
   theme: 'dark',
   backgroundColor: 'transparent',
-  color: [
-    '#c23531',
-    '#ADD4EF',
-    '#BFDAA7',
-    '#FCAC65',
-    '#C6C1D2',
-    '#7598E4',
-    '#CF6D6C',
-    '#4979CF',
-    '#E1934B',
-    '#829649',
-    '#7D70AC',
-    '#2559B7',
-  ],
+  color: CHART_PALETTE,
   xAxis: {
     type: 'time',
   },
@@ -40,9 +28,9 @@ const echartsOptions = {
     },
     formatter: (params: any) => {
       const date = params.value[0]
-      const value = params.value[1]
+      const value = params.value[1] !== null && params.value[1] !== undefined ? params.value[1] : '-'
       const unit = params.value[2] ? ` ${params.value[2]}` : ''
-      return `${params.seriesName}<br/>${date}<br/><strong>${value}${unit}</strong>`
+      return `${params.marker} ${params.seriesName}<br/>${date}<br/><strong>${value}${unit}</strong>`
     },
   },
   legend: {
