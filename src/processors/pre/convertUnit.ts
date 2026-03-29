@@ -111,7 +111,11 @@ export default ([name, values, unit, extra]: Entry): Entry => {
   let hasOrigin = false
 
   for (let i = 0; i < len; i++) {
-    const [mappedVal, mappedUnit, mappedOriginVal, mappedOriginUnit] = valueMapper(values[i], unit, name)
+    const [mappedVal, mappedUnit, mappedOriginVal, mappedOriginUnit] = valueMapper(
+      values[i],
+      unit,
+      name,
+    )
     newValues[i] = mappedVal as string
 
     if (newUnit === undefined && mappedUnit) {

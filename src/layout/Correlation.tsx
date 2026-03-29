@@ -179,7 +179,6 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                                   ? 'border-green-600 text-green-400 bg-green-900/20'
                                   : 'border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white'
                               }`}
-                              aria-label="Copy analysis to clipboard"
                               title="Copy analysis to clipboard"
                             >
                               {isCopied ? (

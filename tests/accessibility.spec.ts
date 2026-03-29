@@ -150,7 +150,10 @@ test('supplements popover button has accessible label', async ({ page }) => {
 
   // Find the button with visible text "?"
   // We use filter hasText to find the button element containing "?"
-  const popoverButton = page.locator('button[aria-label^="View "][aria-label$=" supplement"]').or(page.locator('button[aria-label^="View "][aria-label$=" supplements"]')).first()
+  const popoverButton = page
+    .locator('button[aria-label^="View "][aria-label$=" supplement"]')
+    .or(page.locator('button[aria-label^="View "][aria-label$=" supplements"]'))
+    .first()
 
   // Verify it's visible
   await expect(popoverButton).toBeVisible()

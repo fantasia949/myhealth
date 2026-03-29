@@ -115,7 +115,8 @@ const TableRow = React.memo(
     visibleLeafColumnsCount,
     onCellClick,
   }: any) => {
-    const { name, values, visibleValues, visibleOptimality, visibleOriginValues, unit, extra } = entry
+    const { name, values, visibleValues, visibleOptimality, visibleOriginValues, unit, extra } =
+      entry
     const safeNameId = String(name).replace(/[^a-zA-Z0-9-_]/g, '-')
 
     return (
@@ -181,7 +182,10 @@ const TableRow = React.memo(
             className="p-2 border border-gray-700 whitespace-nowrap sticky-left bg-dark-table-row"
             title={extra.description}
           >
-            <label htmlFor={safeNameId} className="cursor-pointer hover:text-blue-400 block w-full h-full">
+            <label
+              htmlFor={safeNameId}
+              className="cursor-pointer hover:text-blue-400 block w-full h-full"
+            >
               {name}
             </label>
           </th>
