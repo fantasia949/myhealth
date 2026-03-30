@@ -102,3 +102,8 @@
 
 **Learning:** Static `aria-label`s on buttons with dynamic text content (like "Copy" changing to "Copied!", or "Save" changing to "Saving...") completely hide the state change from screen readers. This is because the `aria-label` attribute takes precedence in the accessible name calculation, overriding any visible text changes.
 **Action:** Remove redundant `aria-label`s from buttons that have clear visible text, allowing the screen reader to announce the actual text content and any dynamic changes to it naturally.
+
+## 2026-03-30 - Stateful Button Announcements
+
+**Learning:** Dynamic text changes on buttons (like 'Copy' -> 'Copied!' or 'Save' -> 'Saving...') are not automatically announced by screen readers. This leaves visually impaired users without feedback that an async action has started or succeeded.
+**Action:** Add `aria-live="polite"` directly to these buttons. This simple attribute ensures that assistive technologies announce the new text state as soon as it updates, drastically improving UX for these interactions.
