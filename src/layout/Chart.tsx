@@ -86,25 +86,35 @@ export default memo(({ data, keys }: ChartProps) => {
       dataMap.set(data[i][0], data[i])
     }
 
-    const dict = keys.reduce((result: Record<number, any>, key) => {
+    // Optimization: Replace chained .reduce(), .forEach() and Object.values() with a
+    // single-pass loop over the data length. This eliminates closure creation, higher-order
+    // array method overhead, and repetitive dictionary allocations per render.
+    const validSeries = []
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i]
       const entry = dataMap.get(key)
       if (entry) {
-        const values = entry[1]
-        // Hoist the fieldKey resolution outside the inner loop to avoid O(K * L) overhead
         const k = valueList.find((entry) => entry.fieldName === key)
         if (k) {
-          values.forEach((v: number | null, i: number) => {
-            if (!result[i]) {
-              result[i] = { d1: formatTime(labels[i]) }
-            }
-            result[i][k.fieldKey] = v !== null && v !== undefined ? v : '-'
-          })
+          validSeries.push({ fieldKey: k.fieldKey, values: entry[1] })
         }
       }
-      return result
-    }, {})
+    }
 
-    return Object.values(dict)
+    const len = labels.length
+    // eslint-disable-next-line eslint-plugin-unicorn(no-new-array)
+    const result = new Array(len)
+    for (let i = 0; i < len; i++) {
+      const item: Record<string, any> = { d1: formatTime(labels[i]) }
+      for (let j = 0; j < validSeries.length; j++) {
+        const series = validSeries[j]
+        const v = series.values[i]
+        item[series.fieldKey] = v !== null && v !== undefined ? v : '-'
+      }
+      result[i] = item
+    }
+
+    return result
   }, [data, keys, valueList, labels])
 
   const ref = useRef<any>(null)
