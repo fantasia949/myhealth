@@ -354,6 +354,7 @@ export default React.memo<NavProps>(
                       title={isAsking ? 'Asking AI...' : 'Ask AI'}
                       className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors flex items-center justify-center gap-1 min-w-[70px]"
                       aria-busy={isAsking}
+                      aria-live="polite"
                     >
                       {isAsking ? <Spinner /> : null}
                       {isAsking ? 'Asking...' : 'Ask AI'}
@@ -487,6 +488,7 @@ export default React.memo<NavProps>(
                             : 'border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white'
                         }`}
                         title="Copy analysis to clipboard"
+                        aria-live="polite"
                       >
                         {isCopied ? (
                           <>
@@ -504,6 +506,7 @@ export default React.memo<NavProps>(
                         disabled={isGistLoading}
                         aria-busy={isGistLoading}
                         title="Save analysis to Gist"
+                        aria-live="polite"
                         onClick={async () => {
                           setIsGistLoading(true)
                           setGistError(null)

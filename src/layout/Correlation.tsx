@@ -180,6 +180,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                                   : 'border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white'
                               }`}
                               title="Copy analysis to clipboard"
+                              aria-live="polite"
                             >
                               {isCopied ? (
                                 <>
