@@ -1,24 +1,23 @@
 # Implementation Report
 
 **The Issue:**
-In `src/layout/ScatterChart.tsx`, when 4 or more biomarkers were selected (e.g. RBC, Hb, HCT, MCV), the generated Y-axes all defaulted to `position: 'left'` and stacked their labels on top of each other using an `offset: index * 80` that eventually overflowed the chart container. Additionally, the Vietnamese biomarker names were too long and were not truncated, further overlapping with the grid and other axes.
+In `src/vite-env.d.ts` and `src/types/biomarker.ts`, several type annotations inside the `Entry` and `BioMarker` definitions used the weak types `unknown` and `any`. This bypassed TypeScript's strict type checking for critical properties like `range`, `originValues`, and `isNotOptimal`.
 
-**Discovery Signal:**
-Scan 3 — Multi-Axis Legibility (ScatterChart): "Y-axes use `offset: index * 80`. For 4+ biomarkers does the rightmost axis overflow the chart container? Are axis names truncating?"
-
-**context7 Reference:**
-`yAxis.position`, `yAxis.offset`, `yAxis.nameTextStyle.width`, `yAxis.nameTextStyle.overflow`, `grid.left`, and `grid.right` (ECharts 5.6 docs).
+**The Discovery Signal:**
+Scan H — Weak or Missing Type Annotations:
+- `src/vite-env.d.ts`: `range?: unknown`, `originValues?: Array<unknown>`, `extra?: Record<string, any>`, `isNotOptimal?: (val?: any) => boolean`
+- `src/types/biomarker.ts`: `range?: unknown`
 
 **The Fix:**
-I modified the dynamic Y-axis generation in `src/layout/ScatterChart.tsx` to:
-
-1. Alternate axis placement by checking `index % 2 === 0 ? 'left' : 'right'`.
-2. Group the offsets for each side using `Math.floor(index / 2) * 80`.
-3. Add `nameTextStyle: { width: 70, overflow: 'truncate' }` to ensure long names don't bleed into other axis lanes.
-4. Dynamically calculate and expand `grid.left` and `grid.right` based on the maximum offset needed by the active axes on each side.
+I extracted concrete types from the existing usage and `BioMarker` definition to replace all `any` and `unknown` types within the `Entry` tuple:
+1. `range?: unknown` -> `range?: string`
+2. `originValues?: Array<unknown>` -> `originValues?: Array<string | number | null>`
+3. `Record<string, any>` -> `Record<string, unknown>`
+4. `isNotOptimal?: (val?: any) => boolean` -> `isNotOptimal?: (val: number) => boolean`
+5. Updated `src/processors/post/range.ts` to explicitly call `parseFloat(val)` before passing the value to the `isNotOptimal` callback, satisfying the newly strict numeric type signature.
 
 **The Benefit:**
-Users can now reliably select 4+ biomarkers simultaneously and compare them on the scatter plot. All Y-axes are distinctly readable, evenly distributed across the left and right sides of the chart container, and properly padded so no text overflows off-screen or overlaps with the data grid.
+Significant improvement in codebase health and type safety (zero-risk substitution). Future refactors and processing logic (like in `postProcess`) will benefit from concrete type inference rather than silently bypassing type checks or crashing at runtime due to `any`/`unknown` ambiguity.
 
 ---
 

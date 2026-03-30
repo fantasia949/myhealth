@@ -7,7 +7,7 @@ export type BioMarker = [
     inferred?: boolean
     originValues?: (string | number | null)[]
     hasOrigin?: boolean
-    range?: unknown
+    range?: string
     description?: string
     isNotOptimal: (value: number) => boolean
     getSamples: (num: number, count?: number) => string[]

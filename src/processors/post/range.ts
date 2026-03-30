@@ -142,7 +142,7 @@ export default (entry: Entry, strict?: boolean): Entry => {
     }
 
     // Optimization: pre-calculate optimality to avoid repeated calculations in render loops
-    extra.optimality = values.map((val) => extra.isNotOptimal?.(val) ?? false)
+    extra.optimality = values.map((val) => extra.isNotOptimal?.(parseFloat(val)) ?? false)
   } else if (extra) {
     extra.isNotOptimal = () => false
     extra.optimality = values.map(() => false)
