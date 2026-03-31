@@ -20,6 +20,7 @@ import {
   gistTokenAtom,
   aiModelAtom,
   rankedDataMapAtom,
+  nonInferredDataAtom,
 } from '../atom/dataAtom'
 import { calculateSpearmanRanked } from '../processors/stats'
 import { averageCountAtom } from '../atom/averageValueAtom'
@@ -51,6 +52,7 @@ export default React.memo<NavProps>(
     const gistToken = useAtomValue(gistTokenAtom)
     const data = useAtomValue(visibleDataAtom)
     const fullData = useAtomValue(dataAtom)
+    const nonInferredData = useAtomValue(nonInferredDataAtom)
     const rankedDataMap = useAtomValue(rankedDataMapAtom)
     const [show, setShow] = React.useState(false)
     const [isAsking, setIsAsking] = React.useState(false)
@@ -112,7 +114,7 @@ export default React.memo<NavProps>(
           if (!fullData || fullData.length === 0) return undefined
 
           const selectedEntries = fullData.filter((d) => selectedSet.has(d[0]))
-          const candidates = fullData.filter((d) => !d[3].inferred && !selectedSet.has(d[0]))
+          const candidates = nonInferredData.filter((d) => !selectedSet.has(d[0]) && !d[0].startsWith('HOMA') && !d[0].startsWith('eGFR') && !d[0].startsWith('SL '))
           const related = new Map<string, string>()
 
           // Optimization: Use pre-calculated ranks for all sources and candidates to avoid
@@ -167,7 +169,7 @@ export default React.memo<NavProps>(
       } finally {
         setIsAsking(false)
       }
-    }, [selected, data, filterTag, key, model, fullData])
+    }, [selected, data, filterTag, key, model, fullData, nonInferredData])
 
     const [canvasText, setCanvasText] = React.useState<string | null>(null)
     const [gistUrl, setGistUrl] = React.useState<string | null>(null)
