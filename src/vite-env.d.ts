@@ -28,11 +28,11 @@ type Entry = [
   },
 ]
 
-type Note = {
+type NoteRecord = {
   date: string
   items: string[]
   supps: string[]
 }
 
-type Notes = Record<string, Note>
-type NoteItem = Note
+type Notes = Record<string, NoteRecord>
+type NoteItem = NoteRecord
