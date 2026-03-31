@@ -163,39 +163,41 @@ export default memo(({ data, keys }: ChartProps) => {
 
     // Optimization: Replace O(K*N) chained .map(), .reduce(), and .filter() array allocations
     // with a single-pass O(N) loop to eliminate closure creation and garbage collection overhead.
-    const matchedData: any[][] = []
     const entry0 = dataMap.get(keys[0])
     const entry1 = dataMap.get(keys[1])
+
+    const mappedScatterData: any[][] = []
+    const scatterData: Record<string, any>[] = []
 
     if (entry0 && entry1) {
       const values0 = entry0[1]
       const values1 = entry1[1]
+      const unitX = entry0[2] || ''
+      const unitY = entry1[2] || ''
       const len = labels.length
+
       for (let i = 0; i < len; i++) {
         const v0 = values0[i]
         const v1 = values1[i]
         if (v0 !== null && v0 !== undefined && v1 !== null && v1 !== undefined) {
-          matchedData.push([labels[i], v0, v1])
+          const formattedDate = formatTime(labels[i])
+
+          mappedScatterData.push([
+            v0,
+            v1,
+            formattedDate,
+            unitX,
+            unitY,
+          ])
+
+          scatterData.push({
+            [keys[0]]: v0,
+            [keys[1]]: v1,
+            date: formattedDate,
+          })
         }
       }
     }
-
-    const unitX = dataMap.get(keys[0])?.[2] || ''
-    const unitY = dataMap.get(keys[1])?.[2] || ''
-
-    const mappedScatterData: any[][] = matchedData.map((v) => [
-      v[1],
-      v[2],
-      formatTime(v[0]),
-      unitX,
-      unitY,
-    ])
-
-    const scatterData: Record<string, any>[] = matchedData.map((v) => ({
-      [keys[0]]: v[1],
-      [keys[1]]: v[2],
-      date: formatTime(v[0]),
-    }))
 
     return [scatterData, mappedScatterData]
   }, [keys, data])
