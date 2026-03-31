@@ -42,7 +42,7 @@ Triggered automatically whenever a user expands a table row to view a single bio
 **Implementation complexity:** Low
 `extra.optimality[]` is already fully pre-computed per value in parallel with the data array; only requires mapping this into a `visualMap.pieces` config option inside the line chart.
 
-**ECharts 5.6.0 API confirmed via context7:** yes (checked `visualMap.pieces` and `visualMap.dimension`)
+**ECharts 6 API confirmed via context7:** yes (checked `visualMap.pieces` and `visualMap.dimension`)
 
 ---
 
@@ -65,7 +65,7 @@ When a user expands a specific biomarker row in the data table, the existing `Li
 **Implementation complexity:** Medium
 The exact array of numbers is already passed to the LineChart. We just need to load it into a generic ECharts dataset and declare the `transform: { type: 'boxplot' }` option (via ECharts built-in data transform), requiring very little custom JS logic.
 
-**ECharts 5.6.0 API confirmed via context7:** yes (checked `dataset.transform.type = 'boxplot'`)
+**ECharts 6 API confirmed via context7:** yes (checked `dataset.transform.type = 'boxplot'`)
 
 ---
 
@@ -88,7 +88,7 @@ An additional chart view option selectable from the main dashboard or specific b
 **Implementation complexity:** Medium
 Requires formatting the existing `YYMMDD` string tags from `labels[]` into proper Date objects/strings compatible with the ECharts `calendar` coordinate system, but no new state atoms or complex data fetching are required.
 
-**ECharts 5.6.0 API confirmed via context7:** yes (checked `calendar`, `series-heatmap.coordinateSystem = 'calendar'`)
+**ECharts 6 API confirmed via context7:** yes (checked `calendar`, `series-heatmap.coordinateSystem = 'calendar'`)
 
 ---
 

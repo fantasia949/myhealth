@@ -19,7 +19,7 @@ MyHealth is a **client-side personal health tracking and biomarker analysis dash
 | Styling          | Tailwind CSS 4                                   |
 | State management | Jotai 2 (atomic, async atoms)                    |
 | Data tables      | TanStack React Table 8                           |
-| Charts           | ECharts 5 + echarts-for-react, OGL (3D WebGL)    |
+| Charts           | ECharts 6 + echarts-for-react, OGL (3D WebGL)    |
 | Statistics       | @stdlib/stats-pcorrtest, echarts-stat            |
 | Testing          | Playwright 1 (E2E only)                          |
 | Package manager  | **pnpm** (use pnpm for all install/run commands) |
