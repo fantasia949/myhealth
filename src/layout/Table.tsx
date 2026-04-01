@@ -26,7 +26,7 @@ import {
 } from '@heroicons/react/24/outline'
 import { averageCountAtom } from '../atom/averageValueAtom'
 import BiomarkerCorrelation from './BiomarkerCorrelation'
-import { TableProps, DisplayedEntry } from './Table.types'
+import { TableProps, DisplayedEntry, TableRowProps } from './Table.types'
 
 const LineChart = React.lazy(() => import('./LineChart'))
 const BoxplotChart = React.lazy(() => import('./BoxplotChart'))
@@ -114,7 +114,7 @@ const TableRow = React.memo(
     averageCountValue,
     visibleLeafColumnsCount,
     onCellClick,
-  }: any) => {
+  }: TableRowProps) => {
     const { name, values, visibleValues, visibleOptimality, visibleOriginValues, unit, extra } =
       entry
     const safeNameId = String(name).replace(/[^a-zA-Z0-9-_]/g, '-')
