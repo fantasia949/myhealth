@@ -542,8 +542,8 @@ export default React.memo(
                           }}
                           className="flex items-center gap-2 w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
                           aria-expanded={row.getIsExpanded()}
-                          aria-label={`Toggle group ${row.original.displayTag}`}
-                          title={`Toggle group ${row.original.displayTag}`}
+                          aria-label={`Toggle group ${row.original.displayTag} (${row.subRows.length} items)`}
+                          title={`Toggle group ${row.original.displayTag} (${row.subRows.length} items)`}
                         >
                           {row.getIsExpanded() ? (
                             <ChevronDownIcon className="h-4 w-4 text-gray-400" />
