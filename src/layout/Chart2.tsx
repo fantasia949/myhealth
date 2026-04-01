@@ -243,6 +243,24 @@ export default memo(({ data, keys }: ChartProps) => {
         : []),
     ]
 
+    // Optimization: Calculate min/max data boundaries in a single O(N) pass
+    // to avoid allocating 4 intermediate arrays via chained .map() and
+    // preventing stack overflow from spreading (...) large arrays into Math.min/max.
+    let minX = 0, maxX = 100, minY = 0, maxY = 100
+    if (mappedScatterData.length > 0) {
+      minX = mappedScatterData[0][0]
+      maxX = mappedScatterData[0][0]
+      minY = mappedScatterData[0][1]
+      maxY = mappedScatterData[0][1]
+      for (let i = 1; i < mappedScatterData.length; i++) {
+        const item = mappedScatterData[i]
+        if (item[0] < minX) minX = item[0]
+        if (item[0] > maxX) maxX = item[0]
+        if (item[1] < minY) minY = item[1]
+        if (item[1] > maxY) maxY = item[1]
+      }
+    }
+
     return {
       ...echartsOptions,
       tooltip: {
@@ -268,25 +286,13 @@ export default memo(({ data, keys }: ChartProps) => {
       dataZoom: [
         {
           ...(echartsOptions.dataZoom as any[])[0],
-          startValue:
-            mappedScatterData.length > 0
-              ? Math.min(...mappedScatterData.map((item) => item[0]))
-              : 0,
-          endValue:
-            mappedScatterData.length > 0
-              ? Math.max(...mappedScatterData.map((item) => item[0]))
-              : 100,
+          startValue: minX,
+          endValue: maxX,
         },
         {
           ...(echartsOptions.dataZoom as any[])[1],
-          startValue:
-            mappedScatterData.length > 0
-              ? Math.min(...mappedScatterData.map((item) => item[1]))
-              : 0,
-          endValue:
-            mappedScatterData.length > 0
-              ? Math.max(...mappedScatterData.map((item) => item[1]))
-              : 100,
+          startValue: minY,
+          endValue: maxY,
         },
       ],
     }

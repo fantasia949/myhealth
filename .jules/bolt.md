@@ -21,3 +21,8 @@
 ## 2025-07-28 - ECharts data transformation: Replace chained Array methods with single-pass loops
 **Learning:** Extracting multiple series from a multi-dimensional array for chart rendering (like mapping keys to entries, reducing to pairs, and filtering out nulls) via chained `.map().reduce().filter()` creates severe object allocation and closure overhead on every re-render (e.g. `useMemo` in ReactECharts components like Scatter charts).
 **Action:** Replace `Array.map().reduce().filter()` combinations with a traditional `for` loop that iterates over a fixed length (like the data labels length) and performs all extraction, matching, and null-checking in a single pass before pushing only the valid points into a final array.
+
+## 2025-07-28 - Prevent array mapping and spreading stack overflows
+
+**Learning:** Calculating `Math.min(...mappedScatterData.map(...))` inside React `useMemo` blocks is extremely inefficient and dangerous. First, `map` creates a completely new intermediate array on every render. Second, spreading (`...`) a large mapped array into `Math.min` or `Math.max` evaluates arguments on the call stack, which can crash the application with a "Maximum call stack size exceeded" error if the data array grows too large.
+**Action:** Replace `Math.min(...array.map(...))` combinations with a single-pass `for` loop that iterates over the dataset once and evaluates min/max boundary variables simultaneously. This avoids the `O(N)` memory allocation of `.map()`, avoids the secondary iteration of `Math.min()`, and protects against stack overflow crashes.
