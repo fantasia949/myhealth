@@ -1,6 +1,7 @@
 import React, { memo } from 'react'
 import ReactECharts from 'echarts-for-react'
 import { labels } from '../data'
+import { CHART_PALETTE } from './Chart2'
 
 interface LineChartProps {
   name: string
@@ -12,6 +13,7 @@ const echartsOptions = {
   style: { height: 300, width: '100%' },
   theme: 'dark',
   backgroundColor: 'transparent',
+  color: CHART_PALETTE,
   animation: false,
   tooltip: {
     trigger: 'axis',
