@@ -16,6 +16,11 @@ const echartsOptions = {
     axisPointer: {
       type: 'shadow',
     },
+    backgroundColor: '#111111',
+    borderColor: '#3a3a3a80',
+    textStyle: {
+      color: '#f0f0f0',
+    },
   },
   grid: {
     left: '10%',
