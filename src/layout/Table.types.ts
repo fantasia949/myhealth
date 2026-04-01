@@ -21,3 +21,19 @@ export type DisplayedEntry = {
   displayTag: string
   sortKey: string
 }
+
+export interface TableRowProps {
+  entry: DisplayedEntry
+  isSelected: boolean
+  isExpanded: boolean
+  rowId: string
+  toggleExpand: (id: string) => void
+  onSelect: (name: string) => void
+  onCorrelation: (name: string) => void
+  setCorrelationBiomarker: (name: string | null) => void
+  cellBaseClasses: string[]
+  showOrigColumns: boolean
+  averageCountValue: string
+  visibleLeafColumnsCount: number
+  onCellClick: (text: string) => Promise<void>
+}
