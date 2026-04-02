@@ -114,7 +114,13 @@ export default React.memo<NavProps>(
           if (!fullData || fullData.length === 0) return undefined
 
           const selectedEntries = fullData.filter((d) => selectedSet.has(d[0]))
-          const candidates = nonInferredData.filter((d) => !selectedSet.has(d[0]) && !d[0].startsWith('HOMA') && !d[0].startsWith('eGFR') && !d[0].startsWith('SL '))
+          const candidates = nonInferredData.filter(
+            (d) =>
+              !selectedSet.has(d[0]) &&
+              !d[0].startsWith('HOMA') &&
+              !d[0].startsWith('eGFR') &&
+              !d[0].startsWith('SL '),
+          )
           const related = new Map<string, string>()
 
           // Optimization: Use pre-calculated ranks for all sources and candidates to avoid
