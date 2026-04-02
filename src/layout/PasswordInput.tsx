@@ -1,7 +1,8 @@
 import React from 'react'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
 
-export const PasswordInput = React.memo(({ show, setShow, ...props }: any) => (
+export const PasswordInput = React.memo(
+  ({ show, setShow, ...props }: { show: boolean; setShow: (show: boolean) => void } & React.InputHTMLAttributes<HTMLInputElement>) => (
   <div className="relative w-full">
     <input
       type={show ? 'text' : 'password'}
