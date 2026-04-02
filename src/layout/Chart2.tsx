@@ -182,13 +182,7 @@ export default memo(({ data, keys }: ChartProps) => {
         if (v0 !== null && v0 !== undefined && v1 !== null && v1 !== undefined) {
           const formattedDate = formatTime(labels[i])
 
-          mappedScatterData.push([
-            v0,
-            v1,
-            formattedDate,
-            unitX,
-            unitY,
-          ])
+          mappedScatterData.push([v0, v1, formattedDate, unitX, unitY])
 
           scatterData.push({
             [keys[0]]: v0,
@@ -246,7 +240,10 @@ export default memo(({ data, keys }: ChartProps) => {
     // Optimization: Calculate min/max data boundaries in a single O(N) pass
     // to avoid allocating 4 intermediate arrays via chained .map() and
     // preventing stack overflow from spreading (...) large arrays into Math.min/max.
-    let minX = 0, maxX = 100, minY = 0, maxY = 100
+    let minX = 0,
+      maxX = 100,
+      minY = 0,
+      maxY = 100
     if (mappedScatterData.length > 0) {
       minX = mappedScatterData[0][0]
       maxX = mappedScatterData[0][0]

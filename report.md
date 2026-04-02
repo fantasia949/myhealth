@@ -5,11 +5,13 @@ In `src/vite-env.d.ts` and `src/types/biomarker.ts`, several type annotations in
 
 **The Discovery Signal:**
 Scan H — Weak or Missing Type Annotations:
+
 - `src/vite-env.d.ts`: `range?: unknown`, `originValues?: Array<unknown>`, `extra?: Record<string, any>`, `isNotOptimal?: (val?: any) => boolean`
 - `src/types/biomarker.ts`: `range?: unknown`
 
 **The Fix:**
 I extracted concrete types from the existing usage and `BioMarker` definition to replace all `any` and `unknown` types within the `Entry` tuple:
+
 1. `range?: unknown` -> `range?: string`
 2. `originValues?: Array<unknown>` -> `originValues?: Array<string | number | null>`
 3. `Record<string, any>` -> `Record<string, unknown>`

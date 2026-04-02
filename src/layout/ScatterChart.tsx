@@ -28,7 +28,8 @@ const echartsOptions = {
     },
     formatter: (params: any) => {
       const date = params.value[0]
-      const value = params.value[1] !== null && params.value[1] !== undefined ? params.value[1] : '-'
+      const value =
+        params.value[1] !== null && params.value[1] !== undefined ? params.value[1] : '-'
       const unit = params.value[2] ? ` ${params.value[2]}` : ''
       return `${params.marker} ${params.seriesName}<br/>${date}<br/><strong>${value}${unit}</strong>`
     },

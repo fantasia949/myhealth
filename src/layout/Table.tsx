@@ -367,34 +367,48 @@ export default React.memo(
       // Optimization: Pre-calculate visible values/optimality to avoid slicing in the render loop.
       // This reduces render complexity from O(rows * cols) to O(rows), and keeps array references stable
       // when showRecords doesn't change, allowing React.memo to work effectively on cells.
-      return (
-        convertedEntries
-          .filter(
-            ([_, values]) =>
-              !showRecords ||
-              (values &&
-                values.length > 0 &&
-                values[values.length - 1] !== null &&
-                values[values.length - 1] !== undefined),
-          )
-          .flatMap(([name, values, unit, extra]) => {
-            const sliceArg = showRecords ? -showRecords : 0
-            // Use original array if showing all records to avoid copy overhead
-            const visibleValues = showRecords ? values.slice(sliceArg) : values
-            const visibleOptimality = extra.optimality
-              ? showRecords
-                ? extra.optimality.slice(sliceArg)
-                : extra.optimality
-              : null
+      const result: DisplayedEntry[] = []
+      const len = convertedEntries.length
 
-            const visibleOriginValues = extra.originValues
-              ? showRecords
-                ? extra.originValues.slice(sliceArg)
-                : extra.originValues
+      // Optimization: Replace chained .filter().flatMap() with a single-pass loop.
+      // This avoids creating intermediate arrays and closures, reducing garbage collection
+      // overhead when visibleDataAtom updates (e.g., during rapid search filtering).
+      for (let i = 0; i < len; i++) {
+        const entry = convertedEntries[i]
+        const values = entry[1]
+
+        const hasRecords =
+          !showRecords ||
+          (values &&
+            values.length > 0 &&
+            values[values.length - 1] !== null &&
+            values[values.length - 1] !== undefined)
+
+        if (hasRecords) {
+          const name = entry[0]
+          const unit = entry[2]
+          const extra = entry[3]
+
+          const sliceArg = showRecords ? -showRecords : 0
+          // Use original array if showing all records to avoid copy overhead
+          const visibleValues = showRecords ? values.slice(sliceArg) : values
+          const visibleOptimality = extra.optimality
+            ? showRecords
+              ? extra.optimality.slice(sliceArg)
+              : extra.optimality
+            : null
+
+          const visibleOriginValues = extra.originValues
+            ? showRecords
+              ? extra.originValues.slice(sliceArg)
               : extra.originValues
+            : extra.originValues
 
-            // Optimization: use pre-calculated tags to avoid repetitive substring and regex in render loop
-            return extra.processedTags!.map(({ tag, displayTag, sortKey }) => ({
+          const processedTags = extra.processedTags!
+          const tagsLen = processedTags.length
+          for (let j = 0; j < tagsLen; j++) {
+            const { tag, displayTag, sortKey } = processedTags[j]
+            result.push({
               name,
               values,
               visibleValues,
@@ -405,11 +419,13 @@ export default React.memo(
               tag,
               displayTag,
               sortKey,
-            }))
-          })
-          // Optimization: use standard comparison instead of localeCompare for ASCII keys
-          .sort((a, b) => (a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0))
-      )
+            })
+          }
+        }
+      }
+
+      // Optimization: use standard comparison instead of localeCompare for ASCII keys
+      return result.sort((a, b) => (a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0))
     }, [convertedEntries, showRecords])
 
     const columnState = React.useMemo(() => {
