@@ -19,6 +19,7 @@ import {
 } from './atom/dataAtom'
 import { BioMarker } from './types/biomarker'
 import { PasswordInput } from './layout/PasswordInput'
+import { Spinner } from './layout/Spinner'
 
 export default function App() {
   const data = useAtomValue(getBioMarkersAtom)
@@ -247,7 +248,14 @@ export default function App() {
       <PValue comparedSourceTarget={comparedSourceTarget} onClose={onPValueClose} />
       <Correlation target={corrlationKey} onClose={onCorrelationClose} />
       <React.Suspense
-        fallback={<div className="text-center p-4 text-gray-400">Loading chart...</div>}
+        fallback={
+          <div className="flex flex-col items-center justify-center p-12 gap-3 text-gray-400">
+            <Spinner />
+            <span role="status" aria-live="polite">
+              Loading chart...
+            </span>
+          </div>
+        }
       >
         {filterTag && (!chartKeys || chartKeys.length === 0) && (
           <RadarChart
