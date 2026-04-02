@@ -27,6 +27,7 @@ import {
 import { averageCountAtom } from '../atom/averageValueAtom'
 import BiomarkerCorrelation from './BiomarkerCorrelation'
 import { TableProps, DisplayedEntry } from './Table.types'
+import { Spinner } from './Spinner'
 
 const LineChart = React.lazy(() => import('./LineChart'))
 const BoxplotChart = React.lazy(() => import('./BoxplotChart'))
@@ -234,7 +235,14 @@ const TableRow = React.memo(
           <tr className="bg-gray-800">
             <td colSpan={visibleLeafColumnsCount} className="border border-gray-700">
               <React.Suspense
-                fallback={<div className="p-4 text-center text-gray-400">Loading charts...</div>}
+                fallback={
+                  <div className="p-8 flex flex-col items-center justify-center gap-3 text-gray-400">
+                    <Spinner />
+                    <span role="status" aria-live="polite">
+                      Loading charts...
+                    </span>
+                  </div>
+                }
               >
                 <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-4">
                   <LineChart
@@ -474,7 +482,16 @@ export default React.memo(
     const selectedSet = React.useMemo(() => new Set(selected), [selected])
 
     return (
-      <React.Suspense fallback="Loading...">
+      <React.Suspense
+        fallback={
+          <div className="p-12 flex flex-col items-center justify-center gap-3 text-gray-400">
+            <Spinner />
+            <span role="status" aria-live="polite">
+              Loading table...
+            </span>
+          </div>
+        }
+      >
         <table className="w-full text-sm text-left border-collapse bg-dark-table-row text-dark-text">
           <thead className="sticky top-[39px] z-10 bg-dark-table-header">
             {table.getHeaderGroups().map((headerGroup) => (

@@ -107,3 +107,8 @@
 
 **Learning:** Dynamic text changes on buttons (like 'Copy' -> 'Copied!' or 'Save' -> 'Saving...') are not automatically announced by screen readers. This leaves visually impaired users without feedback that an async action has started or succeeded.
 **Action:** Add `aria-live="polite"` directly to these buttons. This simple attribute ensures that assistive technologies announce the new text state as soon as it updates, drastically improving UX for these interactions.
+
+## 2026-04-10 - Accessible Suspense Loading States
+
+**Learning:** Lazy-loaded visual components (like charts) using React `Suspense` often fallback to unstyled static text (e.g., "Loading chart..."). This lacks visual polish and, more importantly, is completely ignored by screen readers because the text is simply rendered into the DOM without semantic meaning.
+**Action:** Always replace plain text Suspense fallbacks with a styled loading container that includes a visual indicator (like `<Spinner />`) and an accessible text node with `role="status"` and `aria-live="polite"`. This ensures the loading state is announced immediately to assistive technologies.
