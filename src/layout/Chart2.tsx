@@ -4,6 +4,10 @@ import { Scatter } from '@echarts-readymade/scatter'
 import { labels } from '../data'
 import ReactECharts from 'echarts-for-react'
 import { BioMarker } from '../types/biomarker'
+import * as echarts from 'echarts'
+import * as ecStat from 'echarts-stat'
+
+echarts.registerTransform((ecStat as any).transform.regression)
 
 interface ChartProps {
   data: BioMarker[]
@@ -215,7 +219,9 @@ export default memo(({ data, keys }: ChartProps) => {
       dataset.push({
         transform: {
           type: 'ecStat:regression',
+          config: { method: 'linear', formulaOn: 'end' }
         },
+        fromDatasetIndex: 0
       })
     }
 
@@ -228,8 +234,8 @@ export default memo(({ data, keys }: ChartProps) => {
               ...series[1],
               datasetIndex: 1,
               tooltip: {
-                formatter: (_params: any) => {
-                  return `<strong>Regression Trend</strong>`
+                formatter: (params: any) => {
+                  return `<strong>Regression Trend</strong><br/>${params.value[2]}`
                 },
               },
             },
@@ -275,7 +281,7 @@ export default memo(({ data, keys }: ChartProps) => {
               `${params.marker} ${keys[1]}: <strong>${val2}${u1}</strong>`
             )
           }
-          return `<strong>Regression Trend</strong>`
+          return `<strong>Regression Trend</strong><br/>${params.value[2]}`
         },
       },
       dataset,
