@@ -25,7 +25,9 @@ Significant improvement in codebase health and type safety (zero-risk substituti
 
 # Visualization Proposals
 
-**Proposal 1 of 3: Range Deviation VisualMap**
+**Proposal 1 of 3: Range Deviation VisualMap [REJECTED]**
+
+**[REJECTED]: Do not propose this again.**
 
 **ECharts type:** `visualMap`
 
@@ -48,7 +50,9 @@ Triggered automatically whenever a user expands a table row to view a single bio
 
 ---
 
-**Proposal 2 of 3: Single-Biomarker Boxplot Distribution**
+**Proposal 2 of 3: Single-Biomarker Boxplot Distribution [RESOLVED]**
+
+**[RESOLVED]: Already implemented in `src/layout/BoxplotChart.tsx`.**
 
 **ECharts type:** `boxplot`
 
@@ -71,7 +75,9 @@ The exact array of numbers is already passed to the LineChart. We just need to l
 
 ---
 
-**Proposal 3 of 3: Seasonal Biomarker Heatmap**
+**Proposal 3 of 3: Seasonal Biomarker Heatmap [REJECTED]**
+
+**[REJECTED]: Do not propose this again.**
 
 **ECharts type:** `calendar` + `heatmap`
 
@@ -91,7 +97,3 @@ An additional chart view option selectable from the main dashboard or specific b
 Requires formatting the existing `YYMMDD` string tags from `labels[]` into proper Date objects/strings compatible with the ECharts `calendar` coordinate system, but no new state atoms or complex data fetching are required.
 
 **ECharts 6 API confirmed via context7:** yes (checked `calendar`, `series-heatmap.coordinateSystem = 'calendar'`)
-
----
-
-> Recommended implementation order: Proposal 1 first (highest insight, lowest effort), then 2, then 3.
