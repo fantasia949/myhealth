@@ -185,7 +185,7 @@ const TableRow = React.memo(
           >
             <label
               htmlFor={safeNameId}
-              className="cursor-pointer hover:text-blue-400 block w-full h-full"
+              className="cursor-pointer hover:text-blue-400 block w-full h-full select-none"
             >
               {name}
             </label>
@@ -354,7 +354,7 @@ export default React.memo(
       const count = showRecords || labels.length
       return Array.from({ length: count }, (_, index) => {
         const dist = count - 1 - index
-        return cn('p-2 border border-gray-700 text-right cursor-pointer', {
+        return cn('p-2 border border-gray-700 text-right cursor-pointer select-none', {
           'is-latest': dist === 0,
           'hidden sm:table-cell': dist === 2,
           'hidden md:table-cell': dist > 2 && dist <= 4,
