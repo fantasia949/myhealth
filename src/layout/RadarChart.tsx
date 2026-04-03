@@ -12,7 +12,15 @@ export default memo(({ data, tag }: RadarChartProps) => {
     const indicators: any[] = []
     const values: number[] = []
 
-    data.forEach(([name, biomarkerValues, unit, extra]) => {
+    // Optimization: Replace Array.forEach with a traditional for-loop to eliminate closure
+    // creation and minimize garbage collection overhead during React renders.
+    for (let k = 0; k < data.length; k++) {
+      const entry = data[k]
+      const name = entry[0]
+      const biomarkerValues = entry[1]
+      const unit = entry[2]
+      const extra = entry[3]
+
       // Find the latest non-null value
       let latestValue: number | null = null
       let latestIndex = -1
@@ -59,7 +67,7 @@ export default memo(({ data, tag }: RadarChartProps) => {
         })
         values.push(latestValue)
       }
-    })
+    }
 
     if (indicators.length === 0) {
       return {} // Handle empty state gracefully if needed
@@ -78,11 +86,14 @@ export default memo(({ data, tag }: RadarChartProps) => {
           // params.value is an array of the values
           // We need to construct a custom tooltip showing value and range
           let html = `<strong>${tag} Analysis</strong><br/>`
-          indicators.forEach((indicator, idx) => {
+          // Optimization: Replace Array.forEach with a traditional for-loop to eliminate
+          // closure creation during tooltip rendering in ECharts.
+          for (let idx = 0; idx < indicators.length; idx++) {
+            const indicator = indicators[idx]
             const val = params.value[idx]
             const color = indicator._isNotOptimal ? '#c23531' : '#BFDAA7'
             html += `<span style="color:${color}">${indicator.name}</span>: ${val} ${indicator._unit} <span style="color:#888;font-size:12px;">(Range: ${indicator._range})</span><br/>`
-          })
+          }
           return html
         },
       },

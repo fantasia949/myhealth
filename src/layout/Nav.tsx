@@ -101,15 +101,22 @@ export default React.memo<NavProps>(
         // This reduces overall filtering complexity from O(M * N * 4) to O(M + N * 4).
         const selectedSet = new Set(selected)
 
-        const pairs = data
-          .filter(([key]) => selectedSet.has(key))
-          .map(([key, values, unit]) => `${key} ${values[values.length - 1]} ${unit || ''}`)
-        const prevPairs = data
-          .filter(([key]) => selectedSet.has(key))
-          .map(([key, values, unit]) =>
-            values.length > 1 ? `${key} ${values[values.length - 2]} ${unit || ''}` : undefined,
-          )
-          .filter((item): item is string => !!item)
+        // Optimization: Replace chained Array.filter() and Array.map() with a single-pass loop
+        // to avoid allocating redundant intermediate arrays and closure overhead.
+        const pairs: string[] = []
+        const prevPairs: string[] = []
+        for (let i = 0; i < data.length; i++) {
+          const entry = data[i]
+          const key = entry[0]
+          if (selectedSet.has(key)) {
+            const values = entry[1]
+            const unit = entry[2] || ''
+            pairs.push(`${key} ${values[values.length - 1]} ${unit}`)
+            if (values.length > 1) {
+              prevPairs.push(`${key} ${values[values.length - 2]} ${unit}`)
+            }
+          }
+        }
         const relatedContext = (() => {
           if (!fullData || fullData.length === 0) return undefined
 
