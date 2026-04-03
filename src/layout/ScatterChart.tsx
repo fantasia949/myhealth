@@ -53,13 +53,13 @@ export default memo(({ data, keys }: ScatterChartProps) => {
       name: key,
       position: isEven ? 'left' : 'right',
       offset: sideOffset,
-      nameTextStyle: {
-        width: 70,
-        overflow: 'truncate',
-        ellipsis: '...',
-      },
+      nameLocation: 'middle',
+      nameGap: 50,
       axisLine: {
         show: true,
+        lineStyle: {
+          color: CHART_PALETTE[index % CHART_PALETTE.length],
+        },
       },
       axisLabel: {
         formatter: '{value}',
