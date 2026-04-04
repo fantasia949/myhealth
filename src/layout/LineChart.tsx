@@ -25,7 +25,15 @@ const echartsOptions = {
     formatter: (params: any) => {
       // ECharts axis trigger passes an array of series data for that axis index
       const p = Array.isArray(params) ? params[0] : params
-      if (!p || p.value[1] === '-' || p.value[1] === null || p.value[1] === undefined) {
+      if (
+        !p ||
+        p.value[1] === '-' ||
+        p.value[1] === '' ||
+        p.value[1] === 'NaN' ||
+        p.value[1] === null ||
+        p.value[1] === undefined ||
+        Number.isNaN(p.value[1])
+      ) {
         return ''
       }
       return `${p.seriesName}<br/>${p.value[0]}<br/><strong>${p.value[1]}</strong>`
