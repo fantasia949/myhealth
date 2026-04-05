@@ -171,7 +171,7 @@ export default memo(({ data, keys }: ChartProps) => {
     const entry1 = dataMap.get(keys[1])
 
     const mappedScatterData: any[][] = []
-    const scatterData: Record<string, unknown>[] = []
+    const scatterData: Record<string, number | string>[] = []
 
     if (entry0 && entry1) {
       const values0 = entry0[1]
