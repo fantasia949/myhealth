@@ -1,99 +1,90 @@
-# Implementation Report
+## Part 1 — Implementation Report
 
 **The Issue:**
-In `src/vite-env.d.ts` and `src/types/biomarker.ts`, several type annotations inside the `Entry` and `BioMarker` definitions used the weak types `unknown` and `any`. This bypassed TypeScript's strict type checking for critical properties like `range`, `originValues`, and `isNotOptimal`.
+In `src/layout/Chart.tsx` (approx. line 140), calling `instance.setOption({ yAxis, grid, series }, { notMerge: true })` inside a `useEffect` completely wiped out the base option provided by `@echarts-readymade`. Because `notMerge: true` drops everything not explicitly provided, it destroyed the `tooltip`, the custom `color` palette (`CHART_PALETTE`), and the `backgroundColor` setup passed down from `echartsOptions`. This led to a visually inconsistent chart with broken tooltips and un-themed defaults bleeding into the React app.
 
-**The Discovery Signal:**
-Scan H — Weak or Missing Type Annotations:
+**Discovery Signal:**
+Scan 5 ("setOption Correctness") revealed this behavior. `notMerge: true` is unsafe when using partial option updates in an environment where base themes and tooltips must persist, and memory explicitly mentioned this as an ECharts gotcha: "To avoid inadvertently destroying existing configurations ... pass the full options object or utilize `replaceMerge: ['series', ...]` instead."
 
-- `src/vite-env.d.ts`: `range?: unknown`, `originValues?: Array<unknown>`, `extra?: Record<string, any>`, `isNotOptimal?: (val?: any) => boolean`
-- `src/types/biomarker.ts`: `range?: unknown`
+**context7 Reference:**
+`setOption` / `replaceMerge` (ECharts 5.x docs).
 
 **The Fix:**
-I extracted concrete types from the existing usage and `BioMarker` definition to replace all `any` and `unknown` types within the `Entry` tuple:
-
-1. `range?: unknown` -> `range?: string`
-2. `originValues?: Array<unknown>` -> `originValues?: Array<string | number | null>`
-3. `Record<string, any>` -> `Record<string, unknown>`
-4. `isNotOptimal?: (val?: any) => boolean` -> `isNotOptimal?: (val: number) => boolean`
-5. Updated `src/processors/post/range.ts` to explicitly call `parseFloat(val)` before passing the value to the `isNotOptimal` callback, satisfying the newly strict numeric type signature.
+Replaced `{ notMerge: true }` with `{ replaceMerge: ['series', 'yAxis'] }`. This instructs ECharts to discard only the stale arrays corresponding to series/yAxis that are no longer requested, while smoothly merging and preserving the root-level config like `tooltip`, `grid`, and `color`.
 
 **The Benefit:**
-Significant improvement in codebase health and type safety (zero-risk substitution). Future refactors and processing logic (like in `postProcess`) will benefit from concrete type inference rather than silently bypassing type checks or crashing at runtime due to `any`/`unknown` ambiguity.
+Multi-key `Chart.tsx` visualizations no longer crash their own tooltips or flash white/default palettes. They maintain full visual consistency with the app's dark mode and custom formatter constraints.
 
 ---
 
-# Visualization Proposals
+## Part 2 — Visualization Proposals
 
-**Proposal 1 of 3: Range Deviation VisualMap [REJECTED]**
+These 3 visualization ideas use existing metadata to surface new insights without requiring new dependencies or processing logic.
 
-**[REJECTED]: Do not propose this again.**
-
-**ECharts type:** `visualMap`
+### Proposal 1 of 3: PhenoAge Gauge
+**ECharts type:** `gauge`
 
 **Which existing data it uses:**
-Uses the boolean array `extra.optimality[]` from `src/processors/post/range.ts` (available inside `dataAtom`'s `BioMarker`) to indicate whether each test value is within the optimal bounds.
+The app already computes a specific tag group `a-PhenoAge`. The `dataAtom` contains these measured markers.
 
 **What it reveals that current charts don't:**
-Color-encodes the main line graph in `LineChart.tsx` (e.g., green when within range, red when out of bounds), revealing exactly when a biomarker drifted into an unhealthy state without requiring the user to cross-reference against shaded `markArea` zones manually.
+Right now, biological age metrics are scattered across rows. A gauge showing the percentage of the 9 Phenotypic Age biomarkers currently sitting inside their `extra.optimality` bounds provides a single, high-level "Metabolic Health Score" that's instantly recognizable.
 
 **Where it would live:**
-Enhancement to existing `src/layout/LineChart.tsx` (the single biomarker line inside table row expander).
+A new `src/layout/GaugeChart.tsx` file, inserted as a mini-dashboard card at the top of `App.tsx` or when filtering by the "PhenoAge" tag.
 
 **Trigger / entry point:**
-Triggered automatically whenever a user expands a table row to view a single biomarker's time-series chart.
+Automatically displayed beside the current "Filter by Tag" row as a persistent high-level metric.
 
 **Implementation complexity:** Low
-`extra.optimality[]` is already fully pre-computed per value in parallel with the data array; only requires mapping this into a `visualMap.pieces` config option inside the line chart.
+The calculation is simply `phenoAgeMarkers.filter(m => m.optimality[latestIndex]).length / phenoAgeMarkers.length`. The gauge config in ECharts 5.6.0 handles the visual representation entirely.
 
-**ECharts 6 API confirmed via context7:** yes (checked `visualMap.pieces` and `visualMap.dimension`)
-
----
-
-**Proposal 2 of 3: Single-Biomarker Boxplot Distribution [RESOLVED]**
-
-**[RESOLVED]: Already implemented in `src/layout/BoxplotChart.tsx`.**
-
-**ECharts type:** `boxplot`
-
-**Which existing data it uses:**
-The raw historical values array (`number[]`) for any single `BioMarker` accessed from `dataAtom` in `src/atom/dataAtom.ts`.
-
-**What it reveals that current charts don't:**
-Reveals the statistical distribution of a single biomarker. Instead of a messy time-series line, a boxplot clearly shows the median, quartiles, and outliers of a biomarker over the entire 2008-present timeframe, highlighting long-term structural variance vs normal fluctuations.
-
-**Where it would live:**
-A new `src/layout/BoxplotChart.tsx`.
-
-**Trigger / entry point:**
-When a user expands a specific biomarker row in the data table, the existing `LineChart` could be accompanied by a small segmented control to toggle between "Time View" (line) and "Distribution View" (boxplot).
-
-**Implementation complexity:** Medium
-The exact array of numbers is already passed to the LineChart. We just need to load it into a generic ECharts dataset and declare the `transform: { type: 'boxplot' }` option (via ECharts built-in data transform), requiring very little custom JS logic.
-
-**ECharts 6 API confirmed via context7:** yes (checked `dataset.transform.type = 'boxplot'`)
+**ECharts 5.6.0 API confirmed via context7:** yes
 
 ---
 
-**Proposal 3 of 3: Seasonal Biomarker Heatmap [REJECTED]**
-
-**[REJECTED]: Do not propose this again.**
-
-**ECharts type:** `calendar` + `heatmap`
+### Proposal 2 of 3: Supplement Phase Clustering
+**ECharts type:** `ecStat:clustering`
 
 **Which existing data it uses:**
-The values array (`number[]`) and the time-series labels (`labels[]` strings) mapped to the `BioMarker` in `dataAtom`.
+The app already records `tags` arrays within `noteValues` at specific `validIndices`. We can cross-reference the supplement protocols currently recorded with the time-series arrays.
 
 **What it reveals that current charts don't:**
-Highlights seasonal or structural patterns that traditional line charts obscure. For slowly-changing metrics (like Weight, Vitamin D, or Glucose), a calendar view immediately exposes if values tend to spike during the winter holidays or drop sharply in specific months, mapped directly to a year view.
+Instead of requiring users to manually guess if stopping a supplement changed their results, this would use echarts-stat to statistically cluster time points where specific supplements were active, proving (or disproving) if "Phase 1: Vitamin D" resulted in a distinctly different mathematical cluster than "Phase 2: Off Supplements".
 
 **Where it would live:**
-New `src/layout/CalendarHeatmap.tsx`.
+A new tab or view alongside the correlation tables in `App.tsx` or a new dialog triggered from the Nav.
 
 **Trigger / entry point:**
-An additional chart view option selectable from the main dashboard or specific biomarker rows when viewing high-density biomarkers (ones measured frequently enough to populate a calendar).
+A "Detect Phases" button near the "Correlate" button.
+
+**Implementation complexity:** High
+It requires formatting the multi-dimensional marker arrays into the specific matrix shape `ecStat:clustering` expects and generating the hull/scatter view.
+
+**ECharts 5.6.0 API confirmed via context7:** yes
+
+---
+
+### Proposal 3 of 3: Cross-Category Parallel Plot
+**ECharts type:** `parallel`
+
+**Which existing data it uses:**
+`nonInferredDataAtom` provides all actual lab measurements. `extra.optimality` provides boolean true/false for each time point.
+
+**What it reveals that current charts don't:**
+Scatter and Line charts only handle 2-4 axes before becoming unreadable. A Parallel plot can handle 15-20 biomarkers simultaneously, allowing users to draw a brush selection over the latest time point to instantly see which 5 markers across *different* categories (e.g., Liver, Kidney, Metabolic) are simultaneously out of range.
+
+**Where it would live:**
+A new `src/layout/ParallelChart.tsx` component.
+
+**Trigger / entry point:**
+A "System Overview" toggle button replacing the multi-axis scatter when >5 markers are selected.
 
 **Implementation complexity:** Medium
-Requires formatting the existing `YYMMDD` string tags from `labels[]` into proper Date objects/strings compatible with the ECharts `calendar` coordinate system, but no new state atoms or complex data fetching are required.
+ECharts handles parallel plots well, but defining optimal axis scaling for 10+ distinct unit scales (mg/dL vs 10^12/L) requires careful `parallelAxis` configuration to align their optimal bands visually.
 
-**ECharts 6 API confirmed via context7:** yes (checked `calendar`, `series-heatmap.coordinateSystem = 'calendar'`)
+**ECharts 5.6.0 API confirmed via context7:** yes
+
+---
+
+> Recommended implementation order: Proposal 1 first (highest insight, lowest effort), then 3, then 2.
