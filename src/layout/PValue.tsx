@@ -77,7 +77,7 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
   }, [comparedSourceTarget, alpha, alternative, rankedDataMap, method])
 
   return (
-    <Transition appear show={!!text} as={Fragment}>
+    <Transition appear show={!!comparedSourceTarget} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>
         <Transition.Child
           as={Fragment}
@@ -118,21 +118,28 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
                   </button>
                 </Dialog.Title>
                 <div
-                  className="mt-2 text-sm whitespace-pre-wrap"
+                  className="mt-2 text-sm whitespace-pre-wrap flex-1"
                   title={text?.[1]}
                   style={{ fontSize: 14 }}
                 >
-                  {!!text && comparedSourceTarget && (
-                    <div className="mb-2 font-bold">
-                      {comparedSourceTarget[0][0]}
-                      <span className="mx-2">vs</span>
-                      {comparedSourceTarget[1][0]}
+                  {comparedSourceTarget && (
+                    <div className="mb-4 font-bold text-base flex items-center justify-center bg-dark-bg p-3 rounded border border-gray-700">
+                      <span className="text-blue-400">{comparedSourceTarget[0][0]}</span>
+                      <span className="mx-3 text-gray-500 font-normal text-xs uppercase tracking-widest">vs</span>
+                      <span className="text-blue-400">{comparedSourceTarget[1][0]}</span>
                     </div>
                   )}
-                  {text?.[0] || text?.[1]}
+                  {text ? (
+                    text[0] || text[1]
+                  ) : (
+                    <div className="text-gray-400 p-6 text-center border border-dashed border-gray-700 rounded bg-white/5 my-4 flex flex-col gap-2" role="alert">
+                      <span className="font-semibold text-gray-300">Not enough overlapping data points</span>
+                      <span>A minimum of 4 overlapping data points are required to calculate the {method === 'pearson' ? 'Pearson' : 'Spearman Rank'} correlation between these biomarkers.</span>
+                    </div>
+                  )}
                 </div>
                 {!!text && (
-                  <div className="mt-4 flex justify-end">
+                  <div className="mt-4 flex justify-end pt-4 border-t border-gray-700">
                     <button
                       type="button"
                       onClick={() => {

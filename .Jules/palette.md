@@ -112,3 +112,8 @@
 
 **Learning:** Lazy-loaded visual components (like charts) using React `Suspense` often fallback to unstyled static text (e.g., "Loading chart..."). This lacks visual polish and, more importantly, is completely ignored by screen readers because the text is simply rendered into the DOM without semantic meaning.
 **Action:** Always replace plain text Suspense fallbacks with a styled loading container that includes a visual indicator (like `<Spinner />`) and an accessible text node with `role="status"` and `aria-live="polite"`. This ensures the loading state is announced immediately to assistive technologies.
+
+## 2026-05-01 - Silent failures in conditional dialogs
+
+**Learning:** Using computed results (like `!!text`) instead of intentional state (like `!!comparedSourceTarget`) to control dialog visibility causes silent failures when the computation yields no result. The user receives no feedback that their action was processed.
+**Action:** Always bind dialog visibility to the intentional state triggering it, and handle empty/error states inside the dialog content.
