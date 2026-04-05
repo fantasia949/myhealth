@@ -3,9 +3,13 @@ import { ChartProvider, ChartContext } from '@echarts-readymade/core'
 import { Scatter } from '@echarts-readymade/scatter'
 import { labels } from '../data'
 import ReactECharts from 'echarts-for-react'
+import * as echarts from 'echarts'
+import * as ecStat from 'echarts-stat'
 import { BioMarker } from '../types/biomarker'
 import * as echarts from 'echarts'
 import * as ecStat from 'echarts-stat'
+
+echarts.registerTransform((ecStat as any).transform.regression)
 
 echarts.registerTransform((ecStat as any).transform.regression)
 
