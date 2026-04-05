@@ -79,20 +79,37 @@ export const visibleDataAtom = atom((get) => {
       return []
     }
 
-    data = data.filter((entry) => {
-      const matchedTag = !tag || entry[3].tag.includes(tag)
-      if (!matchedTag) {
-        return false
+    // Optimization: Replace Array.filter and Array.some with traditional for-loops
+    // to avoid closure creation and callback overhead during rapid search keystrokes.
+    const filteredData: typeof data = []
+    const wordsLen = words.length
+    for (let i = 0; i < data.length; i++) {
+      const entry = data[i]
+      const extra = entry[3]
+
+      if (tag && !extra.tag.includes(tag)) {
+        continue
       }
 
       if (!hasFilterText) {
-        return true
+        filteredData.push(entry)
+        continue
       }
 
-      // Optimization: use pre-calculated lowercase title to avoid O(N) string allocation in filter loop
-      const title = entry[3].normalizedTitle!
-      return words.some((word) => title.includes(word))
-    })
+      const title = extra.normalizedTitle!
+      let matched = false
+      for (let j = 0; j < wordsLen; j++) {
+        if (title.includes(words[j])) {
+          matched = true
+          break
+        }
+      }
+
+      if (matched) {
+        filteredData.push(entry)
+      }
+    }
+    data = filteredData
   }
   return data
 })
