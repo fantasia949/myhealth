@@ -241,33 +241,41 @@ export default function App() {
 
   return (
     <>
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-[100] px-4 py-2 bg-blue-600 text-white rounded shadow-lg outline-none focus-visible:ring-2 focus-visible:ring-white"
+      >
+        Skip to main content
+      </a>
       <div className="fixed inset-0 -z-10">
         <DarkVeil />
       </div>
       <Nav {...navProps} />
       <PValue comparedSourceTarget={comparedSourceTarget} onClose={onPValueClose} />
       <Correlation target={corrlationKey} onClose={onCorrelationClose} />
-      <React.Suspense
-        fallback={
-          <div className="flex flex-col items-center justify-center p-12 gap-3 text-gray-400">
-            <Spinner />
-            <span role="status" aria-live="polite">
-              Loading chart...
-            </span>
-          </div>
-        }
-      >
-        {filterTag && (!chartKeys || chartKeys.length === 0) && (
-          <RadarChart
-            data={data.filter(([_, __, ___, extra]) => extra?.tag?.includes(filterTag))}
-            tag={filterTag}
-          />
-        )}
-        {chartKeys && chartKeys.length > 0 && chartType === 'scatter' && (
-          <ScatterChart data={data} keys={chartKeys} />
-        )}
-      </React.Suspense>
-      <Table {...tableProps} />
+      <main id="main-content" tabIndex={-1} className="outline-none">
+        <React.Suspense
+          fallback={
+            <div className="flex flex-col items-center justify-center p-12 gap-3 text-gray-400">
+              <Spinner />
+              <span role="status" aria-live="polite">
+                Loading chart...
+              </span>
+            </div>
+          }
+        >
+          {filterTag && (!chartKeys || chartKeys.length === 0) && (
+            <RadarChart
+              data={data.filter(([_, __, ___, extra]) => extra?.tag?.includes(filterTag))}
+              tag={filterTag}
+            />
+          )}
+          {chartKeys && chartKeys.length > 0 && chartType === 'scatter' && (
+            <ScatterChart data={data} keys={chartKeys} />
+          )}
+        </React.Suspense>
+        <Table {...tableProps} />
+      </main>
       <div className="flex flex-wrap justify-center gap-4 mt-4 pb-8">
         <div className="flex flex-col gap-1">
           <label htmlFor="ai-model" className="text-xs text-gray-400 font-medium ml-1">

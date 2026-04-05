@@ -112,3 +112,7 @@
 
 **Learning:** Lazy-loaded visual components (like charts) using React `Suspense` often fallback to unstyled static text (e.g., "Loading chart..."). This lacks visual polish and, more importantly, is completely ignored by screen readers because the text is simply rendered into the DOM without semantic meaning.
 **Action:** Always replace plain text Suspense fallbacks with a styled loading container that includes a visual indicator (like `<Spinner />`) and an accessible text node with `role="status"` and `aria-live="polite"`. This ensures the loading state is announced immediately to assistive technologies.
+
+## 2025-04-05 - Missing Skip to Content Link and Document Landmarks
+**Learning:** The application lacked basic structural semantic markup (such as `<main>`) and keyboard user navigation shortcuts like a "Skip to main content" link, severely hampering navigation for screen readers and keyboard-only users who otherwise have to tab through every navigation item.
+**Action:** Always verify that an app has a structural semantic markup wrapping its core content (e.g., `<main id="main-content">`), and provide an accessible skip link immediately at the start of the DOM (`<a href="#main-content" className="sr-only focus:not-sr-only">`) to allow skipping repetitive navigation elements.
