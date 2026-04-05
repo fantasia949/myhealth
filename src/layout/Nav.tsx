@@ -45,6 +45,7 @@ export default React.memo<NavProps>(
     onOriginValueToggle,
     onVisualize,
     onPValue,
+    onOpenClustering,
   }) => {
     const [averageCount, setAverageCount] = useAtom(averageCountAtom)
     const key = useAtomValue(aiKeyAtom)
@@ -393,6 +394,16 @@ export default React.memo<NavProps>(
                     </button>
                   </div>
                 </div>
+              )}
+              {onOpenClustering && (
+                <button
+                  type="button"
+                  onClick={onOpenClustering}
+                  title="Detect Supplement Phases"
+                  className="hidden md:flex ml-4 px-3 py-1 text-xs font-medium bg-purple-600 text-white rounded hover:bg-purple-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 transition-colors"
+                >
+                  Detect Phases
+                </button>
               )}
 
               <div className="hidden contents lg:flex lg:ml-auto lg:flex-row lg:gap-4 lg:items-center">
