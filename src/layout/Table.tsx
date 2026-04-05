@@ -429,16 +429,14 @@ export default React.memo(
     }, [convertedEntries, showRecords])
 
     const columnState = React.useMemo(() => {
-      let state: Record<string, boolean> = { tag: false }
+      // Optimization: Consolidate chained .filter().map() into a single loop
+      // to avoid multiple array allocations and garbage collection overhead.
+      const state: Record<string, boolean> = { tag: false }
 
       if (showRecords) {
-        state = {
-          ...state,
-          ...Object.fromEntries(
-            labels
-              .filter((_, index) => index < labels.length - showRecords)
-              .map((label) => [label, false]),
-          ),
+        const limit = labels.length - showRecords
+        for (let i = 0; i < limit; i++) {
+          state[labels[i]] = false
         }
       }
 
@@ -449,10 +447,15 @@ export default React.memo(
       return state
     }, [showRecords, showOrigColumns])
 
-    const rowSelection = React.useMemo(
-      () => Object.fromEntries(selected.map((item) => [item, true])),
-      [selected],
-    )
+    const rowSelection = React.useMemo(() => {
+      // Optimization: Replace chained Array.map() and Object.fromEntries()
+      // with a single loop to reduce object allocation.
+      const state: Record<string, boolean> = {}
+      for (let i = 0; i < selected.length; i++) {
+        state[selected[i]] = true
+      }
+      return state
+    }, [selected])
 
     const [grouping, setGrouping] = React.useState<GroupingState>(['tag'])
     const [expanded, setExpanded] = React.useState<ExpandedState>(true)
