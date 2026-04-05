@@ -42,7 +42,14 @@ const echartsOptions: any = {
           const dimName = p.dimensionNames[p.encode.y[0]]
           const val = p.value[dimName]
 
-          if (val !== '-' && val !== null && val !== undefined) {
+          if (
+            val !== '-' &&
+            val !== '' &&
+            val !== 'NaN' &&
+            val !== null &&
+            val !== undefined &&
+            !Number.isNaN(val)
+          ) {
             tooltipStr += `<br/>${p.marker} ${p.seriesName}: <strong>${val}</strong>`
             hasValidValues = true
           }
