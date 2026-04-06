@@ -121,8 +121,8 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
       if (hasData) {
         // Ensure we properly map notes depending on the type
         const rawNote: any = noteValues[t];
-        const supps = rawNote && rawNote.items && rawNote.items.length > 0
-          ? rawNote.items.join(', ')
+        const supps = rawNote && rawNote.supps && rawNote.supps.length > 0
+          ? rawNote.supps.join(', ')
           : 'None';
 
         const date = rawNote ? rawNote.date : '';
