@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react'
+import { memo, useMemo, useState, useEffect } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import ReactECharts from 'echarts-for-react'
@@ -62,6 +62,26 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
   const data = useAtomValue(nonInferredDataAtom)
   const noteValues = useAtomValue(noteValuesAtom)
 
+  const availableTags = useMemo(() => {
+    if (!data) return []
+    const tags = new Set<string>()
+    data.forEach(item => {
+      item[3]?.tag?.forEach(t => tags.add(t))
+    })
+    return Array.from(tags).sort()
+  }, [data])
+
+  const [xAxisTag, setXAxisTag] = useState<string>('')
+  const [yAxisTag, setYAxisTag] = useState<string>('')
+
+  // Set defaults when tags load
+  useEffect(() => {
+    if (availableTags.length > 0) {
+      if (!xAxisTag) setXAxisTag(availableTags.find(t => t.includes('2-Metabolic')) || availableTags[0] || '')
+      if (!yAxisTag) setYAxisTag(availableTags.find(t => t.includes('3-Liver') || t.includes('4-Lipid')) || availableTags[1] || availableTags[0] || '')
+    }
+  }, [availableTags, xAxisTag, yAxisTag])
+
   const options = useMemo(() => {
     if (!data || data.length === 0 || !noteValues || noteValues.length === 0) return echartsOptions
 
@@ -73,15 +93,13 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
     const timepoints = []
 
     // Only process a subset of markers (Metabolic vs Liver/Lipid) to avoid mixing disparate units
-    // Group 1: Metabolic indicators
-    // Group 2: Liver/Lipid indicators
     const m1Indices: number[] = [];
     const m2Indices: number[] = [];
 
     for (let m = 0; m < numMarkers; m++) {
        const tags = data[m][3]?.tag || [];
-       if (tags.includes('2-Metabolic')) m1Indices.push(m);
-       else if (tags.includes('3-Liver') || tags.includes('4-Lipid')) m2Indices.push(m);
+       if (xAxisTag && tags.includes(xAxisTag)) m1Indices.push(m);
+       if (yAxisTag && tags.includes(yAxisTag)) m2Indices.push(m);
     }
 
     for (let t = 0; t < numTimepoints; t++) {
@@ -91,7 +109,7 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
       let m2Optimal = 0;
 
       // Fallback: If we don't have enough markers in tags, just use the first half vs second half
-      const useTags = m1Indices.length > 0 && m2Indices.length > 0;
+      const useTags = xAxisTag !== '' && yAxisTag !== '' && m1Indices.length > 0 && m2Indices.length > 0;
       const g1 = useTags ? m1Indices : Array.from({ length: Math.floor(numMarkers / 2) }, (_, i) => i);
       const g2 = useTags ? m2Indices : Array.from({ length: Math.ceil(numMarkers / 2) }, (_, i) => i + Math.floor(numMarkers / 2));
 
@@ -170,10 +188,8 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
        })
     }
 
-    // We determine useTags logic again to define axis names
-    const hasMetabolic = data.some(m => m[3]?.tag?.includes('2-Metabolic'))
-    const hasLiverOrLipid = data.some(m => m[3]?.tag?.includes('3-Liver') || m[3]?.tag?.includes('4-Lipid'))
-    const _useTags = hasMetabolic && hasLiverOrLipid
+    const _useTags = xAxisTag !== '' && yAxisTag !== '';
+    const formatTag = (tag: string) => tag.replace(/^\w-/, '')
 
     return {
       ...echartsOptions,
@@ -190,12 +206,12 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
       xAxis: {
         ...echartsOptions.xAxis,
         scale: true,
-        name: _useTags ? 'Metabolic Optimality (%)' : 'Group 1 Optimality (%)'
+        name: _useTags ? `${formatTag(xAxisTag)} Optimality (%)` : 'Group 1 Optimality (%)'
       },
       yAxis: {
         ...echartsOptions.yAxis,
         scale: true,
-        name: _useTags ? 'Liver/Lipid Optimality (%)' : 'Group 2 Optimality (%)'
+        name: _useTags ? `${formatTag(yAxisTag)} Optimality (%)` : 'Group 2 Optimality (%)'
       },
       series: [
         {
@@ -250,9 +266,38 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
                   </button>
                 </Dialog.Title>
 
-                <div className="mt-2 text-gray-400 mb-6 text-sm">
+                <div className="mt-2 text-gray-400 mb-4 text-sm">
                   This chart statistically clusters your biomarker profiles over time. It can reveal whether different supplement phases (e.g., stopping Vitamin D) resulted in distinctly different biological states.
                 </div>
+
+                {availableTags.length > 0 && (
+                  <div className="flex gap-4 mb-6 bg-[#1a1a1a] p-3 rounded-lg border border-[#3a3a3a]">
+                    <div className="flex flex-col gap-1 w-1/2">
+                      <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">X-Axis Group</label>
+                      <select
+                        value={xAxisTag}
+                        onChange={(e) => setXAxisTag(e.target.value)}
+                        className="bg-[#111111] text-white border border-[#3a3a3a] rounded p-2 text-sm focus:outline-none focus:border-blue-500"
+                      >
+                        {availableTags.map(t => (
+                          <option key={t} value={t}>{t.replace(/^\w-/, '')}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex flex-col gap-1 w-1/2">
+                      <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Y-Axis Group</label>
+                      <select
+                        value={yAxisTag}
+                        onChange={(e) => setYAxisTag(e.target.value)}
+                        className="bg-[#111111] text-white border border-[#3a3a3a] rounded p-2 text-sm focus:outline-none focus:border-blue-500"
+                      >
+                        {availableTags.map(t => (
+                          <option key={t} value={t}>{t.replace(/^\w-/, '')}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                )}
 
                 <div className="w-full relative">
                   {!data || data.length === 0 ? (
