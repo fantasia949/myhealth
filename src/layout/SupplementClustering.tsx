@@ -163,6 +163,11 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
        })
     }
 
+    // We determine useTags logic again to define axis names
+    const hasMetabolic = data.some(m => m[3]?.tag?.includes('2-Metabolic'))
+    const hasLiverOrLipid = data.some(m => m[3]?.tag?.includes('3-Liver') || m[3]?.tag?.includes('4-Lipid'))
+    const _useTags = hasMetabolic && hasLiverOrLipid
+
     return {
       ...echartsOptions,
       dataset,
@@ -177,11 +182,13 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
       },
       xAxis: {
         ...echartsOptions.xAxis,
-        scale: true
+        scale: true,
+        name: _useTags ? 'Metabolic Aggregate' : 'Group 1 Aggregate'
       },
       yAxis: {
         ...echartsOptions.yAxis,
-        scale: true
+        scale: true,
+        name: _useTags ? 'Liver/Lipid Aggregate' : 'Group 2 Aggregate'
       },
       series: [
         {
