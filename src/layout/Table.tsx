@@ -41,8 +41,21 @@ function getKeyFromTime(label: string) {
 // Optimization: DataCell accepts stable props (unit, displayValue) instead of children
 // to ensure React.memo works effectively. Passing JSX as children (e.g. <a...>)
 // creates new object references on every render, defeating memoization.
-const DataCell = React.memo(({ className, rawValue, onCopy, unit, displayValue }: any) => {
-  const [copied, setCopied] = React.useState(false)
+const DataCell = React.memo(
+  ({
+    className,
+    rawValue,
+    onCopy,
+    unit,
+    displayValue,
+  }: {
+    className?: string
+    rawValue: string
+    onCopy?: (text: string) => Promise<void>
+    unit: string | { url: string } | undefined
+    displayValue: string | number | null
+  }) => {
+    const [copied, setCopied] = React.useState(false)
 
   const handleInteraction = React.useCallback(async () => {
     if (onCopy) await onCopy(rawValue)
