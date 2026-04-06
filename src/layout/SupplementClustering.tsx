@@ -226,7 +226,7 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
         }
       ]
     }
-  }, [data, noteValues])
+  }, [data, noteValues, xAxisTag, yAxisTag, availableTags])
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
