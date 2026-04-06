@@ -16,4 +16,5 @@ export type NavProps = {
   onOriginValueToggle: (e: React.ChangeEvent<HTMLInputElement>) => void
   onVisualize: () => void
   onPValue: () => void
+  onOpenClustering?: () => void
 }
