@@ -15,9 +15,18 @@ test('take screenshot of clustering chart', async ({ page }) => {
   // Wait for animation to finish
   await page.waitForTimeout(2000)
 
-  // Take a screenshot for verification
-  await page.screenshot({ path: 'clustering_chart_screenshot_v2.png' })
+  // Hover over the first scatter point to trigger tooltip
+  await page.locator('div[id="headlessui-portal-root"] canvas').first().hover({ position: { x: 400, y: 300 }, force: true })
+  await page.waitForTimeout(1500)
+
+  // Hover over another point
+  await page.locator('div[id="headlessui-portal-root"] canvas').first().hover({ position: { x: 500, y: 400 }, force: true })
+  await page.waitForTimeout(1500)
+
+  // Close the dialog
+  await page.click('button[aria-label="Close dialog"]')
+  await page.waitForTimeout(1000)
 
   const chartExists = await page.isVisible('.echarts-for-react')
-  expect(chartExists).toBe(true)
+  expect(chartExists).toBe(false) // Verify it closed
 })
