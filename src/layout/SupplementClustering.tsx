@@ -85,31 +85,32 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
     }
 
     for (let t = 0; t < numTimepoints; t++) {
-      let m1Count = 0;
-      let m2Count = 0;
+      let hasData = false;
       let m1Sum = 0;
       let m2Sum = 0;
 
-      for (const m of m1Indices) {
+      // Fallback: If we don't have enough markers in tags, just use the first half vs second half
+      const useTags = m1Indices.length > 0 && m2Indices.length > 0;
+      const g1 = useTags ? m1Indices : Array.from({ length: Math.floor(numMarkers / 2) }, (_, i) => i);
+      const g2 = useTags ? m2Indices : Array.from({ length: Math.ceil(numMarkers / 2) }, (_, i) => i + Math.floor(numMarkers / 2));
+
+      for (const m of g1) {
         const val = data[m][1][t];
-        if (val !== null && val !== undefined && !isNaN(val as number)) {
-          m1Sum += val as number;
-          m1Count++;
+        if (typeof val === 'number' && !isNaN(val)) {
+          m1Sum += val;
+          hasData = true;
         }
       }
-      for (const m of m2Indices) {
+      for (const m of g2) {
         const val = data[m][1][t];
-        if (val !== null && val !== undefined && !isNaN(val as number)) {
-          m2Sum += val as number;
-          m2Count++;
+        if (typeof val === 'number' && !isNaN(val)) {
+          m2Sum += val;
+          hasData = true;
         }
       }
 
-      // Calculate normalized metric for each group for valid timepoints
-      if (m1Count > 0 && m2Count > 0) {
-        const m1 = m1Sum / m1Count;
-        const m2 = m2Sum / m2Count;
-
+      // We don't need strict counts, just some data existing for the timepoint
+      if (hasData) {
         // Ensure we properly map notes depending on the type
         const rawNote: any = noteValues[t];
         const supps = rawNote && rawNote.items && rawNote.items.length > 0
@@ -119,7 +120,7 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
         const date = rawNote ? rawNote.date : '';
 
         // Push [x, y, label, date]
-        timepoints.push([m1, m2, supps, date]);
+        timepoints.push([m1Sum, m2Sum, supps, date]);
       }
     }
 
