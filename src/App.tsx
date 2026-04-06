@@ -5,6 +5,7 @@ import Nav from './layout/Nav'
 import Table from './layout/Table'
 import PValue from './layout/PValue'
 import Correlation from './layout/Correlation'
+import SupplementClustering from './layout/SupplementClustering'
 import { useAtomValue, useAtom } from 'jotai'
 
 const ScatterChart = React.lazy(() => import('./layout/ScatterChart'))
@@ -22,6 +23,7 @@ import { PasswordInput } from './layout/PasswordInput'
 import { Spinner } from './layout/Spinner'
 
 export default function App() {
+  const [isClusteringOpen, setIsClusteringOpen] = React.useState(false)
   const data = useAtomValue(getBioMarkersAtom)
   const [selected, setSelect] = React.useState<string[]>([])
   const [filterText, setFilterText] = useAtom(filterTextAtom)
@@ -200,6 +202,7 @@ export default function App() {
       onOriginValueToggle,
       onVisualize,
       onPValue,
+      onOpenClustering: () => setIsClusteringOpen(true),
     }),
     [
       selected,
@@ -217,6 +220,7 @@ export default function App() {
       onOriginValueToggle,
       onVisualize,
       onPValue,
+      setIsClusteringOpen,
     ],
   )
 
@@ -254,6 +258,7 @@ export default function App() {
       <main id="main-content" tabIndex={-1} className="outline-none">
         <PValue comparedSourceTarget={comparedSourceTarget} onClose={onPValueClose} />
         <Correlation target={corrlationKey} onClose={onCorrelationClose} />
+        <SupplementClustering isOpen={isClusteringOpen} onClose={() => setIsClusteringOpen(false)} />
         <React.Suspense
           fallback={
             <div className="flex flex-col items-center justify-center p-12 gap-3 text-gray-400">
