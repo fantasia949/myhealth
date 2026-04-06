@@ -33,11 +33,11 @@ const echartsOptions: any = {
     textStyle: { color: '#f0f0f0' },
     formatter: (params: any) => {
       if (params.seriesType === 'scatter') {
-        const val1 = params.value[0] ? params.value[0].toFixed(2) : '-'
-        const val2 = params.value[1] ? params.value[1].toFixed(2) : '-'
+        const val1 = params.value[0] !== undefined ? params.value[0].toFixed(0) + '%' : '-'
+        const val2 = params.value[1] !== undefined ? params.value[1].toFixed(0) + '%' : '-'
         const supps = params.value[2] ? params.value[2] : 'None'
         const date = params.value[3] ? params.value[3] : ''
-        return `<strong>${date}</strong><br/>Supplements: <strong>${supps}</strong><br/>PC1: ${val1}<br/>PC2: ${val2}`
+        return `<strong>${date}</strong><br/>Supplements: <strong>${supps}</strong><br/>X Optimality: ${val1}<br/>Y Optimality: ${val2}`
       }
       return params.name || ''
     }
@@ -85,9 +85,10 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
     }
 
     for (let t = 0; t < numTimepoints; t++) {
-      let hasData = false;
-      let m1Sum = 0;
-      let m2Sum = 0;
+      let m1Valid = 0;
+      let m1Optimal = 0;
+      let m2Valid = 0;
+      let m2Optimal = 0;
 
       // Fallback: If we don't have enough markers in tags, just use the first half vs second half
       const useTags = m1Indices.length > 0 && m2Indices.length > 0;
@@ -99,8 +100,11 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
         if (val !== null && typeof val !== 'undefined' && (val as string | number) !== '') {
           const num = Number(val);
           if (!isNaN(num)) {
-            m1Sum += num;
-            hasData = true;
+            m1Valid++;
+            // optimality array is true if optimal
+            if (data[m][3]?.optimality?.[t] === true) {
+               m1Optimal++;
+            }
           }
         }
       }
@@ -109,16 +113,19 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
         if (val !== null && typeof val !== 'undefined' && (val as string | number) !== '') {
           const num = Number(val);
           if (!isNaN(num)) {
-            m2Sum += num;
-            hasData = true;
+            m2Valid++;
+            if (data[m][3]?.optimality?.[t] === true) {
+               m2Optimal++;
+            }
           }
         }
       }
 
-      console.log(`Timepoint ${t}: hasData=${hasData}, m1Sum=${m1Sum}, m2Sum=${m2Sum}`);
+      // We need at least one valid reading in both groups to place a point on a 2D scatter
+      if (m1Valid > 0 && m2Valid > 0) {
+        const m1Score = (m1Optimal / m1Valid) * 100;
+        const m2Score = (m2Optimal / m2Valid) * 100;
 
-      // We don't need strict counts, just some data existing for the timepoint
-      if (hasData) {
         // Ensure we properly map notes depending on the type
         const rawNote: any = noteValues[t];
         const supps = rawNote && rawNote.supps && rawNote.supps.length > 0
@@ -128,7 +135,7 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
         const date = rawNote ? rawNote.date : '';
 
         // Push [x, y, label, date]
-        timepoints.push([m1Sum, m2Sum, supps, date]);
+        timepoints.push([m1Score, m2Score, supps, date]);
       }
     }
 
@@ -183,12 +190,12 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
       xAxis: {
         ...echartsOptions.xAxis,
         scale: true,
-        name: _useTags ? 'Metabolic Aggregate' : 'Group 1 Aggregate'
+        name: _useTags ? 'Metabolic Optimality (%)' : 'Group 1 Optimality (%)'
       },
       yAxis: {
         ...echartsOptions.yAxis,
         scale: true,
-        name: _useTags ? 'Liver/Lipid Aggregate' : 'Group 2 Aggregate'
+        name: _useTags ? 'Liver/Lipid Optimality (%)' : 'Group 2 Optimality (%)'
       },
       series: [
         {
