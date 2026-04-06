@@ -1,19 +1,19 @@
 ## Part 1 — Implementation Report
 
 **The Issue:**
-In `src/layout/Chart.tsx` (approx. line 140), calling `instance.setOption({ yAxis, grid, series }, { notMerge: true })` inside a `useEffect` completely wiped out the base option provided by `@echarts-readymade`. Because `notMerge: true` drops everything not explicitly provided, it destroyed the `tooltip`, the custom `color` palette (`CHART_PALETTE`), and the `backgroundColor` setup passed down from `echartsOptions`. This led to a visually inconsistent chart with broken tooltips and un-themed defaults bleeding into the React app.
+`RadarChart.tsx` (line 149) is missing `notMerge={true}` on its `<ReactECharts>` component instance, which causes stale series from previous tag renders to bleed through and overlap on re-render.
 
 **Discovery Signal:**
-Scan 5 ("setOption Correctness") revealed this behavior. `notMerge: true` is unsafe when using partial option updates in an environment where base themes and tooltips must persist, and memory explicitly mentioned this as an ECharts gotcha: "To avoid inadvertently destroying existing configurations ... pass the full options object or utilize `replaceMerge: ['series', ...]` instead."
+Triggered by Scan 5 (`setOption` Correctness). `RadarChart` was missing the prop unlike `ScatterChart`, `Chart`, and `Chart2`.
 
 **context7 Reference:**
-`setOption` / `replaceMerge` (ECharts 5.x docs).
+`echartsInstance.setOption` `notMerge` — ECharts 5.6 docs (Confirmed behavior replacement via API fallback search).
 
 **The Fix:**
-Replaced `{ notMerge: true }` with `{ replaceMerge: ['series', 'yAxis'] }`. This instructs ECharts to discard only the stale arrays corresponding to series/yAxis that are no longer requested, while smoothly merging and preserving the root-level config like `tooltip`, `grid`, and `color`.
+Added `notMerge={true}` property to `<ReactECharts />` inside `RadarChart.tsx`.
 
 **The Benefit:**
-Multi-key `Chart.tsx` visualizations no longer crash their own tooltips or flash white/default palettes. They maintain full visual consistency with the app's dark mode and custom formatter constraints.
+Ensures complete option replacement during radar transitions, preventing stale visual UI states from bleeding into the current visualization frame.
 
 ---
 
@@ -21,70 +21,71 @@ Multi-key `Chart.tsx` visualizations no longer crash their own tooltips or flash
 
 These 3 visualization ideas use existing metadata to surface new insights without requiring new dependencies or processing logic.
 
-### Proposal 1 of 3: PhenoAge Gauge
+**Proposal 1 of 3: Correlation Matrix Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Which existing data it uses:**
+uses `correlationAtom` (which outputs Pearson/Spearman pair results across pre-computed tags) from `src/atom/correlationAtom.ts`.
+
+**What it reveals that current charts don't:**
+Reveals at a single glance pairwise positive/negative correlative weights across tag groups. Current visualizations represent singular line or point scatter points, missing matrix-level dependency views between markers.
+
+**Where it would live:**
+new `src/layout/CorrelationHeatmap.tsx`, potentially nested under `Correlation.tsx` layout blocks.
+
+**Trigger / entry point:**
+Added alongside existing `BiomarkerCorrelation.tsx` UI under the "Correlate" row expansions or macro toggle switches in the Correlation view pane.
+
+**Implementation complexity:** Medium
+(Medium: Extracting array matrix weights into a distinct 2D ECharts `heatmap` series requires parsing the structured correlation Atom outputs to X/Y dataset maps without new external calculation blocks.)
+
+**ECharts 5.6.0 API confirmed via context7:** yes
+
+---
+
+**Proposal 2 of 3: Gauge Optimization Dial**
+
 **ECharts type:** `gauge`
 
 **Which existing data it uses:**
-The app already computes a specific tag group `a-PhenoAge`. The `dataAtom` contains these measured markers.
+uses `extra.optimality[]` and `extra.range` pre-computed values from `src/processors/post/range.ts` for individual elements in `BioMarker`.
 
 **What it reveals that current charts don't:**
-Right now, biological age metrics are scattered across rows. A gauge showing the percentage of the 9 Phenotypic Age biomarkers currently sitting inside their `extra.optimality` bounds provides a single, high-level "Metabolic Health Score" that's instantly recognizable.
+Condenses current long historical tracking vectors into a single "Now" dial for a specific biomarker, highlighting its deviation or closeness to its respective boundaries against a singular fixed value scope.
 
 **Where it would live:**
-A new `src/layout/GaugeChart.tsx` file, inserted as a mini-dashboard card at the top of `App.tsx` or when filtering by the "PhenoAge" tag.
+Existing main data row expansions. Rendered adjacent to `LineChart.tsx` where isolated biomarkers expand.
 
 **Trigger / entry point:**
-Automatically displayed beside the current "Filter by Tag" row as a persistent high-level metric.
+Row expansion in the main data list. Rendering alongside `LineChart.tsx` for deeper single-metric visibility.
 
 **Implementation complexity:** Low
-The calculation is simply `phenoAgeMarkers.filter(m => m.optimality[latestIndex]).length / phenoAgeMarkers.length`. The gauge config in ECharts 5.6.0 handles the visual representation entirely.
+(Low: Data constraints for `extra.optimality[]` and `extra.range` already exist at the per-row level. `gauge` implementation maps straight to normalized boundary scales.)
 
 **ECharts 5.6.0 API confirmed via context7:** yes
 
 ---
 
-### Proposal 2 of 3: Supplement Phase Clustering
-**ECharts type:** `ecStat:clustering`
+**Proposal 3 of 3: Frequency Timeline Distribution**
+
+**ECharts type:** `ecStat:histogram`
 
 **Which existing data it uses:**
-The app already records `tags` arrays within `noteValues` at specific `validIndices`. We can cross-reference the supplement protocols currently recorded with the time-series arrays.
+uses `BioMarker` array value frequencies against defined time intervals (the length index of dataset `values` mapped to `labels` across the 2008–present density span).
 
 **What it reveals that current charts don't:**
-Instead of requiring users to manually guess if stopping a supplement changed their results, this would use echarts-stat to statistically cluster time points where specific supplements were active, proving (or disproving) if "Phase 1: Vitamin D" resulted in a distinctly different mathematical cluster than "Phase 2: Off Supplements".
+Visualizes the density/frequency distribution over time frames rather than tracking direct numeric magnitude via line/scatter interpolation, highlighting metric consistency and variance skew.
 
 **Where it would live:**
-A new tab or view alongside the correlation tables in `App.tsx` or a new dialog triggered from the Nav.
+new `src/layout/HistogramChart.tsx`, rendered inside the broader app tracking layout panes or table header popovers.
 
 **Trigger / entry point:**
-A "Detect Phases" button near the "Correlate" button.
+A toggle button on row expansion headers switching the context from temporal lines (`LineChart.tsx`) to metric distribution frequencies.
 
 **Implementation complexity:** High
-It requires formatting the multi-dimensional marker arrays into the specific matrix shape `ecStat:clustering` expects and generating the hull/scatter view.
+(High: ECharts `ecStat:histogram` transforms involve setting correct statistical boundary bin limits on raw scalar historical biomarker sets without breaking dataset rendering loops for smaller, sparse intervals.)
 
 **ECharts 5.6.0 API confirmed via context7:** yes
 
----
-
-### Proposal 3 of 3: Cross-Category Parallel Plot
-**ECharts type:** `parallel`
-
-**Which existing data it uses:**
-`nonInferredDataAtom` provides all actual lab measurements. `extra.optimality` provides boolean true/false for each time point.
-
-**What it reveals that current charts don't:**
-Scatter and Line charts only handle 2-4 axes before becoming unreadable. A Parallel plot can handle 15-20 biomarkers simultaneously, allowing users to draw a brush selection over the latest time point to instantly see which 5 markers across *different* categories (e.g., Liver, Kidney, Metabolic) are simultaneously out of range.
-
-**Where it would live:**
-A new `src/layout/ParallelChart.tsx` component.
-
-**Trigger / entry point:**
-A "System Overview" toggle button replacing the multi-axis scatter when >5 markers are selected.
-
-**Implementation complexity:** Medium
-ECharts handles parallel plots well, but defining optimal axis scaling for 10+ distinct unit scales (mg/dL vs 10^12/L) requires careful `parallelAxis` configuration to align their optimal bands visually.
-
-**ECharts 5.6.0 API confirmed via context7:** yes
-
----
-
-> Recommended implementation order: Proposal 1 first (highest insight, lowest effort), then 3, then 2.
+Recommended implementation order: Proposal 2 first (highest insight, lowest effort), then 1, then 3.
