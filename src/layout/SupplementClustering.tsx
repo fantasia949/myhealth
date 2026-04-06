@@ -72,37 +72,54 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
 
     const timepoints = []
 
+    // Only process a subset of markers (Metabolic vs Liver/Lipid) to avoid mixing disparate units
+    // Group 1: Metabolic indicators
+    // Group 2: Liver/Lipid indicators
+    const m1Indices: number[] = [];
+    const m2Indices: number[] = [];
+
+    for (let m = 0; m < numMarkers; m++) {
+       const tags = data[m][3]?.tag || [];
+       if (tags.includes('2-Metabolic')) m1Indices.push(m);
+       else if (tags.includes('3-Liver') || tags.includes('4-Lipid')) m2Indices.push(m);
+    }
+
     for (let t = 0; t < numTimepoints; t++) {
-      let valid = true
-      let sum = 0
-      for (let m = 0; m < numMarkers; m++) {
-        const val = data[m][1][t]
-        if (val === null || val === undefined || isNaN(val as number)) {
-          valid = false
-          break
+      let m1Count = 0;
+      let m2Count = 0;
+      let m1Sum = 0;
+      let m2Sum = 0;
+
+      for (const m of m1Indices) {
+        const val = data[m][1][t];
+        if (val !== null && val !== undefined && !isNaN(val as number)) {
+          m1Sum += val as number;
+          m1Count++;
         }
-        sum += (val as number)
+      }
+      for (const m of m2Indices) {
+        const val = data[m][1][t];
+        if (val !== null && val !== undefined && !isNaN(val as number)) {
+          m2Sum += val as number;
+          m2Count++;
+        }
       }
 
-      if (valid) {
-        // Simplified dimensionality reduction: just map to 2 summary metrics for demo clustering
-        // In reality, this would be PCA, but we just want to demonstrate ecStat clustering
-        let m1 = 0, m2 = 0
-        for (let m = 0; m < Math.floor(numMarkers/2); m++) {
-           m1 += (data[m][1][t] as number)
-        }
-        for (let m = Math.floor(numMarkers/2); m < numMarkers; m++) {
-           m2 += (data[m][1][t] as number)
-        }
+      // Calculate normalized metric for each group for valid timepoints
+      if (m1Count > 0 && m2Count > 0) {
+        const m1 = m1Sum / m1Count;
+        const m2 = m2Sum / m2Count;
 
-        const supps = noteValues[t] && noteValues[t].supps && noteValues[t].supps.length > 0
-          ? noteValues[t].supps.join(', ')
-          : 'None'
+        // Ensure we properly map notes depending on the type
+        const rawNote: any = noteValues[t];
+        const supps = rawNote && rawNote.items && rawNote.items.length > 0
+          ? rawNote.items.join(', ')
+          : 'None';
 
-        const date = noteValues[t] ? noteValues[t].date : ''
+        const date = rawNote ? rawNote.date : '';
 
         // Push [x, y, label, date]
-        timepoints.push([m1, m2, supps, date])
+        timepoints.push([m1, m2, supps, date]);
       }
     }
 
@@ -121,36 +138,46 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
           config: {
             clusterCount: clusterCount,
             outputType: 'single',
-            outputClusterIndexDimension: 4
+            outputClusterIndexDimension: 4,
+            dimensions: [0, 1]
           }
         }
       }
     ]
 
-    const series = []
-
-    // We render the clusters
+    const pieces = []
     for (let i = 0; i < clusterCount; i++) {
-       series.push({
-         name: `Phase ${i+1}`,
-         type: 'scatter',
-         datasetIndex: 1,
-         symbolSize: 12,
-         itemStyle: {
-            color: CHART_PALETTE[i % CHART_PALETTE.length]
-         },
-         encode: {
-            x: 0,
-            y: 1,
-            tooltip: [0, 1, 2, 3]
-         }
+       pieces.push({
+          value: i,
+          label: `Phase ${i+1}`,
+          color: CHART_PALETTE[i % CHART_PALETTE.length]
        })
     }
 
     return {
       ...echartsOptions,
       dataset,
-      series
+      visualMap: {
+        type: 'piecewise',
+        dimension: 4,
+        pieces: pieces,
+        orient: 'horizontal',
+        bottom: 10,
+        left: 'center',
+        textStyle: { color: '#fff' }
+      },
+      series: [
+        {
+           type: 'scatter',
+           datasetIndex: 1,
+           symbolSize: 12,
+           encode: {
+              x: 0,
+              y: 1,
+              tooltip: [0, 1, 2, 3]
+           }
+        }
+      ]
     }
   }, [data, noteValues])
 
