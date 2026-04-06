@@ -96,18 +96,26 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
 
       for (const m of g1) {
         const val = data[m][1][t];
-        if (typeof val === 'number' && !isNaN(val)) {
-          m1Sum += val;
-          hasData = true;
+        if (val !== null && typeof val !== 'undefined' && (val as string | number) !== '') {
+          const num = Number(val);
+          if (!isNaN(num)) {
+            m1Sum += num;
+            hasData = true;
+          }
         }
       }
       for (const m of g2) {
         const val = data[m][1][t];
-        if (typeof val === 'number' && !isNaN(val)) {
-          m2Sum += val;
-          hasData = true;
+        if (val !== null && typeof val !== 'undefined' && (val as string | number) !== '') {
+          const num = Number(val);
+          if (!isNaN(num)) {
+            m2Sum += num;
+            hasData = true;
+          }
         }
       }
+
+      console.log(`Timepoint ${t}: hasData=${hasData}, m1Sum=${m1Sum}, m2Sum=${m2Sum}`);
 
       // We don't need strict counts, just some data existing for the timepoint
       if (hasData) {
@@ -166,6 +174,14 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
         bottom: 10,
         left: 'center',
         textStyle: { color: '#fff' }
+      },
+      xAxis: {
+        ...echartsOptions.xAxis,
+        scale: true
+      },
+      yAxis: {
+        ...echartsOptions.yAxis,
+        scale: true
       },
       series: [
         {
