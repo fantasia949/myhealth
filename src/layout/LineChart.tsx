@@ -60,12 +60,24 @@ const formatTime = (label: string) => {
   return `20${label.slice(0, 2)}/${label.slice(2, 4)}/${label.slice(4, 6)}`
 }
 
+import { useMemo } from 'react'
+
 export default memo(({ name, values, rangeStr }: LineChartProps) => {
   // Map null/undefined values to '-' and pair them with labels
   // Preserving missing points prevents misrepresenting data gaps (connectNulls: false by default)
-  const data = values.map((value, index) => {
-    return [formatTime(labels[index]), value !== null && value !== undefined ? value : '-']
-  })
+  const data = useMemo(() => {
+    // Optimization: Replace array map in the render loop with a pre-allocated array.
+    // Also, wrap in useMemo so that the date formatting isn't re-run unneccessarily when
+    // other props (like rangeStr or parent component states) trigger a re-render.
+    const numLabels = labels.length
+    // eslint-disable-next-line eslint-plugin-unicorn/no-new-array
+    const result = new Array(numLabels)
+    for (let i = 0; i < numLabels; i++) {
+      const value = values[i]
+      result[i] = [formatTime(labels[i]), value !== null && value !== undefined ? value : '-']
+    }
+    return result
+  }, [values])
 
   let markArea: any = undefined
 

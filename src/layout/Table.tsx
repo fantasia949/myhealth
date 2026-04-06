@@ -277,23 +277,32 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
     header: 'Name',
     footer: 'Supp',
   }),
-  ...labels.map((label, index) =>
-    columnHelper.accessor(label as any, {
-      header: getKeyFromTime(label),
-      meta: {
-        isRecord: true,
-        isLatest: index === labels.length - 1,
-        title: label,
-        className: (() => {
-          const dist = labels.length - 1 - index
-          if (dist <= 1) return ''
-          if (dist === 2) return 'hidden sm:table-cell'
-          if (dist <= 4) return 'hidden md:table-cell'
-          if (dist > 4) return 'hidden lg:table-cell'
-        })(),
-      },
-    }),
-  ),
+  ...(() => {
+    // Optimization: Replace labels.map() with a classic for-loop and pre-allocated array.
+    // This avoids closure allocation overhead and speeds up the module initialization.
+    const numLabels = labels.length
+    // eslint-disable-next-line eslint-plugin-unicorn/no-new-array
+    const result = new Array(numLabels)
+    for (let index = 0; index < numLabels; index++) {
+      const label = labels[index]
+      const dist = numLabels - 1 - index
+      let className = ''
+      if (dist === 2) className = 'hidden sm:table-cell'
+      else if (dist > 2 && dist <= 4) className = 'hidden md:table-cell'
+      else if (dist > 4) className = 'hidden lg:table-cell'
+
+      result[index] = columnHelper.accessor(label as any, {
+        header: getKeyFromTime(label),
+        meta: {
+          isRecord: true,
+          isLatest: index === numLabels - 1,
+          title: label,
+          className,
+        },
+      })
+    }
+    return result
+  })(),
   columnHelper.accessor('placeholder' as any, {
     header: '',
     meta: {

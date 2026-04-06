@@ -110,45 +110,59 @@ function prepareBoxplotData(data: number[][]) {
   return { boxData, outliers }
 }
 
+import { useMemo } from 'react'
+
 export default memo(({ name, values }: BoxplotChartProps) => {
-  // Group values by 6-month period (H1/H2)
-  const groupedData: Record<string, number[]> = {}
+  const { periods, data } = useMemo(() => {
+    // Group values by 6-month period (H1/H2)
+    const groupedData: Record<string, number[]> = {}
 
-  values.forEach((item, index) => {
-    if (item === null || item === undefined) return
+    const len = values.length
+    for (let index = 0; index < len; index++) {
+      const item = values[index]
+      if (item === null || item === undefined) continue
 
-    const label = labels[index]
-    if (!label || label.length < 6) return
+      const label = labels[index]
+      if (!label || label.length < 6) continue
 
-    // Label is YYMMDD
-    const yy = label.slice(0, 2)
-    const mm = parseInt(label.slice(2, 4), 10)
+      // Label is YYMMDD
+      const yy = label.slice(0, 2)
+      const mm = parseInt(label.slice(2, 4), 10)
 
-    const year = `20${yy}`
-    const half = mm <= 6 ? 'H1' : 'H2'
-    const period = `${half} ${year}`
+      const year = `20${yy}`
+      const half = mm <= 6 ? 'H1' : 'H2'
+      const period = `${half} ${year}`
 
-    if (!groupedData[period]) {
-      groupedData[period] = []
+      if (!groupedData[period]) {
+        groupedData[period] = []
+      }
+      groupedData[period].push(item)
     }
-    groupedData[period].push(item)
-  })
 
-  // Ensure chronological ordering by sorting keys
-  const periods = Object.keys(groupedData).sort((a, b) => {
-    // a and b are like 'H1 2023', 'H2 2023'
-    const [halfA, yearA] = a.split(' ')
-    const [halfB, yearB] = b.split(' ')
-    if (yearA !== yearB) return yearA.localeCompare(yearB)
-    return halfA.localeCompare(halfB)
-  })
+    // Ensure chronological ordering by sorting keys
+    const periods = Object.keys(groupedData).sort((a, b) => {
+      // a and b are like 'H1 2023', 'H2 2023'
+      const [halfA, yearA] = a.split(' ')
+      const [halfB, yearB] = b.split(' ')
+      if (yearA !== yearB) return yearA.localeCompare(yearB)
+      return halfA.localeCompare(halfB)
+    })
 
-  const datasets = periods.map((p) => groupedData[p])
+    // Optimization: Replace Object.keys().map() chaining with a single classic loop
+    const datasetsLen = periods.length
+    // eslint-disable-next-line eslint-plugin-unicorn/no-new-array
+    const datasets = new Array(datasetsLen)
+    for (let i = 0; i < datasetsLen; i++) {
+      datasets[i] = groupedData[periods[i]]
+    }
 
-  if (datasets.length === 0) return null
+    if (datasets.length === 0) return { periods: [], data: null }
 
-  // prepareBoxplotData expects an array of datasets
-  const data = prepareBoxplotData(datasets)
+    // prepareBoxplotData expects an array of datasets
+    return { periods, data: prepareBoxplotData(datasets) }
+  }, [values])
+
+  if (!data || periods.length === 0) return null
 
   const options = {
     ...echartsOptions,

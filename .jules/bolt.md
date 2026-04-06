@@ -33,3 +33,7 @@
 ## 2024-03-24 - Jotai Derived Atom Closure Overhead
 **Learning:** During rapid user input (like search filtering), derived Jotai atoms (e.g. `visibleDataAtom`) recalculate frequently. Utilizing array prototype methods like `.filter()` and `.some()` inside these atoms causes measurable garbage collection and callback execution overhead due to repeated closure creations per row, leading to typing lag on large datasets.
 **Action:** Always replace chained/nested array methods (`.map`, `.filter`, `.some`) with traditional `for` loops inside frequently updating Jotai derived atoms to ensure zero-allocation recalculation.
+
+## 2025-07-28 - ECharts mapping allocations in hot paths
+**Learning:** Extracting data elements or objects via `.map()` directly inside component render cycles (like preparing configurations for ReactECharts elements such as LineChart, Chart, or Table columns) causes closure allocations and new intermediate arrays on every interaction or parent state change, contributing to rendering jitter.
+**Action:** When iterating over a fixed length like `keys` or `labels` for ECharts data initialization, replace `Array.prototype.map` with an explicit `new Array(size)` pre-allocation combined with a classic `for` loop to eliminate functional closure overhead, and wrap it tightly in a `useMemo` where appropriate.

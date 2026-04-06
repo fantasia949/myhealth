@@ -76,14 +76,20 @@ export default memo(({ data, keys }: ChartProps) => {
 
   console.log(data, keys)
 
-  const yAxis: any[] = useMemo(
-    () =>
-      keys.map((k) => ({
+  const yAxis: any[] = useMemo(() => {
+    // Optimization: Replace array map in the render loop with a classic for-loop
+    // and pre-allocated array to avoid closure and garbage collection overhead.
+    const numKeys = keys.length
+    // eslint-disable-next-line eslint-plugin-unicorn/no-new-array
+    const result = new Array(numKeys)
+    for (let i = 0; i < numKeys; i++) {
+      result[i] = {
         scale: true,
-        name: k,
-      })),
-    [keys],
-  )
+        name: keys[i],
+      }
+    }
+    return result
+  }, [keys])
 
   const chartData = useMemo(() => {
     // Optimization: use a local O(1) map for data lookups instead of O(N) array.find inside a map.

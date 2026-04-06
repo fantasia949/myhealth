@@ -80,34 +80,46 @@ export default memo(({ data, keys }: ScatterChartProps) => {
       dataMap.set(data[i][0], data[i])
     }
 
-    return keys.map((key, index) => {
+    // Optimization: Replace chained Array.map() with a classic for-loop and pre-allocated array.
+    // This eliminates the closure allocation and avoids garbage collection spikes in component render paths.
+    const numKeys = keys.length
+    // eslint-disable-next-line eslint-plugin-unicorn/no-new-array
+    const result = new Array(numKeys)
+    for (let k = 0; k < numKeys; k++) {
+      const key = keys[k]
       const bioMarker = dataMap.get(key)
+
       if (!bioMarker) {
-        return {
+        result[k] = {
           name: key,
           type: 'scatter',
-          yAxisIndex: index,
+          yAxisIndex: k,
           data: [],
         }
+        continue
       }
 
       const values = bioMarker[1]
       const unit = bioMarker[2]
-
       const validData = []
-      for (let i = 0; i < values.length; i++) {
-        if (values[i] !== null && values[i] !== undefined) {
-          validData.push([formatTime(labels[i]), values[i], unit])
+
+      const numLabels = labels.length
+      // Assuming labels length matches values length
+      for (let i = 0; i < numLabels; i++) {
+        const val = values[i]
+        if (val !== null && val !== undefined) {
+          validData.push([formatTime(labels[i]), val, unit])
         }
       }
 
-      return {
+      result[k] = {
         name: key,
         type: 'scatter',
-        yAxisIndex: index,
+        yAxisIndex: k,
         data: validData,
       }
-    })
+    }
+    return result
   }, [data, keys])
 
   const options = {

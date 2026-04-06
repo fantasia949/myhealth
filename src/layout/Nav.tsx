@@ -280,25 +280,26 @@ export default React.memo<NavProps>(
               })}
             >
               <ul className="contents lg:flex lg:flex-row xl:gap-1 lg:items-center list-none p-0 m-0">
-                {tags.map((tag: string) => (
-                  <li className="nav-item contents lg:block" key={tag}>
-                    <button
-                      type="button"
-                      data-tag={tag}
-                      aria-pressed={filterTag === tag}
-                      className={cn(
-                        'px-3 py-2 rounded transition-colors w-full lg:w-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
-                        {
-                          'bg-blue-600 text-white': filterTag == tag,
-                          'text-gray-300 hover:text-white hover:bg-gray-700': filterTag != tag,
-                        },
-                      )}
-                      onClick={onFilterByTag}
-                    >
-                      {tag.slice(2)}
-                    </button>
-                  </li>
-                ))}
+                {tags.map((tag: string) => {
+                  const isSelectedTag = filterTag == tag
+                  return (
+                    <li className="nav-item contents lg:block" key={tag}>
+                      <button
+                        type="button"
+                        data-tag={tag}
+                        aria-pressed={isSelectedTag}
+                        className={`px-3 py-2 rounded transition-colors w-full lg:w-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                          isSelectedTag
+                            ? 'bg-blue-600 text-white'
+                            : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                        }`}
+                        onClick={onFilterByTag}
+                      >
+                        {tag.slice(2)}
+                      </button>
+                    </li>
+                  )
+                })}
               </ul>
 
               <button
