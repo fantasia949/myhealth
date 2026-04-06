@@ -8,7 +8,7 @@ import { useAtomValue } from 'jotai'
 import { noteValuesAtom, nonInferredDataAtom } from '../atom/dataAtom'
 import { Fragment } from 'react'
 
-echarts.registerTransform((ecStat as any).transform.clustering)
+echarts.registerTransform((ecStat as any).transform?.clustering || (ecStat as any).default?.transform?.clustering || (ecStat as any).clustering)
 
 interface SupplementClusteringProps {
   isOpen: boolean
