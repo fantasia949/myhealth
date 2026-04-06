@@ -5,7 +5,6 @@ import Nav from './layout/Nav'
 import Table from './layout/Table'
 import PValue from './layout/PValue'
 import Correlation from './layout/Correlation'
-import SupplementClustering from './layout/SupplementClustering'
 import { useAtomValue, useAtom } from 'jotai'
 
 const ScatterChart = React.lazy(() => import('./layout/ScatterChart'))
@@ -23,7 +22,6 @@ import { PasswordInput } from './layout/PasswordInput'
 import { Spinner } from './layout/Spinner'
 
 export default function App() {
-  const [isClusteringOpen, setIsClusteringOpen] = React.useState(false)
   const data = useAtomValue(getBioMarkersAtom)
   const [selected, setSelect] = React.useState<string[]>([])
   const [filterText, setFilterText] = useAtom(filterTextAtom)
@@ -202,7 +200,6 @@ export default function App() {
       onOriginValueToggle,
       onVisualize,
       onPValue,
-      onOpenClustering: () => setIsClusteringOpen(true),
     }),
     [
       selected,
@@ -220,7 +217,6 @@ export default function App() {
       onOriginValueToggle,
       onVisualize,
       onPValue,
-      setIsClusteringOpen,
     ],
   )
 
@@ -245,35 +241,41 @@ export default function App() {
 
   return (
     <>
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-blue-600 focus:text-white focus:rounded focus:m-2"
+      >
+        Skip to content
+      </a>
       <div className="fixed inset-0 -z-10">
         <DarkVeil />
       </div>
       <Nav {...navProps} />
-      <PValue comparedSourceTarget={comparedSourceTarget} onClose={onPValueClose} />
-      <Correlation target={corrlationKey} onClose={onCorrelationClose} />
-      <SupplementClustering isOpen={isClusteringOpen} onClose={() => setIsClusteringOpen(false)} />
-      <React.Suspense
-        fallback={
-          <div className="flex flex-col items-center justify-center p-12 gap-3 text-gray-400">
-            <Spinner />
-            <span role="status" aria-live="polite">
-              Loading chart...
-            </span>
-          </div>
-        }
-      >
-        {filterTag && (!chartKeys || chartKeys.length === 0) && (
-          <RadarChart
-            data={data.filter(([_, __, ___, extra]) => extra?.tag?.includes(filterTag))}
-            tag={filterTag}
-          />
-        )}
-        {chartKeys && chartKeys.length > 0 && chartType === 'scatter' && (
-          <ScatterChart data={data} keys={chartKeys} />
-        )}
-      </React.Suspense>
-      <Table {...tableProps} />
-      <div className="flex flex-wrap justify-center gap-4 mt-4 pb-8">
+      <main id="main-content" tabIndex={-1} className="outline-none">
+        <PValue comparedSourceTarget={comparedSourceTarget} onClose={onPValueClose} />
+        <Correlation target={corrlationKey} onClose={onCorrelationClose} />
+        <React.Suspense
+          fallback={
+            <div className="flex flex-col items-center justify-center p-12 gap-3 text-gray-400">
+              <Spinner />
+              <span role="status" aria-live="polite">
+                Loading chart...
+              </span>
+            </div>
+          }
+        >
+          {filterTag && (!chartKeys || chartKeys.length === 0) && (
+            <RadarChart
+              data={data.filter(([_, __, ___, extra]) => extra?.tag?.includes(filterTag))}
+              tag={filterTag}
+            />
+          )}
+          {chartKeys && chartKeys.length > 0 && chartType === 'scatter' && (
+            <ScatterChart data={data} keys={chartKeys} />
+          )}
+        </React.Suspense>
+        <Table {...tableProps} />
+        <div className="flex flex-wrap justify-center gap-4 mt-4 pb-8">
         <div className="flex flex-col gap-1">
           <label htmlFor="ai-model" className="text-xs text-gray-400 font-medium ml-1">
             AI Model
@@ -319,6 +321,7 @@ export default function App() {
           />
         </div>
       </div>
+      </main>
     </>
   )
 }
