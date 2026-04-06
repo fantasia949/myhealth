@@ -10,7 +10,7 @@ import { Fragment } from 'react'
 
 echarts.registerTransform((ecStat as any).transform?.clustering || (ecStat as any).default?.transform?.clustering || (ecStat as any).clustering)
 
-interface SupplementClusteringProps {
+interface SystemClusteringProps {
   isOpen: boolean
   onClose: () => void
 }
@@ -58,7 +58,7 @@ const echartsOptions: any = {
   series: []
 }
 
-const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProps) => {
+const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
   const data = useAtomValue(nonInferredDataAtom)
   const noteValues = useAtomValue(noteValuesAtom)
 
@@ -256,7 +256,7 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
             >
               <Dialog.Panel className="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-[#111111] border border-[#3a3a3a] p-6 text-left align-middle shadow-xl transition-all">
                 <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-white mb-4 flex justify-between items-center">
-                  <span>Supplement Phase Clustering</span>
+                  <span>Biological System Clustering</span>
                   <button
                     onClick={onClose}
                     className="text-gray-400 hover:text-white transition-colors"
@@ -267,7 +267,7 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
                 </Dialog.Title>
 
                 <div className="mt-2 text-gray-400 mb-4 text-sm">
-                  This chart statistically clusters your biomarker profiles over time. It can reveal whether different supplement phases (e.g., stopping Vitamin D) resulted in distinctly different biological states.
+                  This chart plots the Optimality Index (percentage of markers in the optimal range) for two biological systems against each other. The statistical clustering algorithm groups distinct historical phases based on these system balances.
                 </div>
 
                 {availableTags.length > 0 && (
@@ -322,4 +322,4 @@ const SupplementClustering = memo(({ isOpen, onClose }: SupplementClusteringProp
   )
 })
 
-export default SupplementClustering
+export default SystemClustering
