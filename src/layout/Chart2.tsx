@@ -311,7 +311,7 @@ export default memo(({ data, keys }: ChartProps) => {
             series: [{ symbolSize: 40 }],
             dataZoom: options.dataZoom,
           },
-          { notMerge: true },
+          { replaceMerge: ['series', 'dataZoom'] },
         )
         // console.log("ch1", instance.getOption());
       }
