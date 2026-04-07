@@ -146,7 +146,7 @@ export default memo(({ data, keys }: ChartProps) => {
               connectNulls: false,
             })),
           },
-          { replaceMerge: ['series', 'yAxis'] },
+          { notMerge: true },
         )
       }
     }
