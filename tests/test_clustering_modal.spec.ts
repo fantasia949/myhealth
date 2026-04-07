@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 
 test('take screenshot of clustering chart', async ({ page }) => {
-  page.on('console', msg => console.log('BROWSER CONSOLE:', msg.text()))
+  page.on('console', (msg) => console.log('BROWSER CONSOLE:', msg.text()))
   await page.goto('http://localhost:5173')
 
   // Wait for 5 seconds to allow the table to render

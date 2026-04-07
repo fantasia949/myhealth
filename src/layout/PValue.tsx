@@ -125,16 +125,27 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
                   {comparedSourceTarget && (
                     <div className="mb-4 font-bold text-base flex items-center justify-center bg-dark-bg p-3 rounded border border-gray-700">
                       <span className="text-blue-400">{comparedSourceTarget[0][0]}</span>
-                      <span className="mx-3 text-gray-500 font-normal text-xs uppercase tracking-widest">vs</span>
+                      <span className="mx-3 text-gray-500 font-normal text-xs uppercase tracking-widest">
+                        vs
+                      </span>
                       <span className="text-blue-400">{comparedSourceTarget[1][0]}</span>
                     </div>
                   )}
                   {text ? (
                     text[0] || text[1]
                   ) : (
-                    <div className="text-gray-400 p-6 text-center border border-dashed border-gray-700 rounded bg-white/5 my-4 flex flex-col gap-2" role="alert">
-                      <span className="font-semibold text-gray-300">Not enough overlapping data points</span>
-                      <span>A minimum of 4 overlapping data points are required to calculate the {method === 'pearson' ? 'Pearson' : 'Spearman Rank'} correlation between these biomarkers.</span>
+                    <div
+                      className="text-gray-400 p-6 text-center border border-dashed border-gray-700 rounded bg-white/5 my-4 flex flex-col gap-2"
+                      role="alert"
+                    >
+                      <span className="font-semibold text-gray-300">
+                        Not enough overlapping data points
+                      </span>
+                      <span>
+                        A minimum of 4 overlapping data points are required to calculate the{' '}
+                        {method === 'pearson' ? 'Pearson' : 'Spearman Rank'} correlation between
+                        these biomarkers.
+                      </span>
                     </div>
                   )}
                 </div>

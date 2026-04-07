@@ -57,59 +57,60 @@ const DataCell = React.memo(
   }) => {
     const [copied, setCopied] = React.useState(false)
 
-  const handleInteraction = React.useCallback(async () => {
-    if (onCopy) await onCopy(rawValue)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1500)
-  }, [onCopy, rawValue])
+    const handleInteraction = React.useCallback(async () => {
+      if (onCopy) await onCopy(rawValue)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    }, [onCopy, rawValue])
 
-  const content = (unit as any)?.url ? (
-    <a
-      href={(unit as any).url}
-      target="_blank"
-      rel="noreferrer"
-      className="text-blue-400 hover:underline"
-    >
-      {displayValue}
-    </a>
-  ) : (
-    displayValue
-  )
+    const content = (unit as any)?.url ? (
+      <a
+        href={(unit as any).url}
+        target="_blank"
+        rel="noreferrer"
+        className="text-blue-400 hover:underline"
+      >
+        {displayValue}
+      </a>
+    ) : (
+      displayValue
+    )
 
-  return (
-    <td
-      className={cn(
-        className,
-        'relative group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-sm',
-      )}
-      onClick={handleInteraction}
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          handleInteraction()
+    return (
+      <td
+        className={cn(
+          className,
+          'relative group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-sm',
+        )}
+        onClick={handleInteraction}
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            handleInteraction()
+          }
+        }}
+        role="button"
+        aria-label={
+          typeof displayValue === 'string' || typeof displayValue === 'number'
+            ? `Copy ${displayValue}`
+            : 'Copy value'
         }
-      }}
-      role="button"
-      aria-label={
-        typeof displayValue === 'string' || typeof displayValue === 'number'
-          ? `Copy ${displayValue}`
-          : 'Copy value'
-      }
-      title="Copy to clipboard"
-    >
-      {content}
-      {copied && (
-        <span
-          className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 text-xs text-white bg-blue-600 rounded shadow-lg z-50 animate-fade-in-out pointer-events-none whitespace-nowrap"
-          aria-live="polite"
-        >
-          Copied!
-        </span>
-      )}
-    </td>
-  )
-})
+        title="Copy to clipboard"
+      >
+        {content}
+        {copied && (
+          <span
+            className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 text-xs text-white bg-blue-600 rounded shadow-lg z-50 animate-fade-in-out pointer-events-none whitespace-nowrap"
+            aria-live="polite"
+          >
+            Copied!
+          </span>
+        )}
+      </td>
+    )
+  },
+)
 
 // Optimization: Extracted TableRow to prevent re-rendering all rows when one is selected.
 // With React.memo, only the rows whose props change (e.g. selection state) will re-render.

@@ -19,6 +19,7 @@
 **Action:** Always hoist configuration objects (`options`) to the top of loops/closures or to module scope. For mathematical function constants, extract them directly to module-scoped `const` arrays instead of allocating them dynamically within the function call.
 
 ## 2025-07-28 - ECharts data transformation: Replace chained Array methods with single-pass loops
+
 **Learning:** Extracting multiple series from a multi-dimensional array for chart rendering (like mapping keys to entries, reducing to pairs, and filtering out nulls) via chained `.map().reduce().filter()` creates severe object allocation and closure overhead on every re-render (e.g. `useMemo` in ReactECharts components like Scatter charts).
 **Action:** Replace `Array.map().reduce().filter()` combinations with a traditional `for` loop that iterates over a fixed length (like the data labels length) and performs all extraction, matching, and null-checking in a single pass before pushing only the valid points into a final array.
 
@@ -28,12 +29,16 @@
 **Action:** Replace `Math.min(...array.map(...))` combinations with a single-pass `for` loop that iterates over the dataset once and evaluates min/max boundary variables simultaneously. This avoids the `O(N)` memory allocation of `.map()`, avoids the secondary iteration of `Math.min()`, and protects against stack overflow crashes.
 
 ## 2025-07-28 - Render loop garbage collection: Single pass map reduction
+
 **Learning:** Chaining `.filter().flatMap().sort()` inside a component's `useMemo` block creates unnecessary garbage collection overhead and repeated object allocations, specifically impacting the frontend user experience as `visibleDataAtom` constantly updates (e.g. fast typing in the search bar). This forces the engine to spin up intermediate arrays per keystroke.
 **Action:** Replace generic chained methods with a classic single-pass `for` loop. When possible, initialize an array `const result = []`, conditionally build the object inside the loop and push directly to `result`, followed by a final `.sort()` call. This significantly reduces array instantiation and prevents rapid garbage collection spikes during high-frequency renders.
+
 ## 2024-03-24 - Jotai Derived Atom Closure Overhead
+
 **Learning:** During rapid user input (like search filtering), derived Jotai atoms (e.g. `visibleDataAtom`) recalculate frequently. Utilizing array prototype methods like `.filter()` and `.some()` inside these atoms causes measurable garbage collection and callback execution overhead due to repeated closure creations per row, leading to typing lag on large datasets.
 **Action:** Always replace chained/nested array methods (`.map`, `.filter`, `.some`) with traditional `for` loops inside frequently updating Jotai derived atoms to ensure zero-allocation recalculation.
 
 ## 2025-07-28 - ECharts mapping allocations in hot paths
+
 **Learning:** Extracting data elements or objects via `.map()` directly inside component render cycles (like preparing configurations for ReactECharts elements such as LineChart, Chart, or Table columns) causes closure allocations and new intermediate arrays on every interaction or parent state change, contributing to rendering jitter.
 **Action:** When iterating over a fixed length like `keys` or `labels` for ECharts data initialization, replace `Array.prototype.map` with an explicit `new Array(size)` pre-allocation combined with a classic `for` loop to eliminate functional closure overhead, and wrap it tightly in a `useMemo` where appropriate.
