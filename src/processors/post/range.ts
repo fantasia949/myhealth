@@ -126,7 +126,13 @@ export default (entry: Entry, strict?: boolean): Entry => {
       if (min !== MAX_VALUE) min = +convert(min).toFixed(2)
       if (max !== MAX_VALUE) max = +convert(max).toFixed(2)
 
-      rangeValues = rangeValues.map((x) => (x != MAX_VALUE ? convert(x as number).toFixed(2) : '-'))
+      // Optimization: Replace array.map with a classic for loop and pre-allocated array.
+      const newRangeValues = new Array(rangeValues.length)
+      for (let i = 0; i < rangeValues.length; i++) {
+        const x = rangeValues[i]
+        newRangeValues[i] = x != MAX_VALUE ? convert(x as number).toFixed(2) : '-'
+      }
+      rangeValues = newRangeValues
     }
 
     if (rangeValues.includes(MAX_VALUE)) {
@@ -141,11 +147,21 @@ export default (entry: Entry, strict?: boolean): Entry => {
       return !isNaN(value) && (value < min || value > max)
     }
 
-    // Optimization: pre-calculate optimality to avoid repeated calculations in render loops
-    extra.optimality = values.map((val) => extra.isNotOptimal?.(parseFloat(val)) ?? false)
+    // Optimization: pre-calculate optimality using a classic loop to avoid map overhead
+    const len = values.length
+    const optimality = new Array(len)
+    for (let i = 0; i < len; i++) {
+      optimality[i] = extra.isNotOptimal?.(parseFloat(values[i])) ?? false
+    }
+    extra.optimality = optimality
   } else if (extra) {
     extra.isNotOptimal = () => false
-    extra.optimality = values.map(() => false)
+    const len = values.length
+    const optimality = new Array(len)
+    for (let i = 0; i < len; i++) {
+      optimality[i] = false
+    }
+    extra.optimality = optimality
   }
   return entry
 }
