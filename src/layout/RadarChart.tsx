@@ -146,7 +146,7 @@ export default memo(({ data, tag }: RadarChartProps) => {
 
   return (
     <div className="w-full flex justify-center my-4">
-      <ReactECharts option={options} style={options.style as any} theme="dark" />
+      <ReactECharts option={options} style={options.style as any} notMerge={true} theme="dark" />
     </div>
   )
 })
