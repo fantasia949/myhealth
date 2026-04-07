@@ -219,9 +219,9 @@ export default memo(({ data, keys }: ChartProps) => {
       dataset.push({
         transform: {
           type: 'ecStat:regression',
-          config: { method: 'linear', formulaOn: 'end' }
+          config: { method: 'linear', formulaOn: 'end' },
         },
-        fromDatasetIndex: 0
+        fromDatasetIndex: 0,
       })
     }
 

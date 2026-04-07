@@ -252,73 +252,75 @@ export default function App() {
       <PValue comparedSourceTarget={comparedSourceTarget} onClose={onPValueClose} />
       <Correlation target={corrlationKey} onClose={onCorrelationClose} />
       <SystemClustering isOpen={isClusteringOpen} onClose={() => setIsClusteringOpen(false)} />
-      <React.Suspense
-        fallback={
-          <div className="flex flex-col items-center justify-center p-12 gap-3 text-gray-400">
-            <Spinner />
-            <span role="status" aria-live="polite">
-              Loading chart...
-            </span>
+      <main id="main-content" tabIndex={-1}>
+        <React.Suspense
+          fallback={
+            <div className="flex flex-col items-center justify-center p-12 gap-3 text-gray-400">
+              <Spinner />
+              <span role="status" aria-live="polite">
+                Loading chart...
+              </span>
+            </div>
+          }
+        >
+          {filterTag && (!chartKeys || chartKeys.length === 0) && (
+            <RadarChart
+              data={data.filter(([_, __, ___, extra]) => extra?.tag?.includes(filterTag))}
+              tag={filterTag}
+            />
+          )}
+          {chartKeys && chartKeys.length > 0 && chartType === 'scatter' && (
+            <ScatterChart data={data} keys={chartKeys} />
+          )}
+        </React.Suspense>
+        <Table {...tableProps} />
+        <div className="flex flex-wrap justify-center gap-4 mt-4 pb-8">
+          <div className="flex flex-col gap-1">
+            <label htmlFor="ai-model" className="text-xs text-gray-400 font-medium ml-1">
+              AI Model
+            </label>
+            <select
+              id="ai-model"
+              className="px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500"
+              value={aiModel}
+              onChange={onAiModelChange}
+            >
+              <option value="gemini-3-flash-preview">Gemini 3 Flash Preview</option>
+              <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview</option>
+            </select>
           </div>
-        }
-      >
-        {filterTag && (!chartKeys || chartKeys.length === 0) && (
-          <RadarChart
-            data={data.filter(([_, __, ___, extra]) => extra?.tag?.includes(filterTag))}
-            tag={filterTag}
-          />
-        )}
-        {chartKeys && chartKeys.length > 0 && chartType === 'scatter' && (
-          <ScatterChart data={data} keys={chartKeys} />
-        )}
-      </React.Suspense>
-      <Table {...tableProps} />
-      <div className="flex flex-wrap justify-center gap-4 mt-4 pb-8">
-        <div className="flex flex-col gap-1">
-          <label htmlFor="ai-model" className="text-xs text-gray-400 font-medium ml-1">
-            AI Model
-          </label>
-          <select
-            id="ai-model"
-            className="px-3 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500"
-            value={aiModel}
-            onChange={onAiModelChange}
-          >
-            <option value="gemini-3-flash-preview">Gemini 3 Flash Preview</option>
-            <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview</option>
-          </select>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="gemini-key" className="text-xs text-gray-400 font-medium ml-1">
+              Gemini API Key
+            </label>
+            <PasswordInput
+              name="key"
+              value={aiKey || ''}
+              onChange={onAiKeyChange}
+              id="gemini-key"
+              placeholder="Gemini key"
+              autoComplete="gemini-key"
+              show={showAiKey}
+              setShow={setShowAiKey}
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="gist-token" className="text-xs text-gray-400 font-medium ml-1">
+              Gist Token
+            </label>
+            <PasswordInput
+              name="gist_token"
+              value={gistToken || ''}
+              onChange={onGistTokenChange}
+              id="gist-token"
+              placeholder="Gist token"
+              autoComplete="gist-token"
+              show={showGistToken}
+              setShow={setShowGistToken}
+            />
+          </div>
         </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="gemini-key" className="text-xs text-gray-400 font-medium ml-1">
-            Gemini API Key
-          </label>
-          <PasswordInput
-            name="key"
-            value={aiKey || ''}
-            onChange={onAiKeyChange}
-            id="gemini-key"
-            placeholder="Gemini key"
-            autoComplete="gemini-key"
-            show={showAiKey}
-            setShow={setShowAiKey}
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="gist-token" className="text-xs text-gray-400 font-medium ml-1">
-            Gist Token
-          </label>
-          <PasswordInput
-            name="gist_token"
-            value={gistToken || ''}
-            onChange={onGistTokenChange}
-            id="gist-token"
-            placeholder="Gist token"
-            autoComplete="gist-token"
-            show={showGistToken}
-            setShow={setShowGistToken}
-          />
-        </div>
-      </div>
+      </main>
     </>
   )
 }
