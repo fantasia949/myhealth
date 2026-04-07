@@ -128,7 +128,21 @@ const TableRow = React.memo(
     averageCountValue,
     visibleLeafColumnsCount,
     onCellClick,
-  }: any) => {
+  }: {
+    entry: DisplayedEntry
+    isSelected: boolean
+    isExpanded: boolean
+    rowId: string
+    toggleExpand: (id: string) => void
+    onSelect: (name: string) => void
+    onCorrelation: (name: string) => void
+    setCorrelationBiomarker: (name: string | null) => void
+    cellBaseClasses: string[]
+    showOrigColumns: boolean
+    averageCountValue: string
+    visibleLeafColumnsCount: number
+    onCellClick: (text: string) => Promise<void>
+  }) => {
     const { name, values, visibleValues, visibleOptimality, visibleOriginValues, unit, extra } =
       entry
     const safeNameId = String(name).replace(/[^a-zA-Z0-9-_]/g, '-')
