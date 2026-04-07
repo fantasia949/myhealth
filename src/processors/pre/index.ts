@@ -28,12 +28,24 @@ const setup = (entry: Entry): Entry => {
 }
 
 const preProcessEntry = (entry: Entry): Entry => {
-  const funcs = [setup, convertName, convertUnit]
-  return funcs.reduce((result, func) => func(result), entry)
+  // Optimization: Unroll reduce loop and array allocation for better performance
+  // Avoids `reduce` overhead in a hot loop processing every single entry.
+  let result = setup(entry)
+  result = convertName(result)
+  result = convertUnit(result)
+  return result
 }
 
 export default (entries: Entry[]): Entry[] => {
-  entries = entries.filter((entry) => !excludes.includes(entry[0]))
-  entries = entries.map(preProcessEntry)
-  return entries
+  // Optimization: Consolidate chained .filter().map() into a single loop
+  // to avoid allocating intermediate arrays and reducing iterations.
+  const result: Entry[] = []
+  const len = entries.length
+  for (let i = 0; i < len; i++) {
+    const entry = entries[i]
+    if (!excludes.includes(entry[0])) {
+      result.push(preProcessEntry(entry))
+    }
+  }
+  return result
 }
