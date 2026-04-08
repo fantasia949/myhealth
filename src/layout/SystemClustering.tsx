@@ -305,13 +305,14 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
                 {availableTags.length > 0 && (
                   <div className="flex gap-4 mb-6 bg-[#1a1a1a] p-3 rounded-lg border border-[#3a3a3a]">
                     <div className="flex flex-col gap-1 w-1/2">
-                      <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                      <label htmlFor="x-axis-group" className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
                         X-Axis Group
                       </label>
                       <select
+                        id="x-axis-group"
                         value={xAxisTag}
                         onChange={(e) => setXAxisTag(e.target.value)}
-                        className="bg-[#111111] text-white border border-[#3a3a3a] rounded p-2 text-sm focus:outline-none focus:border-blue-500"
+                        className="bg-[#111111] text-white border border-[#3a3a3a] rounded p-2 text-sm focus:outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500"
                       >
                         {availableTags.map((t) => (
                           <option key={t} value={t}>
@@ -321,13 +322,14 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
                       </select>
                     </div>
                     <div className="flex flex-col gap-1 w-1/2">
-                      <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                      <label htmlFor="y-axis-group" className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
                         Y-Axis Group
                       </label>
                       <select
+                        id="y-axis-group"
                         value={yAxisTag}
                         onChange={(e) => setYAxisTag(e.target.value)}
-                        className="bg-[#111111] text-white border border-[#3a3a3a] rounded p-2 text-sm focus:outline-none focus:border-blue-500"
+                        className="bg-[#111111] text-white border border-[#3a3a3a] rounded p-2 text-sm focus:outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500"
                       >
                         {availableTags.map((t) => (
                           <option key={t} value={t}>
