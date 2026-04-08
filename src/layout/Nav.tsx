@@ -377,11 +377,14 @@ export default React.memo<NavProps>(
                       {isAsking ? 'Asking...' : 'Ask AI'}
                     </button>
                     <div className="w-px h-4 bg-gray-600 mx-0.5 hidden sm:block"></div>
+                    <label htmlFor="chart-type" className="sr-only">
+                      Select chart type
+                    </label>
                     <select
+                      id="chart-type"
                       className="px-2 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                       value={chartType}
                       onChange={(e) => onChartTypeChange(e.target.value)}
-                      aria-label="Select chart type"
                     >
                       <option value="scatter">Scatter Chart</option>
                     </select>
@@ -409,11 +412,14 @@ export default React.memo<NavProps>(
 
               <div className="hidden contents lg:flex lg:ml-auto lg:flex-row lg:gap-4 lg:items-center">
                 <div className="flex items-center gap-2 w-full lg:w-auto">
+                  <label htmlFor="average-count" className="sr-only">
+                    Select average count
+                  </label>
                   <select
+                    id="average-count"
                     className="flex-1 lg:flex-none px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                     value={averageCount.toString()}
                     onChange={onAverageCount}
-                    aria-label="Select average count"
                   >
                     <option value="">No average</option>
                     <option value="3">Average of last 3 tests</option>
@@ -423,11 +429,14 @@ export default React.memo<NavProps>(
                   </select>
                 </div>
                 <div className="hidden lg:flex items-center gap-2 lg:w-auto">
+                  <label htmlFor="show-records" className="sr-only">
+                    Select number of records to show
+                  </label>
                   <select
+                    id="show-records"
                     className="flex-1 lg:flex-none px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                     value={showRecords.toString()}
                     onChange={onShowRecordsChange}
-                    aria-label="Select number of records to show"
                   >
                     <option value="0">All</option>
                     <option value="3">Last 3 records</option>
