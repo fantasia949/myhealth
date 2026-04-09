@@ -67,14 +67,18 @@ const formatTime = (label: string) => {
 }
 
 export default memo(({ data, keys }: ChartProps) => {
-  const valueList = keys.map((k, i) => ({
-    fieldKey: 'v' + i,
-    fieldName: k,
-    decimalLength: 2,
-    yAxisIndex: i,
-  }))
-
   console.log(data, keys)
+
+  const valueList = useMemo(() => {
+    // Optimization: Wrap with useMemo to prevent creating a new array reference every render,
+    // which invalidates the downstream chartData useMemo dependency check.
+    return keys.map((k, i) => ({
+      fieldKey: 'v' + i,
+      fieldName: k,
+      decimalLength: 2,
+      yAxisIndex: i,
+    }))
+  }, [keys])
 
   const yAxis: any[] = useMemo(() => {
     // Optimization: Replace array map in the render loop with a classic for-loop
