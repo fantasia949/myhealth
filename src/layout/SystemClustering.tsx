@@ -305,7 +305,10 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
                 {availableTags.length > 0 && (
                   <div className="flex gap-4 mb-6 bg-[#1a1a1a] p-3 rounded-lg border border-[#3a3a3a]">
                     <div className="flex flex-col gap-1 w-1/2">
-                      <label htmlFor="x-axis-group" className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                      <label
+                        htmlFor="x-axis-group"
+                        className="text-xs font-semibold text-gray-400 uppercase tracking-wider"
+                      >
                         X-Axis Group
                       </label>
                       <select
@@ -322,7 +325,10 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
                       </select>
                     </div>
                     <div className="flex flex-col gap-1 w-1/2">
-                      <label htmlFor="y-axis-group" className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                      <label
+                        htmlFor="y-axis-group"
+                        className="text-xs font-semibold text-gray-400 uppercase tracking-wider"
+                      >
                         Y-Axis Group
                       </label>
                       <select
