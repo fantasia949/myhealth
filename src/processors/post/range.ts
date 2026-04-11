@@ -69,9 +69,13 @@ const range: Record<string, number[]> = {
   'SL tiểu cầu KT lớn': [8, 129],
   'Tỉ lệ tiểu cầu có KT lớn': [5, 29],
   'Neutropil / Lymphocite': [1.2, 2],
-  'TG / HDL': [0, 2],
+  'TG / HDL': [0, 1.1],
   'Total Cholesterol / HDL': [1, 3],
   'HOMA-IR': [0, 2],
+  'HOMA-S(%S)': [75, 250],
+  'HOMA-B(%B)': [80, 120],
+  'HOMA1-IR': [0, 1],
+  'HOMA2-IR': [0, 1],
   LDH: [140, 180],
   'Serum iron': [10.744, 23.2787],
   'Protein Total': [64, 83],
@@ -89,6 +93,14 @@ const range: Record<string, number[]> = {
   VLDL: [5, 40],
   IgM: [22, 240],
   'DHEA.SO4': [0.889, 4.27],
+  Weight: [65, 75],
+  Ketone: [0.5, 3],
+  SHBG: [15, 55],
+  'Cystatin C': [0.7, 1.1],
+  'P-LCR': [6, 41],
+  TIBC: [45, 86],
+  'LDL / HDL': [0, 2],
+  'Total Choles / HDL': [0, 3.5]
 }
 
 const strictRange: Record<string, number[]> = {
@@ -97,6 +109,7 @@ const strictRange: Record<string, number[]> = {
   Natri: [137, 142],
   Kali: [4.0, 4.5],
   'CRP-hs': [0, 1],
+  SHBG: [20, 40],
   //   Calcium: [9.0, 9.8]
   // Creatinine: 0.7–1.1
   // BUN: 8–16

@@ -12,7 +12,6 @@ const recipes: Recipe[] = [
   ],
   ['TG / HDL', ['Triglyceride', 'HDL'], (value1, value2) => (value1 / value2).toFixed(1)],
   ['Total Choles / HDL', ['Cholesterol', 'HDL'], (value1, value2) => (value1 / value2).toFixed(1)],
-  ['Triglyceride / HDL', ['Triglyceride', 'HDL'], (value1, value2) => (value1 / value2).toFixed(1)],
   ['LDL / HDL', ['LDL', 'HDL'], (value1, value2) => (value1 / value2).toFixed(1)],
   ['HOMA-IR', ['Glucose', 'Insulin'], (value1, value2) => ((+value1 * +value2) / 405).toFixed(1)],
   ['NLR', ['% Neutro', '% Lympho'], (value1, value2) => (value1 / value2).toFixed(1)],

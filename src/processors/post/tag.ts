@@ -35,7 +35,6 @@ const tag: Record<string, string[]> = {
     'Triglyceride',
     'TG / HDL',
     'LDL / HDL',
-    'Triglyceride / HDL',
     'Lipoprotein - APO-B',
     'Total Choles / HDL',
   ],
