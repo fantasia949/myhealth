@@ -291,6 +291,7 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
                     onClick={onClose}
                     className="text-gray-400 hover:text-white transition-colors"
                     aria-label="Close dialog"
+                    title="Close dialog"
                   >
                     <XMarkIcon className="h-6 w-6" />
                   </button>
