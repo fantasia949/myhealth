@@ -44,5 +44,11 @@
 **Action:** When iterating over a fixed length like `keys` or `labels` for ECharts data initialization, replace `Array.prototype.map` with an explicit `new Array(size)` pre-allocation combined with a classic `for` loop to eliminate functional closure overhead, and wrap it tightly in a `useMemo` where appropriate.
 
 ## 2025-04-10 - Utilize dataMapAtom to prevent redundant Map allocations in chart components
+
 **Learning:** Generating the same data lookup map across multiple chart components on every render cycle using `new Map()` introduces redundant object allocation and closure creation, specifically inside heavy `useMemo` hooks. This increases garbage collection pressure, particularly when handling large biomarker arrays or responding rapidly to UI state changes (like filter text debouncing or axis selections). A pre-existing Jotai derived atom (`dataMapAtom`) correctly handles this operation dynamically once.
 **Action:** Use global derived atoms (e.g., `useAtomValue(dataMapAtom)`) for shared lookups rather than duplicating local mapping overhead (`new Map()`) inside individual component logic.
+
+## 2025-07-28 - Optimize array lookups with direct indexing
+
+**Learning:** In `src/layout/Chart.tsx`, using `Array.find()` inside a loop over an array of equal length (`keys` and `valueList`) to correlate corresponding objects creates an unnecessary `O(N^2)` operation. Since `valueList` is directly mapped from `keys` index-for-index, the arrays are guaranteed to be parallel.
+**Action:** Replace `Array.find((entry) => entry.fieldName === key)` with direct array indexing `valueList[i]` when operating on parallel arrays inside a `useMemo` block to drop time complexity from `O(N^2)` to `O(N)`.

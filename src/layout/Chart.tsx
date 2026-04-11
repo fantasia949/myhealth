@@ -104,8 +104,10 @@ export default memo(({ keys }: ChartProps) => {
       const key = keys[i]
       const entry = dataMap.get(key)
       if (entry) {
-        const k = valueList.find((entry) => entry.fieldName === key)
-        if (k) {
+        // Optimization: Replace O(N) Array.find() with O(1) direct array indexing.
+        // valueList is generated directly from keys, so their indices perfectly align.
+        const k = valueList[i]
+        if (k && k.fieldName === key) {
           validSeries.push({ fieldKey: k.fieldKey, values: entry[1] })
         }
       }
