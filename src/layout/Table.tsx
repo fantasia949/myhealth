@@ -31,6 +31,7 @@ import { Spinner } from './Spinner'
 
 const LineChart = React.lazy(() => import('./LineChart'))
 const BoxplotChart = React.lazy(() => import('./BoxplotChart'))
+const HistogramChart = React.lazy(() => import('./HistogramChart'))
 
 const columnHelper = createColumnHelper<DisplayedEntry>()
 
@@ -272,13 +273,14 @@ const TableRow = React.memo(
                   </div>
                 }
               >
-                <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-3 grid grid-cols-1 md:grid-cols-3 gap-4">
                   <LineChart
                     name={name}
                     values={values}
                     rangeStr={typeof extra.range === 'string' ? extra.range : undefined}
                   />
                   <BoxplotChart name={name} values={values} />
+                  <HistogramChart name={name} values={values} />
                 </div>
               </React.Suspense>
             </td>
