@@ -28,10 +28,21 @@ const echartsOptions = {
     },
     formatter: (params: any) => {
       const date = params.value[0]
-      const value =
-        params.value[1] !== null && params.value[1] !== undefined ? params.value[1] : '-'
+      const val = params.value[1]
+
+      if (
+        val === null ||
+        val === undefined ||
+        val === '-' ||
+        val === '' ||
+        val === 'NaN' ||
+        Number.isNaN(val)
+      ) {
+        return ''
+      }
+
       const unit = params.value[2] ? ` ${params.value[2]}` : ''
-      return `${params.marker} ${params.seriesName}<br/>${date}<br/><strong>${value}${unit}</strong>`
+      return `${params.marker} ${params.seriesName}<br/>${date}<br/><strong>${val}${unit}</strong>`
     },
   },
   legend: {
