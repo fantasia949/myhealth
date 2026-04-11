@@ -21,53 +21,7 @@ Tooltips now correctly suppress entirely when hovering over gaps in the time-ser
 
 These 3 visualization ideas use existing metadata to surface new insights without requiring new dependencies or processing logic.
 
-**Proposal 1 of 3: Value Distribution Histogram**
-
-**ECharts type:** `ecStat:histogram`
-
-**Which existing data it uses:**
-Uses the `values` array already extracted from a specific `BioMarker` entry in `src/atom/dataAtom.ts` (or mapped within the chart components).
-
-**What it reveals that current charts don't:**
-Shows the frequency distribution of a single high-variance biomarker over time (e.g. Glucose or Cholesterol). It reveals whether a users values are normally distributed or heavily skewed in one direction, rather than just plotting them linearly over time.
-
-**Where it would live:**
-New `src/layout/HistogramChart.tsx`.
-
-**Trigger / entry point:**
-Could be added as a toggle button ("Time" vs "Distribution") inside the expanded row view of `Table.tsx` where the `LineChart` currently resides.
-
-**Implementation complexity:** Low
-The `ecStat:histogram` transform handles all binning logic internally. It just requires wiring the existing 1D array of `values` (excluding nulls) into an ECharts dataset.
-
-**ECharts 5.6.0 API confirmed via context7:** yes (transform config `type: "ecStat:histogram"`)
-
----
-
-**Proposal 2 of 3: Optimal Ratio Pie Chart**
-
-**ECharts type:** `pie`
-
-**Which existing data it uses:**
-Uses the `extra.optimality[]` boolean array computed in `src/processors/post/range.ts` evaluated at the most recent time index (or specific data point).
-
-**What it reveals that current charts don't:**
-Provides an instant aggregate score ("7 out of 9 optimal") for a specific tag group (like "2-Metabolic"). It shows the user's overall systemic health snapshot without requiring them to scroll down and count individual rows.
-
-**Where it would live:**
-New `src/layout/SummaryPie.tsx`.
-
-**Trigger / entry point:**
-Auto-rendered at the top of the `Table.tsx` component whenever a specific tag is active in the `tagAtom` state.
-
-**Implementation complexity:** Low
-We just need to sum `true` vs `false` inside the `optimality` arrays for all biomarkers in the current tag filter and pass two static data points to a standard ECharts pie series.
-
-**ECharts 5.6.0 API confirmed via context7:** yes (`series[].type = 'pie'`)
-
----
-
-**Proposal 3 of 3: Deviation MarkLine Overlay**
+**Proposal 1 of 3: Deviation MarkLine Overlay**
 
 **ECharts type:** `markLine`
 
@@ -90,4 +44,50 @@ Requires adding `markLine: { data: [{ yAxis: max }] }` directly into the existin
 
 ---
 
-Recommended implementation order: Proposal 2 first (highest insight, lowest effort), then 3, then 1.
+**Proposal 2 of 3: Hierarchical System Health Sunburst**
+
+**ECharts type:** `sunburst`
+
+**Which existing data it uses:**
+Uses the static `tagDescription` categories from `src/processors/post/tag.ts` mapped to all constituent `BioMarker` entries' `extra.optimality[]` boolean at the latest tested index.
+
+**What it reveals that current charts don't:**
+The current `RadarChart` focuses strictly on a single system category at a time (e.g. Metabolic). A hierarchical Sunburst chart (inner ring = Tag Groups, outer ring = specific Biomarkers) colored proportionally by their `optimality` provides a massive, single-glance structural overview of an individual's total biological wellness at their most recent blood draw.
+
+**Where it would live:**
+New `src/layout/SystemSunburst.tsx`.
+
+**Trigger / entry point:**
+A macro "Total Health Snapshot" button at the top of the main `Nav.tsx` or `Table.tsx` filter list, replacing the detailed table with a single holistic graphic.
+
+**Implementation complexity:** Medium
+(Medium: Requires formatting the linear `BioMarker` array into a nested JSON structure `[{ name: 'Metabolic', children: [{ name: 'Glucose', value: 1, itemStyle: {color: 'green'}}]}]`, which ECharts parses natively).
+
+**ECharts 5.6.0 API confirmed via context7:** yes (`series[].type = 'sunburst'`)
+
+---
+
+**Proposal 3 of 3: Testing Consistency Gap Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Which existing data it uses:**
+Uses the `labels[]` time-series scale on the X-axis and all non-inferred `BioMarker` names (`dataAtom`) on the Y-axis. The data points evaluate strictly whether the measured value `!== null`.
+
+**What it reveals that current charts don't:**
+Unlike correlation matrix heatmaps that map statistical relationships, a temporal missing-data heatmap reveals the user's testing consistency gaps. It instantly shows "I have tracked Lipid markers flawlessly since 2015, but I only tested Vitamin D once in 2018." This helps identify testing blindspots in their protocol history.
+
+**Where it would live:**
+New `src/layout/TestingConsistencyHeatmap.tsx`.
+
+**Trigger / entry point:**
+A supplementary tab on the `Correlation.tsx` modal ("View Testing Consistency") or a standalone toggle above the main table.
+
+**Implementation complexity:** Low
+(Low: ECharts 2D Cartesian `heatmap` supports a simple coordinate map `[timeIndex, biomarkerIndex, isNotNull ? 1 : 0]`. It requires no new state derivations, merely iterating over the existing `values` arrays).
+
+**ECharts 5.6.0 API confirmed via context7:** yes (`series[].type = 'heatmap'`)
+
+---
+
+Recommended implementation order: Proposal 1 first (highest insight, lowest effort), then 3, then 2.

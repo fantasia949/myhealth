@@ -94,7 +94,8 @@ export default memo(({ name, values }: HistogramChartProps) => {
         tooltip: {
           formatter: (params: any) => {
             const val = params.value
-            return `<strong>${name} Range</strong><br/>${val[0].toFixed(2)} - ${val[1].toFixed(2)}<br/>Frequency: ${val[2]}`
+            // ecStat:histogram dataset format: [mean, count, min, max]
+            return `<strong>${name} Range</strong><br/>${val[2].toFixed(2)} - ${val[3].toFixed(2)}<br/>Frequency: ${val[1]}`
           },
         },
       },
