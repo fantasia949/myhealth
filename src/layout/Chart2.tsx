@@ -1,16 +1,16 @@
 import { memo, useRef, useEffect, useMemo } from 'react'
+import { useAtomValue } from 'jotai'
+import { dataMapAtom } from '../atom/dataAtom'
 import { ChartProvider, ChartContext } from '@echarts-readymade/core'
 import { Scatter } from '@echarts-readymade/scatter'
 import { labels } from '../data'
 import ReactECharts from 'echarts-for-react'
-import { BioMarker } from '../types/biomarker'
 import * as echarts from 'echarts'
 import * as ecStat from 'echarts-stat'
 
 echarts.registerTransform((ecStat as any).transform.regression)
 
 interface ChartProps {
-  data: BioMarker[]
   keys: string[]
 }
 
@@ -131,7 +131,8 @@ const echartsOptions: any = {
   ],
 }
 
-export default memo(({ data, keys }: ChartProps) => {
+export default memo(({ keys }: ChartProps) => {
+  const dataMap = useAtomValue(dataMapAtom)
   const valueList = [
     { fieldKey: keys[0], fieldName: keys[0], decimalLength: 2 },
     { fieldKey: keys[1], fieldName: keys[1], decimalLength: 2 },
@@ -158,13 +159,6 @@ export default memo(({ data, keys }: ChartProps) => {
   }
 
   const [scatterData, mappedScatterData] = useMemo(() => {
-    // Optimization: use a local O(1) map for data lookups instead of O(N) array.find inside a map.
-    // This reduces lookup complexity from O(N*K) to O(N + K).
-    const dataMap = new Map()
-    for (let i = 0; i < data.length; i++) {
-      dataMap.set(data[i][0], data[i])
-    }
-
     // Optimization: Replace O(K*N) chained .map(), .reduce(), and .filter() array allocations
     // with a single-pass O(N) loop to eliminate closure creation and garbage collection overhead.
     const entry0 = dataMap.get(keys[0])
@@ -198,7 +192,7 @@ export default memo(({ data, keys }: ChartProps) => {
     }
 
     return [scatterData, mappedScatterData]
-  }, [keys, data])
+  }, [dataMap, keys])
 
   const scatterRef = useRef<any>(null)
 

@@ -1,12 +1,12 @@
 import { memo, useRef, useEffect, useMemo } from 'react'
+import { useAtomValue } from 'jotai'
+import { dataMapAtom } from '../atom/dataAtom'
 import { ChartProvider, ChartContext } from '@echarts-readymade/core'
 import { Line } from '@echarts-readymade/line'
 import { labels } from '../data'
-import { BioMarker } from '../types/biomarker'
 import { CHART_PALETTE } from './Chart2'
 
 interface ChartProps {
-  data: BioMarker[]
   keys: string[]
 }
 
@@ -66,8 +66,8 @@ const formatTime = (label: string) => {
   return `20${label.slice(0, 2)}/${label.slice(2, 4)}/${label.slice(4, 6)}`
 }
 
-export default memo(({ data, keys }: ChartProps) => {
-  console.log(data, keys)
+export default memo(({ keys }: ChartProps) => {
+  const dataMap = useAtomValue(dataMapAtom)
 
   const valueList = useMemo(() => {
     // Optimization: Wrap with useMemo to prevent creating a new array reference every render,
@@ -96,13 +96,6 @@ export default memo(({ data, keys }: ChartProps) => {
   }, [keys])
 
   const chartData = useMemo(() => {
-    // Optimization: use a local O(1) map for data lookups instead of O(N) array.find inside a map.
-    // This reduces lookup complexity from O(N*K) to O(N + K).
-    const dataMap = new Map()
-    for (let i = 0; i < data.length; i++) {
-      dataMap.set(data[i][0], data[i])
-    }
-
     // Optimization: Replace chained .reduce(), .forEach() and Object.values() with a
     // single-pass loop over the data length. This eliminates closure creation, higher-order
     // array method overhead, and repetitive dictionary allocations per render.
@@ -132,7 +125,7 @@ export default memo(({ data, keys }: ChartProps) => {
     }
 
     return result
-  }, [data, keys, valueList, labels])
+  }, [dataMap, keys, valueList, labels])
 
   const ref = useRef<any>(null)
 

@@ -270,7 +270,7 @@ export default function App() {
             />
           )}
           {chartKeys && chartKeys.length > 0 && chartType === 'scatter' && (
-            <ScatterChart data={data} keys={chartKeys} />
+            <ScatterChart keys={chartKeys} />
           )}
         </React.Suspense>
         <Table {...tableProps} />

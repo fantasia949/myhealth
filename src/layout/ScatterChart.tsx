@@ -1,11 +1,11 @@
 import { memo, useMemo } from 'react'
+import { useAtomValue } from 'jotai'
+import { dataMapAtom } from '../atom/dataAtom'
 import ReactECharts from 'echarts-for-react'
-import { BioMarker } from '../types/biomarker'
 import { labels } from '../data'
 import { CHART_PALETTE } from './Chart2'
 
 interface ScatterChartProps {
-  data: BioMarker[]
   keys: string[]
 }
 
@@ -43,7 +43,8 @@ const echartsOptions = {
   },
 }
 
-export default memo(({ data, keys }: ScatterChartProps) => {
+export default memo(({ keys }: ScatterChartProps) => {
+  const dataMap = useAtomValue(dataMapAtom)
   const yAxes = keys.map((key, index) => {
     const isEven = index % 2 === 0
     const sideOffset = Math.floor(index / 2) * 80
@@ -73,13 +74,6 @@ export default memo(({ data, keys }: ScatterChartProps) => {
   }
 
   const chartData = useMemo(() => {
-    // Optimization: use a local O(1) map for data lookups instead of O(N) array.find inside a map.
-    // This reduces lookup complexity from O(N*K) to O(N + K).
-    const dataMap = new Map()
-    for (let i = 0; i < data.length; i++) {
-      dataMap.set(data[i][0], data[i])
-    }
-
     // Optimization: Replace chained Array.map() with a classic for-loop and pre-allocated array.
     // This eliminates the closure allocation and avoids garbage collection spikes in component render paths.
     const numKeys = keys.length
@@ -120,7 +114,7 @@ export default memo(({ data, keys }: ScatterChartProps) => {
       }
     }
     return result
-  }, [data, keys])
+  }, [dataMap, keys])
 
   const options = {
     ...echartsOptions,
