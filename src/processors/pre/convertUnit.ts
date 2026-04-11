@@ -103,8 +103,8 @@ export default ([name, values, unit, extra]: Entry): Entry => {
   // instead of chaining Array.map(), Array.filter(), and Array.some()
   // to eliminate redundant iteration, reduce closure creation, and avoid
   // heavy garbage collection overhead on intermediate array allocations.
-  const newValues = new Array(len)
-  const originValues = new Array(len)
+  const newValues = Array.from({ length: len }) as string[]
+  const originValues = Array.from({ length: len }) as (string | number | null)[]
 
   let newUnit: string | undefined = undefined
   let originUnit: string | undefined = undefined
