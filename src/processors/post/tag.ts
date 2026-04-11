@@ -12,6 +12,7 @@ const tag: Record<string, string[]> = {
     'Ketone',
     'Uric',
     'Weight',
+    'Homocysteine'
   ],
   '3-Liver': [
     'GGT',
@@ -48,6 +49,8 @@ const tag: Record<string, string[]> = {
     'Cortisol',
     'DHEA.SO4',
     'SHBG',
+    'LH',
+    'FSH'
   ],
   '6-Kidney': [
     'Ure',
@@ -97,6 +100,7 @@ const tag: Record<string, string[]> = {
     'Magnesium',
     'Calcium',
     'Ferritin',
+    'Tranferrin',
     'Serum iron',
     'Natri',
     'Kali',
