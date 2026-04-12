@@ -79,7 +79,7 @@ export default {
     '-vibration',
     '-HMB',
     '+egg',
-    '+green-tea'
+    '+green-tea',
   ],
   review: [
     'ashwagandha is not enough to lower cortisol',

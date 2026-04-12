@@ -73,12 +73,18 @@ export default memo(({ keys }: ChartProps) => {
   const valueList = useMemo(() => {
     // Optimization: Wrap with useMemo to prevent creating a new array reference every render,
     // which invalidates the downstream chartData useMemo dependency check.
-    return keys.map((k, i) => ({
-      fieldKey: 'v' + i,
-      fieldName: k,
-      decimalLength: 2,
-      yAxisIndex: i,
-    }))
+    // Replace chained array map with a pre-allocated array and a classic for-loop
+    const len = keys.length
+    const result = new Array(len)
+    for (let i = 0; i < len; i++) {
+      result[i] = {
+        fieldKey: 'v' + i,
+        fieldName: keys[i],
+        decimalLength: 2,
+        yAxisIndex: i,
+      }
+    }
+    return result
   }, [keys])
 
   const yAxis: any[] = useMemo(() => {
@@ -138,14 +144,21 @@ export default memo(({ keys }: ChartProps) => {
     if (ref.current) {
       instance = ref.current.getEchartsInstance()
       if (instance) {
+        // Optimization: Replace array map in the render loop with a classic for-loop
+        // and pre-allocated array to avoid closure and garbage collection overhead.
+        const len = keys.length
+        const series = new Array(len)
+        for (let i = 0; i < len; i++) {
+          series[i] = {
+            type: 'line',
+            connectNulls: false,
+          }
+        }
         instance.setOption(
           {
             yAxis,
             grid: { top: 40, bottom: 20 },
-            series: keys.map(() => ({
-              type: 'line',
-              connectNulls: false,
-            })),
+            series,
           },
           { replaceMerge: ['series', 'yAxis'] },
         )
