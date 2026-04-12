@@ -54,6 +54,9 @@ export default [
       ['HCV Ab', '0.038', 'COI'],
       ['T3', '1.22', 'nmol/L'],
     ],
+    notes: <UpdateNote[]>[
+      '+vitamin-d' // ~2000iu
+    ],
     time: '200811',
   },
   {
@@ -70,6 +73,9 @@ export default [
       ['Insulin', '3.40', 'µU/mL'],
       ['T3', '1.14', 'nmol/L'],
       ['Testosterone', '22.20', 'nmol/L'],
+    ],
+    notes: <UpdateNote[]>[
+      '++vitamin-d'// 5000iu
     ],
     time: '201116',
   },
@@ -1076,7 +1082,6 @@ export default [
       '+benfotiamine',
       '+fucoidan',
       '+pregnenolone',
-      '+vitamin-d',
       '-astragalus',
       '-brazil-nut',
       '-red-light',
