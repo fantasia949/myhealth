@@ -55,6 +55,7 @@ export default [
       ['T3', '1.22', 'nmol/L'],
     ],
     notes: <UpdateNote[]>[
+      '+vitamin-b',
       '+vitamin-d' // ~2000iu
     ],
     time: '200811',
