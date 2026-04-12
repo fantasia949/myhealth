@@ -10,7 +10,7 @@ Scan 2 — Tooltip Quality. Specifically, checking whether the tooltip shows the
 `tooltip.formatter` and `series[].encode` — ECharts 5.6 docs.
 
 **The Fix:**
-Updated the `chartData` generation logic to attach the unit string inside the resulting mapped dataset array (via `item[\`${series.fieldKey}_unit\`] = series.unit || ''`). Then, inside the `tooltip.formatter` callback, the unit is extracted using `const unit = p.value[\`${dimName}_unit\`] || ''` and successfully rendered into the tooltip HTML string alongside the base value.
+Updated the `chartData` generation logic to attach the unit string inside the resulting mapped dataset array (via `item[\`${series.fieldKey}_unit\`] = series.unit || ''`). Then, inside the `tooltip.formatter` callback, the unit is extracted using `const unit = p.value[\`${dimName}\_unit\`] || ''` and successfully rendered into the tooltip HTML string alongside the base value.
 
 **The Benefit:**
 Multi-line charts now explicitly show measurement units inside their tooltips instead of raw, uncontextualized numbers.
@@ -75,7 +75,7 @@ Available inside the Tag Filter UI (e.g., clicking the `2-Metabolic` tag could r
 Uses consecutive null sequences in the `values` array for a given `BioMarker`.
 
 **What it reveals that current charts don't:**
-While ECharts handles connecting null points or breaking lines via `connectNulls`, it doesn't emphasize *how long* a gap is. Overlaying dark gray, hashed `markArea` bands during periods with >6 months of missing data warns the user that trendlines or regressions spanning this void are less reliable.
+While ECharts handles connecting null points or breaking lines via `connectNulls`, it doesn't emphasize _how long_ a gap is. Overlaying dark gray, hashed `markArea` bands during periods with >6 months of missing data warns the user that trendlines or regressions spanning this void are less reliable.
 
 **Where it would live:**
 Modifying the existing `series` inside `src/layout/LineChart.tsx`.
@@ -90,8 +90,7 @@ Dynamically auto-renders behind the single biomarker line whenever a gap between
 
 ---
 
-Recommended implementation order: Proposal 3 first (highest insight, lowest effort), then 1, then 2.
----
+## Recommended implementation order: Proposal 3 first (highest insight, lowest effort), then 1, then 2.
 
 **Proposal 4 of 5: Focused Diverging Bar Chart (Tornado Chart)**
 

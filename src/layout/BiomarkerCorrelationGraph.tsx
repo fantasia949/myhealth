@@ -18,10 +18,10 @@ const BiomarkerCorrelationGraph = React.memo(({ biomarkerId, correlations }: Gra
         name: biomarkerId,
         symbolSize: 40,
         itemStyle: {
-          color: CHART_PALETTE[0]
+          color: CHART_PALETTE[0],
         },
-        label: { show: true, color: '#fff', position: 'top' }
-      }
+        label: { show: true, color: '#fff', position: 'top' },
+      },
     ]
 
     const edges: any[] = []
@@ -41,9 +41,9 @@ const BiomarkerCorrelationGraph = React.memo(({ biomarkerId, correlations }: Gra
         name: corr.name,
         symbolSize: size,
         itemStyle: {
-          color: isPositive ? '#10b981' : '#ef4444' // Emerald for positive, red for negative
+          color: isPositive ? '#10b981' : '#ef4444', // Emerald for positive, red for negative
         },
-        label: { show: true, color: '#a3a3a3', position: 'bottom' } as any
+        label: { show: true, color: '#a3a3a3', position: 'bottom' } as any,
       })
 
       edges.push({
@@ -55,8 +55,8 @@ const BiomarkerCorrelationGraph = React.memo(({ biomarkerId, correlations }: Gra
           width: 1 + Math.pow(absRho, 2) * 8,
           curveness: 0.2,
           color: isPositive ? '#10b981' : '#ef4444',
-          opacity: 0.6
-        }
+          opacity: 0.6,
+        },
       })
     })
 
@@ -73,7 +73,7 @@ const BiomarkerCorrelationGraph = React.memo(({ biomarkerId, correlations }: Gra
             return `${params.data.source} ↔ ${params.data.target}<br/>Rho: <strong>${rho}</strong>`
           }
           return params.name
-        }
+        },
       },
       series: [
         {
@@ -81,16 +81,16 @@ const BiomarkerCorrelationGraph = React.memo(({ biomarkerId, correlations }: Gra
           layout: 'force',
           roam: true,
           label: {
-            show: true
+            show: true,
           },
           force: {
             repulsion: 150,
-            edgeLength: 80
+            edgeLength: 80,
           },
           data: nodes,
-          edges: edges
-        }
-      ]
+          edges: edges,
+        },
+      ],
     }
   }, [biomarkerId, correlations])
 
@@ -98,7 +98,12 @@ const BiomarkerCorrelationGraph = React.memo(({ biomarkerId, correlations }: Gra
 
   return (
     <div className="w-full h-[500px] border border-gray-700 rounded bg-dark-bg/50 mt-4 overflow-hidden relative">
-        <ReactECharts option={options} style={{ height: '100%', width: '100%' }} notMerge={true} theme="dark" />
+      <ReactECharts
+        option={options}
+        style={{ height: '100%', width: '100%' }}
+        notMerge={true}
+        theme="dark"
+      />
     </div>
   )
 })

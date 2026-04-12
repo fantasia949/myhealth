@@ -52,6 +52,10 @@
 
 **Learning:** In `src/layout/Chart.tsx`, using `Array.find()` inside a loop over an array of equal length (`keys` and `valueList`) to correlate corresponding objects creates an unnecessary `O(N^2)` operation. Since `valueList` is directly mapped from `keys` index-for-index, the arrays are guaranteed to be parallel.
 **Action:** Replace `Array.find((entry) => entry.fieldName === key)` with direct array indexing `valueList[i]` when operating on parallel arrays inside a `useMemo` block to drop time complexity from `O(N^2)` to `O(N)`.
+
+## 2024-03-05 - Focus optimizations on render loops, not startup scripts
+**Learning:** Replacing `.reduce()` and `.forEach()` with classic `for` loops on small static dictionaries that run only once during module bootstrap (like `taggedDic`) is a theoretical micro-optimization with zero measurable impact. However, applying the same optimization to chained `.map()` allocations inside a React component's `useMemo` block (like `yAxis` or `series` generation in `Chart.tsx`) significantly reduces garbage collection pressure and layout thrashing during frequent UI re-renders.
+**Action:** Avoid micro-optimizations on static or one-time initialization paths. Instead, aggressively target hot loops within React render cycles or heavy statistical derivations where the operation executes frequently or across large data sets.
 ## 2024-03-24 - Feature: Frequency Info in Correlation Table
  **Learning:** Added a count representing the frequency of supplement intake during valid biomarker observation periods alongside the calculated P-value and RHO values to provide additional insight into the correlation reliability. Playwright test `verify_correlation_table.spec.ts` was updated to verify the addition of the "Freq" column.
  **Action:** When altering tables, also verify the header length alignment if iterating through table cells, update empty states `colSpan`, and remember to update any Copy to clipboard text formatting functionality to include the new column.

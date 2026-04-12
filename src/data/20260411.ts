@@ -1,8 +1,6 @@
 import { UpdateNote } from '../types/notes'
 export default {
   entries: [
-  
-
     // not test
     ['Alkaline Phosphatase', '49.92', 'U/L'],
 
@@ -18,17 +16,13 @@ export default {
     '+taurine',
     '+tongkat-ali',
     '~leg-day',
-    '+oyster'
+    '+oyster',
   ],
   review: [
     'taurine does not lower RDW',
     'tongkat-ali does not higher testosterone',
     'astragalus does not higher platalets',
-    '1 day off creatine indeed lower Creatinin'
+    '1 day off creatine indeed lower Creatinin',
   ],
-  plan: [
-    '+astaxanthin',
-    '+gac-oil',
-    '+cistanche'
-  ]
+  plan: ['+astaxanthin', '+gac-oil', '+cistanche'],
 }
