@@ -1,11 +1,34 @@
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react'
 import { BeakerIcon } from '@heroicons/react/24/outline'
+import { useAtomValue } from 'jotai'
+import { noteValuesAtom } from '../atom/dataAtom'
+import { useMemo } from 'react'
 
 interface Props {
   supps: string[]
 }
 
 export default function SupplementsPopover({ supps }: Props) {
+  const noteValues = useAtomValue(noteValuesAtom)
+
+  // Optimization: Pre-calculate supplement frequencies across all notes
+  // This could be moved to Jotai as a derived atom if it needs to be shared,
+  // but since it's only used in popovers (which render rarely/on-demand),
+  // useMemo is sufficient.
+  const suppFrequencies = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (let i = 0; i < noteValues.length; i++) {
+      const note = noteValues[i]
+      if (note && note.supps) {
+        for (let j = 0; j < note.supps.length; j++) {
+          const supp = note.supps[j]
+          counts.set(supp, (counts.get(supp) || 0) + 1)
+        }
+      }
+    }
+    return counts
+  }, [noteValues])
+
   if (!supps || supps.length === 0) return null
 
   return (
@@ -27,8 +50,11 @@ export default function SupplementsPopover({ supps }: Props) {
         </h3>
         <ul className="list-disc pl-4 space-y-1">
           {supps.map((supp, idx) => (
-            <li key={idx} className="break-words">
-              {supp}
+            <li key={idx} className="break-words flex justify-between items-center gap-2">
+              <span>{supp}</span>
+              <span className="text-gray-500 font-mono text-xs" title="Frequency across all records">
+                ({suppFrequencies.get(supp) || 0})
+              </span>
             </li>
           ))}
         </ul>
