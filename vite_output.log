@@ -1,6 +1,0 @@
-
-  VITE v8.0.8  ready in 649 ms
-
-  ➜  Local:   http://localhost:5173/
-  ➜  Network: use --host to expose
-3:24:13 AM [vite] (client) hmr update /src/layout/SupplementsPopover.tsx, /src/index.css
