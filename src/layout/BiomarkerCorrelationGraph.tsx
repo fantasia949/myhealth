@@ -95,7 +95,7 @@ const BiomarkerCorrelationGraph = React.memo(({ biomarkerId, correlations }: Gra
   if (!correlations || correlations.length === 0) return null
 
   return (
-    <div className="w-full h-64 border border-gray-700 rounded bg-dark-bg/50 mt-4 overflow-hidden relative">
+    <div className="w-full h-96 border border-gray-700 rounded bg-dark-bg/50 mt-4 overflow-hidden relative">
         <ReactECharts option={options} style={{ height: '100%', width: '100%' }} notMerge={true} theme="dark" />
     </div>
   )
