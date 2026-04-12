@@ -68,6 +68,14 @@ const echartsOptions: any = {
       if (params.seriesType === 'scatter' && params.value && params.value.length >= 3) {
         // value[0] is X, value[1] is Y, value[2] is Date string, value[3] is Unit 1, value[4] is Unit 2
         const [x, y, date, unitX, unitY] = params.value
+
+        if (
+          x === null || x === undefined || x === 'NaN' || Number.isNaN(x) ||
+          y === null || y === undefined || y === 'NaN' || Number.isNaN(y)
+        ) {
+          return ''
+        }
+
         const dispX = unitX ? `${x} ${unitX}` : x
         const dispY = unitY ? `${y} ${unitY}` : y
         return `${date}<br/><strong>${params.dimensionNames[0]}:</strong> ${dispX}<br/><strong>${params.dimensionNames[1]}:</strong> ${dispY}`
@@ -203,7 +211,7 @@ export default memo(({ keys }: ChartProps) => {
 
     const dataset: any[] = [
       {
-        dimensions: [keys[0], keys[1], 'Date'],
+        dimensions: [keys[0], keys[1], 'Date', 'unitX', 'unitY'],
         source: mappedScatterData,
       },
     ]
@@ -229,7 +237,7 @@ export default memo(({ keys }: ChartProps) => {
               datasetIndex: 1,
               tooltip: {
                 formatter: (params: any) => {
-                  return `<strong>Regression Trend</strong><br/>${params.value[2]}`
+                    return `<strong>Regression Trend</strong>${params.value[2] ? `<br/>${params.value[2]}` : ''}`
                 },
               },
             },
@@ -266,6 +274,14 @@ export default memo(({ keys }: ChartProps) => {
           if (params.seriesType === 'scatter') {
             const val1 = params.value[0]
             const val2 = params.value[1]
+
+            if (
+              val1 === null || val1 === undefined || val1 === 'NaN' || Number.isNaN(val1) ||
+              val2 === null || val2 === undefined || val2 === 'NaN' || Number.isNaN(val2)
+            ) {
+              return ''
+            }
+
             const dateStr = params.value[2]
             const u0 = params.value[3] ? ` ${params.value[3]}` : ''
             const u1 = params.value[4] ? ` ${params.value[4]}` : ''
@@ -275,7 +291,7 @@ export default memo(({ keys }: ChartProps) => {
               `${params.marker} ${keys[1]}: <strong>${val2}${u1}</strong>`
             )
           }
-          return `<strong>Regression Trend</strong><br/>${params.value[2]}`
+          return `<strong>Regression Trend</strong>${params.value[2] ? `<br/>${params.value[2]}` : ''}`
         },
       },
       dataset,
