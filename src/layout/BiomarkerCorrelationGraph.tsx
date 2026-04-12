@@ -29,7 +29,7 @@ const BiomarkerCorrelationGraph = React.memo(({ biomarkerId, correlations }: Gra
     // Sort and take top 15 to avoid clutter
     const topCorr = [...correlations].sort((a, b) => Math.abs(b.rho) - Math.abs(a.rho)).slice(0, 15)
 
-    topCorr.forEach((corr, index) => {
+    topCorr.forEach((corr) => {
       const isPositive = corr.rho > 0
       const absRho = Math.abs(corr.rho)
       // Exaggerate node size scaling based on absRho (0 to 1) to make differences clearer
