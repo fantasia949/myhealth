@@ -595,6 +595,7 @@ export default React.memo(
                         onClick={onClearFilters}
                         className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
                         aria-label="Clear all filters"
+                        title="Clear all filters"
                       >
                         Clear Filters
                       </button>
