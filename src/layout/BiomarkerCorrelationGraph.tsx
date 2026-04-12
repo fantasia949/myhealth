@@ -32,8 +32,9 @@ const BiomarkerCorrelationGraph = React.memo(({ biomarkerId, correlations }: Gra
     topCorr.forEach((corr, index) => {
       const isPositive = corr.rho > 0
       const absRho = Math.abs(corr.rho)
-      // Map node size from 10 to 30 based on absRho (0 to 1)
-      const size = 10 + absRho * 20
+      // Exaggerate node size scaling based on absRho (0 to 1) to make differences clearer
+      // e.g., an absRho of 0.2 will be roughly 14, an absRho of 0.8 will be roughly 61
+      const size = 10 + Math.pow(absRho, 2) * 80
 
       nodes.push({
         id: corr.name,
@@ -50,7 +51,8 @@ const BiomarkerCorrelationGraph = React.memo(({ biomarkerId, correlations }: Gra
         target: corr.name,
         value: corr.rho,
         lineStyle: {
-          width: 1 + absRho * 4,
+          // Exaggerate edge thickness as well for stronger visual cues
+          width: 1 + Math.pow(absRho, 2) * 8,
           curveness: 0.2,
           color: isPositive ? '#10b981' : '#ef4444',
           opacity: 0.6
@@ -95,7 +97,7 @@ const BiomarkerCorrelationGraph = React.memo(({ biomarkerId, correlations }: Gra
   if (!correlations || correlations.length === 0) return null
 
   return (
-    <div className="w-full h-96 border border-gray-700 rounded bg-dark-bg/50 mt-4 overflow-hidden relative">
+    <div className="w-full h-[500px] border border-gray-700 rounded bg-dark-bg/50 mt-4 overflow-hidden relative">
         <ReactECharts option={options} style={{ height: '100%', width: '100%' }} notMerge={true} theme="dark" />
     </div>
   )
