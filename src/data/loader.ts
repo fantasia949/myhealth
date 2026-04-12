@@ -1,7 +1,7 @@
 import mergeEntries from '../processors/merge'
 import data from './aggregated'
 
-const addLabels = ['251015', '251120', '251228', '260129', '260305']
+const addLabels = ['251015', '251120', '251228', '260129', '260305', '260411']
 
 export const labels = [...data.map((item) => item.time), ...addLabels]
 

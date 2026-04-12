@@ -18,13 +18,13 @@ const recipes: Recipe[] = [
   [
     'PhenoAge1',
     ['Albumin', 'Creatinin', 'Glucose', 'CRP-hs', '% Lymphocyte', 'MCV', 'RDW-CV', 'ALP', 'WBC'],
-    (a, b, c, d, e, f, g, h, i, age) => getPhenotypicAge(a, b, c, d, e, f, g, h, i, age).toFixed(1),
+    (a, b, c, d, e, f, g, h, i, age) => getPhenotypicAge(a, b, c, d.replace('<', ''), e, f, g, h, i, age).toFixed(1),
   ],
   [
     'PhenoAge2',
     ['Albumin', 'Creatinin', 'Glucose', 'CRP-hs', '% Lymphocyte', 'MCV', 'RDW-CV', 'ALP', 'WBC'],
     (a, b, c, d, e, f, g, h, i, age) =>
-      getPhenotypicAge2(a, b, c, d, e, f, g, h, i, age).toFixed(1),
+      getPhenotypicAge2(a, b, c, d.replace('<', ''), e, f, g, h, i, age).toFixed(1),
   ],
   ['VLDL', ['Triglyceride'], (triglyceride) => (triglyceride / 5).toFixed(0)],
   ['Age', [], (age) => age.toFixed(1)],
@@ -87,9 +87,9 @@ export default (entries: BioMarker[]): BioMarker[] => {
     }
 
     if (!(extra as any).originValues) {
-      ;(extra as any).originValues = Array.from({ length: periods })
+      ; (extra as any).originValues = Array.from({ length: periods })
     }
-    ;(extra as any).inferred = true
+    ; (extra as any).inferred = true
     return [name, values, null, extra] as any
   })
 
