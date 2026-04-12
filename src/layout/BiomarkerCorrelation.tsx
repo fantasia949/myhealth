@@ -6,6 +6,7 @@ import { noteValuesAtom, dataMapAtom } from '../atom/dataAtom'
 import { correlationAlternativeAtom } from '../atom/correlationAtom'
 import { rankData, calculatePearson } from '../processors/stats'
 import { BiomarkerCorrelationProps, CorrelationResult } from './BiomarkerCorrelation.types'
+import BiomarkerCorrelationGraph from './BiomarkerCorrelationGraph'
 
 const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorrelationProps) => {
   const [isCopied, setIsCopied] = React.useState(false)
@@ -222,7 +223,13 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
                 </div>
 
                 <div className="overflow-y-auto flex-grow p-6 pt-0">
-                  <table className="min-w-full divide-y divide-gray-700">
+                  {correlations.length > 0 && (
+                    <BiomarkerCorrelationGraph
+                      biomarkerId={biomarkerId}
+                      correlations={correlations}
+                    />
+                  )}
+                  <table className="min-w-full divide-y divide-gray-700 mt-6">
                     <thead className="bg-[#222222] sticky top-0 z-10">
                       <tr>
                         <th

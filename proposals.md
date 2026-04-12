@@ -91,3 +91,48 @@ Dynamically auto-renders behind the single biomarker line whenever a gap between
 ---
 
 Recommended implementation order: Proposal 3 first (highest insight, lowest effort), then 1, then 2.
+---
+
+**Proposal 4 of 5: Focused Diverging Bar Chart (Tornado Chart)**
+
+**ECharts type:** `bar`
+
+**Which existing data it uses:**
+Uses the pairwise correlation coefficients (Pearson/Spearman) stored inside `correlationAtom.ts`.
+
+**What it reveals that current charts don't:**
+Correlation matrices are dense and suffer from cognitive overload. A diverging bar chart lets a user select a single target (e.g., the supplement "Vitamin D" or the biomarker "Glucose") and plots all other variables as horizontal bars diverging from 0 to +1 (right, positive correlation) and -1 (left, negative correlation). This gives an instantly readable, ranked list of top positive and negative influencers for a specific metric.
+
+**Where it would live:**
+New `src/layout/FocusedCorrelationChart.tsx`, embedded within the `Correlation.tsx` modal or detailed view.
+
+**Trigger / entry point:**
+Clicking on a specific row or column header in the existing correlation table switches the view to this focused chart.
+
+**Implementation complexity:** Low
+(Low: Standard `bar` series using an `xAxis` ranging from -1 to 1. The data is already fully processed in the correlation atom).
+
+**ECharts 5.6.0 API confirmed via context7:** yes (`series[].type = 'bar'`)
+
+---
+
+**Proposal 5 of 5: Scatter Plot Matrix (SPLOM)**
+
+**ECharts type:** `scatter` (multiple grids)
+
+**Which existing data it uses:**
+Uses the raw time-series numeric values of the `BioMarker` array mapped to identical date labels.
+
+**What it reveals that current charts don't:**
+A single correlation number ($r$) can be heavily skewed by a single outlier or a non-linear relationship. A SPLOM renders a grid of miniature scatter plots for a small subset of selected variables. This allows the user to visually audit the mathematical correlation and see the actual shape of the data relationships (e.g., identifying U-shaped curves).
+
+**Where it would live:**
+New `src/layout/CorrelationSPLOM.tsx`.
+
+**Trigger / entry point:**
+A button in the `Correlation.tsx` UI allowing the user to select 3-4 specific biomarkers/supplements to "Deep Dive" into their raw relationship plots.
+
+**Implementation complexity:** High
+(High: Requires generating multiple `grid`, `xAxis`, and `yAxis` layout objects dynamically based on the number of selected dimensions, and feeding subset data into multiple `scatter` series).
+
+**ECharts 5.6.0 API confirmed via context7:** yes (`series[].type = 'scatter'`)
