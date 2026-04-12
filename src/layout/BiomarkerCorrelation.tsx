@@ -104,6 +104,14 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
     }
 
     suppVectors.forEach((filteredSuppVector, suppName) => {
+      // Calculate frequency of the supplement (number of times it was taken, i.e., 1s in the vector)
+      let suppFrequency = 0
+      for (let k = 0; k < count; k++) {
+        if (filteredSuppVector[k] === 1) {
+          suppFrequency++
+        }
+      }
+
       // Check if there is variation in the supplement vector
       const firstVal = filteredSuppVector[0]
       let hasSuppVariation = false
@@ -134,6 +142,7 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
           name: suppName,
           rho: rho,
           pValue: pVal,
+          count: suppFrequency,
         })
       }
     })
@@ -180,11 +189,11 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
                       <button
                         type="button"
                         onClick={() => {
-                          const header = 'Supplement\tP-Value\tRho\n'
+                          const header = 'Supplement\tFreq\tP-Value\tRho\n'
                           const rows = correlations
                             .map(
                               (item) =>
-                                `${item.name}\t${item.pValue.toFixed(4)}\t${item.rho.toFixed(3)}`,
+                                `${item.name}\t${item.count}\t${item.pValue.toFixed(4)}\t${item.rho.toFixed(3)}`,
                             )
                             .join('\n')
                           navigator.clipboard.writeText(header + rows)
@@ -235,6 +244,12 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
                           scope="col"
                           className="py-3 px-2 text-right text-xs font-medium text-gray-400 uppercase tracking-wider bg-[#222222]"
                         >
+                          Freq
+                        </th>
+                        <th
+                          scope="col"
+                          className="py-3 px-2 text-right text-xs font-medium text-gray-400 uppercase tracking-wider bg-[#222222]"
+                        >
                           P-Value
                         </th>
                         <th
@@ -251,6 +266,9 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
                           <td className="py-2 pr-2 text-sm text-gray-200 break-words">
                             {item.name}
                           </td>
+                          <td className="py-2 px-2 text-sm text-right font-mono text-gray-400 whitespace-nowrap">
+                            {item.count}
+                          </td>
                           <td
                             className={`py-2 px-2 text-sm text-right font-mono whitespace-nowrap ${
                               item.pValue < 0.05 ? 'text-green-400 font-bold' : 'text-gray-400'
@@ -266,7 +284,7 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
                       {correlations.length === 0 && (
                         <tr>
                           <td
-                            colSpan={3}
+                            colSpan={4}
                             className="py-4 text-center text-sm text-gray-400"
                             role="status"
                             aria-live="polite"

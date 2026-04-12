@@ -7,4 +7,5 @@ export interface CorrelationResult {
   name: string
   rho: number
   pValue: number
+  count: number
 }

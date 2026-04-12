@@ -31,8 +31,9 @@ test('Correlation results are rendered in a semantic table', async ({ page }) =>
   const thead = table.locator('thead')
   await expect(thead).toBeVisible()
   await expect(thead.locator('th').nth(0)).toHaveText('Supplement')
-  await expect(thead.locator('th').nth(1)).toHaveText('P-Value')
-  await expect(thead.locator('th').nth(2)).toHaveText('Rho')
+  await expect(thead.locator('th').nth(1)).toHaveText('Freq')
+  await expect(thead.locator('th').nth(2)).toHaveText('P-Value')
+  await expect(thead.locator('th').nth(3)).toHaveText('Rho')
 
   // Verify body
   const tbody = table.locator('tbody')
