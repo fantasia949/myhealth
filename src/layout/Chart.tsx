@@ -41,6 +41,7 @@ const echartsOptions: any = {
         pArray.forEach((p) => {
           const dimName = p.dimensionNames[p.encode.y[0]]
           const val = p.value[dimName]
+          const unit = p.value[`${dimName}_unit`] || ''
 
           if (
             val !== '-' &&
@@ -50,7 +51,7 @@ const echartsOptions: any = {
             val !== undefined &&
             !Number.isNaN(val)
           ) {
-            tooltipStr += `<br/>${p.marker} ${p.seriesName}: <strong>${val}</strong>`
+            tooltipStr += `<br/>${p.marker} ${p.seriesName}: <strong>${val} ${unit}</strong>`
             hasValidValues = true
           }
         })
@@ -108,7 +109,7 @@ export default memo(({ keys }: ChartProps) => {
         // valueList is generated directly from keys, so their indices perfectly align.
         const k = valueList[i]
         if (k && k.fieldName === key) {
-          validSeries.push({ fieldKey: k.fieldKey, values: entry[1] })
+          validSeries.push({ fieldKey: k.fieldKey, values: entry[1], unit: entry[2] })
         }
       }
     }
@@ -122,6 +123,7 @@ export default memo(({ keys }: ChartProps) => {
         const series = validSeries[j]
         const v = series.values[i]
         item[series.fieldKey] = v !== null && v !== undefined ? v : '-'
+        item[`${series.fieldKey}_unit`] = series.unit || ''
       }
       result[i] = item
     }

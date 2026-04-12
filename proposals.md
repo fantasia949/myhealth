@@ -1,19 +1,19 @@
 ## Part 1 — Implementation Report
 
 **The Issue:**
-`src/layout/ScatterChart.tsx`, lines 31-33. The ECharts tooltip formatter was converting `null` and `undefined` values into a hyphen (`"-"`) and then blindly interpolating it into an HTML string with a unit. This resulted in empty points rendering as `"- mg/dL"`, which is misleading and visually confusing.
+`src/layout/Chart.tsx`, line 53. The ECharts tooltip formatter iterated over dataset dimensions and displayed numerical values, but it failed to append the biomarker's unit string.
 
 **Discovery Signal:**
-Scan 1 — Null Value Handling & Scan 2 — Tooltip Quality. Tooltips showing `"-"` or rendering improperly with units instead of correctly suppressing the display for null biomarker entries on the scatter chart.
+Scan 2 — Tooltip Quality. Specifically, checking whether the tooltip shows the unit, which was completely missing from the multi-line chart popups.
 
 **context7 Reference:**
-`series[].tooltip.formatter` — ECharts 5.6 docs.
+`tooltip.formatter` and `series[].encode` — ECharts 5.6 docs.
 
 **The Fix:**
-Updated the `formatter` function to explicitly check if `params.value[1]` is empty, `null`, `undefined`, `"-"`, `"NaN"`, or structurally `NaN` (via `Number.isNaN`). If true, it returns `""` immediately, gracefully suppressing the entire tooltip element for missing coordinates rather than creating an artificial display value.
+Updated the `chartData` generation logic to attach the unit string inside the resulting mapped dataset array (via `item[\`${series.fieldKey}_unit\`] = series.unit || ''`). Then, inside the `tooltip.formatter` callback, the unit is extracted using `const unit = p.value[\`${dimName}_unit\`] || ''` and successfully rendered into the tooltip HTML string alongside the base value.
 
 **The Benefit:**
-Tooltips now correctly suppress entirely when hovering over gaps in the time-series where null values exist in the `ScatterChart.tsx`, avoiding rendering literal garbage strings like `"- mg/dL"`.
+Multi-line charts now explicitly show measurement units inside their tooltips instead of raw, uncontextualized numbers.
 
 ---
 
@@ -21,30 +21,7 @@ Tooltips now correctly suppress entirely when hovering over gaps in the time-ser
 
 These 3 visualization ideas use existing metadata to surface new insights without requiring new dependencies or processing logic.
 
-**Proposal 1 of 3: Deviation MarkLine Overlay**
-
-**ECharts type:** `markLine`
-
-**Which existing data it uses:**
-Uses the `extra.range` string (already parsed into `min` / `max` within `src/layout/LineChart.tsx`).
-
-**What it reveals that current charts don't:**
-The current `LineChart` uses a `markArea` to shade the optimal range. However, for biomarkers with strict single-sided limits (e.g., `range: "<= 5"`), a `markLine` clearly delineates the hard boundary limit across the graph. This reveals exactly where lines cross the threshold of risk visually without needing to hover.
-
-**Where it would live:**
-Appended to the existing `series[0]` options inside `src/layout/LineChart.tsx`.
-
-**Trigger / entry point:**
-Automatically active alongside the existing `LineChart` inside the table row expand panel when a range includes clear max limits (e.g. `<=`).
-
-**Implementation complexity:** Low
-Requires adding `markLine: { data: [{ yAxis: max }] }` directly into the existing series configuration alongside `markArea`.
-
-**ECharts 5.6.0 API confirmed via context7:** yes (`series[].markLine`)
-
----
-
-**Proposal 2 of 3: Hierarchical System Health Sunburst**
+**Proposal 1 of 3: Hierarchical System Health Sunburst**
 
 **ECharts type:** `sunburst`
 
@@ -52,7 +29,7 @@ Requires adding `markLine: { data: [{ yAxis: max }] }` directly into the existin
 Uses the static `tagDescription` categories from `src/processors/post/tag.ts` mapped to all constituent `BioMarker` entries' `extra.optimality[]` boolean at the latest tested index.
 
 **What it reveals that current charts don't:**
-The current `RadarChart` focuses strictly on a single system category at a time (e.g. Metabolic). A hierarchical Sunburst chart (inner ring = Tag Groups, outer ring = specific Biomarkers) colored proportionally by their `optimality` provides a massive, single-glance structural overview of an individual's total biological wellness at their most recent blood draw.
+A hierarchical Sunburst chart (inner ring = Tag Groups, outer ring = specific Biomarkers) colored proportionally by their `optimality` provides a massive, single-glance structural overview of an individual's total biological wellness at their most recent blood draw.
 
 **Where it would live:**
 New `src/layout/SystemSunburst.tsx`.
@@ -67,27 +44,95 @@ A macro "Total Health Snapshot" button at the top of the main `Nav.tsx` or `Tabl
 
 ---
 
-**Proposal 3 of 3: Testing Consistency Gap Heatmap**
+**Proposal 2 of 3: Longitudinal ThemeRiver (Streamgraph)**
 
-**ECharts type:** `heatmap`
+**ECharts type:** `themeRiver`
 
 **Which existing data it uses:**
-Uses the `labels[]` time-series scale on the X-axis and all non-inferred `BioMarker` names (`dataAtom`) on the Y-axis. The data points evaluate strictly whether the measured value `!== null`.
+Uses the `labels[]` time-series dates and normalized biomarker values across a specific Tag Group (e.g., `2-Metabolic`).
 
 **What it reveals that current charts don't:**
-Unlike correlation matrix heatmaps that map statistical relationships, a temporal missing-data heatmap reveals the user's testing consistency gaps. It instantly shows "I have tracked Lipid markers flawlessly since 2015, but I only tested Vitamin D once in 2018." This helps identify testing blindspots in their protocol history.
+Current multi-line charts become a "spaghetti graph" when 5+ biomarkers are overlaid. A ThemeRiver visualizes the changing proportions and collective mass of a physiological system over time, letting the user immediately spot if their lipid burden or metabolic volume has fundamentally shifted across decades.
 
 **Where it would live:**
-New `src/layout/TestingConsistencyHeatmap.tsx`.
+New `src/layout/ThemeRiverChart.tsx`.
 
 **Trigger / entry point:**
-A supplementary tab on the `Correlation.tsx` modal ("View Testing Consistency") or a standalone toggle above the main table.
+Available inside the Tag Filter UI (e.g., clicking the `2-Metabolic` tag could reveal a toggle to "View as ThemeRiver").
 
-**Implementation complexity:** Low
-(Low: ECharts 2D Cartesian `heatmap` supports a simple coordinate map `[timeIndex, biomarkerIndex, isNotNull ? 1 : 0]`. It requires no new state derivations, merely iterating over the existing `values` arrays).
+**Implementation complexity:** High
+(High: Requires normalizing disparate units into percentage-based contributions or a zero-mean scale, then feeding standard coordinate data `[date, normalizedValue, biomarkerName]`).
 
-**ECharts 5.6.0 API confirmed via context7:** yes (`series[].type = 'heatmap'`)
+**ECharts 5.6.0 API confirmed via context7:** yes (`series[].type = 'themeRiver'`)
 
 ---
 
-Recommended implementation order: Proposal 1 first (highest insight, lowest effort), then 3, then 2.
+**Proposal 3 of 3: Missing Data Gap Highlight (MarkArea)**
+
+**ECharts type:** `markArea`
+
+**Which existing data it uses:**
+Uses consecutive null sequences in the `values` array for a given `BioMarker`.
+
+**What it reveals that current charts don't:**
+While ECharts handles connecting null points or breaking lines via `connectNulls`, it doesn't emphasize *how long* a gap is. Overlaying dark gray, hashed `markArea` bands during periods with >6 months of missing data warns the user that trendlines or regressions spanning this void are less reliable.
+
+**Where it would live:**
+Modifying the existing `series` inside `src/layout/LineChart.tsx`.
+
+**Trigger / entry point:**
+Dynamically auto-renders behind the single biomarker line whenever a gap between tests exceeds an arbitrary threshold.
+
+**Implementation complexity:** Medium
+(Medium: Requires a new O(N) loop iterating over dates/values to find contiguous missing periods and generate `markArea` threshold bands).
+
+**ECharts 5.6.0 API confirmed via context7:** yes (`series[].markArea`)
+
+---
+
+Recommended implementation order: Proposal 3 first (highest insight, lowest effort), then 1, then 2.
+---
+
+**Proposal 4 of 5: Focused Diverging Bar Chart (Tornado Chart)**
+
+**ECharts type:** `bar`
+
+**Which existing data it uses:**
+Uses the pairwise correlation coefficients (Pearson/Spearman) stored inside `correlationAtom.ts`.
+
+**What it reveals that current charts don't:**
+Correlation matrices are dense and suffer from cognitive overload. A diverging bar chart lets a user select a single target (e.g., the supplement "Vitamin D" or the biomarker "Glucose") and plots all other variables as horizontal bars diverging from 0 to +1 (right, positive correlation) and -1 (left, negative correlation). This gives an instantly readable, ranked list of top positive and negative influencers for a specific metric.
+
+**Where it would live:**
+New `src/layout/FocusedCorrelationChart.tsx`, embedded within the `Correlation.tsx` modal or detailed view.
+
+**Trigger / entry point:**
+Clicking on a specific row or column header in the existing correlation table switches the view to this focused chart.
+
+**Implementation complexity:** Low
+(Low: Standard `bar` series using an `xAxis` ranging from -1 to 1. The data is already fully processed in the correlation atom).
+
+**ECharts 5.6.0 API confirmed via context7:** yes (`series[].type = 'bar'`)
+
+---
+
+**Proposal 5 of 5: Scatter Plot Matrix (SPLOM)**
+
+**ECharts type:** `scatter` (multiple grids)
+
+**Which existing data it uses:**
+Uses the raw time-series numeric values of the `BioMarker` array mapped to identical date labels.
+
+**What it reveals that current charts don't:**
+A single correlation number ($r$) can be heavily skewed by a single outlier or a non-linear relationship. A SPLOM renders a grid of miniature scatter plots for a small subset of selected variables. This allows the user to visually audit the mathematical correlation and see the actual shape of the data relationships (e.g., identifying U-shaped curves).
+
+**Where it would live:**
+New `src/layout/CorrelationSPLOM.tsx`.
+
+**Trigger / entry point:**
+A button in the `Correlation.tsx` UI allowing the user to select 3-4 specific biomarkers/supplements to "Deep Dive" into their raw relationship plots.
+
+**Implementation complexity:** High
+(High: Requires generating multiple `grid`, `xAxis`, and `yAxis` layout objects dynamically based on the number of selected dimensions, and feeding subset data into multiple `scatter` series).
+
+**ECharts 5.6.0 API confirmed via context7:** yes (`series[].type = 'scatter'`)
