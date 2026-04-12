@@ -55,3 +55,6 @@
 ## 2024-03-24 - Feature: Frequency Info in Correlation Table
  **Learning:** Added a count representing the frequency of supplement intake during valid biomarker observation periods alongside the calculated P-value and RHO values to provide additional insight into the correlation reliability. Playwright test `verify_correlation_table.spec.ts` was updated to verify the addition of the "Freq" column.
  **Action:** When altering tables, also verify the header length alignment if iterating through table cells, update empty states `colSpan`, and remember to update any Copy to clipboard text formatting functionality to include the new column.
+## 2024-03-24 - UX: Supplement Frequency in Popover
+ **Learning:** Added overall frequency to the SupplementsPopover to indicate how often each supplement is taken across all tracked records, making it easier to spot regular vs infrequent supplements directly from the table cell popover.
+ **Action:** Pre-calculate counts across the full dataset once using a `Map` within `useMemo` based on `noteValues` rather than calculating redundantly. For small string formatting additions, place them inside discrete `<span>` elements with informative `title` attributes.

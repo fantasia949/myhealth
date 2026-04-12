@@ -3,3 +3,4 @@
 
   ➜  Local:   http://localhost:5173/
   ➜  Network: use --host to expose
+3:24:13 AM [vite] (client) hmr update /src/layout/SupplementsPopover.tsx, /src/index.css
