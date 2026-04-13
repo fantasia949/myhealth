@@ -135,3 +135,76 @@ A button in the `Correlation.tsx` UI allowing the user to select 3-4 specific bi
 (High: Requires generating multiple `grid`, `xAxis`, and `yAxis` layout objects dynamically based on the number of selected dimensions, and feeding subset data into multiple `scatter` series).
 
 **ECharts 5.6.0 API confirmed via context7:** yes (`series[].type = 'scatter'`)
+
+---
+
+**Proposal 1 of 3: System-Wide Optimality Radar Chart**
+
+**ECharts type:** `radar`
+
+**Which existing data it uses:**
+uses the tag group memberships from `src/processors/post/tag.ts` and the `extra.optimality[]` pre-computed array in `src/processors/post/range.ts`. It maps the ratio of non-optimal tests versus optimal tests for each tag group (e.g., '1-RBC', '2-Metabolic') to plot axes.
+
+**What it reveals that current charts don't:**
+Provides a macro-level view of which bodily systems (tags) have the highest density of out-of-range test results across the entire patient history, enabling users to instantly identify the most problematic areas of their health globally.
+
+**Where it would live:**
+New `src/layout/RadarChartSummary.tsx`, rendered conditionally as a dashboard-level summary overview at the top of the interface before any specific row is clicked or active tag is set.
+
+**Trigger / entry point:**
+Automatically displayed at the top of `App.tsx` (or `Table.tsx` if placed there) as a high-level summary overview panel.
+
+**Implementation complexity:** Low
+Both the tags classification and `optimality` arrays are already pre-computed. Mapping the sum of `false`/`true` optimality flags to an aggregate radar series array is a straightforward functional reduction without needing new data processors.
+
+**ECharts 5.6.0 API confirmed via context7:** yes - `radar` configuration options are valid.
+
+---
+
+**Proposal 2 of 3: Biomarker Value Drift Boxplot**
+
+**ECharts type:** `boxplot` (via `echarts-stat` if needed or built-in transform)
+
+**Which existing data it uses:**
+Uses the raw value arrays `item[1]` from `dataAtom` for each biomarker in a specific tag group to show distribution, median, and outlier ranges.
+
+**What it reveals that current charts don't:**
+Shows the statistical spread and volatility of a biomarker across all historical tests, instantly highlighting if a particular biomarker (like Glucose or LDL) is highly erratic with many outliers, versus stable and tightly clustered around a median value.
+
+**Where it would live:**
+Existing `src/layout/BoxplotChart.tsx` (if there is one, or replace an unused file) or a new modal view `src/layout/TagDistributionChart.tsx`.
+
+**Trigger / entry point:**
+Triggered via a new view toggle ("Distribution View") next to the Search Input when a specific Tag is selected from the tag filter buttons in `Nav.tsx`.
+
+**Implementation complexity:** Medium
+Requires setting up the `dataset` and ECharts built-in `transform: { type: 'boxplot' }` or using `@stdlib` for quantiles calculation. The dataset mapping needs careful null-handling.
+
+**ECharts 5.6.0 API confirmed via context7:** yes - `dataset.transform` and `boxplot` series type.
+
+---
+
+**Proposal 3 of 3: Correlation Matrix Heatmap Timeline**
+
+**ECharts type:** `heatmap`
+
+**Which existing data it uses:**
+Uses the output of `correlationMethodAtom` along with `visibleDataAtom` and the existing pairwise correlations logic used in `Correlation.tsx`.
+
+**What it reveals that current charts don't:**
+Provides a full-matrix bird's-eye view of how tightly correlated *all* visible biomarkers in a filtered subset (e.g. all 'Metabolic' or 'Liver' tags) are with one another at once, colored by correlation strength, instantly highlighting hidden secondary relationships.
+
+**Where it would live:**
+New `src/layout/CorrelationHeatmap.tsx`, augmenting the existing correlation analysis features.
+
+**Trigger / entry point:**
+A toggle button inside the existing `Correlation.tsx` modal or dialog to switch from the node-link graph view to a dense matrix view.
+
+**Implementation complexity:** Medium
+The math (Spearman/Pearson) is already present via `@stdlib/stats-pcorrtest` and cache atoms. The visual representation just needs a 2D array mapping into an ECharts `heatmap` series, paired with a `visualMap`.
+
+**ECharts 5.6.0 API confirmed via context7:** yes - `heatmap` series and `visualMap` component.
+
+---
+
+Recommended implementation order: Proposal 1 first (highest insight, lowest effort), then Proposal 3, then Proposal 2.
