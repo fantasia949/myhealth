@@ -54,11 +54,24 @@
 **Action:** Replace `Array.find((entry) => entry.fieldName === key)` with direct array indexing `valueList[i]` when operating on parallel arrays inside a `useMemo` block to drop time complexity from `O(N^2)` to `O(N)`.
 
 ## 2024-03-05 - Focus optimizations on render loops, not startup scripts
+
 **Learning:** Replacing `.reduce()` and `.forEach()` with classic `for` loops on small static dictionaries that run only once during module bootstrap (like `taggedDic`) is a theoretical micro-optimization with zero measurable impact. However, applying the same optimization to chained `.map()` allocations inside a React component's `useMemo` block (like `yAxis` or `series` generation in `Chart.tsx`) significantly reduces garbage collection pressure and layout thrashing during frequent UI re-renders.
 **Action:** Avoid micro-optimizations on static or one-time initialization paths. Instead, aggressively target hot loops within React render cycles or heavy statistical derivations where the operation executes frequently or across large data sets.
+
 ## 2024-03-24 - Feature: Frequency Info in Correlation Table
- **Learning:** Added a count representing the frequency of supplement intake during valid biomarker observation periods alongside the calculated P-value and RHO values to provide additional insight into the correlation reliability. Playwright test `verify_correlation_table.spec.ts` was updated to verify the addition of the "Freq" column.
- **Action:** When altering tables, also verify the header length alignment if iterating through table cells, update empty states `colSpan`, and remember to update any Copy to clipboard text formatting functionality to include the new column.
+
+**Learning:** Added a count representing the frequency of supplement intake during valid biomarker observation periods alongside the calculated P-value and RHO values to provide additional insight into the correlation reliability. Playwright test `verify_correlation_table.spec.ts` was updated to verify the addition of the "Freq" column.
+**Action:** When altering tables, also verify the header length alignment if iterating through table cells, update empty states `colSpan`, and remember to update any Copy to clipboard text formatting functionality to include the new column.
+
 ## 2024-03-24 - UX: Supplement Frequency in Popover
- **Learning:** Added overall frequency to the SupplementsPopover to indicate how often each supplement is taken across all tracked records, making it easier to spot regular vs infrequent supplements directly from the table cell popover.
- **Action:** Pre-calculate counts across the full dataset once using a `Map` within `useMemo` based on `noteValues` rather than calculating redundantly. For small string formatting additions, place them inside discrete `<span>` elements with informative `title` attributes.
+
+**Learning:** Added overall frequency to the SupplementsPopover to indicate how often each supplement is taken across all tracked records, making it easier to spot regular vs infrequent supplements directly from the table cell popover.
+**Action:** Pre-calculate counts across the full dataset once using a `Map` within `useMemo` based on `noteValues` rather than calculating redundantly. For small string formatting additions, place them inside discrete `<span>` elements with informative `title` attributes.
+
+## 2026-04-13 - Optimize ECharts tooltip formatters in hot paths
+**Learning:** ECharts tooltip  functions are executed continuously as the user moves their mouse across the chart. Using  (or other array methods that require closures) inside this function creates measurable callback execution and closure allocation overhead, leading to subtle interaction lag and garbage collection pressure.
+**Action:** For ECharts tooltip formatters and other continuous hot paths, replace  with a traditional  loop that caches the array length. This eliminates closure allocations and keeps the rendering thread smooth.
+
+## 2025-08-16 - Optimize ECharts tooltip formatters in hot paths
+**Learning:** ECharts tooltip `formatter` functions are executed continuously as the user moves their mouse across the chart. Using `.forEach` (or other array methods that require closures) inside this function creates measurable callback execution and closure allocation overhead, leading to subtle interaction lag and garbage collection pressure.
+**Action:** For ECharts tooltip formatters and other continuous hot paths, replace `.forEach()` with a traditional `for` loop that caches the array length. This eliminates closure allocations and keeps the rendering thread smooth.
