@@ -208,3 +208,75 @@ The math (Spearman/Pearson) is already present via `@stdlib/stats-pcorrtest` and
 ---
 
 Recommended implementation order: Proposal 1 first (highest insight, lowest effort), then Proposal 3, then Proposal 2.
+---
+
+**Proposal 1 of 3: System-Wide Optimality Radar Chart**
+
+**ECharts type:** `radar`
+
+**Which existing data it uses:**
+uses the tag group memberships from `src/processors/post/tag.ts` and the `extra.optimality[]` pre-computed array in `src/processors/post/range.ts`. It maps the ratio of non-optimal tests versus optimal tests for each tag group (e.g., '1-RBC', '2-Metabolic') to plot axes.
+
+**What it reveals that current charts don't:**
+Provides a macro-level view of which bodily systems (tags) have the highest density of out-of-range test results across the entire patient history, enabling users to instantly identify the most problematic areas of their health globally.
+
+**Where it would live:**
+New `src/layout/RadarChartSummary.tsx`, rendered conditionally as a dashboard-level summary overview at the top of the interface before any specific row is clicked or active tag is set.
+
+**Trigger / entry point:**
+Automatically displayed at the top of `App.tsx` (or `Table.tsx` if placed there) as a high-level summary overview panel.
+
+**Implementation complexity:** Low
+Both the tags classification and `optimality` arrays are already pre-computed. Mapping the sum of `false`/`true` optimality flags to an aggregate radar series array is a straightforward functional reduction without needing new data processors.
+
+**ECharts 5.6.0 API confirmed via context7:** yes - `radar` configuration options are valid.
+
+---
+
+**Proposal 2 of 3: Value Distribution Histogram**
+
+**ECharts type:** `ecStat:histogram` (bar)
+
+**Which existing data it uses:**
+Uses the raw value arrays `item[1]` from `dataAtom` for a specific high-variance biomarker over its entire history.
+
+**What it reveals that current charts don't:**
+Shows the statistical distribution of a biomarker across all historical tests, highlighting if a biomarker's values are normally distributed or skewed, which a simple time-series line chart can obscure.
+
+**Where it would live:**
+New modal view `src/layout/ValueDistributionHistogram.tsx`.
+
+**Trigger / entry point:**
+Triggered via a new view toggle next to the Search Input when a specific Tag is selected.
+
+**Implementation complexity:** Medium
+Requires setting up the `dataset` and ECharts `echarts-stat` transform `type: 'ecStat:histogram'`.
+
+**ECharts 5.6.0 API confirmed via context7:** yes - `dataset.transform` and `ecStat:histogram` via `bar` series type.
+
+---
+
+**Proposal 3 of 3: Calendar Heatmap for Single Biomarker**
+
+**ECharts type:** `calendar` (with `heatmap` or `scatter`)
+
+**Which existing data it uses:**
+Uses the time-series labels `labels[]` from `src/data/index.ts` mapped against the raw value arrays `item[1]` from `dataAtom` for a single frequently tested biomarker (e.g., Fasting Glucose or Weight).
+
+**What it reveals that current charts don't:**
+Shows daily/weekly/monthly cyclical patterns or seasonal drift in a single biomarker over long periods of time. This is especially useful for biomarkers tested very frequently, as a line chart would become too dense and noisy to read.
+
+**Where it would live:**
+New component `src/layout/CalendarChart.tsx`.
+
+**Trigger / entry point:**
+A button on the row of a frequently-tested biomarker in `Table.tsx`.
+
+**Implementation complexity:** Medium
+Requires formatting the dates into `'yyyy-MM-dd'` and mapping the values to a calendar coordinate system.
+
+**ECharts 5.6.0 API confirmed via context7:** yes - `calendar` component and `heatmap` series.
+
+---
+
+Recommended implementation order: Proposal 1 first (highest insight, lowest effort), then Proposal 2, then Proposal 3.
