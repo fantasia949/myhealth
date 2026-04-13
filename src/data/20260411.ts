@@ -287,7 +287,7 @@ export default {
         // not test
         ['Alkaline Phosphatase', '49.92', 'U/L'],
 
-        ['Weight', 68.4],
+        ['Weight', 67.9],
         ['Sleep score', 84],
     ],
     notes: <UpdateNote[]>[
@@ -307,5 +307,5 @@ export default {
         'astragalus does not higher platalets',
         '1 day off creatine indeed lower Creatinin',
     ],
-    plan: ['+astaxanthin', '+gac-oil', '+cistanche'],
+    plan: ['+astaxanthin', '+gac-oil', '+cistanche', '+pine-bark'],
 }
