@@ -8,6 +8,7 @@ import {
   TrashIcon,
   ClipboardDocumentIcon,
   CheckIcon,
+  ClockIcon,
 } from '@heroicons/react/24/outline'
 import { tags } from '../processors'
 import { askBioMarkers } from '../service/askAI'
@@ -26,6 +27,7 @@ import { calculateSpearmanRanked } from '../processors/stats'
 import { averageCountAtom } from '../atom/averageValueAtom'
 import Markdown from 'react-markdown'
 import { Spinner } from './Spinner'
+import GistViewer from './GistViewer'
 import { NavProps } from './Nav.types'
 
 export default React.memo<NavProps>(
@@ -189,6 +191,7 @@ export default React.memo<NavProps>(
     const [gistUrl, setGistUrl] = React.useState<string | null>(null)
     const [gistError, setGistError] = React.useState<string | null>(null)
     const [isGistLoading, setIsGistLoading] = React.useState(false)
+    const [isGistViewerOpen, setIsGistViewerOpen] = React.useState(false)
 
     const handleClose = React.useCallback(() => {
       setCanvasText(null)
@@ -410,6 +413,15 @@ export default React.memo<NavProps>(
                 </button>
               )}
 
+              <button
+                type="button"
+                onClick={() => setIsGistViewerOpen(true)}
+                title="View AI History"
+                className="hidden md:flex ml-4 px-3 py-1 text-xs font-medium bg-gray-700 text-white rounded hover:bg-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 transition-colors"
+              >
+                View History
+              </button>
+
               <div className="hidden contents lg:flex lg:ml-auto lg:flex-row lg:gap-4 lg:items-center">
                 <div className="flex items-center gap-2 w-full lg:w-auto">
                   <label htmlFor="average-count" className="sr-only">
@@ -465,6 +477,8 @@ export default React.memo<NavProps>(
             </div>
           </div>
         </nav>
+
+        <GistViewer isOpen={isGistViewerOpen} onClose={() => setIsGistViewerOpen(false)} />
 
         <Transition appear show={!!canvasText} as={Fragment}>
           <Dialog as="div" className="relative z-50" onClose={handleClose}>
