@@ -21,13 +21,32 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
     }
   }, [isOpen])
 
+  const getTimestamp = (filename: string): number => {
+    const match = filename.match(/^(?:biomarker_)?.*_(\d+)\.md$/)
+    if (match) {
+      const numStr = match[1]
+      if (numStr.length === 8) {
+        // YYYYMMDD format
+        const year = parseInt(numStr.substring(0, 4), 10)
+        const month = parseInt(numStr.substring(4, 6), 10) - 1 // 0-indexed
+        const day = parseInt(numStr.substring(6, 8), 10)
+        return new Date(year, month, day).getTime()
+      } else {
+        // Standard Date.now() timestamp
+        return parseInt(numStr, 10)
+      }
+    }
+    return 0 // Fallback
+  }
+
   const loadFiles = async () => {
     setIsLoading(true)
     setError(null)
     try {
       const fetchedFiles = await getGistFiles()
-      // Sort by filename to show newest first, assuming format includes timestamp at the end
-      fetchedFiles.sort((a, b) => b.filename.localeCompare(a.filename))
+
+      // Sort by parsed timestamp descending (newest first)
+      fetchedFiles.sort((a, b) => getTimestamp(b.filename) - getTimestamp(a.filename))
       setFiles(fetchedFiles)
     } catch (err: any) {
       setError(err.message || 'Failed to load Gist files')
