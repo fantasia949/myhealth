@@ -8,7 +8,7 @@ import {
   TrashIcon,
   ClipboardDocumentIcon,
   CheckIcon,
-  ClockIcon,
+
 } from '@heroicons/react/24/outline'
 import { tags } from '../processors'
 import { askBioMarkers } from '../service/askAI'
@@ -231,7 +231,11 @@ export default React.memo<NavProps>(
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <MagnifyingGlassIcon className="h-5 w-5" aria-hidden="true" />
                 </div>
+                <label htmlFor="search-biomarkers" className="sr-only">
+                  Search biomarkers
+                </label>
                 <input
+                  id="search-biomarkers"
                   ref={searchInputRef}
                   type="search"
                   value={filterText}
@@ -249,7 +253,6 @@ export default React.memo<NavProps>(
                   autoFocus
                   className="w-full pl-10 pr-10 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 placeholder-gray-500 focus:placeholder-gray-400"
                   placeholder="Search"
-                  aria-label="Search biomarkers"
                 />
                 {!filterText && !isFocused && (
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
