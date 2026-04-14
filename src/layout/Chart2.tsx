@@ -1,8 +1,6 @@
-import { memo, useRef, useEffect, useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import { useAtomValue } from 'jotai'
 import { dataMapAtom } from '../atom/dataAtom'
-import { ChartProvider, ChartContext } from '@echarts-readymade/core'
-import { Scatter } from '@echarts-readymade/scatter'
 import { labels } from '../data'
 import ReactECharts from 'echarts-for-react'
 import * as echarts from 'echarts'
@@ -110,7 +108,7 @@ const echartsOptions: any = {
   series: [
     {
       type: 'scatter',
-      symbolSize: 24,
+      symbolSize: 40,
       legendHoverLink: true,
       large: false,
       zIndex: 2,
@@ -147,39 +145,19 @@ const echartsOptions: any = {
 
 export default memo(({ keys }: ChartProps) => {
   const dataMap = useAtomValue(dataMapAtom)
-  const valueList = [
-    { fieldKey: keys[0], fieldName: keys[0], decimalLength: 2 },
-    { fieldKey: keys[1], fieldName: keys[1], decimalLength: 2 },
-  ]
-
-  const dimension = [
-    {
-      fieldKey: 'date',
-      fieldName: 'Date',
-    },
-    {
-      fieldKey: keys[0],
-      fieldName: keys[0],
-    },
-    {
-      fieldKey: keys[1],
-      fieldName: keys[1],
-    },
-  ]
 
   const formatTime = (label: string) => {
     if (!label || label.length < 6) return label
     return `20${label.slice(0, 2)}/${label.slice(2, 4)}/${label.slice(4, 6)}`
   }
 
-  const [scatterData, mappedScatterData] = useMemo(() => {
+  const mappedScatterData = useMemo(() => {
     // Optimization: Replace O(K*N) chained .map(), .reduce(), and .filter() array allocations
     // with a single-pass O(N) loop to eliminate closure creation and garbage collection overhead.
     const entry0 = dataMap.get(keys[0])
     const entry1 = dataMap.get(keys[1])
 
-    const mappedScatterData: any[][] = []
-    const scatterData: Record<string, number | string>[] = []
+    const mappedData: any[][] = []
 
     if (entry0 && entry1) {
       const values0 = entry0[1]
@@ -193,22 +171,13 @@ export default memo(({ keys }: ChartProps) => {
         const v1 = values1[i]
         if (v0 !== null && v0 !== undefined && v1 !== null && v1 !== undefined) {
           const formattedDate = formatTime(labels[i])
-
-          mappedScatterData.push([v0, v1, formattedDate, unitX, unitY])
-
-          scatterData.push({
-            [keys[0]]: v0,
-            [keys[1]]: v1,
-            date: formattedDate,
-          })
+          mappedData.push([v0, v1, formattedDate, unitX, unitY])
         }
       }
     }
 
-    return [scatterData, mappedScatterData]
+    return mappedData
   }, [dataMap, keys])
-
-  const scatterRef = useRef<any>(null)
 
   const options: any = useMemo(() => {
     let { series, yAxis, xAxis } = echartsOptions
@@ -323,36 +292,11 @@ export default memo(({ keys }: ChartProps) => {
     }
   }, [mappedScatterData, keys])
 
-  useEffect(() => {
-    if (scatterRef.current) {
-      const instance = scatterRef.current.getEchartsInstance()
-      if (instance) {
-        instance.setOption(
-          {
-            grid: options.grid,
-            series: [{ symbolSize: 40 }],
-            dataZoom: options.dataZoom,
-          },
-          { replaceMerge: ['series', 'dataZoom'] },
-        )
-        // console.log("ch1", instance.getOption());
-      }
-    }
-  }, [scatterRef.current, keys, options])
-
   // console.log("ch2", options.series[0].data, options.series[1].data);
 
   return (
     <div>
-      <ChartProvider data={scatterData} echartsOptions={options}>
-        <ReactECharts option={options} style={options.style} notMerge={true} theme="dark" />
-        <Scatter
-          ref={scatterRef}
-          context={ChartContext}
-          valueList={valueList}
-          dimension={dimension}
-        />
-      </ChartProvider>
+      <ReactECharts option={options} style={options.style} notMerge={true} theme="dark" />
     </div>
   )
 })
