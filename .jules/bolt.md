@@ -71,3 +71,7 @@
 ## 2026-04-13 - Gist Viewer Modal
 **Learning:** Added a feature to load remote Github Gists using standard `fetch` call and dynamically load/render the fetched markdown in a HeadlessUI Dialog.
 **Action:** Reused the Markdown renderer component for displaying textual Gist data and formatted the timestamps accurately for improved user experience.
+
+## 2025-08-16 - Optimize ECharts tooltip formatters in hot paths
+**Learning:** ECharts tooltip `formatter` functions are executed continuously as the user moves their mouse across the chart. Using `.forEach` (or other array methods that require closures) inside this function creates measurable callback execution and closure allocation overhead, leading to subtle interaction lag and garbage collection pressure.
+**Action:** For ECharts tooltip formatters and other continuous hot paths, replace `.forEach()` with a traditional `for` loop that caches the array length. This eliminates closure allocations and keeps the rendering thread smooth.
