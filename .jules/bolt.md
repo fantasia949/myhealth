@@ -72,3 +72,7 @@
 
 **Learning:** Added a feature to load remote Github Gists using standard `fetch` call and dynamically load/render the fetched markdown in a HeadlessUI Dialog.
 **Action:** Reused the Markdown renderer component for displaying textual Gist data and formatted the timestamps accurately for improved user experience.
+
+## 2025-07-28 - Optimize initial page load via React.lazy code-splitting
+**Learning:** The application imported heavy visual components (like DarkVeil and modals) synchronously in `App.tsx`, which increased the initial JavaScript bundle size. Attempting to replace idiomatic array methods with `for` loops in components without clear performance metrics is often an unmeasurable micro-optimization.
+**Action:** Focus on macro-optimizations like asset loading first. To speed up initial page render, use `React.lazy()` and `<React.Suspense fallback={null}>` to code-split secondary UI layers and modals out of the main bundle.
