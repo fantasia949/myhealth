@@ -33,14 +33,12 @@ const echartsOptions: any = {
       },
       formatter: (params: any) => {
         const pArray = Array.isArray(params) ? params : [params]
-        const len = pArray.length
-        if (len === 0) return ''
+        if (pArray.length === 0) return ''
 
         let tooltipStr = `${pArray[0].value.d1}`
         let hasValidValues = false
 
-        for (let i = 0; i < len; i++) {
-          const p = pArray[i]
+        pArray.forEach((p) => {
           const dimName = p.dimensionNames[p.encode.y[0]]
           const val = p.value[dimName]
           const unit = p.value[`${dimName}_unit`] || ''
@@ -56,7 +54,7 @@ const echartsOptions: any = {
             tooltipStr += `<br/>${p.marker} ${p.seriesName}: <strong>${val} ${unit}</strong>`
             hasValidValues = true
           }
-        }
+        })
 
         return hasValidValues ? tooltipStr : ''
       },
