@@ -11,3 +11,6 @@
 
 **Learning:** Relying solely on `aria-label` for inputs can sometimes be less robust than explicit, visually hidden `<label>` elements linked via `htmlFor` and `id`, especially across older assistive technologies. Explicit labels are considered the most robust HTML pattern.
 **Action:** Prefer `htmlFor`/`id` linking with a `sr-only` class for accessible labels over `aria-label` when adding or auditing inputs, and ensure redundant `aria-label`s are removed when explicitly labeled.
+## 2026-04-14 - Improve Markdown Readability in Dialogs
+**Learning:** Default text styles in narrow dialogs make markdown difficult to read.
+**Action:** Use `@tailwindcss/typography` plugin with `prose prose-invert` classes to automatically style markdown, and increase Dialog container widths (`max-w-3xl`) to improve overall readability.

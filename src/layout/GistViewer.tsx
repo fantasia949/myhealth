@@ -107,7 +107,7 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
               leaveFrom="translate-x-0"
               leaveTo="translate-x-full"
             >
-              <Dialog.Panel className="flex flex-col w-full max-w-md transform overflow-hidden bg-[#222222] text-dark-text p-6 text-left align-middle shadow-xl transition-all h-screen ml-auto border-l border-gray-700">
+              <Dialog.Panel className="flex flex-col w-full max-w-3xl transform overflow-hidden bg-[#222222] text-dark-text p-6 text-left align-middle shadow-xl transition-all h-screen ml-auto border-l border-gray-700">
                 <Dialog.Title
                   as="div"
                   className="flex justify-between items-center text-lg font-medium leading-6 mb-4 pb-2 border-b border-gray-700"
@@ -151,7 +151,7 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
                       </button>
                     </div>
                   ) : selectedFile ? (
-                    <div className="text-sm whitespace-pre-wrap">
+                    <div className="prose prose-invert max-w-none">
                       <Markdown>{selectedFile.content}</Markdown>
                     </div>
                   ) : files.length > 0 ? (
