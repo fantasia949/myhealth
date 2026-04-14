@@ -37,12 +37,26 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
   }
 
   const formatFilename = (filename: string) => {
-    // Expected format: biomarker_KEYS_timestamp.md
-    const match = filename.match(/^biomarker_(.*)_(\d+)\.md$/)
+    // Expected format: biomarker_KEYS_timestamp.md or KEYS_timestamp.md
+    // Handle either YYYYMMDD string or standard JS timestamp
+    const match = filename.match(/^(?:biomarker_)?(.*)_(\d+)\.md$/)
     if (match) {
       const keys = match[1].replace(/_/g, ', ')
-      const date = new Date(parseInt(match[2], 10))
-      const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
+      const numStr = match[2]
+      let dateStr = ''
+
+      if (numStr.length === 8) {
+        // YYYYMMDD format
+        const year = numStr.substring(0, 4)
+        const month = numStr.substring(4, 6)
+        const day = numStr.substring(6, 8)
+        dateStr = `${year}-${month}-${day}`
+      } else {
+        // Standard Date.now() timestamp
+        const date = new Date(parseInt(numStr, 10))
+        dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
+      }
+
       return { keys, dateStr, isParsed: true }
     }
     return { keys: filename, dateStr: '', isParsed: false }
