@@ -1,11 +1,12 @@
 import React from 'react'
 import './index.css'
-import DarkVeil from './layout/DarkVeil'
 import Nav from './layout/Nav'
 import Table from './layout/Table'
-import PValue from './layout/PValue'
-import Correlation from './layout/Correlation'
-import SystemClustering from './layout/SystemClustering'
+
+const DarkVeil = React.lazy(() => import('./layout/DarkVeil'))
+const PValue = React.lazy(() => import('./layout/PValue'))
+const Correlation = React.lazy(() => import('./layout/Correlation'))
+const SystemClustering = React.lazy(() => import('./layout/SystemClustering'))
 import { useAtomValue, useAtom } from 'jotai'
 
 const ScatterChart = React.lazy(() => import('./layout/ScatterChart'))
@@ -251,13 +252,17 @@ export default function App() {
       >
         Skip to content
       </a>
-      <div className="fixed inset-0 -z-10">
-        <DarkVeil />
-      </div>
+      <React.Suspense fallback={null}>
+        <div className="fixed inset-0 -z-10">
+          <DarkVeil />
+        </div>
+      </React.Suspense>
       <Nav {...navProps} />
-      <PValue comparedSourceTarget={comparedSourceTarget} onClose={onPValueClose} />
-      <Correlation target={corrlationKey} onClose={onCorrelationClose} />
-      <SystemClustering isOpen={isClusteringOpen} onClose={() => setIsClusteringOpen(false)} />
+      <React.Suspense fallback={null}>
+        <PValue comparedSourceTarget={comparedSourceTarget} onClose={onPValueClose} />
+        <Correlation target={corrlationKey} onClose={onCorrelationClose} />
+        <SystemClustering isOpen={isClusteringOpen} onClose={() => setIsClusteringOpen(false)} />
+      </React.Suspense>
       <main id="main-content" tabIndex={-1}>
         <React.Suspense
           fallback={
