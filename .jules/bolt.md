@@ -68,10 +68,7 @@
 **Learning:** Added overall frequency to the SupplementsPopover to indicate how often each supplement is taken across all tracked records, making it easier to spot regular vs infrequent supplements directly from the table cell popover.
 **Action:** Pre-calculate counts across the full dataset once using a `Map` within `useMemo` based on `noteValues` rather than calculating redundantly. For small string formatting additions, place them inside discrete `<span>` elements with informative `title` attributes.
 
-## 2026-04-13 - Optimize ECharts tooltip formatters in hot paths
-**Learning:** ECharts tooltip  functions are executed continuously as the user moves their mouse across the chart. Using  (or other array methods that require closures) inside this function creates measurable callback execution and closure allocation overhead, leading to subtle interaction lag and garbage collection pressure.
-**Action:** For ECharts tooltip formatters and other continuous hot paths, replace  with a traditional  loop that caches the array length. This eliminates closure allocations and keeps the rendering thread smooth.
+## 2026-04-13 - Gist Viewer Modal
 
-## 2025-08-16 - Optimize ECharts tooltip formatters in hot paths
-**Learning:** ECharts tooltip `formatter` functions are executed continuously as the user moves their mouse across the chart. Using `.forEach` (or other array methods that require closures) inside this function creates measurable callback execution and closure allocation overhead, leading to subtle interaction lag and garbage collection pressure.
-**Action:** For ECharts tooltip formatters and other continuous hot paths, replace `.forEach()` with a traditional `for` loop that caches the array length. This eliminates closure allocations and keeps the rendering thread smooth.
+**Learning:** Added a feature to load remote Github Gists using standard `fetch` call and dynamically load/render the fetched markdown in a HeadlessUI Dialog.
+**Action:** Reused the Markdown renderer component for displaying textual Gist data and formatted the timestamps accurately for improved user experience.

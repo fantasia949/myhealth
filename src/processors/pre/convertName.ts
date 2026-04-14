@@ -49,7 +49,7 @@ const nameMapper: Record<string, string> = {
   'SL tiểu cầu KT lớn': 'P-LCC',
   'Tỉ lệ tiểu cầu có KT lớn': 'P-LCR',
   'Tỉ lệ Prothrombin': 'Prothrombin',
-  'Estradiol (E2)': 'Estradiol'
+  'Estradiol (E2)': 'Estradiol',
 }
 
 export default ([name, values, unit, extra]: Entry): Entry => {

@@ -70,8 +70,14 @@ const echartsOptions: any = {
         const [x, y, date, unitX, unitY] = params.value
 
         if (
-          x === null || x === undefined || x === 'NaN' || Number.isNaN(x) ||
-          y === null || y === undefined || y === 'NaN' || Number.isNaN(y)
+          x === null ||
+          x === undefined ||
+          x === 'NaN' ||
+          Number.isNaN(x) ||
+          y === null ||
+          y === undefined ||
+          y === 'NaN' ||
+          Number.isNaN(y)
         ) {
           return ''
         }
@@ -237,7 +243,7 @@ export default memo(({ keys }: ChartProps) => {
               datasetIndex: 1,
               tooltip: {
                 formatter: (params: any) => {
-                    return `<strong>Regression Trend</strong>${params.value[2] ? `<br/>${params.value[2]}` : ''}`
+                  return `<strong>Regression Trend</strong>${params.value[2] ? `<br/>${params.value[2]}` : ''}`
                 },
               },
             },
@@ -276,8 +282,14 @@ export default memo(({ keys }: ChartProps) => {
             const val2 = params.value[1]
 
             if (
-              val1 === null || val1 === undefined || val1 === 'NaN' || Number.isNaN(val1) ||
-              val2 === null || val2 === undefined || val2 === 'NaN' || Number.isNaN(val2)
+              val1 === null ||
+              val1 === undefined ||
+              val1 === 'NaN' ||
+              Number.isNaN(val1) ||
+              val2 === null ||
+              val2 === undefined ||
+              val2 === 'NaN' ||
+              Number.isNaN(val2)
             ) {
               return ''
             }

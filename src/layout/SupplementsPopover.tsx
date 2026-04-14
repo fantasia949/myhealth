@@ -52,7 +52,10 @@ export default function SupplementsPopover({ supps }: Props) {
           {supps.map((supp, idx) => (
             <li key={idx} className="break-words flex justify-between items-center gap-2">
               <span>{supp}</span>
-              <span className="text-gray-500 font-mono text-xs" title="Frequency across all records">
+              <span
+                className="text-gray-500 font-mono text-xs"
+                title="Frequency across all records"
+              >
                 ({suppFrequencies.get(supp) || 0})
               </span>
             </li>

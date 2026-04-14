@@ -12,19 +12,19 @@ MyHealth is a **client-side personal health tracking and biomarker analysis dash
 
 ## Tech Stack
 
-| Layer            | Technology                                       |
-| ---------------- | ------------------------------------------------ |
-| UI framework     | React 19 + TypeScript 6                          |
-| Bundler          | Vite 8                                           |
-| Styling          | Tailwind CSS 4                                   |
-| State management | Jotai 2 (atomic, async atoms)                    |
-| Data tables      | TanStack React Table 8                           |
+| Layer            | Technology                                                        |
+| ---------------- | ----------------------------------------------------------------- |
+| UI framework     | React 19 + TypeScript 6                                           |
+| Bundler          | Vite 8                                                            |
+| Styling          | Tailwind CSS 4                                                    |
+| State management | Jotai 2 (atomic, async atoms)                                     |
+| Data tables      | TanStack React Table 8                                            |
 | Charts           | ECharts 6 + echarts-for-react, @echarts-readymade, OGL (3D WebGL) |
-| Statistics       | @stdlib/stats-pcorrtest, echarts-stat            |
-| UI components    | @headlessui/react, @heroicons/react              |
-| Utilities        | classnames, react-markdown                       |
-| Testing          | Playwright 1 (E2E only)                          |
-| Package manager  | **pnpm** (use pnpm for all install/run commands) |
+| Statistics       | @stdlib/stats-pcorrtest, echarts-stat                             |
+| UI components    | @headlessui/react, @heroicons/react                               |
+| Utilities        | classnames, react-markdown                                        |
+| Testing          | Playwright 1 (E2E only)                                           |
+| Package manager  | **pnpm** (use pnpm for all install/run commands)                  |
 
 ---
 
@@ -83,10 +83,11 @@ The central type is the **`BioMarker` tuple** defined in `src/types/biomarker.ts
 
 ```typescript
 export type BioMarker = [
-  string,      // Display name, e.g. "Glucose"
-  number[],    // Time-series values (index-aligned with date list in dataAtom)
-  string,      // Unit, e.g. "mg/dL"
-  {            // Metadata object
+  string, // Display name, e.g. "Glucose"
+  number[], // Time-series values (index-aligned with date list in dataAtom)
+  string, // Unit, e.g. "mg/dL"
+  {
+    // Metadata object
     tag: string[]
     inferred?: boolean
     originValues?: (string | number | null)[]
@@ -100,7 +101,7 @@ export type BioMarker = [
     sortTag?: string
     processedTags?: Array<{ tag: string; displayTag: string; sortKey: string }>
     optimality: boolean[]
-  }
+  },
 ]
 ```
 
@@ -203,20 +204,20 @@ When adding or modifying features:
 
 ## Key Files for Common Tasks
 
-| Task                             | Files to read / modify                                   |
-| -------------------------------- | -------------------------------------------------------- |
-| Add a new chart                  | `src/layout/`, `src/atom/dataAtom.ts`                    |
-| Add a new data processor         | `src/processors/{pre,enrich,post}/`                      |
-| Add a new biomarker field        | `src/data/`, `src/processors/`, `src/types/biomarker.ts` |
-| Change state / derived data      | `src/atom/`                                              |
-| Integrate a new external service | `src/service/`                                           |
-| Update the data table            | `src/layout/Table.tsx`, `src/layout/Table.types.ts`      |
-| Adjust correlation logic         | `src/processors/stats.ts`, `src/atom/correlationAtom.ts` |
-| Update PhenoAge algorithm        | `src/processors/enrich/phenoAge.ts`                      |
-| Add a new data snapshot          | `src/data/` (new `YYYYMMDD.ts`), `src/data/loader.ts`   |
+| Task                             | Files to read / modify                                                    |
+| -------------------------------- | ------------------------------------------------------------------------- |
+| Add a new chart                  | `src/layout/`, `src/atom/dataAtom.ts`                                     |
+| Add a new data processor         | `src/processors/{pre,enrich,post}/`                                       |
+| Add a new biomarker field        | `src/data/`, `src/processors/`, `src/types/biomarker.ts`                  |
+| Change state / derived data      | `src/atom/`                                                               |
+| Integrate a new external service | `src/service/`                                                            |
+| Update the data table            | `src/layout/Table.tsx`, `src/layout/Table.types.ts`                       |
+| Adjust correlation logic         | `src/processors/stats.ts`, `src/atom/correlationAtom.ts`                  |
+| Update PhenoAge algorithm        | `src/processors/enrich/phenoAge.ts`                                       |
+| Add a new data snapshot          | `src/data/` (new `YYYYMMDD.ts`), `src/data/loader.ts`                     |
 | Update supplement tracking       | `src/processors/enrich/suppStack.ts`, `src/layout/SupplementsPopover.tsx` |
-| Work with notes / annotations    | `src/types/notes.ts`, `src/atom/dataAtom.ts` (`notesAtom`) |
-| Add or adjust UI components      | `src/layout/`, `src/layout/*.types.ts`                   |
+| Work with notes / annotations    | `src/types/notes.ts`, `src/atom/dataAtom.ts` (`notesAtom`)                |
+| Add or adjust UI components      | `src/layout/`, `src/layout/*.types.ts`                                    |
 
 ---
 
