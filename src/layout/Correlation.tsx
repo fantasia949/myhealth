@@ -11,6 +11,8 @@ import {
 import { calculateSpearmanRanked, calculatePearson } from '../processors/stats'
 import { CorrelationProps } from './Correlation.types'
 
+import FocusedCorrelationChart from "./FocusedCorrelationChart"
+
 export default React.memo(({ target, onClose }: CorrelationProps) => {
   const data = useAtomValue(nonInferredDataAtom)
   const fullData = useAtomValue(dataAtom) // Access full data for source lookup
@@ -262,6 +264,11 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                         </div>
                       </div>
 
+                      {entries && entries.length > 0 && (
+                        <div className="mb-8">
+                          <FocusedCorrelationChart correlations={entries} />
+                        </div>
+                      )}
                       <table className="min-w-full mb-8">
                         <thead>
                           <tr className="border-b border-gray-800">
