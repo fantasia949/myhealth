@@ -176,7 +176,11 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
                       })}
                     </div>
                   ) : (
-                    <div className="text-gray-400 text-center mt-10">
+                    <div
+                      className="text-gray-400 text-center mt-10"
+                      role="status"
+                      aria-live="polite"
+                    >
                       No AI history found in the gist.
                     </div>
                   )}
