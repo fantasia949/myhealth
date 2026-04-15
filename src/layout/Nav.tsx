@@ -8,7 +8,6 @@ import {
   TrashIcon,
   ClipboardDocumentIcon,
   CheckIcon,
-
 } from '@heroicons/react/24/outline'
 import { tags } from '../processors'
 import { askBioMarkers } from '../service/askAI'
@@ -508,7 +507,7 @@ export default React.memo<NavProps>(
                   leaveFrom="translate-x-0"
                   leaveTo="translate-x-full"
                 >
-                  <Dialog.Panel className="flex flex-col w-full max-w-md transform overflow-hidden bg-[#222222] text-dark-text p-6 text-left align-middle shadow-xl transition-all h-screen ml-auto border-l border-gray-700">
+                  <Dialog.Panel className="flex flex-col w-full max-w-3xl transform overflow-hidden bg-[#222222] text-dark-text p-6 text-left align-middle shadow-xl transition-all h-screen ml-auto border-l border-gray-700">
                     <Dialog.Title
                       as="div"
                       className="flex justify-between items-center text-lg font-medium leading-6 mb-4"
@@ -523,7 +522,7 @@ export default React.memo<NavProps>(
                         <XMarkIcon className="h-6 w-6" />
                       </button>
                     </Dialog.Title>
-                    <div className="mt-2 text-sm whitespace-pre-wrap overflow-y-auto">
+                    <div className="mt-2 prose prose-invert max-w-none overflow-y-auto">
                       <Markdown>{canvasText}</Markdown>
                     </div>
 
