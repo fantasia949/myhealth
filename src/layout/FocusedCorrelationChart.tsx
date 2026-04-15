@@ -16,12 +16,20 @@ export default memo(({ correlations }: FocusedCorrelationChartProps) => {
       : sorted
 
     const names = topAndBottom.map((c) => c[0])
-    const values = topAndBottom.map((c) => ({
-      value: c[3],
-      itemStyle: {
-        color: c[3] > 0 ? CHART_PALETTE[7] : CHART_PALETTE[0] // Blue for positive, Red for negative
+    const values = topAndBottom.map((c) => {
+      // Map pValue (0 to 0.05 typical) to an opacity (1 to 0.3).
+      // Cap minimum opacity at 0.3 so bars remain visible but faded.
+      // E.g. pValue < 0.001 -> ~1, pValue 0.05 -> ~0.3
+      const opacity = Math.max(0.3, 1 - (c[2] * 14))
+
+      return {
+        value: c[3],
+        itemStyle: {
+          color: c[3] > 0 ? CHART_PALETTE[7] : CHART_PALETTE[0], // Blue for positive, Red for negative
+          opacity: opacity
+        }
       }
-    }))
+    })
 
     return {
       style: { height: Math.max(300, topAndBottom.length * 30), width: '100%' },

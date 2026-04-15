@@ -21,6 +21,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
   const [alternative, setAlternative] = useAtom(correlationAlternativeAtom)
   const [method, setMethod] = useAtom(correlationMethodAtom)
   const [isCopied, setIsCopied] = React.useState(false)
+  const [activeTab, setActiveTab] = React.useState<'chart' | 'table'>('chart')
 
   const entries = React.useMemo(() => {
     if (!Array.isArray(data) || !target) {
@@ -264,74 +265,102 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                         </div>
                       </div>
 
-                      {entries && entries.length > 0 && (
+                      <div className="flex space-x-1 rounded-xl bg-gray-800/50 p-1 mb-4">
+                        <button
+                          type="button"
+                          className={`w-full rounded-lg py-2.5 text-sm font-medium leading-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors ${
+                            activeTab === 'chart'
+                              ? 'bg-blue-600/80 text-white shadow'
+                              : 'text-gray-400 hover:bg-white/10 hover:text-white'
+                          }`}
+                          onClick={() => setActiveTab('chart')}
+                        >
+                          Chart View
+                        </button>
+                        <button
+                          type="button"
+                          className={`w-full rounded-lg py-2.5 text-sm font-medium leading-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors ${
+                            activeTab === 'table'
+                              ? 'bg-blue-600/80 text-white shadow'
+                              : 'text-gray-400 hover:bg-white/10 hover:text-white'
+                          }`}
+                          onClick={() => setActiveTab('table')}
+                        >
+                          Table View
+                        </button>
+                      </div>
+
+                      {activeTab === 'chart' && entries && entries.length > 0 && (
                         <div className="mb-8">
                           <FocusedCorrelationChart correlations={entries} />
                         </div>
                       )}
-                      <table className="min-w-full mb-8">
-                        <thead>
-                          <tr className="border-b border-gray-800">
-                            <th
-                              scope="col"
-                              className="text-left text-xs text-gray-400 uppercase tracking-wider font-semibold py-2 px-1"
-                            >
-                              Biomarker
-                            </th>
-                            <th
-                              scope="col"
-                              className="text-right text-xs text-gray-400 uppercase tracking-wider font-semibold py-2 px-1 w-24"
-                            >
-                              P-Value
-                            </th>
-                            <th
-                              scope="col"
-                              className="text-right text-xs text-gray-400 uppercase tracking-wider font-semibold py-2 px-1 w-20"
-                            >
-                              Coeff
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-800">
-                          {entries && entries.length > 0 ? (
-                            entries.map((entry) => (
-                              <tr key={entry[0]} className="hover:bg-white/5 transition-colors">
+
+                      {activeTab === 'table' && (
+                        <table className="min-w-full mb-8">
+                          <thead>
+                            <tr className="border-b border-gray-800">
+                              <th
+                                scope="col"
+                                className="text-left text-xs text-gray-400 uppercase tracking-wider font-semibold py-2 px-1"
+                              >
+                                Biomarker
+                              </th>
+                              <th
+                                scope="col"
+                                className="text-right text-xs text-gray-400 uppercase tracking-wider font-semibold py-2 px-1 w-24"
+                              >
+                                P-Value
+                              </th>
+                              <th
+                                scope="col"
+                                className="text-right text-xs text-gray-400 uppercase tracking-wider font-semibold py-2 px-1 w-20"
+                              >
+                                Coeff
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-800">
+                            {entries && entries.length > 0 ? (
+                              entries.map((entry) => (
+                                <tr key={entry[0]} className="hover:bg-white/5 transition-colors">
+                                  <td
+                                    className="py-2 px-1 text-sm text-gray-200 truncate max-w-[200px]"
+                                    title={entry[0]}
+                                  >
+                                    {entry[0]}
+                                  </td>
+                                  <td
+                                    className={`py-2 px-1 text-right font-mono text-xs whitespace-nowrap ${entry[2] < 0.001 ? 'text-green-400' : 'text-gray-400'}`}
+                                  >
+                                    {entry[2].toFixed(6)}
+                                  </td>
+                                  <td
+                                    className={`py-2 px-1 text-right font-mono text-xs whitespace-nowrap ${Math.abs(entry[3]) > 0.7 ? 'text-blue-400 font-bold' : 'text-gray-400'}`}
+                                  >
+                                    {entry[3].toFixed(4)}
+                                  </td>
+                                </tr>
+                              ))
+                            ) : (
+                              <tr>
                                 <td
-                                  className="py-2 px-1 text-sm text-gray-200 truncate max-w-[200px]"
-                                  title={entry[0]}
+                                  colSpan={3}
+                                  className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-700 rounded bg-white/5"
+                                  role="status"
+                                  aria-live="polite"
                                 >
-                                  {entry[0]}
-                                </td>
-                                <td
-                                  className={`py-2 px-1 text-right font-mono text-xs whitespace-nowrap ${entry[2] < 0.001 ? 'text-green-400' : 'text-gray-400'}`}
-                                >
-                                  {entry[2].toFixed(6)}
-                                </td>
-                                <td
-                                  className={`py-2 px-1 text-right font-mono text-xs whitespace-nowrap ${Math.abs(entry[3]) > 0.7 ? 'text-blue-400 font-bold' : 'text-gray-400'}`}
-                                >
-                                  {entry[3].toFixed(4)}
+                                  No significant correlations found.
+                                  <br />
+                                  <span className="text-xs mt-2 block text-gray-400">
+                                    Try increasing the Alpha threshold or changing the hypothesis.
+                                  </span>
                                 </td>
                               </tr>
-                            ))
-                          ) : (
-                            <tr>
-                              <td
-                                colSpan={3}
-                                className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-700 rounded bg-white/5"
-                                role="status"
-                                aria-live="polite"
-                              >
-                                No significant correlations found.
-                                <br />
-                                <span className="text-xs mt-2 block text-gray-400">
-                                  Try increasing the Alpha threshold or changing the hypothesis.
-                                </span>
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
+                            )}
+                          </tbody>
+                        </table>
+                      )}
                     </div>
                   </div>
                 </Dialog.Panel>
