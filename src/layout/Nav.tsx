@@ -8,7 +8,6 @@ import {
   TrashIcon,
   ClipboardDocumentIcon,
   CheckIcon,
-
 } from '@heroicons/react/24/outline'
 import { tags } from '../processors'
 import { askBioMarkers } from '../service/askAI'
