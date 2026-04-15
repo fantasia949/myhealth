@@ -77,3 +77,8 @@
 
 **Learning:** The application imported heavy visual components (like DarkVeil and modals) synchronously in `App.tsx`, which increased the initial JavaScript bundle size. Attempting to replace idiomatic array methods with `for` loops in components without clear performance metrics is often an unmeasurable micro-optimization.
 **Action:** Focus on macro-optimizations like asset loading first. To speed up initial page render, use `React.lazy()` and `<React.Suspense fallback={null}>` to code-split secondary UI layers and modals out of the main bundle.
+
+## 2025-07-28 - Avoid ECharts dual-render conflicts
+
+**Learning:** Combining a raw `<ReactECharts>` component with a third-party wrapper (like `@echarts-readymade/scatter` or `@echarts-readymade/line`) inside the same `<ChartProvider>` container can inadvertently instantiate two conflicting, overlapping ECharts canvas instances for the same dataset. This introduces hidden performance overhead and visual collision bugs.
+**Action:** When a raw `ReactECharts` configuration object inherently contains all necessary series and datasets (e.g., standard scatter plotting plus `ecStat:regression` transforms), completely remove any supplementary third-party wrapper components, their layout context providers, and associated DOM refs or manual `setOption` overrides to ensure a single, clean render cycle.
