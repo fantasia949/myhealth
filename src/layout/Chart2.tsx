@@ -1,8 +1,7 @@
 import { memo, useRef, useEffect, useMemo } from 'react'
 import { useAtomValue } from 'jotai'
 import { dataMapAtom } from '../atom/dataAtom'
-import { ChartProvider, ChartContext } from '@echarts-readymade/core'
-import { Scatter } from '@echarts-readymade/scatter'
+
 import { labels } from '../data'
 import ReactECharts from 'echarts-for-react'
 import * as echarts from 'echarts'
@@ -147,25 +146,7 @@ const echartsOptions: any = {
 
 export default memo(({ keys }: ChartProps) => {
   const dataMap = useAtomValue(dataMapAtom)
-  const valueList = [
-    { fieldKey: keys[0], fieldName: keys[0], decimalLength: 2 },
-    { fieldKey: keys[1], fieldName: keys[1], decimalLength: 2 },
-  ]
 
-  const dimension = [
-    {
-      fieldKey: 'date',
-      fieldName: 'Date',
-    },
-    {
-      fieldKey: keys[0],
-      fieldName: keys[0],
-    },
-    {
-      fieldKey: keys[1],
-      fieldName: keys[1],
-    },
-  ]
 
   const formatTime = (label: string) => {
     if (!label || label.length < 6) return label
@@ -208,7 +189,7 @@ export default memo(({ keys }: ChartProps) => {
     return [scatterData, mappedScatterData]
   }, [dataMap, keys])
 
-  const scatterRef = useRef<any>(null)
+
 
   const options: any = useMemo(() => {
     let { series, yAxis, xAxis } = echartsOptions
@@ -323,36 +304,13 @@ export default memo(({ keys }: ChartProps) => {
     }
   }, [mappedScatterData, keys])
 
-  useEffect(() => {
-    if (scatterRef.current) {
-      const instance = scatterRef.current.getEchartsInstance()
-      if (instance) {
-        instance.setOption(
-          {
-            grid: options.grid,
-            series: [{ symbolSize: 40 }],
-            dataZoom: options.dataZoom,
-          },
-          { replaceMerge: ['series', 'dataZoom'] },
-        )
-        // console.log("ch1", instance.getOption());
-      }
-    }
-  }, [scatterRef.current, keys, options])
+
 
   // console.log("ch2", options.series[0].data, options.series[1].data);
 
   return (
     <div>
-      <ChartProvider data={scatterData} echartsOptions={options}>
-        <ReactECharts option={options} style={options.style} notMerge={true} theme="dark" />
-        <Scatter
-          ref={scatterRef}
-          context={ChartContext}
-          valueList={valueList}
-          dimension={dimension}
-        />
-      </ChartProvider>
+      <ReactECharts option={options} style={options.style} notMerge={true} theme="dark" />
     </div>
   )
 })
