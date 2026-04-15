@@ -1,4 +1,4 @@
-import { memo, useRef, useEffect, useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import { useAtomValue } from 'jotai'
 import { dataMapAtom } from '../atom/dataAtom'
 
@@ -109,7 +109,7 @@ const echartsOptions: any = {
   series: [
     {
       type: 'scatter',
-      symbolSize: 24,
+      symbolSize: 40,
       legendHoverLink: true,
       large: false,
       zIndex: 2,
@@ -153,14 +153,13 @@ export default memo(({ keys }: ChartProps) => {
     return `20${label.slice(0, 2)}/${label.slice(2, 4)}/${label.slice(4, 6)}`
   }
 
-  const [scatterData, mappedScatterData] = useMemo(() => {
+  const mappedScatterData = useMemo(() => {
     // Optimization: Replace O(K*N) chained .map(), .reduce(), and .filter() array allocations
     // with a single-pass O(N) loop to eliminate closure creation and garbage collection overhead.
     const entry0 = dataMap.get(keys[0])
     const entry1 = dataMap.get(keys[1])
 
-    const mappedScatterData: any[][] = []
-    const scatterData: Record<string, number | string>[] = []
+    const mappedData: any[][] = []
 
     if (entry0 && entry1) {
       const values0 = entry0[1]
@@ -174,19 +173,12 @@ export default memo(({ keys }: ChartProps) => {
         const v1 = values1[i]
         if (v0 !== null && v0 !== undefined && v1 !== null && v1 !== undefined) {
           const formattedDate = formatTime(labels[i])
-
-          mappedScatterData.push([v0, v1, formattedDate, unitX, unitY])
-
-          scatterData.push({
-            [keys[0]]: v0,
-            [keys[1]]: v1,
-            date: formattedDate,
-          })
+          mappedData.push([v0, v1, formattedDate, unitX, unitY])
         }
       }
     }
 
-    return [scatterData, mappedScatterData]
+    return mappedData
   }, [dataMap, keys])
 
 
