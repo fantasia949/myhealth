@@ -82,3 +82,8 @@
 
 **Learning:** Combining a raw `<ReactECharts>` component with a third-party wrapper (like `@echarts-readymade/scatter` or `@echarts-readymade/line`) inside the same `<ChartProvider>` container can inadvertently instantiate two conflicting, overlapping ECharts canvas instances for the same dataset. This introduces hidden performance overhead and visual collision bugs.
 **Action:** When a raw `ReactECharts` configuration object inherently contains all necessary series and datasets (e.g., standard scatter plotting plus `ecStat:regression` transforms), completely remove any supplementary third-party wrapper components, their layout context providers, and associated DOM refs or manual `setOption` overrides to ensure a single, clean render cycle.
+
+## 2026-05-18 - Stable array references for memoized child components
+
+**Learning:** Inline array allocations like `data.filter(...)` inside the render function of a parent component (e.g. `App.tsx`) create a new array reference on every re-render. If this component re-renders frequently—such as responding to an active `searchText` state from user keystrokes—these inline allocations invalidate the `React.memo` prop checks for heavy child components (like `RadarChart`), causing them to re-render synchronously and block the main thread, resulting in severe typing lag.
+**Action:** Always pre-filter data intended for heavy memoized components inside a dedicated `React.useMemo` block, using a single-pass `for` loop to avoid closure overhead. This ensures the array reference remains stable during unrelated state updates, preserving the performance of `React.memo` and preventing input blocking.
