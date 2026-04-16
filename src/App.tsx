@@ -1,11 +1,12 @@
 import React from 'react'
 import './index.css'
-import DarkVeil from './layout/DarkVeil'
 import Nav from './layout/Nav'
 import Table from './layout/Table'
-import PValue from './layout/PValue'
-import Correlation from './layout/Correlation'
-import SystemClustering from './layout/SystemClustering'
+
+const DarkVeil = React.lazy(() => import('./layout/DarkVeil'))
+const PValue = React.lazy(() => import('./layout/PValue'))
+const Correlation = React.lazy(() => import('./layout/Correlation'))
+const SystemClustering = React.lazy(() => import('./layout/SystemClustering'))
 import { useAtomValue, useAtom } from 'jotai'
 
 const ScatterChart = React.lazy(() => import('./layout/ScatterChart'))
@@ -224,6 +225,22 @@ export default function App() {
     ],
   )
 
+  // Optimization: Pre-filter radar chart data in a memoized hook with a single-pass loop.
+  // Previously, inline `data.filter()` created a new array reference on every keystroke
+  // when `searchText` changed, invalidating the memoized RadarChart and causing severe
+  // lag during typing.
+  const radarChartData = React.useMemo(() => {
+    if (!filterTag || !data) return []
+    const result: typeof data = []
+    for (let i = 0; i < data.length; i++) {
+      const entry = data[i]
+      if (entry[3]?.tag?.includes(filterTag)) {
+        result.push(entry)
+      }
+    }
+    return result
+  }, [data, filterTag])
+
   // Optimization: tableProps does NOT include searchText. It only includes state relevant to the table.
   // This prevents the heavy Table component from re-rendering on every keystroke in the search input,
   // since Table relies on the debounced filterTextAtom, not the immediate searchText.
@@ -251,13 +268,17 @@ export default function App() {
       >
         Skip to content
       </a>
-      <div className="fixed inset-0 -z-10">
-        <DarkVeil />
-      </div>
+      <React.Suspense fallback={null}>
+        <div className="fixed inset-0 -z-10">
+          <DarkVeil />
+        </div>
+      </React.Suspense>
       <Nav {...navProps} />
-      <PValue comparedSourceTarget={comparedSourceTarget} onClose={onPValueClose} />
-      <Correlation target={corrlationKey} onClose={onCorrelationClose} />
-      <SystemClustering isOpen={isClusteringOpen} onClose={() => setIsClusteringOpen(false)} />
+      <React.Suspense fallback={null}>
+        <PValue comparedSourceTarget={comparedSourceTarget} onClose={onPValueClose} />
+        <Correlation target={corrlationKey} onClose={onCorrelationClose} />
+        <SystemClustering isOpen={isClusteringOpen} onClose={() => setIsClusteringOpen(false)} />
+      </React.Suspense>
       <main id="main-content" tabIndex={-1}>
         <React.Suspense
           fallback={
@@ -270,10 +291,7 @@ export default function App() {
           }
         >
           {filterTag && (!chartKeys || chartKeys.length === 0) && (
-            <RadarChart
-              data={data.filter(([_, __, ___, extra]) => extra?.tag?.includes(filterTag))}
-              tag={filterTag}
-            />
+            <RadarChart data={radarChartData} tag={filterTag} />
           )}
           {chartKeys && chartKeys.length > 0 && chartType === 'scatter' && (
             <ScatterChart keys={chartKeys} />

@@ -56,7 +56,7 @@ export default [
     ],
     notes: <UpdateNote[]>[
       '+vitamin-b',
-      '+vitamin-d' // ~2000iu
+      '+vitamin-d', // ~2000iu
     ],
     time: '200811',
   },
@@ -76,7 +76,7 @@ export default [
       ['Testosterone', '22.20', 'nmol/L'],
     ],
     notes: <UpdateNote[]>[
-      '++vitamin-d'// 5000iu
+      '++vitamin-d', // 5000iu
     ],
     time: '201116',
   },

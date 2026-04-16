@@ -26,6 +26,7 @@ import { calculateSpearmanRanked } from '../processors/stats'
 import { averageCountAtom } from '../atom/averageValueAtom'
 import Markdown from 'react-markdown'
 import { Spinner } from './Spinner'
+import GistViewer from './GistViewer'
 import { NavProps } from './Nav.types'
 
 export default React.memo<NavProps>(
@@ -189,6 +190,7 @@ export default React.memo<NavProps>(
     const [gistUrl, setGistUrl] = React.useState<string | null>(null)
     const [gistError, setGistError] = React.useState<string | null>(null)
     const [isGistLoading, setIsGistLoading] = React.useState(false)
+    const [isGistViewerOpen, setIsGistViewerOpen] = React.useState(false)
 
     const handleClose = React.useCallback(() => {
       setCanvasText(null)
@@ -228,7 +230,11 @@ export default React.memo<NavProps>(
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <MagnifyingGlassIcon className="h-5 w-5" aria-hidden="true" />
                 </div>
+                <label htmlFor="search-biomarkers" className="sr-only">
+                  Search biomarkers
+                </label>
                 <input
+                  id="search-biomarkers"
                   ref={searchInputRef}
                   type="search"
                   value={filterText}
@@ -246,7 +252,6 @@ export default React.memo<NavProps>(
                   autoFocus
                   className="w-full pl-10 pr-10 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 placeholder-gray-500 focus:placeholder-gray-400"
                   placeholder="Search"
-                  aria-label="Search biomarkers"
                 />
                 {!filterText && !isFocused && (
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -410,6 +415,15 @@ export default React.memo<NavProps>(
                 </button>
               )}
 
+              <button
+                type="button"
+                onClick={() => setIsGistViewerOpen(true)}
+                title="View AI History"
+                className="hidden md:flex ml-4 px-3 py-1 text-xs font-medium bg-gray-700 text-white rounded hover:bg-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 transition-colors"
+              >
+                View History
+              </button>
+
               <div className="hidden contents lg:flex lg:ml-auto lg:flex-row lg:gap-4 lg:items-center">
                 <div className="flex items-center gap-2 w-full lg:w-auto">
                   <label htmlFor="average-count" className="sr-only">
@@ -466,6 +480,8 @@ export default React.memo<NavProps>(
           </div>
         </nav>
 
+        <GistViewer isOpen={isGistViewerOpen} onClose={() => setIsGistViewerOpen(false)} />
+
         <Transition appear show={!!canvasText} as={Fragment}>
           <Dialog as="div" className="relative z-50" onClose={handleClose}>
             <Transition.Child
@@ -491,7 +507,7 @@ export default React.memo<NavProps>(
                   leaveFrom="translate-x-0"
                   leaveTo="translate-x-full"
                 >
-                  <Dialog.Panel className="flex flex-col w-full max-w-md transform overflow-hidden bg-[#222222] text-dark-text p-6 text-left align-middle shadow-xl transition-all h-screen ml-auto border-l border-gray-700">
+                  <Dialog.Panel className="flex flex-col w-full max-w-3xl transform overflow-hidden bg-[#222222] text-dark-text p-6 text-left align-middle shadow-xl transition-all h-screen ml-auto border-l border-gray-700">
                     <Dialog.Title
                       as="div"
                       className="flex justify-between items-center text-lg font-medium leading-6 mb-4"
@@ -506,7 +522,7 @@ export default React.memo<NavProps>(
                         <XMarkIcon className="h-6 w-6" />
                       </button>
                     </Dialog.Title>
-                    <div className="mt-2 text-sm whitespace-pre-wrap overflow-y-auto">
+                    <div className="mt-2 prose prose-invert max-w-none overflow-y-auto">
                       <Markdown>{canvasText}</Markdown>
                     </div>
 

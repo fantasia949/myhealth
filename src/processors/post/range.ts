@@ -101,7 +101,7 @@ const range: Record<string, number[]> = {
   TIBC: [45, 86],
   'LDL / HDL': [0, 2],
   'Total Choles / HDL': [0, 3.5],
-  Estradiol: [10, 40]
+  Estradiol: [10, 40],
 }
 
 const strictRange: Record<string, number[]> = {

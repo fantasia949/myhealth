@@ -75,7 +75,8 @@ export default memo(({ keys }: ChartProps) => {
     // which invalidates the downstream chartData useMemo dependency check.
     // Replace chained array map with a pre-allocated array and a classic for-loop
     const len = keys.length
-    const result = new Array(len)
+    const result = [] as any[]
+    result.length = len
     for (let i = 0; i < len; i++) {
       result[i] = {
         fieldKey: 'v' + i,
@@ -91,8 +92,8 @@ export default memo(({ keys }: ChartProps) => {
     // Optimization: Replace array map in the render loop with a classic for-loop
     // and pre-allocated array to avoid closure and garbage collection overhead.
     const numKeys = keys.length
-    // eslint-disable-next-line eslint-plugin-unicorn/no-new-array
-    const result = new Array(numKeys)
+    const result = [] as any[]
+    result.length = numKeys
     for (let i = 0; i < numKeys; i++) {
       result[i] = {
         scale: true,
@@ -121,8 +122,8 @@ export default memo(({ keys }: ChartProps) => {
     }
 
     const len = labels.length
-    // eslint-disable-next-line eslint-plugin-unicorn(no-new-array)
-    const result = new Array(len)
+    const result = [] as Record<string, any>[]
+    result.length = len
     for (let i = 0; i < len; i++) {
       const item: Record<string, any> = { d1: formatTime(labels[i]) }
       for (let j = 0; j < validSeries.length; j++) {
@@ -147,7 +148,8 @@ export default memo(({ keys }: ChartProps) => {
         // Optimization: Replace array map in the render loop with a classic for-loop
         // and pre-allocated array to avoid closure and garbage collection overhead.
         const len = keys.length
-        const series = new Array(len)
+        const series = [] as any[]
+        series.length = len
         for (let i = 0; i < len; i++) {
           series[i] = {
             type: 'line',

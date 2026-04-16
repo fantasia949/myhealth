@@ -380,6 +380,14 @@ export default React.memo(
     const filterText = useAtomValue(filterTextAtom)
     const tag = useAtomValue(tagAtom)
     const [expandedRowId, setExpandedRowId] = React.useState<string | null>(null)
+    const [showHiddenPerGroup, setShowHiddenPerGroup] = React.useState<Record<string, boolean>>({})
+
+    const toggleShowHidden = React.useCallback((tag: string) => {
+      setShowHiddenPerGroup((prev) => ({
+        ...prev,
+        [tag]: !prev[tag],
+      }))
+    }, [])
 
     const onCellClick = React.useCallback(async (text: string) => {
       await navigator.clipboard.writeText(text)
@@ -402,11 +410,12 @@ export default React.memo(
       })
     }, [showRecords, labels.length])
 
-    const displayedEntries: DisplayedEntry[] = React.useMemo(() => {
+    const { displayedEntries, hiddenCountPerGroup } = React.useMemo(() => {
       // Optimization: Pre-calculate visible values/optimality to avoid slicing in the render loop.
       // This reduces render complexity from O(rows * cols) to O(rows), and keeps array references stable
       // when showRecords doesn't change, allowing React.memo to work effectively on cells.
       const result: DisplayedEntry[] = []
+      const hiddenCounts: Record<string, number> = {}
       const len = convertedEntries.length
 
       // Optimization: Replace chained .filter().flatMap() with a single-pass loop.
@@ -415,6 +424,8 @@ export default React.memo(
       for (let i = 0; i < len; i++) {
         const entry = convertedEntries[i]
         const values = entry[1]
+        const extra = entry[3]
+        const processedTags = extra.processedTags!
 
         const hasRecords =
           !showRecords ||
@@ -423,10 +434,27 @@ export default React.memo(
             values[values.length - 1] !== null &&
             values[values.length - 1] !== undefined)
 
-        if (hasRecords) {
+        if (!hasRecords) {
+          for (let j = 0; j < processedTags.length; j++) {
+            const { tag } = processedTags[j]
+            hiddenCounts[tag] = (hiddenCounts[tag] || 0) + 1
+          }
+        }
+
+        // We check if hasRecords is true or if ANY of the tags for this biomarker have showHiddenPerGroup enabled
+        let shouldShow = hasRecords
+        if (!shouldShow) {
+          for (let j = 0; j < processedTags.length; j++) {
+            if (showHiddenPerGroup[processedTags[j].tag]) {
+              shouldShow = true
+              break
+            }
+          }
+        }
+
+        if (shouldShow) {
           const name = entry[0]
           const unit = entry[2]
-          const extra = entry[3]
 
           const sliceArg = showRecords ? -showRecords : 0
           // Use original array if showing all records to avoid copy overhead
@@ -464,8 +492,11 @@ export default React.memo(
       }
 
       // Optimization: use standard comparison instead of localeCompare for ASCII keys
-      return result.sort((a, b) => (a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0))
-    }, [convertedEntries, showRecords])
+      return {
+        displayedEntries: result.sort((a, b) => (a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0)),
+        hiddenCountPerGroup: hiddenCounts
+      }
+    }, [convertedEntries, showRecords, showHiddenPerGroup])
 
     const columnState = React.useMemo(() => {
       // Optimization: Consolidate chained .filter().map() into a single loop
@@ -609,25 +640,51 @@ export default React.memo(
                   return (
                     <tr key={row.id} className="bg-dark-accent font-bold">
                       <td colSpan={columns.length} className="p-2 border border-gray-700">
-                        <button
-                          {...{
-                            onClick: row.getToggleExpandedHandler(),
-                            style: {
-                              cursor: row.getCanExpand() ? 'pointer' : 'default',
-                            },
-                          }}
-                          className="flex items-center gap-2 w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
-                          aria-expanded={row.getIsExpanded()}
-                          aria-label={`Toggle group ${row.original.displayTag}`}
-                          title={`Toggle group ${row.original.displayTag}`}
-                        >
-                          {row.getIsExpanded() ? (
-                            <ChevronDownIcon className="h-4 w-4 text-gray-400" />
-                          ) : (
-                            <ChevronRightIcon className="h-4 w-4 text-gray-400" />
+                        <div className="flex items-center justify-between w-full">
+                          <button
+                            {...{
+                              onClick: row.getToggleExpandedHandler(),
+                              style: {
+                                cursor: row.getCanExpand() ? 'pointer' : 'default',
+                              },
+                            }}
+                            className="flex items-center gap-2 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
+                            aria-expanded={row.getIsExpanded()}
+                            aria-label={`Toggle group ${row.original.displayTag}`}
+                            title={`Toggle group ${row.original.displayTag}`}
+                          >
+                            {row.getIsExpanded() ? (
+                              <ChevronDownIcon className="h-4 w-4 text-gray-400" />
+                            ) : (
+                              <ChevronRightIcon className="h-4 w-4 text-gray-400" />
+                            )}
+                            {row.original.displayTag} ({row.subRows.length})
+                          </button>
+                          {hiddenCountPerGroup[row.original.tag] > 0 && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                toggleShowHidden(row.original.tag)
+                              }}
+                              className="text-xs font-normal text-gray-400 hover:text-white px-2 py-1 rounded bg-gray-800 hover:bg-gray-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                              aria-label={
+                                showHiddenPerGroup[row.original.tag]
+                                  ? `Hide ${hiddenCountPerGroup[row.original.tag]} inactive biomarkers`
+                                  : `Show ${hiddenCountPerGroup[row.original.tag]} inactive biomarkers`
+                              }
+                              title={
+                                showHiddenPerGroup[row.original.tag]
+                                  ? `Hide inactive biomarkers`
+                                  : `Show inactive biomarkers`
+                              }
+                            >
+                              {showHiddenPerGroup[row.original.tag]
+                                ? 'Hide inactive'
+                                : `Show ${hiddenCountPerGroup[row.original.tag]} inactive`}
+                            </button>
                           )}
-                          {row.original.displayTag} ({row.subRows.length})
-                        </button>
+                        </div>
                       </td>
                     </tr>
                   )

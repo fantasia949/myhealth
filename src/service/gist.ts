@@ -28,3 +28,30 @@ export async function createGist(content: string, token: string, keys: string): 
   const data = await response.json()
   return data.html_url
 }
+
+export interface GistFile {
+  filename: string
+  content: string
+}
+
+export async function getGistFiles(): Promise<GistFile[]> {
+  const response = await fetch('https://api.github.com/gists/f0423911a4f974338132d2a160b6c638', {
+    method: 'GET',
+    headers: {
+      Accept: 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+    },
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch gist files: ${response.statusText}`)
+  }
+
+  const data = await response.json()
+  if (!data.files) return []
+
+  return Object.values(data.files).map((file: any) => ({
+    filename: file.filename,
+    content: file.content || '',
+  }))
+}

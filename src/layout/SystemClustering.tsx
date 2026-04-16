@@ -289,7 +289,7 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
                   <span>Biological System Clustering</span>
                   <button
                     onClick={onClose}
-                    className="text-gray-400 hover:text-white transition-colors"
+                    className="text-gray-400 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
                     aria-label="Close dialog"
                     title="Close dialog"
                   >
@@ -350,7 +350,11 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
 
                 <div className="w-full relative">
                   {!data || data.length === 0 ? (
-                    <div className="h-[400px] flex items-center justify-center text-gray-500 italic">
+                    <div
+                      className="h-[400px] flex items-center justify-center text-gray-400 italic"
+                      role="status"
+                      aria-live="polite"
+                    >
                       Insufficient data to perform clustering.
                     </div>
                   ) : (

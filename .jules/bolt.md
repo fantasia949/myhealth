@@ -54,11 +54,36 @@
 **Action:** Replace `Array.find((entry) => entry.fieldName === key)` with direct array indexing `valueList[i]` when operating on parallel arrays inside a `useMemo` block to drop time complexity from `O(N^2)` to `O(N)`.
 
 ## 2024-03-05 - Focus optimizations on render loops, not startup scripts
+
 **Learning:** Replacing `.reduce()` and `.forEach()` with classic `for` loops on small static dictionaries that run only once during module bootstrap (like `taggedDic`) is a theoretical micro-optimization with zero measurable impact. However, applying the same optimization to chained `.map()` allocations inside a React component's `useMemo` block (like `yAxis` or `series` generation in `Chart.tsx`) significantly reduces garbage collection pressure and layout thrashing during frequent UI re-renders.
 **Action:** Avoid micro-optimizations on static or one-time initialization paths. Instead, aggressively target hot loops within React render cycles or heavy statistical derivations where the operation executes frequently or across large data sets.
+
 ## 2024-03-24 - Feature: Frequency Info in Correlation Table
- **Learning:** Added a count representing the frequency of supplement intake during valid biomarker observation periods alongside the calculated P-value and RHO values to provide additional insight into the correlation reliability. Playwright test `verify_correlation_table.spec.ts` was updated to verify the addition of the "Freq" column.
- **Action:** When altering tables, also verify the header length alignment if iterating through table cells, update empty states `colSpan`, and remember to update any Copy to clipboard text formatting functionality to include the new column.
+
+**Learning:** Added a count representing the frequency of supplement intake during valid biomarker observation periods alongside the calculated P-value and RHO values to provide additional insight into the correlation reliability. Playwright test `verify_correlation_table.spec.ts` was updated to verify the addition of the "Freq" column.
+**Action:** When altering tables, also verify the header length alignment if iterating through table cells, update empty states `colSpan`, and remember to update any Copy to clipboard text formatting functionality to include the new column.
+
 ## 2024-03-24 - UX: Supplement Frequency in Popover
- **Learning:** Added overall frequency to the SupplementsPopover to indicate how often each supplement is taken across all tracked records, making it easier to spot regular vs infrequent supplements directly from the table cell popover.
- **Action:** Pre-calculate counts across the full dataset once using a `Map` within `useMemo` based on `noteValues` rather than calculating redundantly. For small string formatting additions, place them inside discrete `<span>` elements with informative `title` attributes.
+
+**Learning:** Added overall frequency to the SupplementsPopover to indicate how often each supplement is taken across all tracked records, making it easier to spot regular vs infrequent supplements directly from the table cell popover.
+**Action:** Pre-calculate counts across the full dataset once using a `Map` within `useMemo` based on `noteValues` rather than calculating redundantly. For small string formatting additions, place them inside discrete `<span>` elements with informative `title` attributes.
+
+## 2026-04-13 - Gist Viewer Modal
+
+**Learning:** Added a feature to load remote Github Gists using standard `fetch` call and dynamically load/render the fetched markdown in a HeadlessUI Dialog.
+**Action:** Reused the Markdown renderer component for displaying textual Gist data and formatted the timestamps accurately for improved user experience.
+
+## 2025-07-28 - Optimize initial page load via React.lazy code-splitting
+
+**Learning:** The application imported heavy visual components (like DarkVeil and modals) synchronously in `App.tsx`, which increased the initial JavaScript bundle size. Attempting to replace idiomatic array methods with `for` loops in components without clear performance metrics is often an unmeasurable micro-optimization.
+**Action:** Focus on macro-optimizations like asset loading first. To speed up initial page render, use `React.lazy()` and `<React.Suspense fallback={null}>` to code-split secondary UI layers and modals out of the main bundle.
+
+## 2025-07-28 - Avoid ECharts dual-render conflicts
+
+**Learning:** Combining a raw `<ReactECharts>` component with a third-party wrapper (like `@echarts-readymade/scatter` or `@echarts-readymade/line`) inside the same `<ChartProvider>` container can inadvertently instantiate two conflicting, overlapping ECharts canvas instances for the same dataset. This introduces hidden performance overhead and visual collision bugs.
+**Action:** When a raw `ReactECharts` configuration object inherently contains all necessary series and datasets (e.g., standard scatter plotting plus `ecStat:regression` transforms), completely remove any supplementary third-party wrapper components, their layout context providers, and associated DOM refs or manual `setOption` overrides to ensure a single, clean render cycle.
+
+## 2026-05-18 - Stable array references for memoized child components
+
+**Learning:** Inline array allocations like `data.filter(...)` inside the render function of a parent component (e.g. `App.tsx`) create a new array reference on every re-render. If this component re-renders frequently—such as responding to an active `searchText` state from user keystrokes—these inline allocations invalidate the `React.memo` prop checks for heavy child components (like `RadarChart`), causing them to re-render synchronously and block the main thread, resulting in severe typing lag.
+**Action:** Always pre-filter data intended for heavy memoized components inside a dedicated `React.useMemo` block, using a single-pass `for` loop to avoid closure overhead. This ensures the array reference remains stable during unrelated state updates, preserving the performance of `React.memo` and preventing input blocking.

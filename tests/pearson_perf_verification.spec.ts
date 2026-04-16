@@ -22,6 +22,11 @@ test('Verify Pearson correlation functionality and performance', async ({ page }
   // 5. Select "Pearson" method
   await methodSelect.selectOption('pearson')
 
+  // 5.5 Click "Table View" tab
+  const tableViewButton = page.locator('button', { hasText: 'Table View' })
+  await expect(tableViewButton).toBeVisible()
+  await tableViewButton.click()
+
   // 6. Verify table structure in dialog
   const dialogTable = page.locator('[role="dialog"] table')
   await expect(dialogTable).toBeVisible()

@@ -51,7 +51,7 @@ const tag: Record<string, string[]> = {
     'SHBG',
     'LH',
     'FSH',
-    'Estradiol'
+    'Estradiol',
   ],
   '6-Kidney': [
     'Ure',
