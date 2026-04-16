@@ -15,7 +15,7 @@ export default (entries: Entry[]): Entry[] => {
   // Optimization: Use a classic for-loop with pre-allocated array instead of .map()
   // to reduce object allocation and garbage collection overhead.
   const len = entries.length
-  const result = new Array(len)
+  const result = Array<Entry>(len)
   for (let i = 0; i < len; i++) {
     result[i] = postProcessEntry(entries[i])
   }
