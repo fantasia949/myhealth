@@ -162,7 +162,7 @@ export default memo(({ keys }: ChartProps) => {
             grid: { top: 40, bottom: 20 },
             series,
           },
-          { replaceMerge: ['series', 'yAxis'] },
+          { replaceMerge: ['series', 'yAxis'], notMerge: true },
         )
       }
     }
