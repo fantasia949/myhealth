@@ -142,7 +142,7 @@ export default (entry: Entry, strict?: boolean): Entry => {
       if (max !== MAX_VALUE) max = +convert(max).toFixed(2)
 
       // Optimization: Replace array.map with a classic for loop and pre-allocated array.
-      const newRangeValues = new Array(rangeValues.length)
+      const newRangeValues = Array<string | number>(rangeValues.length)
       for (let i = 0; i < rangeValues.length; i++) {
         const x = rangeValues[i]
         newRangeValues[i] = x != MAX_VALUE ? convert(x as number).toFixed(2) : '-'
@@ -164,7 +164,7 @@ export default (entry: Entry, strict?: boolean): Entry => {
 
     // Optimization: pre-calculate optimality using a classic loop to avoid map overhead
     const len = values.length
-    const optimality = new Array(len)
+    const optimality = Array<boolean>(len)
     for (let i = 0; i < len; i++) {
       optimality[i] = extra.isNotOptimal?.(parseFloat(values[i])) ?? false
     }
@@ -172,7 +172,7 @@ export default (entry: Entry, strict?: boolean): Entry => {
   } else if (extra) {
     extra.isNotOptimal = () => false
     const len = values.length
-    const optimality = new Array(len)
+    const optimality = Array<boolean>(len)
     for (let i = 0; i < len; i++) {
       optimality[i] = false
     }
