@@ -128,30 +128,30 @@ A small toggle inside the expanded table row to switch between "History" (LineCh
 
 ---
 
-**Proposal 5 of 5: High-Variance Biomarker Histogram**
+**Proposal 5 of 5: Multi-Biomarker Parallel Status**
 
-**ECharts type:** `ecStat:histogram`
+**ECharts type:** `parallel`
 
 **Codebase citation:**
-Uses the raw measured values array directly from a `BioMarker` in `nonInferredDataAtom`.
+Uses the `extra.range` optimal boundaries array computed by `src/processors/post/range.ts` and the latest value index from `labels[]` inside `dataAtom.ts`.
 
 **Which existing data it uses:**
-Reads the full chronological `values[]` array for a single high-variance biomarker.
+Reads the most recent values for all biomarkers within an active `tagAtom` subset from `visibleDataAtom`, normalizing each axis based on its specific `extra.range` boundaries.
 
 **What it reveals that current charts don't:**
-While line charts show the chronological sequence of values, a histogram ignores time and plots the statistical frequency distribution of the readings. For highly variable metrics like Glucose or Cortisol, this instantly reveals the individual's true "baseline" (the peak of the bell curve) versus rare outliers, which can be obscured by temporal noise.
+Provides a comprehensive vertical slice of the user's latest health state. By plotting multiple different biomarkers as parallel vertical axes on a unified normalized scale, the user can instantly see a "profile" of their current state across an entire system (e.g., Lipid Panel), instantly spotting the specific markers pulling the profile out of alignment.
 
 **Where it would live:**
-New `src/layout/HistogramChart.tsx`.
+New `src/layout/ParallelStatusChart.tsx`, conditionally rendered inside `Nav.tsx` or `Table.tsx`.
 
 **Trigger / entry point:**
-An additional tab in the expanded row state of `Table.tsx` allowing the user to view the statistical distribution of that specific biomarker.
+A toggle button near the Tag Filter list that switches the table view to this parallel coordinate chart for the selected system.
 
-**Implementation complexity:** Low
-(Leverages `echarts-stat` to automatically compute the bins and frequencies from a simple 1D dataset without custom binning logic).
+**Implementation complexity:** High
+(Requires dynamic creation of a parallel axis system and mapping of raw values to normalized coordinates across heterogeneous units).
 
-**ECharts 6 API confirmed via context7:** yes (`dataset.transform.type = 'ecStat:histogram'`)
+**ECharts 6 API confirmed via context7:** yes (`series[].type = 'parallel'`)
 
 ---
 
-Recommended implementation order: Proposal 3 first (highest insight, lowest effort), then 1, then 5, then 4, then 2.
+Recommended implementation order: Proposal 3 first (highest insight, lowest effort), then 1, then 4, then 5, then 2.
