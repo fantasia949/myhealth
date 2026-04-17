@@ -87,3 +87,8 @@
 
 **Learning:** Inline array allocations like `data.filter(...)` inside the render function of a parent component (e.g. `App.tsx`) create a new array reference on every re-render. If this component re-renders frequently—such as responding to an active `searchText` state from user keystrokes—these inline allocations invalidate the `React.memo` prop checks for heavy child components (like `RadarChart`), causing them to re-render synchronously and block the main thread, resulting in severe typing lag.
 **Action:** Always pre-filter data intended for heavy memoized components inside a dedicated `React.useMemo` block, using a single-pass `for` loop to avoid closure overhead. This ensures the array reference remains stable during unrelated state updates, preserving the performance of `React.memo` and preventing input blocking.
+
+## 2024-04-17 - Hoist Loop-Invariant Array Allocations
+
+**Learning:** Allocating fallback arrays using `Array.from` inside a hot loop (e.g., iterating over data timepoints) causes significant unnecessary garbage collection and object allocation overhead, even when the underlying dependencies of the array don't change per iteration.
+**Action:** Always identify loop-invariant array allocations and hoist them outside the loop. This converts O(N) allocations into O(1) allocations.

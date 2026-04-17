@@ -122,24 +122,21 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
       if (yAxisTag && tags.includes(yAxisTag)) m2Indices.push(m)
     }
 
+    // Fallback: If we don't have enough markers in tags, just use the first half vs second half
+    const useTags =
+      xAxisTag !== '' && yAxisTag !== '' && m1Indices.length > 0 && m2Indices.length > 0
+    // Bolt Optimization: Hoist fallback array calculations outside the inner loop to
+    // eliminate redundant object allocations and garbage collection per timepoint.
+    const g1 = useTags ? m1Indices : Array.from({ length: Math.floor(numMarkers / 2) }, (_, i) => i)
+    const g2 = useTags
+      ? m2Indices
+      : Array.from({ length: Math.ceil(numMarkers / 2) }, (_, i) => i + Math.floor(numMarkers / 2))
+
     for (let t = 0; t < numTimepoints; t++) {
       let m1Valid = 0
       let m1Optimal = 0
       let m2Valid = 0
       let m2Optimal = 0
-
-      // Fallback: If we don't have enough markers in tags, just use the first half vs second half
-      const useTags =
-        xAxisTag !== '' && yAxisTag !== '' && m1Indices.length > 0 && m2Indices.length > 0
-      const g1 = useTags
-        ? m1Indices
-        : Array.from({ length: Math.floor(numMarkers / 2) }, (_, i) => i)
-      const g2 = useTags
-        ? m2Indices
-        : Array.from(
-            { length: Math.ceil(numMarkers / 2) },
-            (_, i) => i + Math.floor(numMarkers / 2),
-          )
 
       for (const m of g1) {
         const val = data[m][1][t]
