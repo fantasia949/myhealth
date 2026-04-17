@@ -98,6 +98,8 @@ export default memo(({ keys }: ChartProps) => {
       result[i] = {
         scale: true,
         name: keys[i],
+        nameLocation: 'middle',
+        nameGap: 50,
       }
     }
     return result
@@ -171,7 +173,7 @@ export default memo(({ keys }: ChartProps) => {
         instance.destroy()
       }
     }
-  }, [ref.current, keys, yAxis])
+  }, [keys, yAxis])
 
   return (
     <ChartProvider data={chartData} echartsOptions={echartsOptions}>

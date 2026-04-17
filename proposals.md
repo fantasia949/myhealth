@@ -1,19 +1,19 @@
 ## Part 1 — Implementation Report
 
 **The Issue:**
-`src/layout/Chart2.tsx`, line 347. The component rendered a Dual-Render Conflict: it instantiated both a direct `<ReactECharts>` component and a `<Scatter>` component wrapper (from `@echarts-readymade`) within the same DOM space for the exact same dataset, degrading performance and causing visual rendering overlap.
+`src/layout/Chart.tsx`, line 174. The `useEffect` that calls `instance.setOption()` included `ref.current` in its dependency array. Because `ref.current` is mutable and does not trigger re-renders, the effect might not re-run reliably when `keys` changes if `ref.current` isn't updated reactively. Additionally, `yAxis` names were overlapping tick labels because there was no offset configuration.
 
 **Discovery Signal:**
-Scan 4 — Chart2 Dual-Render Conflict.
+Scan 5 — useEffect Dependency Correctness (Chart.tsx) & Scan 3 — Multi-Axis Legibility (ScatterChart & Chart).
 
 **context7 Reference:**
-N/A (React refactoring; no new ECharts API was introduced, only cleaned up).
+Confirmed via context7 ECharts 6 docs for `yAxis.nameLocation` and `yAxis.nameGap` under the `axis` topic.
 
 **The Fix:**
-Removed the `@echarts-readymade` wrapper (`<ChartProvider>` and `<Scatter>`). Stripped out the `scatterData`, `valueList`, and `dimension` definitions which were exclusively needed by the wrapper. Eliminated the `useEffect` that manually updated the wrapper's `symbolSize` by directly merging `{ symbolSize: 40 }` into the base `echartsOptions.series[0]` configuration. The React component now directly and singularly renders `<ReactECharts option={options} />`.
+Removed `ref.current` from the `useEffect` dependency array in `src/layout/Chart.tsx`. Replaced `[ref.current, keys, yAxis]` with `[keys, yAxis]`. Also updated the `yAxis` generation inside the `useMemo` block to include `nameLocation: 'middle'` and `nameGap: 50` to push the axis label away from the tick values.
 
 **The Benefit:**
-Eliminates a duplicate, redundant ECharts instantiation and canvas render. Avoids firing an immediate post-render `instance.setOption` via `useEffect`, speeding up time-to-interactive and removing unnecessary memory allocation.
+Prevents stale axis renders when the user changes biomarker selections (ensuring `setOption` fires when `keys` changes). The `yAxis` names now have proper spacing and no longer visually collide with the axis tick marks, dramatically improving readability for multi-series graphs.
 
 **TypeScript result:**
 0 errors.
@@ -24,134 +24,134 @@ Eliminates a duplicate, redundant ECharts instantiation and canvas render. Avoid
 
 These 5 visualization ideas use existing metadata to surface new health insights without requiring new dependencies or altering processing logic.
 
-**Proposal 1 of 5: Hierarchical System Health Sunburst**
+**Proposal 1 of 5: Optimality Matrix Heatmap**
 
-**ECharts type:** `sunburst`
-
-**Codebase citation:**
-Uses `tagDescription` dictionary keys (e.g., `'1-Metabolic'`) from `src/processors/post/tag.ts` mapped to all constituent `BioMarker` entries' `extra.optimality[]` boolean at the latest tested index.
-
-**Which existing data it uses:**
-Reads the `tag` groups and the `extra.optimality[]` boolean array computed by `src/processors/post/range.ts` for every biomarker in `dataAtom`.
-
-**What it reveals that current charts don't:**
-A Sunburst chart (inner ring = Tag Groups, outer ring = Biomarkers) colored proportionally by `optimality` provides a massive, single-glance structural overview of an individual's total biological wellness at their most recent blood draw.
-
-**Where it would live:**
-New `src/layout/SystemSunburst.tsx`, rendered inside the main dashboard view.
-
-**Trigger / entry point:**
-A macro "Total Health Snapshot" toggle button at the top of the main `Nav.tsx` filter list, replacing the detailed table with a single holistic graphic.
-
-**Implementation complexity:** Medium
-(Requires formatting the linear `dataAtom` array into a nested JSON hierarchy, which ECharts parses natively).
-
-**ECharts 6 API confirmed via context7:** yes (`series[].type = 'sunburst'`)
-
----
-
-**Proposal 2 of 5: Focused Diverging Bar Chart (Tornado Chart)**
-
-**ECharts type:** `bar`
+**ECharts type:** `heatmap`
 
 **Codebase citation:**
-Uses the pairwise correlation coefficients calculated and cached inside the global `correlationAtom.ts` state.
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` and index-aligned with the time `labels[]` from `dataAtom.ts`.
 
 **Which existing data it uses:**
-Uses the pre-calculated Pearson or Spearman coefficients from the active `correlationAtom` state depending on the `correlationMethodAtom`.
+Reads the boolean `optimality` arrays for all biomarkers within a currently active `tagAtom` subset (via `visibleDataAtom`). The X-axis uses `labels[]`, and the Y-axis uses the biomarker names.
 
 **What it reveals that current charts don't:**
-Correlation matrices are dense. A diverging bar chart lets a user select a single target (e.g., "Glucose") and plots all other variables as horizontal bars diverging from 0 to +1 (right) and -1 (left). This provides an instantly readable, ranked list of top positive and negative influencers.
+Allows a user to instantly spot temporal patterns of failure across an entire biological system (e.g., all Kidney markers). A vertical band of 'out of range' colors across multiple rows clearly highlights a specific date where an entire physiological system was under stress, which is very hard to see on separate line charts.
 
 **Where it would live:**
-New `src/layout/FocusedCorrelationChart.tsx`, embedded within the `Correlation.tsx` modal.
+New `src/layout/OptimalityHeatmap.tsx`, conditionally rendered inside `Nav.tsx` or `Table.tsx` when a specific tag is active.
 
 **Trigger / entry point:**
-Clicking on a specific row/column header in the existing `BiomarkerCorrelation.tsx` table switches the modal to this focused bar view.
+A toggle button near the Tag Filter list that switches the table view to this heatmap for the selected system.
 
 **Implementation complexity:** Low
-(Standard `bar` series using an `xAxis` ranging from -1 to 1; correlation data is already structurally solved).
+(Requires mapping boolean arrays to binary `[xIndex, yIndex, value]` tuples natively supported by ECharts heatmap series).
 
-**ECharts 6 API confirmed via context7:** yes (`series[].type = 'bar'`)
+**ECharts 6 API confirmed via context7:** yes (`series[].type = 'heatmap'`)
 
 ---
 
-**Proposal 3 of 5: Longitudinal ThemeRiver (Streamgraph)**
+**Proposal 2 of 5: Time-Series Protocol Clustering**
 
-**ECharts type:** `themeRiver`
+**ECharts type:** `ecStat:clustering`
 
 **Codebase citation:**
-Uses the `labels[]` time-series array imported from `src/data/index.ts` alongside values grouped by a single tag from `tagAtom`.
+Uses the `ecStat` transform on raw multi-dimensional vectors from `nonInferredDataAtom`.
 
 **Which existing data it uses:**
-Maps the `labels[]` array against normalized time-series `values[]` for all biomarkers within an active `tagAtom` subset (e.g., `2-Metabolic`) sourced from `visibleDataAtom`.
+Reads the `values[]` arrays for all currently visible measured biomarkers in `nonInferredDataAtom`, stacking them into a multi-dimensional array per timepoint in `labels[]`.
 
 **What it reveals that current charts don't:**
-Current multi-line charts become a "spaghetti graph" with 5+ biomarkers. A ThemeRiver visualizes the changing proportions and collective volume of a physiological system over time, letting the user intuitively see if their overall lipid burden or metabolic volume has fundamentally shifted across decades.
+Instead of showing individual lines, this applies k-means clustering to the combined state of the body over time. It can reveal if the user's overall physiological state naturally groups into distinct "regimes" or phases (e.g., highlighting that data from 2022 groups separately from 2024, implying a major metabolic shift or response to a supplement protocol).
 
 **Where it would live:**
-New `src/layout/ThemeRiverChart.tsx`.
+New `src/layout/SystemClusteringChart.tsx`, accessible inside the existing `SystemClustering.tsx` modal.
 
 **Trigger / entry point:**
-Available inside the Tag Filter UI (e.g., when clicking the `2-Metabolic` tag in `Nav.tsx`, a toggle switches the table to the ThemeRiver).
+A new "Visualize Clusters" button inside the `SystemClustering.tsx` modal, which currently only handles hierarchical clustering text output.
 
 **Implementation complexity:** High
-(Requires normalizing disparate units into percentage-based contributions or a zero-mean scale, then structuring standard coordinate data `[date, normalizedValue, biomarkerName]`).
+(Requires structuring N-dimensional data into an `ecStat` transform dataset and handling varying dimensionality dynamically).
 
-**ECharts 6 API confirmed via context7:** yes (`series[].type = 'themeRiver'`)
+**ECharts 6 API confirmed via context7:** yes (`dataset.transform.type = 'ecStat:clustering'`)
 
 ---
 
-**Proposal 4 of 5: Biomarker Value Distribution (Histogram)**
+**Proposal 3 of 5: LineChart Optimality VisualMap**
+
+**ECharts type:** `visualMap` on `LineChart`
+
+**Codebase citation:**
+Uses `extra.optimality[]` array generated by `src/processors/post/range.ts` inside the `BioMarker` metadata.
+
+**Which existing data it uses:**
+Reads the `optimality` boolean array for the single biomarker currently passed to `LineChartProps` (by retrieving it via `dataMapAtom.get(name)`).
+
+**What it reveals that current charts don't:**
+The current `LineChart.tsx` only uses `markArea` to draw a background horizontal band for the optimal range. A `visualMap` (piecewise) bound to the line series itself can color the exact line segments red when they step out of the optimal range and green when they return. This draws immediate visual attention to the severity of spikes without needing to trace the line against the background band.
+
+**Where it would live:**
+An extension to the existing `src/layout/LineChart.tsx`.
+
+**Trigger / entry point:**
+Automatically applied whenever a row is expanded in `Table.tsx` if the biomarker has an optimal range defined.
+
+**Implementation complexity:** Low
+(Requires injecting a `visualMap` configuration into `echartsOptions` and mapping the boolean array to a discrete color dimension).
+
+**ECharts 6 API confirmed via context7:** yes (`visualMap[].type = 'piecewise'`)
+
+---
+
+**Proposal 4 of 5: Single Biomarker Radial Gauge**
+
+**ECharts type:** `gauge`
+
+**Codebase citation:**
+Uses `extra.range` string parsing and the latest value from the `values[]` array in `dataAtom`.
+
+**Which existing data it uses:**
+Parses the `min` and `max` limits from `extra.range` (e.g., "3.9 - 6.4") and maps the most recent non-null value from the `BioMarker` array as a percentage between those bounds.
+
+**What it reveals that current charts don't:**
+Time-series lines are great for history, but a gauge provides an instant, speedometer-like reading of the *current* health status for a critical metric. It visually answers "how close am I to the danger zone right now?" with zero cognitive load.
+
+**Where it would live:**
+New `src/layout/BiomarkerGauge.tsx`, rendered inside the `Table.tsx` row expansion alongside or instead of the LineChart for the latest data point.
+
+**Trigger / entry point:**
+A small toggle inside the expanded table row to switch between "History" (LineChart) and "Current Status" (Gauge).
+
+**Implementation complexity:** Medium
+(Requires robust parsing of the `rangeStr` to handle `>` and `<` edge cases securely, converting them into standard gauge `min`/`max` boundaries).
+
+**ECharts 6 API confirmed via context7:** yes (`series[].type = 'gauge'`)
+
+---
+
+**Proposal 5 of 5: High-Variance Biomarker Histogram**
 
 **ECharts type:** `ecStat:histogram`
 
 **Codebase citation:**
-Uses the raw measured values from `nonInferredDataAtom` paired with `echarts-stat` transforms.
+Uses the raw measured values array directly from a `BioMarker` in `nonInferredDataAtom`.
 
 **Which existing data it uses:**
-Reads the full `values[]` array for a single selected `BioMarker` from `nonInferredDataAtom`.
+Reads the full chronological `values[]` array for a single high-variance biomarker.
 
 **What it reveals that current charts don't:**
-While the line chart shows chronological movement, a histogram shows the statistical distribution of a high-variance biomarker (e.g., Glucose) over all time points, helping the user understand their most common baseline state versus rare outlier readings.
+While line charts show the chronological sequence of values, a histogram ignores time and plots the statistical frequency distribution of the readings. For highly variable metrics like Glucose or Cortisol, this instantly reveals the individual's true "baseline" (the peak of the bell curve) versus rare outliers, which can be obscured by temporal noise.
 
 **Where it would live:**
-New `src/layout/HistogramChart.tsx` or as a secondary tab inside the table row expansion alongside `LineChart.tsx`.
+New `src/layout/HistogramChart.tsx`.
 
 **Trigger / entry point:**
-A tab toggle inside the expanded row state of `Table.tsx`.
+An additional tab in the expanded row state of `Table.tsx` allowing the user to view the statistical distribution of that specific biomarker.
 
 **Implementation complexity:** Low
-(Leverages the already installed `echarts-stat` transform to group the 1D numeric array natively without custom binning math).
+(Leverages `echarts-stat` to automatically compute the bins and frequencies from a simple 1D dataset without custom binning logic).
 
 **ECharts 6 API confirmed via context7:** yes (`dataset.transform.type = 'ecStat:histogram'`)
 
 ---
 
-**Proposal 5 of 5: Scatter Plot Matrix (SPLOM)**
-
-**ECharts type:** `scatter` (multiple grids)
-
-**Codebase citation:**
-Uses the raw time-series numeric values of multiple `BioMarker` arrays (accessed via `dataMapAtom`) mapped to identical `labels[]` indices.
-
-**Which existing data it uses:**
-Reads raw `values[]` from 3 to 4 selected `BioMarker` instances in `dataMapAtom` and pairs them at aligned indices.
-
-**What it reveals that current charts don't:**
-A single correlation number ($r$) can be heavily skewed by a single outlier or a non-linear relationship. A SPLOM renders a grid of miniature scatter plots for a small subset of selected variables. This allows the user to visually audit the mathematical correlation and see the actual shape of the data relationships (e.g., identifying U-shaped curves).
-
-**Where it would live:**
-New `src/layout/CorrelationSPLOM.tsx`.
-
-**Trigger / entry point:**
-A button in the `Correlation.tsx` modal allowing the user to select 3-4 specific biomarkers to "Deep Dive" into their raw relationship plots.
-
-**Implementation complexity:** High
-(Requires generating multiple `grid`, `xAxis`, and `yAxis` layout objects dynamically based on the number of selected dimensions).
-
-**ECharts 6 API confirmed via context7:** yes (`series[].type = 'scatter'`)
-
----
-
-Recommended implementation order: Proposal 2 first (highest insight, lowest effort), then 4, then 1, then 3, then 5.
+Recommended implementation order: Proposal 3 first (highest insight, lowest effort), then 1, then 5, then 4, then 2.
