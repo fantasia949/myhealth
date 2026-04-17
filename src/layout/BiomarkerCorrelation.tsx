@@ -221,6 +221,7 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
                       </button>
                     )}
                     <button
+                      type="button"
                       onClick={onClose}
                       className="text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded shrink-0"
                       aria-label="Close dialog"

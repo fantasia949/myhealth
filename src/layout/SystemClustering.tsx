@@ -288,6 +288,7 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
                 >
                   <span>Biological System Clustering</span>
                   <button
+                    type="button"
                     onClick={onClose}
                     className="text-gray-400 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
                     aria-label="Close dialog"

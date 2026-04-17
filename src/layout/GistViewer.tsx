@@ -115,6 +115,7 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
                   <div className="flex items-center gap-2">
                     {selectedFile && (
                       <button
+                        type="button"
                         onClick={() => setSelectedFile(null)}
                         className="text-gray-400 hover:text-white mr-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
                         aria-label="Back to list"
@@ -126,6 +127,7 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
                     <span>{selectedFile ? 'Analysis Details' : 'AI History'}</span>
                   </div>
                   <button
+                    type="button"
                     onClick={onClose}
                     className="text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
                     aria-label="Close dialog"
@@ -144,6 +146,7 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
                     <div className="text-red-400 p-4 bg-red-900/20 rounded">
                       <p>Error: {error}</p>
                       <button
+                        type="button"
                         onClick={loadFiles}
                         className="mt-2 text-sm text-blue-400 hover:text-blue-300 underline focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
                       >
@@ -160,6 +163,7 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
                         const { keys, dateStr, isParsed } = formatFilename(file.filename)
                         return (
                           <button
+                            type="button"
                             key={file.filename}
                             onClick={() => setSelectedFile(file)}
                             className="text-left p-3 rounded bg-[#333333] hover:bg-[#444444] transition-colors border border-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"

@@ -493,8 +493,10 @@ export default React.memo(
 
       // Optimization: use standard comparison instead of localeCompare for ASCII keys
       return {
-        displayedEntries: result.sort((a, b) => (a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0)),
-        hiddenCountPerGroup: hiddenCounts
+        displayedEntries: result.sort((a, b) =>
+          a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0,
+        ),
+        hiddenCountPerGroup: hiddenCounts,
       }
     }, [convertedEntries, showRecords, showHiddenPerGroup])
 

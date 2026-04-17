@@ -147,7 +147,6 @@ const echartsOptions: any = {
 export default memo(({ keys }: ChartProps) => {
   const dataMap = useAtomValue(dataMapAtom)
 
-
   const formatTime = (label: string) => {
     if (!label || label.length < 6) return label
     return `20${label.slice(0, 2)}/${label.slice(2, 4)}/${label.slice(4, 6)}`
@@ -180,8 +179,6 @@ export default memo(({ keys }: ChartProps) => {
 
     return mappedData
   }, [dataMap, keys])
-
-
 
   const options: any = useMemo(() => {
     let { series, yAxis, xAxis } = echartsOptions
@@ -295,8 +292,6 @@ export default memo(({ keys }: ChartProps) => {
       ],
     }
   }, [mappedScatterData, keys])
-
-
 
   // console.log("ch2", options.series[0].data, options.series[1].data);
 
