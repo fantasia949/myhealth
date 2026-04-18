@@ -216,6 +216,7 @@ export default React.memo<NavProps>(
         >
           <div className="flex flex-wrap lg:flex-nowrap w-full items-center justify-between px-3 gap-3">
             <button
+              type="button"
               className="lg:hidden p-2 text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
               type="button"
               onClick={onToggle}
@@ -514,6 +515,7 @@ export default React.memo<NavProps>(
                     >
                       <span>Biomarker</span>
                       <button
+                        type="button"
                         onClick={handleClose}
                         className="text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
                         aria-label="Close dialog"

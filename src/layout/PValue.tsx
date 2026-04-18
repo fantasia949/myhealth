@@ -109,6 +109,7 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
                 >
                   <span>{method === 'pearson' ? 'Pearson' : 'Spearman Rank'} Correlation</span>
                   <button
+                    type="button"
                     onClick={onClose}
                     className="text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
                     aria-label="Close dialog"
