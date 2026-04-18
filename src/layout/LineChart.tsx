@@ -1,4 +1,6 @@
-import React, { memo } from 'react'
+import React, { memo, useMemo } from 'react'
+import { useAtomValue } from 'jotai'
+import { dataMapAtom } from '../atom/dataAtom'
 import ReactECharts from 'echarts-for-react'
 import { labels } from '../data'
 import { CHART_PALETTE } from './Chart2'
@@ -60,9 +62,10 @@ const formatTime = (label: string) => {
   return `20${label.slice(0, 2)}/${label.slice(2, 4)}/${label.slice(4, 6)}`
 }
 
-import { useMemo } from 'react'
 
 export default memo(({ name, values, rangeStr }: LineChartProps) => {
+  const dataMap = useAtomValue(dataMapAtom)
+  const unit = dataMap.get(name)?.[2] || ''
   // Map null/undefined values to '-' and pair them with labels
   // Preserving missing points prevents misrepresenting data gaps (connectNulls: false by default)
   const data = useMemo(() => {
@@ -121,6 +124,25 @@ export default memo(({ name, values, rangeStr }: LineChartProps) => {
       left: 'center',
       textStyle: {
         color: '#ccc',
+      },
+    },
+    tooltip: {
+      ...echartsOptions.tooltip,
+      formatter: (params: any) => {
+        const p = Array.isArray(params) ? params[0] : params
+        if (
+          !p ||
+          p.value[1] === '-' ||
+          p.value[1] === '' ||
+          p.value[1] === 'NaN' ||
+          p.value[1] === null ||
+          p.value[1] === undefined ||
+          Number.isNaN(p.value[1])
+        ) {
+          return ''
+        }
+        const unitStr = unit ? ` ${unit}` : ''
+        return `${p.seriesName}<br/>${p.value[0]}<br/><strong>${p.value[1]}${unitStr}</strong>`
       },
     },
     series: [
