@@ -14,3 +14,6 @@
 ## 2026-04-14 - Improve Markdown Readability in Dialogs
 **Learning:** Default text styles in narrow dialogs make markdown difficult to read.
 **Action:** Use `@tailwindcss/typography` plugin with `prose prose-invert` classes to automatically style markdown, and increase Dialog container widths (`max-w-3xl`) to improve overall readability.
+## 2026-04-18 - Improve Dynamic Button Tooltips
+**Learning:** Action buttons dependent on UI state (e.g., table selections) must utilize explicit `disabled` attributes alongside dynamic `title` tooltips that inform the user why the action is disabled when conditions aren't met (e.g., 'Select at least one item to visualize').
+**Action:** Always pair conditionally disabled action buttons with contextual tooltips to clarify the system state to the user.

@@ -372,8 +372,14 @@ export default React.memo<NavProps>(
                     <button
                       type="button"
                       onClick={onAskAI}
-                      disabled={isAsking}
-                      title={isAsking ? 'Asking AI...' : 'Ask AI'}
+                      disabled={isAsking || selected.length === 0}
+                      title={
+                        isAsking
+                          ? 'Asking AI...'
+                          : selected.length === 0
+                            ? 'Select biomarkers to ask AI'
+                            : 'Ask AI'
+                      }
                       className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors flex items-center justify-center gap-1 min-w-[70px]"
                       aria-busy={isAsking}
                       aria-live="polite"
@@ -396,8 +402,13 @@ export default React.memo<NavProps>(
                     <button
                       type="button"
                       onClick={onVisualize}
-                      title="Visualize selected biomarkers"
-                      className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors"
+                      disabled={selected.length === 0}
+                      title={
+                        selected.length === 0
+                          ? 'Select biomarkers to visualize'
+                          : 'Visualize selected biomarkers'
+                      }
+                      className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Visualize
                     </button>
