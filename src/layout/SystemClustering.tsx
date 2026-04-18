@@ -7,17 +7,13 @@ import * as ecStat from 'echarts-stat'
 import { useAtomValue } from 'jotai'
 import { noteValuesAtom, nonInferredDataAtom } from '../atom/dataAtom'
 import { Fragment } from 'react'
+import { SystemClusteringProps } from './SystemClustering.types'
 
 echarts.registerTransform(
   (ecStat as any).transform?.clustering ||
     (ecStat as any).default?.transform?.clustering ||
     (ecStat as any).clustering,
 )
-
-interface SystemClusteringProps {
-  isOpen: boolean
-  onClose: () => void
-}
 
 export const CHART_PALETTE = [
   '#c23531',
