@@ -61,7 +61,7 @@ export default (entries: BioMarker[]): BioMarker[] => {
 
     // Optimization: Avoid chaining Array.from({ length }).map() and inner array.map().some()
     // inside hot loops to reduce multiple array allocations and closure overheads per period.
-    const values = Array.from({ length: periods }) as (string | null)[]
+    const values = Array<string | null>(periods)
     if (hasMissingField) {
       for (let i = 0; i < periods; i++) {
         values[i] = null
@@ -69,7 +69,7 @@ export default (entries: BioMarker[]): BioMarker[] => {
     } else {
       for (let i = 0; i < periods; i++) {
         let missing = false
-        const fieldValues = Array.from({ length: numFields }) as number[]
+        const fieldValues = Array<number>(numFields)
         for (let j = 0; j < numFields; j++) {
           const v = fieldArrays[j]![i]
           if (!v) {
@@ -88,7 +88,7 @@ export default (entries: BioMarker[]): BioMarker[] => {
     }
 
     if (!(extra as any).originValues) {
-      ;(extra as any).originValues = Array.from({ length: periods })
+      ;(extra as any).originValues = Array<any>(periods)
     }
     ;(extra as any).inferred = true
     return [name, values, null, extra] as any
