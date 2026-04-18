@@ -92,3 +92,7 @@
 
 **Learning:** Allocating fallback arrays using `Array.from` inside a hot loop (e.g., iterating over data timepoints) causes significant unnecessary garbage collection and object allocation overhead, even when the underlying dependencies of the array don't change per iteration.
 **Action:** Always identify loop-invariant array allocations and hoist them outside the loop. This converts O(N) allocations into O(1) allocations.
+
+## 2025-05-18 - Avoid array resizing and Array.from overloads in hot paths
+**Learning:** `Array.from({ length: N })` and `[] as any[]; array.length = N` create unnecessary garbage collection overhead when used inside tight loops or frequent React renders (`useMemo`). `Array.from` additionally allocates an intermediate object `{ length }`. The oxlint rule `unicorn/no-new-array` flags `new Array(len)`, causing developers to mistakenly prefer slower patterns.
+**Action:** Always pre-allocate fixed-length arrays directly using explicit types without the `new` keyword: `Array<Type>(N)`. This bypasses the linting rule while preserving the high-performance memory allocation behavior of `new Array()`.
