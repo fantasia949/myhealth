@@ -3,12 +3,9 @@ import { BeakerIcon } from '@heroicons/react/24/outline'
 import { useAtomValue } from 'jotai'
 import { noteValuesAtom } from '../atom/dataAtom'
 import { useMemo } from 'react'
+import { SupplementsPopoverProps } from './SupplementsPopover.types'
 
-interface Props {
-  supps: string[]
-}
-
-export default function SupplementsPopover({ supps }: Props) {
+export default function SupplementsPopover({ supps }: SupplementsPopoverProps) {
   const noteValues = useAtomValue(noteValuesAtom)
 
   // Optimization: Pre-calculate supplement frequencies across all notes
