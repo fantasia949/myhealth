@@ -113,7 +113,7 @@ Uses `extra.range` string parsing and the latest value from the `values[]` array
 Parses the `min` and `max` limits from `extra.range` (e.g., "3.9 - 6.4") and maps the most recent non-null value from the `BioMarker` array as a percentage between those bounds.
 
 **What it reveals that current charts don't:**
-Time-series lines are great for history, but a gauge provides an instant, speedometer-like reading of the *current* health status for a critical metric. It visually answers "how close am I to the danger zone right now?" with zero cognitive load.
+Time-series lines are great for history, but a gauge provides an instant, speedometer-like reading of the _current_ health status for a critical metric. It visually answers "how close am I to the danger zone right now?" with zero cognitive load.
 
 **Where it would live:**
 New `src/layout/BiomarkerGauge.tsx`, rendered inside the `Table.tsx` row expansion alongside or instead of the LineChart for the latest data point.
