@@ -1,4 +1,4 @@
-## 2026-04-10 - Add Skip-to-content links
+## 2025-05-20 - Ensure tab toggles reflect state to screen readers
 
 **Learning:** Applications need skip-to-content links for keyboard users to bypass repetitive navigation elements, ensuring accessible workflows.
 
@@ -21,3 +21,5 @@
 
 **Learning:** Action buttons dependent on UI state (e.g., table selections) must utilize explicit `disabled` attributes alongside dynamic `title` tooltips that inform the user why the action is disabled when conditions aren't met (e.g., 'Select at least one item to visualize').
 **Action:** Always pair conditionally disabled action buttons with contextual tooltips to clarify the system state to the user.
+**Learning:** When implementing tab-like views using custom buttons (e.g., swapping between Chart and Table views), screen reader users are unaware of the active selection if the visual active state (e.g., highlighted background color) isn't paired with an accessibility attribute.
+**Action:** Always add `aria-pressed={isActive}` or `aria-selected={isActive}` to toggle buttons to correctly communicate their state to assistive technologies.
