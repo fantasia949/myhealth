@@ -394,7 +394,7 @@ export default React.memo<NavProps>(
                     </label>
                     <select
                       id="chart-type"
-                      className="px-2 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                      className="px-2 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
                       value={chartType}
                       onChange={(e) => onChartTypeChange(e.target.value)}
                     >
@@ -443,7 +443,7 @@ export default React.memo<NavProps>(
                   </label>
                   <select
                     id="average-count"
-                    className="flex-1 lg:flex-none px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                    className="flex-1 lg:flex-none px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
                     value={averageCount.toString()}
                     onChange={onAverageCount}
                   >
@@ -460,7 +460,7 @@ export default React.memo<NavProps>(
                   </label>
                   <select
                     id="show-records"
-                    className="flex-1 lg:flex-none px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                    className="flex-1 lg:flex-none px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
                     value={showRecords.toString()}
                     onChange={onShowRecordsChange}
                   >
@@ -473,12 +473,11 @@ export default React.memo<NavProps>(
                 </div>
                 <div className="hidden xl:flex items-center gap-2 w-full xl:w-auto">
                   <input
-                    className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                    className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
                     type="checkbox"
                     checked={showOrigColumns}
                     onChange={onOriginValueToggle}
                     id="flexSwitchCheckDefault"
-                    aria-label="Origin values"
                   />
                   <label
                     className="text-sm cursor-pointer select-none"
