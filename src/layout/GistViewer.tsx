@@ -1,6 +1,11 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
-import { XMarkIcon, ArrowLeftIcon, ClockIcon } from '@heroicons/react/24/outline'
+import {
+  XMarkIcon,
+  ArrowLeftIcon,
+  ClockIcon,
+  ClipboardDocumentIcon,
+} from '@heroicons/react/24/outline'
 import Markdown from 'react-markdown'
 import { getGistFiles, GistFile } from '../service/gist'
 import { Spinner } from './Spinner'
@@ -181,11 +186,27 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
                     </div>
                   ) : (
                     <div
-                      className="text-gray-400 text-center mt-10"
+                      className="flex flex-col items-center justify-center py-12 px-4 text-center"
                       role="status"
                       aria-live="polite"
                     >
-                      No AI history found in the gist.
+                      <div className="bg-gray-800/50 rounded-full p-4 mb-4">
+                        <ClipboardDocumentIcon className="h-8 w-8 text-gray-500" />
+                      </div>
+                      <h3 className="text-lg font-medium text-gray-300 mb-2">
+                        No AI history found
+                      </h3>
+                      <p className="text-sm text-gray-500 max-w-sm mb-6">
+                        You haven't saved any AI analyses to this Gist yet. Select biomarkers, ask
+                        AI, and save the results to see them here.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={onClose}
+                        className="px-4 py-2 bg-gray-700 text-white text-sm font-medium rounded hover:bg-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
+                      >
+                        Return to Dashboard
+                      </button>
                     </div>
                   )}
                 </div>
