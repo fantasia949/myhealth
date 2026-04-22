@@ -38,7 +38,11 @@ const echartsOptions: any = {
         let tooltipStr = `${pArray[0].value.d1}`
         let hasValidValues = false
 
-        pArray.forEach((p) => {
+        // ⚡ Bolt Optimization: Replaced pArray.forEach with a standard for-loop in the tooltip formatter.
+        // Tooltip formatters are extremely hot paths that fire continuously on mousemove.
+        // Eliminating the array callback reduces closure allocation and garbage collection overhead.
+        for (let i = 0; i < pArray.length; i++) {
+          const p = pArray[i]
           const dimName = p.dimensionNames[p.encode.y[0]]
           const val = p.value[dimName]
           const unit = p.value[`${dimName}_unit`] || ''
@@ -54,7 +58,7 @@ const echartsOptions: any = {
             tooltipStr += `<br/>${p.marker} ${p.seriesName}: <strong>${val} ${unit}</strong>`
             hasValidValues = true
           }
-        })
+        }
 
         return hasValidValues ? tooltipStr : ''
       },

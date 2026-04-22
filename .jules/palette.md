@@ -1,4 +1,4 @@
-## 2026-04-10 - Add Skip-to-content links
+## 2025-05-20 - Ensure tab toggles reflect state to screen readers
 
 **Learning:** Applications need skip-to-content links for keyboard users to bypass repetitive navigation elements, ensuring accessible workflows.
 
@@ -16,10 +16,14 @@
 
 **Learning:** Default text styles in narrow dialogs make markdown difficult to read.
 **Action:** Use `@tailwindcss/typography` plugin with `prose prose-invert` classes to automatically style markdown, and increase Dialog container widths (`max-w-3xl`) to improve overall readability.
+
 ## 2026-04-18 - Improve Dynamic Button Tooltips
+
 **Learning:** Action buttons dependent on UI state (e.g., table selections) must utilize explicit `disabled` attributes alongside dynamic `title` tooltips that inform the user why the action is disabled when conditions aren't met (e.g., 'Select at least one item to visualize').
 **Action:** Always pair conditionally disabled action buttons with contextual tooltips to clarify the system state to the user.
 
 ## 2026-04-20 - [Add Empty State with Actionable CTA]
 **Learning:** Replaced plain text empty states with structured UI (Icon + Heading + Explanation + CTA Button) significantly improves the perceived quality of the application and guides users effectively when there is no data.
 **Action:** When encountering `files.length === 0` or similar conditions, always prefer a structured empty state over plain text, ensuring it includes a helpful call-to-action to resolve the empty state.
+**Learning:** When implementing tab-like views using custom buttons (e.g., swapping between Chart and Table views), screen reader users are unaware of the active selection if the visual active state (e.g., highlighted background color) isn't paired with an accessibility attribute.
+**Action:** Always add `aria-pressed={isActive}` or `aria-selected={isActive}` to toggle buttons to correctly communicate their state to assistive technologies.

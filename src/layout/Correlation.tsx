@@ -268,6 +268,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                       <div className="flex space-x-1 rounded-xl bg-gray-800/50 p-1 mb-4">
                         <button
                           type="button"
+                          aria-pressed={activeTab === 'chart'}
                           className={`w-full rounded-lg py-2.5 text-sm font-medium leading-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors ${
                             activeTab === 'chart'
                               ? 'bg-blue-600/80 text-white shadow'
@@ -279,6 +280,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                         </button>
                         <button
                           type="button"
+                          aria-pressed={activeTab === 'table'}
                           className={`w-full rounded-lg py-2.5 text-sm font-medium leading-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors ${
                             activeTab === 'table'
                               ? 'bg-blue-600/80 text-white shadow'
