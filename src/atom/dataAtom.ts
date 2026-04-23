@@ -120,5 +120,12 @@ export const gistTokenAtom = atomWithStorage<string | null>('gistToken', null)
 
 export const nonInferredDataAtom = atom((get) => {
   const data = get(dataAtom)
-  return data.filter((item) => !item[3]?.inferred)
+  // Optimization: Replace Array.filter with a traditional for-loop to avoid closure creation and garbage collection overhead in derived Jotai atoms.
+  const filteredData: typeof data = []
+  for (let i = 0; i < data.length; i++) {
+    if (!data[i][3]?.inferred) {
+      filteredData.push(data[i])
+    }
+  }
+  return filteredData
 })
