@@ -50,7 +50,7 @@ export default function SupplementsPopover({ supps }: SupplementsPopoverProps) {
             <li key={idx} className="break-words flex justify-between items-center gap-2">
               <span>{supp}</span>
               <span
-                className="text-gray-500 font-mono text-xs"
+                className="text-gray-400 font-mono text-xs"
                 title="Frequency across all records"
               >
                 ({suppFrequencies.get(supp) || 0})

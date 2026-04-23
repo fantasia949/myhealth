@@ -256,7 +256,7 @@ export default React.memo<NavProps>(
                 />
                 {!filterText && !isFocused && (
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <kbd className="hidden sm:inline-block border border-gray-600 rounded px-1.5 py-0.5 text-xs text-gray-500 font-sans">
+                    <kbd className="hidden sm:inline-block border border-gray-600 rounded px-1.5 py-0.5 text-xs text-gray-400 font-sans">
                       /
                     </kbd>
                   </div>

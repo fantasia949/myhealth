@@ -126,7 +126,7 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
                   {comparedSourceTarget && (
                     <div className="mb-4 font-bold text-base flex items-center justify-center bg-dark-bg p-3 rounded border border-gray-700">
                       <span className="text-blue-400">{comparedSourceTarget[0][0]}</span>
-                      <span className="mx-3 text-gray-500 font-normal text-xs uppercase tracking-widest">
+                      <span className="mx-3 text-gray-400 font-normal text-xs uppercase tracking-widest">
                         vs
                       </span>
                       <span className="text-blue-400">{comparedSourceTarget[1][0]}</span>
