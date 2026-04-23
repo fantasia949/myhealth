@@ -218,7 +218,6 @@ export default React.memo<NavProps>(
             <button
               type="button"
               className="lg:hidden p-2 text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
-              type="button"
               onClick={onToggle}
               aria-label={show ? 'Close menu' : 'Open menu'}
               title={show ? 'Close menu' : 'Open menu'}
