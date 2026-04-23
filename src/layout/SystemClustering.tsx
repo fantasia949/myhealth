@@ -310,7 +310,7 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
                         id="x-axis-group"
                         value={xAxisTag}
                         onChange={(e) => setXAxisTag(e.target.value)}
-                        className="bg-[#111111] text-white border border-[#3a3a3a] rounded p-2 text-sm focus:outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500"
+                        className="bg-[#111111] text-white border border-[#3a3a3a] rounded p-2 text-sm focus:outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
                       >
                         {availableTags.map((t) => (
                           <option key={t} value={t}>
@@ -330,7 +330,7 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
                         id="y-axis-group"
                         value={yAxisTag}
                         onChange={(e) => setYAxisTag(e.target.value)}
-                        className="bg-[#111111] text-white border border-[#3a3a3a] rounded p-2 text-sm focus:outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500"
+                        className="bg-[#111111] text-white border border-[#3a3a3a] rounded p-2 text-sm focus:outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
                       >
                         {availableTags.map((t) => (
                           <option key={t} value={t}>

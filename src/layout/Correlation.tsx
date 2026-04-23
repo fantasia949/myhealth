@@ -225,7 +225,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                               id="corr-method"
                               value={method}
                               onChange={(e) => setMethod(e.target.value as any)}
-                              className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white focus-visible:ring-2 focus-visible:ring-blue-500"
+                              className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
                             >
                               <option value="spearman">Spearman</option>
                               <option value="pearson">Pearson</option>
@@ -239,7 +239,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                               id="corr-alpha"
                               value={alpha}
                               onChange={(e) => setAlpha(Number(e.target.value))}
-                              className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white focus-visible:ring-2 focus-visible:ring-blue-500"
+                              className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
                             >
                               <option value={0.05}>0.05</option>
                               <option value={0.01}>0.01</option>
@@ -255,7 +255,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                               id="corr-alt"
                               value={alternative}
                               onChange={(e) => setAlternative(e.target.value as any)}
-                              className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white focus-visible:ring-2 focus-visible:ring-blue-500"
+                              className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
                             >
                               <option value="two-sided">Two-sided</option>
                               <option value="less">Less</option>
