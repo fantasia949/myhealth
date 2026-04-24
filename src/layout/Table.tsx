@@ -644,6 +644,7 @@ export default React.memo(
                       <td colSpan={columns.length} className="p-2 border border-gray-700">
                         <div className="flex items-center justify-between w-full">
                           <button
+                            type="button"
                             {...{
                               onClick: row.getToggleExpandedHandler(),
                               style: {

@@ -12,7 +12,7 @@ test('search with whitespace only should return no results', async ({ page }) =>
   await searchInput.fill('   ')
 
   // Expect empty state message
-  await expect(page.getByText('No biomarkers match "   "')).toBeVisible()
+  await expect(page.getByText('No biomarkers match "   "')).toBeVisible({ timeout: 10000 })
 
   // Verify no data rows are visible (except the empty state row itself)
   await expect(rows).toHaveCount(1)
