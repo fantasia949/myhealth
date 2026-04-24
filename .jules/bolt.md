@@ -97,3 +97,8 @@
 
 **Learning:** `Array.from({ length: N })` and `[] as any[]; array.length = N` create unnecessary garbage collection overhead when used inside tight loops or frequent React renders (`useMemo`). `Array.from` additionally allocates an intermediate object `{ length }`. The oxlint rule `unicorn/no-new-array` flags `new Array(len)`, causing developers to mistakenly prefer slower patterns.
 **Action:** Always pre-allocate fixed-length arrays directly using explicit types without the `new` keyword: `Array<Type>(N)`. This bypasses the linting rule while preserving the high-performance memory allocation behavior of `new Array()`.
+
+## 2024-05-18 - Fuse consecutive array iterations in useMemo
+
+**Learning:** Having one `useMemo` loop over an array to build a mapped dataset, followed immediately by a second `useMemo` hook that loops over that exact same mapped dataset to calculate min/max boundaries, creates an unnecessary O(N) traversal.
+**Action:** When deriving multiple insights from a newly mapped array (like transformed objects and statistical bounds), fuse the logic into a single O(N) loop within the first `useMemo` block and return a combined object (e.g., `{ data: mappedData, minX, maxX, minY, maxY }`). This prevents redundant iterations over the same data.
