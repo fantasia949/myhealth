@@ -220,7 +220,7 @@ const TableRow = React.memo(
             </label>
           </th>
           {!showOrigColumns || !extra.hasOrigin
-            ? visibleValues.map((value: any, index: number) => {
+            ? visibleValues.map((value: number, index: number) => {
                 const baseClass = cellBaseClasses[index]
                 const isBad = visibleOptimality && visibleOptimality[index]
                 return (
@@ -235,7 +235,7 @@ const TableRow = React.memo(
                   />
                 )
               })
-            : visibleOriginValues?.map((value: any, index: number) => {
+            : visibleOriginValues?.map((value: number | string | null, index: number) => {
                 const baseClass = cellBaseClasses[index]
                 const isBad = visibleOptimality && visibleOptimality[index]
                 return (
