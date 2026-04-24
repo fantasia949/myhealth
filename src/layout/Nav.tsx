@@ -26,8 +26,12 @@ import { calculateSpearmanRanked } from '../processors/stats'
 import { averageCountAtom } from '../atom/averageValueAtom'
 import Markdown from 'react-markdown'
 import { Spinner } from './Spinner'
-import GistViewer from './GistViewer'
 import { NavProps } from './Nav.types'
+
+// Optimization: Lazy load the GistViewer modal to reduce the initial JavaScript bundle size.
+// This modal is only needed when a user explicitly clicks "View History", so code-splitting it
+// significantly improves the initial page load speed without sacrificing readability.
+const GistViewer = React.lazy(() => import('./GistViewer'))
 
 export default React.memo<NavProps>(
   ({
@@ -191,6 +195,13 @@ export default React.memo<NavProps>(
     const [gistError, setGistError] = React.useState<string | null>(null)
     const [isGistLoading, setIsGistLoading] = React.useState(false)
     const [isGistViewerOpen, setIsGistViewerOpen] = React.useState(false)
+    const [hasGistViewerMounted, setHasGistViewerMounted] = React.useState(false)
+
+    React.useEffect(() => {
+      if (isGistViewerOpen && !hasGistViewerMounted) {
+        setHasGistViewerMounted(true)
+      }
+    }, [isGistViewerOpen, hasGistViewerMounted])
 
     const handleClose = React.useCallback(() => {
       setCanvasText(null)
@@ -490,7 +501,11 @@ export default React.memo<NavProps>(
           </div>
         </nav>
 
-        <GistViewer isOpen={isGistViewerOpen} onClose={() => setIsGistViewerOpen(false)} />
+        <React.Suspense fallback={null}>
+          {hasGistViewerMounted && (
+            <GistViewer isOpen={isGistViewerOpen} onClose={() => setIsGistViewerOpen(false)} />
+          )}
+        </React.Suspense>
 
         <Transition appear show={!!canvasText} as={Fragment}>
           <Dialog as="div" className="relative z-50" onClose={handleClose}>
