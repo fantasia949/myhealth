@@ -159,6 +159,10 @@ export default memo(({ keys }: ChartProps) => {
     const entry1 = dataMap.get(keys[1])
 
     const mappedData: any[][] = []
+    let minX = 0,
+      maxX = 100,
+      minY = 0,
+      maxY = 100
 
     if (entry0 && entry1) {
       const values0 = entry0[1]
@@ -167,17 +171,32 @@ export default memo(({ keys }: ChartProps) => {
       const unitY = entry1[2] || ''
       const len = labels.length
 
+      let initializedBounds = false
+
       for (let i = 0; i < len; i++) {
         const v0 = values0[i]
         const v1 = values1[i]
         if (v0 !== null && v0 !== undefined && v1 !== null && v1 !== undefined) {
           const formattedDate = formatTime(labels[i])
           mappedData.push([v0, v1, formattedDate, unitX, unitY])
+
+          if (!initializedBounds) {
+            minX = v0
+            maxX = v0
+            minY = v1
+            maxY = v1
+            initializedBounds = true
+          } else {
+            if (v0 < minX) minX = v0
+            if (v0 > maxX) maxX = v0
+            if (v1 < minY) minY = v1
+            if (v1 > maxY) maxY = v1
+          }
         }
       }
     }
 
-    return mappedData
+    return { data: mappedData, minX, maxX, minY, maxY }
   }, [dataMap, keys])
 
   const options: any = useMemo(() => {
@@ -188,12 +207,12 @@ export default memo(({ keys }: ChartProps) => {
     const dataset: any[] = [
       {
         dimensions: [keys[0], keys[1], 'Date', 'unitX', 'unitY'],
-        source: mappedScatterData,
+        source: mappedScatterData.data,
       },
     ]
 
     // Guard against regression transform crash on <2 points
-    if (mappedScatterData.length >= 2) {
+    if (mappedScatterData.data.length >= 2) {
       dataset.push({
         transform: {
           type: 'ecStat:regression',
@@ -206,7 +225,7 @@ export default memo(({ keys }: ChartProps) => {
     const nextSeries = [
       series[0],
       // Only include the regression series if dataset contains it
-      ...(mappedScatterData.length >= 2
+      ...(mappedScatterData.data.length >= 2
         ? [
             {
               ...series[1],
@@ -220,27 +239,6 @@ export default memo(({ keys }: ChartProps) => {
           ]
         : []),
     ]
-
-    // Optimization: Calculate min/max data boundaries in a single O(N) pass
-    // to avoid allocating 4 intermediate arrays via chained .map() and
-    // preventing stack overflow from spreading (...) large arrays into Math.min/max.
-    let minX = 0,
-      maxX = 100,
-      minY = 0,
-      maxY = 100
-    if (mappedScatterData.length > 0) {
-      minX = mappedScatterData[0][0]
-      maxX = mappedScatterData[0][0]
-      minY = mappedScatterData[0][1]
-      maxY = mappedScatterData[0][1]
-      for (let i = 1; i < mappedScatterData.length; i++) {
-        const item = mappedScatterData[i]
-        if (item[0] < minX) minX = item[0]
-        if (item[0] > maxX) maxX = item[0]
-        if (item[1] < minY) minY = item[1]
-        if (item[1] > maxY) maxY = item[1]
-      }
-    }
 
     return {
       ...echartsOptions,
@@ -281,13 +279,13 @@ export default memo(({ keys }: ChartProps) => {
       dataZoom: [
         {
           ...(echartsOptions.dataZoom as any[])[0],
-          startValue: minX,
-          endValue: maxX,
+          startValue: mappedScatterData.minX,
+          endValue: mappedScatterData.maxX,
         },
         {
           ...(echartsOptions.dataZoom as any[])[1],
-          startValue: minY,
-          endValue: maxY,
+          startValue: mappedScatterData.minY,
+          endValue: mappedScatterData.maxY,
         },
       ],
     }
