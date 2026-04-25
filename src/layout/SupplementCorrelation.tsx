@@ -3,7 +3,7 @@ import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon, ClipboardDocumentIcon, CheckIcon } from '@heroicons/react/24/outline'
 import { useAtomValue } from 'jotai'
 import { noteValuesAtom, dataMapAtom } from '../atom/dataAtom'
-import { correlationAlternativeAtom } from '../atom/correlationAtom'
+
 import { rankData, calculatePearson } from '../processors/stats'
 import {
   SupplementCorrelationProps,
@@ -17,7 +17,7 @@ const SupplementCorrelation = React.memo(
     const noteValues = useAtomValue(noteValuesAtom)
     const dataMap = useAtomValue(dataMapAtom)
     const alpha = 0.05
-    const alternative = useAtomValue(correlationAlternativeAtom)
+
 
     const correlations = useMemo(() => {
       if (!supplementName) return []
@@ -115,12 +115,25 @@ const SupplementCorrelation = React.memo(
         const rankedBiomarkerValues = rankData(filteredBiomarkerValues)
         const rankedSuppVector = rankData(filteredSuppVector)
 
-        const result = calculatePearson(rankedBiomarkerValues, rankedSuppVector, {
+        // First calculate with two-sided to get the correlation coefficient (rho)
+        const initialResult = calculatePearson(rankedBiomarkerValues, rankedSuppVector, {
           alpha,
-          alternative,
+          alternative: 'two-sided',
         })
 
-        const rho = result.pcorr
+        const rho = initialResult.pcorr
+
+        if (rho === undefined || isNaN(rho)) return
+
+        // Automatically determine direction for the uni-directional hypothesis test
+        const autoAlternative = rho > 0 ? 'greater' : 'less'
+
+        // Recalculate p-value with the specific uni-directional alternative
+        const result = calculatePearson(rankedBiomarkerValues, rankedSuppVector, {
+          alpha,
+          alternative: autoAlternative,
+        })
+
         const pVal = result.pValue
 
         if (rho !== undefined && !isNaN(rho) && pVal <= 0.1) {
@@ -134,7 +147,7 @@ const SupplementCorrelation = React.memo(
       })
 
       return results.sort((a, b) => a.pValue - b.pValue)
-    }, [supplementName, noteValues, dataMap, alpha, alternative])
+    }, [supplementName, noteValues, dataMap, alpha])
 
     if (!supplementName) return null
 
