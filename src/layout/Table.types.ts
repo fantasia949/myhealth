@@ -7,6 +7,7 @@ export interface TableProps {
   onSelect: (name: string) => void
   showRecords: number
   onClearFilters?: () => void
+  setCorrelationSupplement?: (name: string | null) => void
 }
 
 export type DisplayedEntry = {

@@ -372,6 +372,7 @@ export default React.memo(
     showRecords,
     onClearFilters,
     onCorrelation,
+    setCorrelationSupplement,
   }: TableProps) => {
     const convertedEntries = useAtomValue(visibleDataAtom)
     const averageCountValue = useAtomValue(averageCountAtom)
@@ -737,6 +738,7 @@ export default React.memo(
                         supps={
                           notes[(header.column.columnDef.meta as any)?.title as string]?.supps ?? []
                         }
+                        onSupplementClick={setCorrelationSupplement}
                       />
                     ) : null}
                   </th>

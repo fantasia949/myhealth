@@ -16,5 +16,6 @@ export type NavProps = {
   onOriginValueToggle: (e: React.ChangeEvent<HTMLInputElement>) => void
   onVisualize: () => void
   onPValue: () => void
+  onSupplementCorrelation: (name: string) => void
   onOpenClustering?: () => void
 }
