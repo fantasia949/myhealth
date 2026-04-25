@@ -18,7 +18,6 @@ const SupplementCorrelation = React.memo(
     const dataMap = useAtomValue(dataMapAtom)
     const alpha = 0.05
 
-
     const correlations = useMemo(() => {
       if (!supplementName) return []
 
