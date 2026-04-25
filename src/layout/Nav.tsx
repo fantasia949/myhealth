@@ -21,6 +21,7 @@ import {
   aiModelAtom,
   rankedDataMapAtom,
   nonInferredDataAtom,
+  noteValuesAtom,
 } from '../atom/dataAtom'
 import { calculateSpearmanRanked } from '../processors/stats'
 import { averageCountAtom } from '../atom/averageValueAtom'
@@ -50,6 +51,7 @@ export default React.memo<NavProps>(
     onOriginValueToggle,
     onVisualize,
     onPValue,
+    onSupplementCorrelation,
     onOpenClustering,
   }) => {
     const [averageCount, setAverageCount] = useAtom(averageCountAtom)
@@ -59,7 +61,24 @@ export default React.memo<NavProps>(
     const data = useAtomValue(visibleDataAtom)
     const fullData = useAtomValue(dataAtom)
     const nonInferredData = useAtomValue(nonInferredDataAtom)
+    const noteValues = useAtomValue(noteValuesAtom)
     const rankedDataMap = useAtomValue(rankedDataMapAtom)
+
+    // Optimization: Pre-calculate unique supplements for the dropdown
+    const uniqueSupplements = React.useMemo(() => {
+      const supps = new Set<string>()
+      for (let i = 0; i < noteValues.length; i++) {
+        const note = noteValues[i]
+        if (note && note.supps) {
+          for (let j = 0; j < note.supps.length; j++) {
+            supps.add(note.supps[j])
+          }
+        }
+      }
+      return Array.from(supps).sort()
+    }, [noteValues])
+
+    const [selectedSupplement, setSelectedSupplement] = React.useState<string>('')
     const [show, setShow] = React.useState(false)
     const [isAsking, setIsAsking] = React.useState(false)
     const [isScrolled, setIsScrolled] = React.useState(false)
@@ -435,6 +454,40 @@ export default React.memo<NavProps>(
                 >
                   Detect Phases
                 </button>
+              )}
+
+              {uniqueSupplements.length > 0 && (
+                <div className="hidden md:flex ml-4 items-center gap-2">
+                  <label htmlFor="nav-supplement" className="sr-only">
+                    Select Supplement
+                  </label>
+                  <select
+                    id="nav-supplement"
+                    className="px-2 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
+                    value={selectedSupplement}
+                    onChange={(e) => setSelectedSupplement(e.target.value)}
+                  >
+                    <option value="">Select supplement...</option>
+                    {uniqueSupplements.map((supp) => (
+                      <option key={supp} value={supp}>
+                        {supp}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => onSupplementCorrelation(selectedSupplement)}
+                    disabled={!selectedSupplement}
+                    title={
+                      !selectedSupplement
+                        ? 'Select a supplement to correlate'
+                        : 'Correlate supplement'
+                    }
+                    className="px-3 py-1 text-xs font-medium bg-purple-600 text-white rounded hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 transition-colors"
+                  >
+                    Correlate
+                  </button>
+                </div>
               )}
 
               <button

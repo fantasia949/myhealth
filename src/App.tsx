@@ -6,6 +6,7 @@ import Table from './layout/Table'
 const DarkVeil = React.lazy(() => import('./layout/DarkVeil'))
 const PValue = React.lazy(() => import('./layout/PValue'))
 const Correlation = React.lazy(() => import('./layout/Correlation'))
+const SupplementCorrelation = React.lazy(() => import('./layout/SupplementCorrelation'))
 const SystemClustering = React.lazy(() => import('./layout/SystemClustering'))
 import { useAtomValue, useAtom } from 'jotai'
 
@@ -39,6 +40,7 @@ export default function App() {
   const [chartType, setChartType] = React.useState<string>('scatter')
   const [comparedSourceTarget, setSourceTarget] = React.useState<BioMarker[] | null>(null)
   const [corrlationKey, setCorrelationKey] = React.useState<string | null>(null)
+  const [correlationSupplement, setCorrelationSupplement] = React.useState<string | null>(null)
   const [showAiKey, setShowAiKey] = React.useState(false)
   const [showGistToken, setShowGistToken] = React.useState(false)
 
@@ -91,6 +93,7 @@ export default function App() {
         setSearchText('')
         setFilterText('')
         setCorrelationKey(null)
+        setCorrelationSupplement(null)
         setSelect([])
         setSourceTarget(null)
       })
@@ -156,6 +159,15 @@ export default function App() {
     })
   }, [selected, data])
 
+  const onSupplementCorrelation = React.useCallback((name: string) => {
+    setCorrelationSupplement((v) => {
+      if (name === v) {
+        return null
+      }
+      return name
+    })
+  }, [])
+
   const onCorrelation = React.useCallback((name: string) => {
     setCorrelationKey((v) => {
       if (name === v) {
@@ -174,6 +186,7 @@ export default function App() {
     setChartKeys(null)
     setSourceTarget(null)
     setCorrelationKey(null)
+    setCorrelationSupplement(null)
   }, [])
 
   const onClearFilters = React.useCallback(() => {
@@ -203,6 +216,7 @@ export default function App() {
       onOriginValueToggle,
       onVisualize,
       onPValue,
+      onSupplementCorrelation,
       onOpenClustering: () => setIsClusteringOpen(true),
     }),
     [
@@ -221,6 +235,7 @@ export default function App() {
       onOriginValueToggle,
       onVisualize,
       onPValue,
+      onSupplementCorrelation,
       setIsClusteringOpen,
     ],
   )
@@ -252,13 +267,23 @@ export default function App() {
       showRecords,
       onClearFilters,
       onCorrelation,
+      setCorrelationSupplement,
     }),
-    [showOrigColumns, selected, onSelect, showRecords, onClearFilters, onCorrelation],
+    [
+      showOrigColumns,
+      selected,
+      onSelect,
+      showRecords,
+      onClearFilters,
+      onCorrelation,
+      setCorrelationSupplement,
+    ],
   )
 
   // Optimization: Memoize onClose handlers to ensure referential stability for React.memo components
   const onPValueClose = React.useCallback(() => setSourceTarget(null), [])
   const onCorrelationClose = React.useCallback(() => setCorrelationKey(null), [])
+  const onSupplementCorrelationClose = React.useCallback(() => setCorrelationSupplement(null), [])
 
   return (
     <>
@@ -277,6 +302,10 @@ export default function App() {
       <React.Suspense fallback={null}>
         <PValue comparedSourceTarget={comparedSourceTarget} onClose={onPValueClose} />
         <Correlation target={corrlationKey} onClose={onCorrelationClose} />
+        <SupplementCorrelation
+          supplementName={correlationSupplement}
+          onClose={onSupplementCorrelationClose}
+        />
         <SystemClustering isOpen={isClusteringOpen} onClose={() => setIsClusteringOpen(false)} />
       </React.Suspense>
       <main id="main-content" tabIndex={-1}>

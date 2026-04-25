@@ -5,7 +5,9 @@ import { noteValuesAtom } from '../atom/dataAtom'
 import { useMemo } from 'react'
 import { SupplementsPopoverProps } from './SupplementsPopover.types'
 
-export default function SupplementsPopover({ supps }: SupplementsPopoverProps) {
+import { CalculatorIcon } from '@heroicons/react/24/outline'
+
+export default function SupplementsPopover({ supps, onSupplementClick }: SupplementsPopoverProps) {
   const noteValues = useAtomValue(noteValuesAtom)
 
   // Optimization: Pre-calculate supplement frequencies across all notes
@@ -48,7 +50,20 @@ export default function SupplementsPopover({ supps }: SupplementsPopoverProps) {
         <ul className="list-disc pl-4 space-y-1">
           {supps.map((supp, idx) => (
             <li key={idx} className="break-words flex justify-between items-center gap-2">
-              <span>{supp}</span>
+              <span className="flex items-center gap-2">
+                <span>{supp}</span>
+                {onSupplementClick && (
+                  <button
+                    type="button"
+                    onClick={() => onSupplementClick(supp)}
+                    className="text-gray-400 hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-0.5 transition-colors"
+                    title={`Correlate ${supp} with biomarkers`}
+                    aria-label={`Correlate ${supp} with biomarkers`}
+                  >
+                    <CalculatorIcon className="h-4 w-4" />
+                  </button>
+                )}
+              </span>
               <span
                 className="text-gray-400 font-mono text-xs"
                 title="Frequency across all records"
