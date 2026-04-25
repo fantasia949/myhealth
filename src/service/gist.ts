@@ -1,6 +1,7 @@
 export async function createGist(content: string, token: string, keys: string): Promise<string> {
   const prefix = 'biomarker'
-  const suffix = Date.now()
+  const now = new Date()
+  const suffix = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`
   const fileName = `${prefix}_${keys}_${suffix}.md`
   const response = await fetch('https://api.github.com/gists/f0423911a4f974338132d2a160b6c638', {
     method: 'PATCH',
