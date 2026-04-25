@@ -2,7 +2,7 @@ import React, { Fragment } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon, ClipboardDocumentIcon, CheckIcon } from '@heroicons/react/24/outline'
 import { useAtom, useAtomValue } from 'jotai'
-import { dataAtom, rankedDataMapAtom, nonInferredDataAtom } from '../atom/dataAtom'
+import { dataMapAtom, rankedDataMapAtom, nonInferredDataAtom } from '../atom/dataAtom'
 import {
   correlationAlphaAtom,
   correlationAlternativeAtom,
@@ -15,7 +15,7 @@ import FocusedCorrelationChart from './FocusedCorrelationChart'
 
 export default React.memo(({ target, onClose }: CorrelationProps) => {
   const data = useAtomValue(nonInferredDataAtom)
-  const fullData = useAtomValue(dataAtom) // Access full data for source lookup
+  const dataMap = useAtomValue(dataMapAtom) // Access full data for source lookup
   const rankedDataMap = useAtomValue(rankedDataMapAtom)
   const [alpha, setAlpha] = useAtom(correlationAlphaAtom)
   const [alternative, setAlternative] = useAtom(correlationAlternativeAtom)
@@ -32,7 +32,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
 
     // Helper to get raw numeric values for Pearson from FULL DATA
     const getValues = (name: string) => {
-      const entry = fullData.find((d) => d[0] === name)
+      const entry = dataMap.get(name)
       return entry ? entry[1] : null
     }
 
@@ -125,7 +125,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
     entries.sort((a, b) => a[2] - b[2])
 
     return entries
-  }, [data, fullData, target, alpha, alternative, rankedDataMap, method])
+  }, [data, dataMap, target, alpha, alternative, rankedDataMap, method])
 
   return (
     <Transition appear show={!!target} as={Fragment}>
