@@ -11,9 +11,9 @@ export const processTime = (notes: Notes) => {
 }
 
 export const processBiomarkers = (entries: Array<Entry>): BioMarker[] => {
-  let biomarkers: BioMarker[] = preProcess(entries) as any
+  let biomarkers: BioMarker[] = preProcess(entries) as unknown as BioMarker[]
   biomarkers = enrichBiomarkers(biomarkers)
-  biomarkers = postProcess(biomarkers as any) as any
+  biomarkers = postProcess(biomarkers as unknown as Entry[]) as unknown as BioMarker[]
   // console.log(output);
 
   // Optimization: Pre-calculate normalized title to avoid repetitive toLowerCase() calls in filter loops
@@ -21,7 +21,7 @@ export const processBiomarkers = (entries: Array<Entry>): BioMarker[] => {
   biomarkers.forEach((entry) => {
     // Defensive: Ensure entry[3] and entry[3].tag exist to prevent crashes in optimized loops
     if (!entry[3]) {
-      entry[3] = { tag: [] } as any
+      entry[3] = { tag: [] } as unknown as BioMarker[3]
     }
     if (!entry[3].tag || entry[3].tag.length === 0) {
       entry[3].tag = ['b-Others']
