@@ -189,19 +189,37 @@ const TableRow = React.memo(
               </button>
               <button
                 type="button"
+                disabled={name === 'Age'}
                 onClick={() => onCorrelation(name)}
-                title={`Correlate ${name} with other biomarkers`}
-                className="hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
-                aria-label={`Correlate ${name} with other biomarkers`}
+                title={
+                  name === 'Age'
+                    ? 'Age correlation is excluded as chronologic age only depends on time'
+                    : `Correlate ${name} with other biomarkers`
+                }
+                className={`focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1 ${name === 'Age' ? 'text-gray-600 cursor-not-allowed opacity-50' : 'hover:text-blue-400'}`}
+                aria-label={
+                  name === 'Age'
+                    ? 'Age correlation is excluded'
+                    : `Correlate ${name} with other biomarkers`
+                }
               >
                 <ArrowsRightLeftIcon className="h-5 w-5" />
               </button>
               <button
                 type="button"
+                disabled={name === 'Age'}
                 onClick={() => setCorrelationBiomarker(name)}
-                title={`Correlate ${name} with supplements`}
-                className="hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
-                aria-label={`Correlate ${name} with supplements`}
+                title={
+                  name === 'Age'
+                    ? 'Age correlation is excluded as chronologic age only depends on time'
+                    : `Correlate ${name} with supplements`
+                }
+                className={`focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1 ${name === 'Age' ? 'text-gray-600 cursor-not-allowed opacity-50' : 'hover:text-blue-400'}`}
+                aria-label={
+                  name === 'Age'
+                    ? 'Age correlation is excluded'
+                    : `Correlate ${name} with supplements`
+                }
               >
                 <CalculatorIcon className="h-5 w-5" />
               </button>

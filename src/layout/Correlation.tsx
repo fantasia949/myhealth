@@ -70,7 +70,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
 
       // Iterate over filtered data (non-inferred) as targets
       for (const item of data) {
-        if (item[0] === target) continue
+        if (item[0] === target || item[0] === 'Age') continue
         const targetValues = item[1]
 
         // Pairwise deletion for Pearson
@@ -108,7 +108,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
       const options = { alpha, alternative }
 
       for (const item of data) {
-        if (item[0] === target) {
+        if (item[0] === target || item[0] === 'Age') {
           continue
         }
 

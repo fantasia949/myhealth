@@ -61,6 +61,7 @@ const SupplementCorrelation = React.memo(
 
       // 2. Iterate through all biomarkers
       dataMap.forEach((biomarkerEntry, biomarkerId) => {
+        if (biomarkerId === 'Age') return
         const rawValues = biomarkerEntry[1] // number[]
 
         if (rawValues.length !== maxLen) {
