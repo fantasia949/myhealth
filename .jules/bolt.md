@@ -107,3 +107,8 @@
 
 **Learning:** When calculating cross-correlations across a large dataset, repeatedly looking up source values using `Array.find` inside a loop (e.g. `data.find(d => d[0] === target)`) results in O(N^2) complexity. In performance profiling, `fullData.find` was taking ~128ms for 100k iterations, while a pre-computed `Map.get` took ~3ms.
 **Action:** Always replace `Array.find` with `Map.get` (utilizing a shared map like `dataMapAtom` if available) when looking up items inside nested loops or heavy mathematical calculation paths to drop complexity from O(N) to O(1).
+
+## 2025-07-28 - Replace O(N) Array.find with O(1) object property access in ECharts Tooltip Formatters
+
+**Learning:** Using `Array.find` inside an ECharts tooltip formatter (which executes continuously upon `mousemove` events) creates an expensive O(N) array lookup operation that leads to significant garbage collection pressure and main-thread hitching.
+**Action:** When custom external attributes (like `rho` and `pValue`) are needed inside a tooltip, append them directly to the individual element's data object during the initial series mapping logic. Then, access these properties directly from `params.data` inside the formatter using O(1) object property access.
