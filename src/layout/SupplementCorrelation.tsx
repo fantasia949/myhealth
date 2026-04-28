@@ -199,8 +199,9 @@ const SupplementCorrelation = React.memo(
                             })
                           }}
                           className="text-gray-400 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
-                          title="Copy to clipboard"
-                          aria-label="Copy to clipboard"
+                          title={isCopied ? 'Copied to clipboard' : 'Copy to clipboard'}
+                          aria-label={isCopied ? 'Copied to clipboard' : 'Copy to clipboard'}
+                          aria-live="polite"
                         >
                           {isCopied ? (
                             <CheckIcon className="h-5 w-5 text-green-500" />
