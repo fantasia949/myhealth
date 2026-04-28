@@ -28,3 +28,7 @@
 **Action:** When encountering `files.length === 0` or similar conditions, always prefer a structured empty state over plain text, ensuring it includes a helpful call-to-action to resolve the empty state.
 **Learning:** When implementing tab-like views using custom buttons (e.g., swapping between Chart and Table views), screen reader users are unaware of the active selection if the visual active state (e.g., highlighted background color) isn't paired with an accessibility attribute.
 **Action:** Always add `aria-pressed={isActive}` or `aria-selected={isActive}` to toggle buttons to correctly communicate their state to assistive technologies.
+## 2026-05-01 - Add missing accessibility feedback to icon-only state buttons
+
+**Learning:** When icon-only buttons change state (e.g., from a "Copy" icon to a "Check" icon upon successful copy) without triggering a route change, screen readers receive no feedback unless explicitly provided. While visual users see the icon swap, assistive technologies need dynamic accessible labels and live regions to announce the action's success.
+**Action:** Always ensure that icon-only buttons which perform stateful actions dynamically update their `aria-label` (and `title` for visual hover consistency) and apply `aria-live="polite"` so state changes are properly announced.
