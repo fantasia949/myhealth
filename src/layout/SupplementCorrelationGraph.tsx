@@ -38,7 +38,9 @@ const SupplementCorrelationGraph = React.memo(({ supplementName, correlations }:
           color: CHART_PALETTE[0],
         },
         label: { show: true, color: '#aaa', position: 'bottom' },
-      })
+        rho: c.rho,
+        pValue: c.pValue,
+      } as any)
 
       edges.push({
         source: supplementName,
@@ -57,11 +59,14 @@ const SupplementCorrelationGraph = React.memo(({ supplementName, correlations }:
         formatter: (params: any) => {
           if (params.dataType === 'node') {
             if (params.name === supplementName) return params.name
-            const corr = correlations.find((c) => c.name === params.name)
-            if (corr) {
-              return `${params.name}<br/>Rho: <strong>${corr.rho.toFixed(
+
+            // ⚡ Bolt Optimization: Replaced O(N) Array.find() inside the tooltip formatter
+            // with O(1) direct property access. Tooltip formatters fire continuously on mousemove,
+            // making Array.find an expensive operation that can cause main thread hitching.
+            if (params.data && params.data.rho !== undefined && params.data.pValue !== undefined) {
+              return `${params.name}<br/>Rho: <strong>${params.data.rho.toFixed(
                 4,
-              )}</strong><br/>P-Value: <strong>${corr.pValue.toFixed(4)}</strong>`
+              )}</strong><br/>P-Value: <strong>${params.data.pValue.toFixed(4)}</strong>`
             }
           }
           return ''
