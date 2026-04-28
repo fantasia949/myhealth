@@ -27,6 +27,7 @@ import {
 import { averageCountAtom } from '../atom/averageValueAtom'
 import BiomarkerCorrelation from './BiomarkerCorrelation'
 import { TableProps, DisplayedEntry } from './Table.types'
+import { CORRELATION_EXCLUDED_BIOMARKERS, SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS } from '../config/correlations'
 import { Spinner } from './Spinner'
 
 const LineChart = React.lazy(() => import('./LineChart'))
@@ -189,17 +190,17 @@ const TableRow = React.memo(
               </button>
               <button
                 type="button"
-                disabled={name === 'Age'}
+                disabled={CORRELATION_EXCLUDED_BIOMARKERS.includes(name)}
                 onClick={() => onCorrelation(name)}
                 title={
-                  name === 'Age'
-                    ? 'Age correlation is excluded as chronologic age only depends on time'
+                  CORRELATION_EXCLUDED_BIOMARKERS.includes(name)
+                    ? `${name} correlation is excluded`
                     : `Correlate ${name} with other biomarkers`
                 }
-                className={`focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1 ${name === 'Age' ? 'text-gray-600 cursor-not-allowed opacity-50' : 'hover:text-blue-400'}`}
+                className={`focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1 ${CORRELATION_EXCLUDED_BIOMARKERS.includes(name) ? 'text-gray-600 cursor-not-allowed opacity-50' : 'hover:text-blue-400'}`}
                 aria-label={
-                  name === 'Age'
-                    ? 'Age correlation is excluded'
+                  CORRELATION_EXCLUDED_BIOMARKERS.includes(name)
+                    ? `${name} correlation is excluded`
                     : `Correlate ${name} with other biomarkers`
                 }
               >
@@ -207,17 +208,17 @@ const TableRow = React.memo(
               </button>
               <button
                 type="button"
-                disabled={name === 'Age'}
+                disabled={SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS.includes(name)}
                 onClick={() => setCorrelationBiomarker(name)}
                 title={
-                  name === 'Age'
-                    ? 'Age correlation is excluded as chronologic age only depends on time'
+                  SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS.includes(name)
+                    ? `${name} correlation is excluded`
                     : `Correlate ${name} with supplements`
                 }
-                className={`focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1 ${name === 'Age' ? 'text-gray-600 cursor-not-allowed opacity-50' : 'hover:text-blue-400'}`}
+                className={`focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1 ${SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS.includes(name) ? 'text-gray-600 cursor-not-allowed opacity-50' : 'hover:text-blue-400'}`}
                 aria-label={
-                  name === 'Age'
-                    ? 'Age correlation is excluded'
+                  SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS.includes(name)
+                    ? `${name} correlation is excluded`
                     : `Correlate ${name} with supplements`
                 }
               >
