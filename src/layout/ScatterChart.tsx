@@ -2,7 +2,7 @@ import { memo, useMemo } from 'react'
 import { useAtomValue } from 'jotai'
 import { dataMapAtom } from '../atom/dataAtom'
 import ReactECharts from 'echarts-for-react'
-import { labels } from '../data'
+import { labels, formattedLabels } from '../data'
 import { CHART_PALETTE } from './Chart2'
 
 interface ScatterChartProps {
@@ -80,10 +80,6 @@ export default memo(({ keys }: ScatterChartProps) => {
     }
   })
 
-  const formatTime = (label: string) => {
-    return `20${label.slice(0, 2)}/${label.slice(2, 4)}/${label.slice(4, 6)}`
-  }
-
   const chartData = useMemo(() => {
     // Optimization: Replace chained Array.map() with a classic for-loop and pre-allocated array.
     // This eliminates the closure allocation and avoids garbage collection spikes in component render paths.
@@ -113,7 +109,7 @@ export default memo(({ keys }: ScatterChartProps) => {
       for (let i = 0; i < numLabels; i++) {
         const val = values[i]
         if (val !== null && val !== undefined) {
-          validData.push([formatTime(labels[i]), val, unit])
+          validData.push([formattedLabels[i], val, unit])
         }
       }
 

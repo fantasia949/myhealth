@@ -2,7 +2,7 @@ import { memo, useMemo } from 'react'
 import { useAtomValue } from 'jotai'
 import { dataMapAtom } from '../atom/dataAtom'
 
-import { labels } from '../data'
+import { labels, formattedLabels } from '../data'
 import ReactECharts from 'echarts-for-react'
 import * as echarts from 'echarts'
 import * as ecStat from 'echarts-stat'
@@ -147,11 +147,6 @@ const echartsOptions: any = {
 export default memo(({ keys }: ChartProps) => {
   const dataMap = useAtomValue(dataMapAtom)
 
-  const formatTime = (label: string) => {
-    if (!label || label.length < 6) return label
-    return `20${label.slice(0, 2)}/${label.slice(2, 4)}/${label.slice(4, 6)}`
-  }
-
   const mappedScatterData = useMemo(() => {
     // Optimization: Replace O(K*N) chained .map(), .reduce(), and .filter() array allocations
     // with a single-pass O(N) loop to eliminate closure creation and garbage collection overhead.
@@ -177,7 +172,7 @@ export default memo(({ keys }: ChartProps) => {
         const v0 = values0[i]
         const v1 = values1[i]
         if (v0 !== null && v0 !== undefined && v1 !== null && v1 !== undefined) {
-          const formattedDate = formatTime(labels[i])
+          const formattedDate = formattedLabels[i]
           mappedData.push([v0, v1, formattedDate, unitX, unitY])
 
           if (!initializedBounds) {

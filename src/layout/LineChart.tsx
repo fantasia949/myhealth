@@ -1,6 +1,6 @@
 import React, { memo } from 'react'
 import ReactECharts from 'echarts-for-react'
-import { labels } from '../data'
+import { labels, formattedLabels } from '../data'
 import { CHART_PALETTE } from './Chart2'
 
 interface LineChartProps {
@@ -55,11 +55,6 @@ const echartsOptions = {
   },
 }
 
-const formatTime = (label: string) => {
-  if (!label || label.length < 6) return label
-  return `20${label.slice(0, 2)}/${label.slice(2, 4)}/${label.slice(4, 6)}`
-}
-
 import { useMemo } from 'react'
 
 export default memo(({ name, values, rangeStr }: LineChartProps) => {
@@ -74,7 +69,7 @@ export default memo(({ name, values, rangeStr }: LineChartProps) => {
     const result = new Array(numLabels)
     for (let i = 0; i < numLabels; i++) {
       const value = values[i]
-      result[i] = [formatTime(labels[i]), value !== null && value !== undefined ? value : '-']
+      result[i] = [formattedLabels[i], value !== null && value !== undefined ? value : '-']
     }
     return result
   }, [values])
