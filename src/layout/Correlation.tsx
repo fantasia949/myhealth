@@ -10,6 +10,7 @@ import {
 } from '../atom/correlationAtom'
 import { calculateSpearmanRanked, calculatePearson } from '../processors/stats'
 import { CorrelationProps } from './Correlation.types'
+import { CORRELATION_EXCLUDED_BIOMARKERS } from '../config/correlations'
 
 import FocusedCorrelationChart from './FocusedCorrelationChart'
 
@@ -70,7 +71,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
 
       // Iterate over filtered data (non-inferred) as targets
       for (const item of data) {
-        if (item[0] === target) continue
+        if (item[0] === target || CORRELATION_EXCLUDED_BIOMARKERS.includes(item[0])) continue
         const targetValues = item[1]
 
         // Pairwise deletion for Pearson
@@ -108,7 +109,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
       const options = { alpha, alternative }
 
       for (const item of data) {
-        if (item[0] === target) {
+        if (item[0] === target || CORRELATION_EXCLUDED_BIOMARKERS.includes(item[0])) {
           continue
         }
 

@@ -27,6 +27,7 @@ import {
 import { averageCountAtom } from '../atom/averageValueAtom'
 import BiomarkerCorrelation from './BiomarkerCorrelation'
 import { TableProps, DisplayedEntry } from './Table.types'
+import { CORRELATION_EXCLUDED_BIOMARKERS, SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS } from '../config/correlations'
 import { Spinner } from './Spinner'
 
 const LineChart = React.lazy(() => import('./LineChart'))
@@ -189,19 +190,37 @@ const TableRow = React.memo(
               </button>
               <button
                 type="button"
+                disabled={CORRELATION_EXCLUDED_BIOMARKERS.includes(name)}
                 onClick={() => onCorrelation(name)}
-                title={`Correlate ${name} with other biomarkers`}
-                className="hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
-                aria-label={`Correlate ${name} with other biomarkers`}
+                title={
+                  CORRELATION_EXCLUDED_BIOMARKERS.includes(name)
+                    ? `${name} correlation is excluded`
+                    : `Correlate ${name} with other biomarkers`
+                }
+                className={`focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1 ${CORRELATION_EXCLUDED_BIOMARKERS.includes(name) ? 'text-gray-600 cursor-not-allowed opacity-50' : 'hover:text-blue-400'}`}
+                aria-label={
+                  CORRELATION_EXCLUDED_BIOMARKERS.includes(name)
+                    ? `${name} correlation is excluded`
+                    : `Correlate ${name} with other biomarkers`
+                }
               >
                 <ArrowsRightLeftIcon className="h-5 w-5" />
               </button>
               <button
                 type="button"
+                disabled={SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS.includes(name)}
                 onClick={() => setCorrelationBiomarker(name)}
-                title={`Correlate ${name} with supplements`}
-                className="hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
-                aria-label={`Correlate ${name} with supplements`}
+                title={
+                  SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS.includes(name)
+                    ? `${name} correlation is excluded`
+                    : `Correlate ${name} with supplements`
+                }
+                className={`focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1 ${SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS.includes(name) ? 'text-gray-600 cursor-not-allowed opacity-50' : 'hover:text-blue-400'}`}
+                aria-label={
+                  SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS.includes(name)
+                    ? `${name} correlation is excluded`
+                    : `Correlate ${name} with supplements`
+                }
               >
                 <CalculatorIcon className="h-5 w-5" />
               </button>

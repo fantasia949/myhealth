@@ -9,6 +9,7 @@ import {
   SupplementCorrelationProps,
   SupplementCorrelationResult,
 } from './SupplementCorrelation.types'
+import { SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS } from '../config/correlations'
 import SupplementCorrelationGraph from './SupplementCorrelationGraph'
 
 const SupplementCorrelation = React.memo(
@@ -61,6 +62,7 @@ const SupplementCorrelation = React.memo(
 
       // 2. Iterate through all biomarkers
       dataMap.forEach((biomarkerEntry, biomarkerId) => {
+        if (SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS.includes(biomarkerId)) return
         const rawValues = biomarkerEntry[1] // number[]
 
         if (rawValues.length !== maxLen) {
