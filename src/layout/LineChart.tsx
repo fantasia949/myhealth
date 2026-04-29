@@ -61,8 +61,13 @@ const formatTime = (label: string) => {
 }
 
 import { useMemo } from 'react'
+import { useAtomValue } from 'jotai'
+import { dataMapAtom } from '../atom/dataAtom'
 
 export default memo(({ name, values, rangeStr }: LineChartProps) => {
+  const dataMap = useAtomValue(dataMapAtom)
+  const unit = dataMap.get(name)?.[2] || ''
+
   // Map null/undefined values to '-' and pair them with labels
   // Preserving missing points prevents misrepresenting data gaps (connectNulls: false by default)
   const data = useMemo(() => {
@@ -116,6 +121,26 @@ export default memo(({ name, values, rangeStr }: LineChartProps) => {
 
   const options = {
     ...echartsOptions,
+    tooltip: {
+      ...echartsOptions.tooltip,
+      formatter: (params: any) => {
+        // ECharts axis trigger passes an array of series data for that axis index
+        const p = Array.isArray(params) ? params[0] : params
+        if (
+          !p ||
+          p.value[1] === '-' ||
+          p.value[1] === '' ||
+          p.value[1] === 'NaN' ||
+          p.value[1] === null ||
+          p.value[1] === undefined ||
+          Number.isNaN(p.value[1])
+        ) {
+          return ''
+        }
+        const unitStr = unit ? ` ${unit}` : ''
+        return `${p.seriesName}<br/>${p.value[0]}<br/><strong>${p.value[1]}${unitStr}</strong>`
+      },
+    },
     title: {
       text: name,
       left: 'center',
