@@ -7,7 +7,8 @@ import {
   ClipboardDocumentIcon,
 } from '@heroicons/react/24/outline'
 import Markdown from 'react-markdown'
-import { getGistFiles, GistFile } from '../service/gist'
+import { getGistFiles } from '../service/gist'
+import { GistFile } from '../service/gist.types'
 import { Spinner } from './Spinner'
 import { GistViewerProps } from './GistViewer.types'
 
