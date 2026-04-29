@@ -27,7 +27,10 @@ import {
 import { averageCountAtom } from '../atom/averageValueAtom'
 import BiomarkerCorrelation from './BiomarkerCorrelation'
 import { TableProps, DisplayedEntry } from './Table.types'
-import { CORRELATION_EXCLUDED_BIOMARKERS, SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS } from '../config/correlations'
+import {
+  CORRELATION_EXCLUDED_BIOMARKERS,
+  SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS,
+} from '../config/correlations'
 import { Spinner } from './Spinner'
 
 const LineChart = React.lazy(() => import('./LineChart'))
