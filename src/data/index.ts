@@ -1,1 +1,1 @@
-export { labels, loadData } from './loader'
+export { labels, formattedLabels, loadData } from './loader'

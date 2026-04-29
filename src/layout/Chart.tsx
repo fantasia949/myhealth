@@ -3,7 +3,7 @@ import { useAtomValue } from 'jotai'
 import { dataMapAtom } from '../atom/dataAtom'
 import { ChartProvider, ChartContext } from '@echarts-readymade/core'
 import { Line } from '@echarts-readymade/line'
-import { labels } from '../data'
+import { labels, formattedLabels } from '../data'
 import { CHART_PALETTE } from './Chart2'
 
 interface ChartProps {
@@ -66,11 +66,6 @@ const echartsOptions: any = {
   },
 }
 
-const formatTime = (label: string) => {
-  if (!label || label.length < 6) return label
-  return `20${label.slice(0, 2)}/${label.slice(2, 4)}/${label.slice(4, 6)}`
-}
-
 export default memo(({ keys }: ChartProps) => {
   const dataMap = useAtomValue(dataMapAtom)
 
@@ -128,7 +123,7 @@ export default memo(({ keys }: ChartProps) => {
     const len = labels.length
     const result = Array<Record<string, any>>(len)
     for (let i = 0; i < len; i++) {
-      const item: Record<string, any> = { d1: formatTime(labels[i]) }
+      const item: Record<string, any> = { d1: formattedLabels[i] }
       for (let j = 0; j < validSeries.length; j++) {
         const series = validSeries[j]
         const v = series.values[i]
