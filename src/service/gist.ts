@@ -1,3 +1,5 @@
+import { GistFile } from './gist.types'
+
 export async function createGist(content: string, token: string, keys: string): Promise<string> {
   const prefix = 'biomarker'
   const now = new Date()
@@ -28,11 +30,6 @@ export async function createGist(content: string, token: string, keys: string): 
 
   const data = await response.json()
   return data.html_url
-}
-
-export interface GistFile {
-  filename: string
-  content: string
 }
 
 export async function getGistFiles(): Promise<GistFile[]> {
