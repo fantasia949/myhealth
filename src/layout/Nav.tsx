@@ -261,7 +261,7 @@ export default React.memo<NavProps>(
                   <MagnifyingGlassIcon className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <label htmlFor="search-biomarkers" className="sr-only">
-                  Search biomarkers
+                  Search biomarkers (Press / to focus)
                 </label>
                 <input
                   id="search-biomarkers"
@@ -282,6 +282,7 @@ export default React.memo<NavProps>(
                   autoFocus
                   className="w-full pl-10 pr-10 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 placeholder-gray-500 focus:placeholder-gray-400"
                   placeholder="Search"
+                  title="Search (Press / to focus)"
                 />
                 {!filterText && !isFocused && (
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">

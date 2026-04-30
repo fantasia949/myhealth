@@ -112,3 +112,8 @@
 
 **Learning:** Using `Array.find` inside an ECharts tooltip formatter (which executes continuously upon `mousemove` events) creates an expensive O(N) array lookup operation that leads to significant garbage collection pressure and main-thread hitching.
 **Action:** When custom external attributes (like `rho` and `pValue`) are needed inside a tooltip, append them directly to the individual element's data object during the initial series mapping logic. Then, access these properties directly from `params.data` inside the formatter using O(1) object property access.
+
+## 2026-04-30 - Pre-allocate fixed arrays instead of dynamic scaling inside frequent render paths
+
+**Learning:** Generating arrays in the middle of a `useMemo` hook using functional fallbacks (like `Array.from`) creates significant garbage collection overhead, particularly when iterating over heavy structural matrices (like time series mapping or node graphs).
+**Action:** When a fallback or matrix row generation is required to process time-series elements across a known boundary, prefer initializing explicitly typed `Array<Type>(N)` to avoid closure evaluation and property-copying mechanisms. Additionally, combining array scans (avoiding `.includes` when checking for matches in string arrays) by caching state locally during a single forward pass improves processing latency across component mount events.

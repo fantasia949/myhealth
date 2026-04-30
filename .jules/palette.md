@@ -33,3 +33,7 @@
 
 **Learning:** When icon-only buttons change state (e.g., from a "Copy" icon to a "Check" icon upon successful copy) without triggering a route change, screen readers receive no feedback unless explicitly provided. While visual users see the icon swap, assistive technologies need dynamic accessible labels and live regions to announce the action's success.
 **Action:** Always ensure that icon-only buttons which perform stateful actions dynamically update their `aria-label` (and `title` for visual hover consistency) and apply `aria-live="polite"` so state changes are properly announced.
+
+## 2024-05-24 - Screen Reader Double Announcements with Spinners
+**Learning:** Adding `role="status"` and `aria-label` directly to generic Spinner SVGs causes double announcements when the spinner is embedded alongside actual loading text that already has `aria-live="polite"` or `role="status"`.
+**Action:** Keep visual-only indicators like SVGs hidden from screen readers using `aria-hidden="true"`, and manage the accessible loading state purely through the surrounding text/container.
