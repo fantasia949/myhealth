@@ -35,7 +35,7 @@ const loadNewData = (): Promise<RawEntry[]> =>
   )
 
 export const loadData = async () => {
-  const newData: any[] = [...data, ...(await loadNewData())]
+  const newData: Array<RawEntry> = [...(data as unknown as Array<RawEntry>), ...(await loadNewData())]
   return [mergeEntries(newData), mergeNotes(newData)] as const
 }
 
