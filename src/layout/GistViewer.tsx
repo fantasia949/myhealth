@@ -145,7 +145,11 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
 
                 <div className="flex-1 overflow-y-auto">
                   {isLoading ? (
-                    <div className="flex items-center justify-center h-32">
+                    <div
+                      className="flex items-center justify-center h-32"
+                      role="status"
+                      aria-live="polite"
+                    >
                       <Spinner /> <span className="ml-2 text-gray-400">Loading history...</span>
                     </div>
                   ) : error ? (
