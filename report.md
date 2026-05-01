@@ -22,7 +22,7 @@ The LineChart tooltip now displays full context (e.g., "14.5 mg/dL" instead of j
 
 ## Part 2 — Visualization Proposals
 
-*Note: As context7 was unavailable for ECharts option lookups, ECharts 6 component availability was verified via Node introspection of `require('echarts/components')` and `require('echarts/charts')`.*
+_Note: As context7 was unavailable for ECharts option lookups, ECharts 6 component availability was verified via Node introspection of `require('echarts/components')` and `require('echarts/charts')`._
 
 **Proposal 1 of 5: Out-of-Range Heatmap by Tag Cluster**
 **ECharts type:** `heatmap`
