@@ -20,39 +20,29 @@ const echartsOptions = {
   yAxis: [] as any[],
   series: [] as any[],
   tooltip: {
-    trigger: 'axis',
+    trigger: 'item',
     backgroundColor: '#111111',
     borderColor: '#3a3a3a80',
     textStyle: {
       color: '#f0f0f0',
     },
     formatter: (params: any) => {
-      const pArray = Array.isArray(params) ? params : [params]
-      if (pArray.length === 0) return ''
+      const date = params.value[0]
+      const val = params.value[1]
 
-      const date = pArray[0].value[0]
-      let tooltipStr = `${date}`
-      let hasValidValues = false
-
-      for (let i = 0; i < pArray.length; i++) {
-        const p = pArray[i]
-        const val = p.value[1]
-
-        if (
-          val !== null &&
-          val !== undefined &&
-          val !== '-' &&
-          val !== '' &&
-          val !== 'NaN' &&
-          !Number.isNaN(val)
-        ) {
-          const unit = p.value[2] ? ` ${p.value[2]}` : ''
-          tooltipStr += `<br/>${p.marker} ${p.seriesName}: <strong>${val}${unit}</strong>`
-          hasValidValues = true
-        }
+      if (
+        val === null ||
+        val === undefined ||
+        val === '-' ||
+        val === '' ||
+        val === 'NaN' ||
+        Number.isNaN(val)
+      ) {
+        return ''
       }
 
-      return hasValidValues ? tooltipStr : ''
+      const unit = params.value[2] ? ` ${params.value[2]}` : ''
+      return `${params.marker} ${params.seriesName}<br/>${date}<br/><strong>${val}${unit}</strong>`
     },
   },
   legend: {
