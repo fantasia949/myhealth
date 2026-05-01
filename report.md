@@ -39,6 +39,7 @@ _(Note: The `context7` tool failed with a 404 error, meaning ECharts 6 APIs coul
 **Evaluation Result: REJECTED**
 
 **Reasoning:**
+
 1. **Fails Codebase Groundedness Rule:** The proposal incorrectly cites `extra.range` as an "optimal boundaries array". As verified in `src/types/biomarker.ts` and `src/processors/post/range.ts`, `extra.range` is a formatted string (e.g., `"3.9 - 6.4"` or `">=90"`), not a numeric array. There is no pre-computed array of numeric boundaries exported on the biomarker metadata to easily feed a parallel coordinate scale without writing new data parsing logic.
 2. **Fails API Confirmation Rule:** The `parallel` ECharts type could not be verified for ECharts 6 because the `context7` documentation lookup tool failed (404 error). The prompt strictly mandates: "If context7 is unavailable... do not propose it".
 3. **Violates Repository Context Constraint:** The system repository memory explicitly lists "Parallel Coordinates Chart" among previous proposals that have been either implemented or rejected, and commands to "strictly avoid proposing these as new visualization ideas in future chart advisory tasks."

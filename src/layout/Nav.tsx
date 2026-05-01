@@ -16,6 +16,7 @@ import { useAtom, useAtomValue } from 'jotai'
 import {
   visibleDataAtom,
   dataAtom,
+  tagAtom,
   aiKeyAtom,
   gistTokenAtom,
   aiModelAtom,
@@ -28,6 +29,7 @@ import { averageCountAtom } from '../atom/averageValueAtom'
 import Markdown from 'react-markdown'
 import { Spinner } from './Spinner'
 import { NavProps } from './Nav.types'
+import ParallelStatusChart from './ParallelStatusChart'
 
 // Optimization: Lazy load the GistViewer modal to reduce the initial JavaScript bundle size.
 // This modal is only needed when a user explicitly clicks "View History", so code-splitting it
@@ -215,6 +217,8 @@ export default React.memo<NavProps>(
     const [isGistLoading, setIsGistLoading] = React.useState(false)
     const [isGistViewerOpen, setIsGistViewerOpen] = React.useState(false)
     const [hasGistViewerMounted, setHasGistViewerMounted] = React.useState(false)
+    const [showParallel, setShowParallel] = React.useState(false)
+    const activeTag = useAtomValue(tagAtom)
 
     React.useEffect(() => {
       if (isGistViewerOpen && !hasGistViewerMounted) {
@@ -352,6 +356,21 @@ export default React.memo<NavProps>(
               >
                 Reset
               </button>
+
+              {activeTag && (
+                <button
+                  type="button"
+                  onClick={() => setShowParallel(!showParallel)}
+                  className={`lg:ml-2 px-3 py-1 text-xs font-medium rounded transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                    showParallel
+                      ? 'bg-blue-600 text-white hover:bg-blue-500'
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  }`}
+                  title={showParallel ? 'Hide Parallel Status' : 'Show Parallel Status'}
+                >
+                  {showParallel ? 'Hide Parallel' : 'Show Parallel'}
+                </button>
+              )}
 
               {selected.length > 0 && (
                 <div className="col-span-3 lg:col-span-1 lg:flex lg:flex-1 lg:items-center lg:flex-wrap lg:gap-2 lg:self-baseline bg-dark-table-row border border-gray-700 rounded-md p-1.5 lg:p-1 w-full lg:w-auto mt-2 lg:mt-0 shadow-inner">
@@ -557,6 +576,8 @@ export default React.memo<NavProps>(
             </div>
           </div>
         </nav>
+
+        {showParallel && activeTag && <ParallelStatusChart />}
 
         <React.Suspense fallback={null}>
           {hasGistViewerMounted && (
