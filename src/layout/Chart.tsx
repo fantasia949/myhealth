@@ -92,11 +92,21 @@ export default memo(({ keys }: ChartProps) => {
     const numKeys = keys.length
     const result = Array<any>(numKeys)
     for (let i = 0; i < numKeys; i++) {
+      const isEven = i % 2 === 0
+      const sideOffset = Math.floor(i / 2) * 80
       result[i] = {
         scale: true,
         name: keys[i],
+        position: isEven ? 'left' : 'right',
+        offset: sideOffset,
         nameLocation: 'middle',
         nameGap: 50,
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: CHART_PALETTE[i % CHART_PALETTE.length],
+          },
+        },
       }
     }
     return result
@@ -156,10 +166,15 @@ export default memo(({ keys }: ChartProps) => {
         instance.setOption(
           {
             yAxis,
-            grid: { top: 40, bottom: 20 },
+            grid: {
+              top: 40,
+              bottom: 20,
+              left: Math.ceil(keys.length / 2) * 80 + 40,
+              right: Math.max(Math.floor(keys.length / 2) * 80 + 40, 40),
+            },
             series,
           },
-          { replaceMerge: ['series', 'yAxis'], notMerge: true },
+          { replaceMerge: ['series', 'yAxis'] },
         )
       }
     }
