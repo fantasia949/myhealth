@@ -60,6 +60,10 @@ const SupplementCorrelation = React.memo(
 
       const results: SupplementCorrelationResult[] = []
 
+      // ⚡ Bolt Optimization: Hoist options object outside the loop to avoid recreating it
+      // on every iteration. This reduces memory allocations and garbage collection overhead.
+      const options = { alpha, alternative: 'two-sided' as const }
+
       // 2. Iterate through all biomarkers
       dataMap.forEach((biomarkerEntry, biomarkerId) => {
         if (SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS.includes(biomarkerId)) return
@@ -114,28 +118,19 @@ const SupplementCorrelation = React.memo(
 
         // Rank continuous variable for Spearman equivalent
         const rankedBiomarkerValues = rankData(filteredBiomarkerValues)
-        const rankedSuppVector = rankData(filteredSuppVector)
 
-        // First calculate with two-sided to get the correlation coefficient (rho)
-        const initialResult = calculatePearson(rankedBiomarkerValues, rankedSuppVector, {
-          alpha,
-          alternative: 'two-sided',
-        })
+        // ⚡ Bolt Optimization: Point-biserial correlation is mathematically equivalent to Pearson
+        // correlation on the ranked continuous variable against the unranked binary indicator variable.
+        // This bypasses the ranking overhead for the binary vectors completely.
+        // Also avoid double-calling calculatePearson by deriving one-sided p-value from two-sided.
+        const result = calculatePearson(rankedBiomarkerValues, filteredSuppVector, options)
 
-        const rho = initialResult.pcorr
+        const rho = result.pcorr
 
         if (rho === undefined || isNaN(rho)) return
 
-        // Automatically determine direction for the uni-directional hypothesis test
-        const autoAlternative = rho > 0 ? 'greater' : 'less'
-
-        // Recalculate p-value with the specific uni-directional alternative
-        const result = calculatePearson(rankedBiomarkerValues, rankedSuppVector, {
-          alpha,
-          alternative: autoAlternative,
-        })
-
-        const pVal = result.pValue
+        // Derive one-sided p-value equivalent to autoAlternative (rho > 0 ? 'greater' : 'less')
+        const pVal = result.pValue / 2
 
         if (rho !== undefined && !isNaN(rho) && pVal <= 0.1) {
           results.push({
