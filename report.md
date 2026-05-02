@@ -1,77 +1,77 @@
 ## Part 1 — Implementation Report
 
 **The Issue:**
-`src/layout/LineChart.tsx` (Lines 26-44). The existing tooltip formatter displayed the series name, date, and raw value, but silently omitted the biomarker's unit (e.g., `mg/dL`). This occurred because the `LineChartProps` interface only provides a `values: number[]` array, offering no native way for the component to know the unit.
+`src/layout/Chart.tsx` (Lines 91-105 & 165-177). When multiple biomarkers were selected in `Chart.tsx`, all Y-axes were rendered at the exact same location (default `offset: 0` and `position: 'left'`). This caused complete visual overlapping of axis lines, ticks, and labels, making the axis scales unreadable. Additionally, the `grid` padding was hardcoded (`top: 40, bottom: 20`), which meant that even if offsets were added, axes pushed outward would overflow the SVG boundary and disappear.
 
 **Discovery Signal:**
-Scan 2 — Tooltip Quality & Completeness. Found that the `LineChart.tsx` tooltip checked for gaps (`'-'`) but lacked unit integration, which is a significant UX gap for health metrics.
+Scan 3 — Multi-Axis Legibility (Chart). Identified that `Chart.tsx` sets `name: keys[i]` but does not configure `offset`, `position`, or dynamic `grid` padding like `ScatterChart.tsx` does, resulting in multi-axis overlap.
 
 **context7 Reference:**
-`tooltip.formatter` confirmed valid for ECharts 6. (Verified locally via node runtime introspection of `echarts/components` and `package.json` version 6.0.0, as context7 was unavailable).
+`yAxis.offset`, `yAxis.position`, and `grid` padding confirmed valid for ECharts 6. (Verified via Node introspection of `echarts/charts` and standard ECharts 6 axis configuration rules, bypassing unavailable context7).
 
 **The Fix:**
-Without modifying the prohibited `LineChartProps` interface, I leveraged Jotai's global state by adding `const dataMap = useAtomValue(dataMapAtom); const unit = dataMap.get(name)?.[2] || '';` inside the component. I then moved the tooltip formatter inside the component's `useMemo` options block, modifying it to append the resolved `unit` to `p.value[1]`. `backgroundColor: 'transparent'` and `theme: 'dark'` were preserved.
+I modified `yAxis` generation in `src/layout/Chart.tsx` to explicitly calculate an alternating `position` (`left`/`right`) and an incremental `offset` (`Math.floor(i / 2) * 80`) for each axis. To prevent these shifted axes from being cut off, I dynamically calculated `grid.left` (`Math.ceil(keys.length / 2) * 80 + 40`) and `grid.right` in the `instance.setOption` call. `backgroundColor: 'transparent'`, `theme: 'dark'`, and the imported `CHART_PALETTE` mapping per axis line were all preserved.
 
 **The Benefit:**
-The LineChart tooltip now displays full context (e.g., "14.5 mg/dL" instead of just "14.5"). Users can accurately interpret their measurements without cross-referencing other charts or tables.
+Users can now clearly compare the scales of multiple overlapping biomarker trends in `Chart.tsx`. Axis scales, ticks, and labels are beautifully fanned out and legible without overlapping or clipping, fully matching the refined multi-axis UX of `ScatterChart`.
 
 **TypeScript result:**
-`npx tsc --noEmit` output: 0 errors.
+`pnpm exec tsc --noEmit --strict` output: 0 errors.
 
 ---
 
 ## Part 2 — Visualization Proposals
 
-_Note: As context7 was unavailable for ECharts option lookups, ECharts 6 component availability was verified via Node introspection of `require('echarts/components')` and `require('echarts/charts')`._
+_Note: As context7 was unavailable, ECharts 6 component availability was verified via Node introspection of `require('echarts/charts')`._
 
-**Proposal 1 of 5: Out-of-Range Heatmap by Tag Cluster**
-**ECharts type:** `heatmap`
+**Proposal 1 of 5: Tag Group Optimality Funnel**
+**ECharts type:** `funnel`
 **Codebase citation:** `extra.optimality[]` pre-computed boolean array in `src/processors/post/range.ts` and `tagAtom` from `src/atom/dataAtom.ts`.
-**Which existing data it uses:** Reads `extra.optimality[]` for every `BioMarker` entry returned by `visibleDataAtom` when `tagAtom` is active.
-**What it reveals that current charts don't:** Instantly highlights temporal "danger zones" where multiple related markers (e.g., all `3-Liver` markers) fell out of range simultaneously on the same date, revealing cascading system stress that single-line charts obscure.
-**Where it would live:** New `src/layout/OptimalityHeatmap.tsx`, rendered conditionally in the main view when `tagAtom` is selected.
-**Trigger / entry point:** Selecting any tag group button (e.g., "Liver") sets `tagAtom`, triggering the heatmap.
-**Implementation complexity:** Low. Uses existing boolean arrays and standard `echarts-for-react` heatmap.
-**ECharts 6 API confirmed:** Yes (via `require('echarts/charts')` -> `HeatmapChart`).
+**Which existing data it uses:** Calculates the percentage of total time points where `optimality === false` (in-range) for each biomarker in the currently selected `tagAtom` group (via `visibleDataAtom`).
+**What it reveals that current charts don't:** Provides a clear hierarchy of system fragility. By ranking markers within a biological system (e.g. `3-Liver`) by their historical "in-range" frequency, the funnel instantly identifies the system's weakest link that needs the most long-term support.
+**Where it would live:** New `src/layout/OptimalityFunnel.tsx`, rendered below the main table when a tag is active.
+**Trigger / entry point:** Activating any tag filter button (e.g., "Liver") in `Nav.tsx`.
+**Implementation complexity:** Low. Requires a simple percentage reduction of the existing `optimality[]` array and standard ECharts funnel configuration.
+**ECharts 6 API confirmed:** Yes (via `require('echarts/charts')` -> `FunnelChart`).
 
-**Proposal 2 of 5: Metric Drift Gauge**
-**ECharts type:** `gauge`
-**Codebase citation:** `extra.range` string (e.g., "3.9 - 6.4") and `extra.isNotOptimal` function from `src/processors/post/range.ts`.
-**Which existing data it uses:** Parses the numeric bounds from `extra.range` and maps the latest temporal value of a single `BioMarker` from `visibleDataAtom`.
-**What it reveals that current charts don't:** Provides an instant, context-rich "dashboard dial" for a single metric, showing exactly how close the latest reading is to crossing the upper/lower bounds of the optimal range.
-**Where it would live:** Embedded within the expanded row of the main table, alongside `LineChart.tsx`.
+**Proposal 2 of 5: Biomarker Volatility Treemap**
+**ECharts type:** `treemap`
+**Codebase citation:** `nonInferredDataAtom` and `tagDescription` from `src/processors/post/tag.ts`.
+**Which existing data it uses:** Groups all `nonInferredDataAtom` markers into nested hierarchical blocks by their assigned `tag`. The area of each leaf block represents the marker's coefficient of variation (standard deviation / mean) across its entire `values[]` history.
+**What it reveals that current charts don't:** Gives a zoomed-out view of bodily instability. Rather than focusing on values, it visualizes which entire biological systems (e.g., Hormones vs. Minerals) are experiencing the wildest historical swings, drawing attention to systemic turbulence rather than static point-in-time abnormalities.
+**Where it would live:** A new "Volatility Overview" tab on the main dashboard.
+**Trigger / entry point:** A dedicated "View System Volatility" button next to the correlation toggles.
+**Implementation complexity:** Medium. Requires calculating the CV (standard deviation divided by mean) across valid indices of each biomarker's value array.
+**ECharts 6 API confirmed:** Yes (via `require('echarts/charts')` -> `TreemapChart`).
+
+**Proposal 3 of 5: Cumulative Progress Waterfall (Bar)**
+**ECharts type:** `bar` (using standard waterfall/transparent-base configuration)
+**Codebase citation:** `labels[]` from `src/data/index.ts` and `visibleDataAtom`.
+**Which existing data it uses:** Takes a single biomarker's timeline. The first bar represents the earliest recorded value. Subsequent bars plot the positive or negative delta (difference) between consecutive test dates, culminating in a total "current value" bar.
+**What it reveals that current charts don't:** Unpacks the specific journey of long-term interventions (e.g., losing Weight or lowering LDL). It highlights exactly *when* the biggest regressions or breakthroughs occurred between tests, rather than just showing a smoothed line trend.
+**Where it would live:** Embedded within the expanded table row, alongside the existing `LineChart.tsx`.
 **Trigger / entry point:** Expanding a single biomarker row in the data table.
-**Implementation complexity:** Medium. Requires parsing the `range` string back into min/max values if they aren't explicitly exported as tuples.
-**ECharts 6 API confirmed:** Yes (via `require('echarts/charts')` -> `GaugeChart`).
+**Implementation complexity:** Medium. Requires mapping the raw `values[]` array into a sequence of calculated step deltas with a transparent base series.
+**ECharts 6 API confirmed:** Yes (via `require('echarts/charts')` -> `BarChart` using `stack` and `transparent` item colors).
 
-**Proposal 3 of 5: Biomarker Snapshot Parallel Coordinates**
-**ECharts type:** `parallel`
-**Codebase citation:** `nonInferredDataAtom` in `src/atom/dataAtom.ts` and `labels[]` from `src/data/index.ts`.
-**Which existing data it uses:** Takes a vertical slice of all `nonInferredDataAtom` biomarkers at the most recent time index (last element of `labels[]`).
-**What it reveals that current charts don't:** Plots a full systemic snapshot of all physical measurements at one specific doctor's visit on parallel vertical axes, allowing the user to trace a "health fingerprint" line across all metrics.
-**Where it would live:** New `src/layout/SnapshotParallelChart.tsx`.
-**Trigger / entry point:** A new "Latest Snapshot" tab or button on the dashboard.
-**Implementation complexity:** High. Requires careful axis normalization to prevent crossing lines from becoming a visual mess.
-**ECharts 6 API confirmed:** Yes (via `require('echarts/charts')` -> `ParallelChart`).
+**Proposal 4 of 5: Spearman Correlation Ranking Bump Chart**
+**ECharts type:** `line` (with `smooth: true` and Y-axis inversion)
+**Codebase citation:** `rankedDataMapAtom` from `src/atom/dataAtom.ts` (which caches Spearman ranks) and `correlationMethodAtom`.
+**Which existing data it uses:** Takes the top 5 most highly correlated markers to a target biomarker. Instead of plotting raw values, it plots their relative *rank* against each other over 5 to 10 distinct chronological windows.
+**What it reveals that current charts don't:** Tracks how biological relationships evolve over time. It reveals whether a metric like LDL always moved perfectly with Weight (rank remains flat), or if their correlation temporarily decoupled during a specific intervention phase.
+**Where it would live:** Inside the existing `BiomarkerCorrelation.tsx` modal view.
+**Trigger / entry point:** Clicking the "Correlations" action on a specific biomarker.
+**Implementation complexity:** High. Requires chunking the time-series arrays and running the correlation/ranking calculation per chronological window to form the bump lines.
+**ECharts 6 API confirmed:** Yes (via `require('echarts/charts')` -> `LineChart`).
 
-**Proposal 4 of 5: Missing Data / Measurement Frequency Calendar**
-**ECharts type:** `calendar` (with `heatmap` overlay)
-**Codebase citation:** `labels[]` from `src/data/index.ts` and `BioMarker[1]` null gaps.
-**Which existing data it uses:** Aggregates the density of non-null values across all biomarkers in `dataAtom` for each date in `labels[]`.
-**What it reveals that current charts don't:** Visualizes the user's measurement compliance over the year, showing which weeks had dense testing vs. missing gaps.
-**Where it would live:** A small overview chart at the very top of the dashboard.
-**Trigger / entry point:** Always visible, acting as a global time-navigation minimap.
-**Implementation complexity:** Medium. Requires date math to map `YYMMDD` labels to a continuous calendar grid.
-**ECharts 6 API confirmed:** Yes (via `require('echarts/components')` -> `CalendarComponent`).
+**Proposal 5 of 5: Metabolic Phase Trajectory (Connected Scatter)**
+**ECharts type:** `scatter` (with `polyline` or sequential chronological `line` connecting the dots)
+**Codebase citation:** `dataMapAtom` and `labels[]`.
+**Which existing data it uses:** Plots two different biomarkers (e.g., Glucose vs Insulin) on the X and Y axes, and connects their chronological coordinates sequentially using dates from `labels[]`.
+**What it reveals that current charts don't:** Visualizes biological hysteresis. By connecting the dots over time, it shows not just that two markers correlate, but the "loop" they take—revealing if the body's path into insulin resistance looks different from its path out of it.
+**Where it would live:** An alternative view toggle inside `Chart2.tsx` (which already handles two-marker XY plotting).
+**Trigger / entry point:** A new "Show Trajectory Path" toggle inside `Chart2.tsx` when exactly two biomarkers are selected.
+**Implementation complexity:** Low. Can be achieved simply by enabling a connecting line with arrows on the existing `ScatterChart` options and ensuring the dataset maintains chronological sort.
+**ECharts 6 API confirmed:** Yes (via `require('echarts/charts')` -> `ScatterChart` and `LineChart` for the connector).
 
-**Proposal 5 of 5: Most Deviant Markers Bar Chart**
-**ECharts type:** `bar`
-**Codebase citation:** `extra.range` and `extra.optimality[]` from `src/processors/post/range.ts` and `visibleDataAtom`.
-**Which existing data it uses:** Filters `visibleDataAtom` for biomarkers where the latest index of `extra.optimality[]` is `true`, then calculates the percentage deviation from the `extra.range` midpoint.
-**What it reveals that current charts don't:** Automatically ranks and highlights the "worst offenders" (most out-of-range metrics) right now, prioritizing what needs immediate attention.
-**Where it would live:** Dashboard home view, below the global filters.
-**Trigger / entry point:** Always rendered as an "Attention Needed" summary widget.
-**Implementation complexity:** Medium. Requires calculating midpoints from the `range` strings and sorting the array.
-**ECharts 6 API confirmed:** Yes (via `require('echarts/charts')` -> `BarChart`).
-
-> Recommended implementation order: Proposal 1 first (highest insight, lowest effort), then 5, then 2, then 4, then 3.
+> Recommended implementation order: Proposal 1 first (highest insight, lowest effort), then 5, then 3, then 2, then 4.
