@@ -253,7 +253,11 @@ export default React.memo<NavProps>(
               title={show ? 'Close menu' : 'Open menu'}
               aria-expanded={show}
             >
-              {show ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
+              {show ? (
+                <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+              ) : (
+                <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+              )}
             </button>
             <div className="w-full min-w-40 lg:w-auto flex-1 lg:flex-none">
               <div className="relative text-gray-400 focus-within:text-gray-200">

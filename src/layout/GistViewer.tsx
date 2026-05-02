@@ -182,7 +182,7 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
                               {keys}
                             </div>
                             <div className="text-xs text-gray-400 flex items-center gap-1">
-                              <ClockIcon className="h-3 w-3" />
+                              <ClockIcon className="h-3 w-3" aria-hidden="true" />
                               {isParsed ? dateStr : file.filename}
                             </div>
                           </button>
@@ -196,7 +196,10 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
                       aria-live="polite"
                     >
                       <div className="bg-gray-800/50 rounded-full p-4 mb-4">
-                        <ClipboardDocumentIcon className="h-8 w-8 text-gray-400" />
+                        <ClipboardDocumentIcon
+                          className="h-8 w-8 text-gray-400"
+                          aria-hidden="true"
+                        />
                       </div>
                       <h3 className="text-lg font-medium text-gray-300 mb-2">
                         No AI history found
