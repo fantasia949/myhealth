@@ -395,6 +395,7 @@ export default React.memo(
     onClearFilters,
     onCorrelation,
     setCorrelationSupplement,
+    onOriginValueToggle,
   }: TableProps) => {
     const convertedEntries = useAtomValue(visibleDataAtom)
     const averageCountValue = useAtomValue(averageCountAtom)
@@ -556,6 +557,9 @@ export default React.memo(
     const [expanded, setExpanded] = React.useState<ExpandedState>(true)
 
     const table = useReactTable({
+    meta: {
+      onOriginValueToggle
+    },
       data: displayedEntries,
       columns,
       getCoreRowModel: getCoreRowModel(),

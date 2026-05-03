@@ -43,12 +43,10 @@ export default React.memo<NavProps>(
     onClearSelection,
     filterText,
     filterTag,
-    showOrigColumns,
     showRecords,
     onShowRecordsChange,
     onTextChange,
     onFilterByTag,
-    onOriginValueToggle,
     onVisualize,
     onPValue,
     onSupplementCorrelation,
@@ -542,21 +540,7 @@ export default React.memo<NavProps>(
                     <option value="15">Last 15 records</option>
                   </select>
                 </div>
-                <div className="hidden xl:flex items-center gap-2 w-full xl:w-auto">
-                  <input
-                    className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
-                    type="checkbox"
-                    checked={showOrigColumns}
-                    onChange={onOriginValueToggle}
-                    id="flexSwitchCheckDefault"
-                  />
-                  <label
-                    className="text-sm cursor-pointer select-none"
-                    htmlFor="flexSwitchCheckDefault"
-                  >
-                    Origin values
-                  </label>
-                </div>
+
               </div>
             </div>
           </div>

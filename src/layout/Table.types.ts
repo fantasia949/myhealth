@@ -1,6 +1,7 @@
 import { BioMarker } from '../types/biomarker'
 
 export interface TableProps {
+  onOriginValueToggle: (checked: boolean) => void
   onCorrelation: (name: string) => void
   showOrigColumns: boolean
   selected: string[]
