@@ -314,18 +314,19 @@ const TableRow = React.memo(
 )
 
 const columns: ColumnDef<DisplayedEntry, any>[] = [
-  columnHelper.accessor('selection' as any, {
+  columnHelper.display({
+    id: 'selection',
     header: '',
   }),
   columnHelper.display({
     id: 'expand',
     header: '',
   }),
-  columnHelper.accessor('tag' as any, {
+  columnHelper.accessor('tag', {
     header: 'Tag',
     getGroupingValue: (row) => row.tag,
   }),
-  columnHelper.accessor('name' as any, {
+  columnHelper.accessor('name', {
     header: 'Name',
     footer: 'Supp',
   }),
@@ -343,7 +344,8 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
       else if (dist > 2 && dist <= 4) className = 'hidden md:table-cell'
       else if (dist > 4) className = 'hidden lg:table-cell'
 
-      result[index] = columnHelper.accessor(label as any, {
+      result[index] = columnHelper.accessor((row) => row.values[index], {
+        id: label,
         header: getKeyFromTime(label),
         meta: {
           isRecord: true,
@@ -355,14 +357,16 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
     }
     return result
   })(),
-  columnHelper.accessor('placeholder' as any, {
+  columnHelper.display({
+    id: 'placeholder',
     header: '',
     meta: {
       placehoder: true,
       className: 'hidden lg:table-cell',
     },
   }),
-  columnHelper.accessor('range' as any, {
+  columnHelper.accessor((row) => row.extra.range, {
+    id: 'range',
     header: 'Range',
     meta: {
       ref: true,
@@ -370,14 +374,15 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
       className: 'hidden md:table-cell',
     },
   }),
-  columnHelper.accessor('unit' as any, {
+  columnHelper.accessor('unit', {
     header: 'Unit',
     meta: {
       ref: true,
       className: 'hidden sm:table-cell',
     },
   }),
-  columnHelper.accessor('origUnit' as any, {
+  columnHelper.accessor((row) => row.extra.originUnit, {
+    id: 'origUnit',
     header: 'Orig Unit',
     meta: {
       ref: true,
