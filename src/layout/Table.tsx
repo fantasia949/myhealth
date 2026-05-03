@@ -371,7 +371,23 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
     },
   }),
   columnHelper.accessor('unit' as any, {
-    header: 'Unit',
+    header: ({ table }) => (
+      <div className="flex items-center gap-2">
+        <span>Unit</span>
+        <div className="flex items-center gap-1.5 ml-1" onClick={(e) => e.stopPropagation()}>
+          <input
+            type="checkbox"
+            className="w-3 h-3 text-blue-600 bg-gray-700 border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
+            aria-label="Toggle origin values"
+            title="Toggle origin values"
+            onChange={(e) => {
+              const meta = table.options.meta as any;
+              meta?.onOriginValueToggle?.(e.target.checked);
+            }}
+          />
+        </div>
+      </div>
+    ),
     meta: {
       ref: true,
       className: 'hidden sm:table-cell',

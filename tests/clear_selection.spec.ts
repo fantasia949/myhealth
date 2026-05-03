@@ -9,8 +9,8 @@ test('Clear All button appears when multiple items are selected and clears selec
   await page.waitForSelector('table')
   await page.waitForTimeout(2000)
 
-  // Find checkboxes in the table only
-  const checkboxes = page.locator('table input[type="checkbox"]')
+  // Find checkboxes in the table only, excluding header checkboxes
+  const checkboxes = page.locator('tbody input[type="checkbox"]')
   await expect(checkboxes.first()).toBeVisible()
 
   // Select first two items
