@@ -314,19 +314,18 @@ const TableRow = React.memo(
 )
 
 const columns: ColumnDef<DisplayedEntry, any>[] = [
-  columnHelper.display({
-    id: 'selection',
+  columnHelper.accessor('selection' as any, {
     header: '',
   }),
   columnHelper.display({
     id: 'expand',
     header: '',
   }),
-  columnHelper.accessor('tag', {
+  columnHelper.accessor('tag' as any, {
     header: 'Tag',
     getGroupingValue: (row) => row.tag,
   }),
-  columnHelper.accessor('name', {
+  columnHelper.accessor('name' as any, {
     header: 'Name',
     footer: 'Supp',
   }),
@@ -344,8 +343,7 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
       else if (dist > 2 && dist <= 4) className = 'hidden md:table-cell'
       else if (dist > 4) className = 'hidden lg:table-cell'
 
-      result[index] = columnHelper.accessor((row) => row.values[index], {
-        id: label,
+      result[index] = columnHelper.accessor(label as any, {
         header: getKeyFromTime(label),
         meta: {
           isRecord: true,
@@ -357,16 +355,14 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
     }
     return result
   })(),
-  columnHelper.display({
-    id: 'placeholder',
+  columnHelper.accessor('placeholder' as any, {
     header: '',
     meta: {
       placehoder: true,
       className: 'hidden lg:table-cell',
     },
   }),
-  columnHelper.accessor((row) => row.extra.range, {
-    id: 'range',
+  columnHelper.accessor('range' as any, {
     header: 'Range',
     meta: {
       ref: true,
@@ -374,7 +370,7 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
       className: 'hidden md:table-cell',
     },
   }),
-  columnHelper.accessor('unit', {
+  columnHelper.accessor('unit' as any, {
     header: ({ table }) => (
       <div className="flex items-center gap-2">
         <span>Unit</span>
@@ -397,8 +393,7 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
       className: 'hidden sm:table-cell',
     },
   }),
-  columnHelper.accessor((row) => row.extra.originUnit, {
-    id: 'origUnit',
+  columnHelper.accessor('origUnit' as any, {
     header: 'Orig Unit',
     meta: {
       ref: true,
@@ -579,7 +574,8 @@ export default React.memo(
 
     const table = useReactTable({
     meta: {
-      onOriginValueToggle
+      onOriginValueToggle,
+      showOrigColumns
     },
       data: displayedEntries,
       columns,
