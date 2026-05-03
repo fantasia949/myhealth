@@ -18,7 +18,9 @@ export const processBiomarkers = (entries: Array<Entry>): BioMarker[] => {
 
   // Optimization: Pre-calculate normalized title to avoid repetitive toLowerCase() calls in filter loops
   // Optimization: Pre-calculate sortTag to avoid repetitive filtering in sort comparator
-  biomarkers.forEach((entry) => {
+  // Optimization: Replaced .forEach, .find, and .map with standard loops to avoid closures and array allocations.
+  for (let i = 0; i < biomarkers.length; i++) {
+    const entry = biomarkers[i]
     // Defensive: Ensure entry[3] and entry[3].tag exist to prevent crashes in optimized loops
     if (!entry[3]) {
       entry[3] = { tag: [] } as unknown as BioMarker[3]
@@ -28,15 +30,28 @@ export const processBiomarkers = (entries: Array<Entry>): BioMarker[] => {
     }
 
     entry[3].normalizedTitle = entry[0].toLowerCase()
-    entry[3].sortTag = entry[3].tag.find((tag) => !unsortedTags.includes(tag)) || ''
+
+    let foundSortTag = ''
+    for (let j = 0; j < entry[3].tag.length; j++) {
+      const tag = entry[3].tag[j]
+      if (!unsortedTags.includes(tag)) {
+        foundSortTag = tag
+        break
+      }
+    }
+    entry[3].sortTag = foundSortTag
 
     // Optimization: Pre-calculate displayTag and sortKey to avoid repetitive calculations in render loop
-    entry[3].processedTags = entry[3].tag.map((tag) => {
+    const tagLen = entry[3].tag.length
+    const processedTags = Array<{ tag: string; displayTag: string; sortKey: string }>(tagLen)
+    for (let j = 0; j < tagLen; j++) {
+      const tag = entry[3].tag[j]
       const displayTag = tag.substring(tag.indexOf('-') + 1)
       const sortKey = /^\d/.test(tag) ? `1_${tag}` : `2_${tag}`
-      return { tag, displayTag, sortKey }
-    })
-  })
+      processedTags[j] = { tag, displayTag, sortKey }
+    }
+    entry[3].processedTags = processedTags
+  }
 
   return biomarkers.sort((entry1, entry2) => {
     const tag1 = entry1[3]?.sortTag ?? ''
