@@ -48,7 +48,7 @@ _Note: As context7 was unavailable, ECharts 6 component availability was verifie
 **ECharts type:** `bar` (using standard waterfall/transparent-base configuration)
 **Codebase citation:** `labels[]` from `src/data/index.ts` and `visibleDataAtom`.
 **Which existing data it uses:** Takes a single biomarker's timeline. The first bar represents the earliest recorded value. Subsequent bars plot the positive or negative delta (difference) between consecutive test dates, culminating in a total "current value" bar.
-**What it reveals that current charts don't:** Unpacks the specific journey of long-term interventions (e.g., losing Weight or lowering LDL). It highlights exactly *when* the biggest regressions or breakthroughs occurred between tests, rather than just showing a smoothed line trend.
+**What it reveals that current charts don't:** Unpacks the specific journey of long-term interventions (e.g., losing Weight or lowering LDL). It highlights exactly _when_ the biggest regressions or breakthroughs occurred between tests, rather than just showing a smoothed line trend.
 **Where it would live:** Embedded within the expanded table row, alongside the existing `LineChart.tsx`.
 **Trigger / entry point:** Expanding a single biomarker row in the data table.
 **Implementation complexity:** Medium. Requires mapping the raw `values[]` array into a sequence of calculated step deltas with a transparent base series.
@@ -57,7 +57,7 @@ _Note: As context7 was unavailable, ECharts 6 component availability was verifie
 **Proposal 4 of 5: Spearman Correlation Ranking Bump Chart**
 **ECharts type:** `line` (with `smooth: true` and Y-axis inversion)
 **Codebase citation:** `rankedDataMapAtom` from `src/atom/dataAtom.ts` (which caches Spearman ranks) and `correlationMethodAtom`.
-**Which existing data it uses:** Takes the top 5 most highly correlated markers to a target biomarker. Instead of plotting raw values, it plots their relative *rank* against each other over 5 to 10 distinct chronological windows.
+**Which existing data it uses:** Takes the top 5 most highly correlated markers to a target biomarker. Instead of plotting raw values, it plots their relative _rank_ against each other over 5 to 10 distinct chronological windows.
 **What it reveals that current charts don't:** Tracks how biological relationships evolve over time. It reveals whether a metric like LDL always moved perfectly with Weight (rank remains flat), or if their correlation temporarily decoupled during a specific intervention phase.
 **Where it would live:** Inside the existing `BiomarkerCorrelation.tsx` modal view.
 **Trigger / entry point:** Clicking the "Correlations" action on a specific biomarker.
