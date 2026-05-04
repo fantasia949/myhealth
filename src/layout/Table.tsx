@@ -554,7 +554,7 @@ export default React.memo(
       }
 
       if (!showOrigColumns) {
-        state.origUnit = false
+        state['extra.originUnit'] = false
       }
 
       return state
