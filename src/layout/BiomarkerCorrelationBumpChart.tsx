@@ -4,7 +4,7 @@ import { useAtomValue } from 'jotai'
 import { rankedDataMapAtom } from '../atom/dataAtom'
 import { correlationMethodAtom } from '../atom/correlationAtom'
 import { CHART_PALETTE } from './Chart2'
-import { labels, formattedLabels } from '../data'
+import { formattedLabels } from '../data'
 import { CorrelationResult } from './BiomarkerCorrelation.types'
 import { calculatePearson } from '../processors/stats'
 
@@ -27,17 +27,14 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
       .sort((a, b) => Math.abs(b.rho) - Math.abs(a.rho))
       .slice(0, 5)
 
-    const numWindows = 6 // Divide timeline into 6 distinct chronological windows
-    const totalPoints = labels.length
-    const pointsPerWindow = Math.floor(totalPoints / numWindows)
-    const windowLabels: string[] = []
+    if (topCorrelations.length === 0) return {}
 
     // ⚡ Bolt Optimization: Pre-allocate target biomarker rank array
     const targetRanks = rankedDataMap.get(targetBiomarker)
     if (!targetRanks) return {}
 
-    const validIndices = []
-    for (let i = 0; i < totalPoints; i++) {
+    const validIndices: number[] = []
+    for (let i = 0; i < formattedLabels.length; i++) {
       if (!Number.isNaN(targetRanks[i])) {
         validIndices.push(i)
       }
@@ -64,24 +61,40 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
       }
     }
 
-    const windowedRanksMap = new Map<string, number[]>()
+    // Dynamic number of windows based on actual valid data points to ensure enough data per window
+    // Aim for 5 windows, but fallback to fewer if data is sparse. Require at least 2 points per window.
+    const numWindowsDynamic = count >= 30 ? 5 : count >= 10 ? 3 : count >= 4 ? 2 : 1
+    const windowLabelsDynamic: string[] = []
+
+    const windowedRanksMap = new Map<string, (number | string)[]>()
     topCorrelations.forEach((supp) => windowedRanksMap.set(supp.name, []))
 
-    // Chunk the data into windows and recalculate rho for each window
-    for (let w = 0; w < numWindows; w++) {
-      const startIdx = w * pointsPerWindow
-      const endIdx = w === numWindows - 1 ? totalPoints : (w + 1) * pointsPerWindow
+    // Chunk the valid data indices into windows and recalculate rho for each window
+    for (let w = 0; w < numWindowsDynamic; w++) {
+      // Use floating point division to distribute elements evenly across windows
+      const startIdxInValid = Math.floor((w * count) / numWindowsDynamic)
+      const endIdxInValid = w === numWindowsDynamic - 1 ? count : Math.floor(((w + 1) * count) / numWindowsDynamic)
 
-      windowLabels.push(`${formattedLabels[startIdx]}`)
-
-      // Find which valid indices fall into this window
-      const windowValidIndices = validIndices.filter((i) => i >= startIdx && i < endIdx)
+      const windowValidIndices = validIndices.slice(startIdxInValid, endIdxInValid)
       const windowCount = windowValidIndices.length
 
-      if (windowCount < 5) {
-        // Not enough data points in this window to calculate meaningful correlation, rank everyone last
+      // Use the last date of the window for the label so we can see the time span
+
+
+      // Map to a complex object with a unique value to bypass category duplication,
+      // and use a formatter to display the clean label.
+      windowLabelsDynamic.push(w.toString())
+
+      // Without variation in the binary supplement vector (e.g. they took it every day, or never),
+      // correlation is technically 0/undefined.
+      // But we still want to plot a line across windows even if data is sparse,
+      // otherwise ECharts won't connect the disjointed valid segments properly.
+      if (windowCount < 2) {
+        // Fall back to previous rank so line stays flat (or 6 if first) so the line doesn't break
         topCorrelations.forEach((supp) => {
-          windowedRanksMap.get(supp.name)!.push(6) // out of 5
+          const currentRanks = windowedRanksMap.get(supp.name)!
+          const prevRank = currentRanks.length > 0 ? currentRanks[currentRanks.length - 1] : 6
+          currentRanks.push(prevRank)
         })
         continue
       }
@@ -92,17 +105,14 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
         windowSuppVectors.set(supp.name, new Int8Array(windowCount)),
       )
 
-      // Map global valid indices to windowed valid indices
-      let windowK = 0
-      for (let k = 0; k < count; k++) {
-        const globalI = validIndices[k]
-        if (globalI >= startIdx && globalI < endIdx) {
-          windowBiomarkerRanks[windowK] = targetRanks[k]
-          topCorrelations.forEach((supp) => {
-            windowSuppVectors.get(supp.name)![windowK] = suppVectors.get(supp.name)![k]
-          })
-          windowK++
-        }
+      // Extract vectors for this specific window using our pre-calculated valid chunk
+      for (let k = 0; k < windowCount; k++) {
+        const globalK = startIdxInValid + k
+        const globalI = validIndices[globalK]
+        windowBiomarkerRanks[k] = targetRanks[globalI]
+        topCorrelations.forEach((supp) => {
+          windowSuppVectors.get(supp.name)![k] = suppVectors.get(supp.name)![globalK]
+        })
       }
 
       const windowRhos: { name: string; rho: number }[] = []
@@ -133,11 +143,26 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
       // Sort by absolute rho descending to determine rank
       windowRhos.sort((a, b) => b.rho - a.rho)
 
-      // Assign ranks (1 to 5)
-      windowRhos.forEach((wr, rankIdx) => {
+      // Assign ranks (1 to 5), but handle ties appropriately or use '-' for connectNulls
+      let currentRank = 1
+      for (let i = 0; i < windowRhos.length; i++) {
+        const wr = windowRhos[i]
         const currentRanks = windowedRanksMap.get(wr.name)!
-        currentRanks.push(rankIdx + 1)
-      })
+
+        // If rho is exactly 0 and no variation existed, we omit the rank by pushing null
+        // to avoid erratic jumps. connectNulls: true will bridge the gaps cleanly.
+        if (wr.rho === 0) {
+          currentRanks.push(null as any) // Type assertion to bypass TS if needed, we typed it as (number | string)[]
+        } else {
+          // Check for ties with the previous item
+          if (i > 0 && Math.abs(windowRhos[i].rho - windowRhos[i - 1].rho) < 1e-9) {
+            // Same rank as previous
+          } else {
+            currentRank = i + 1
+          }
+          currentRanks.push(currentRank)
+        }
+      }
     }
 
     const series = topCorrelations.map((supp) => {
@@ -145,6 +170,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
         name: supp.name,
         type: 'line',
         smooth: true,
+        connectNulls: true,
         symbol: 'circle',
         symbolSize: 8,
         lineStyle: {
@@ -191,10 +217,18 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
       },
       xAxis: {
         type: 'category',
-        data: windowLabels,
+        data: windowLabelsDynamic.map((w) => w.toString()),
         boundaryGap: false,
         axisLine: { lineStyle: { color: '#555' } },
         splitLine: { show: false },
+        axisLabel: {
+          formatter: (value: string, index: number) => {
+            const endIdx = index === numWindowsDynamic - 1 ? count : Math.floor(((index + 1) * count) / numWindowsDynamic)
+            const startIdx = Math.floor((index * count) / numWindowsDynamic)
+            const lIdx = validIndices[endIdx - 1] ?? validIndices[startIdx]
+            return formattedLabels[lIdx] || ''
+          }
+        }
       },
       yAxis: {
         type: 'value',
@@ -210,14 +244,21 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
     }
   }, [targetBiomarker, correlations, rankedDataMap])
 
-  if (Object.keys(options).length === 0) return null
+  if (Object.keys(options).length === 0) {
+    return (
+      <div className="w-full mt-8 text-center text-gray-400">
+        <h3 className="text-sm mb-2 uppercase tracking-wider">Correlation Ranking Over Time</h3>
+        <p className="mt-4 text-sm italic">Insufficient data for timeline</p>
+      </div>
+    )
+  }
 
   return (
     <div className="w-full mt-8">
       <h3 className="text-gray-400 text-sm mb-2 text-center uppercase tracking-wider">
         Correlation Ranking Over Time
       </h3>
-      <ReactECharts option={options} style={options.style} notMerge={true} theme="dark" />
+      <ReactECharts option={options} style={options.style} theme="dark" />
     </div>
   )
 })
