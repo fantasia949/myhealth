@@ -278,8 +278,8 @@ const TableRow = React.memo(
             {extra.range as any}
           </td>
           <td className="p-2 border border-gray-700 hidden sm:table-cell">{unit as any}</td>
-          {showOrigColumns && extra.hasOrigin && (
-            <td className="p-2 border border-gray-700 hidden lg:table-cell">{extra.originUnit}</td>
+          {showOrigColumns && (
+            <td className="p-2 border border-gray-700 hidden lg:table-cell">{extra.hasOrigin ? extra.originUnit : ''}</td>
           )}
         </tr>
         {isExpanded && (
@@ -393,8 +393,9 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
       className: 'hidden sm:table-cell',
     },
   }),
-  columnHelper.accessor('origUnit' as any, {
+  columnHelper.accessor('extra.originUnit' as any, {
     header: 'Orig Unit',
+    cell: (info) => (info.row.original.extra.hasOrigin && (info.table.options.meta as any)?.showOrigColumns) ? info.row.original.extra.originUnit : '',
     meta: {
       ref: true,
       className: 'hidden lg:table-cell',
