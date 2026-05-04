@@ -120,7 +120,6 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
                 </Dialog.Title>
                 <div
                   className="mt-2 text-sm whitespace-pre-wrap flex-1"
-                  title={text?.[1]}
                   style={{ fontSize: 14 }}
                 >
                   {comparedSourceTarget && (
@@ -137,7 +136,8 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
                   ) : (
                     <div
                       className="text-gray-400 p-6 text-center border border-dashed border-gray-700 rounded bg-white/5 my-4 flex flex-col gap-2"
-                      role="alert"
+                      role="status"
+                      aria-live="polite"
                     >
                       <span className="font-semibold text-gray-300">
                         Not enough overlapping data points
