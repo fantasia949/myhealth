@@ -68,9 +68,11 @@ const DataCell = React.memo(
       setTimeout(() => setCopied(false), 1500)
     }, [onCopy, rawValue])
 
-    const content = (unit as any)?.url ? (
+    const isUrlUnit =
+      typeof unit === 'object' && unit !== null && 'url' in unit && typeof unit.url === 'string'
+    const content = isUrlUnit ? (
       <a
-        href={(unit as any).url}
+        href={isUrlUnit ? (unit as { url: string }).url : ''}
         target="_blank"
         rel="noreferrer"
         className="text-blue-400 hover:underline"
@@ -275,11 +277,19 @@ const TableRow = React.memo(
             {averageCountValue ? extra.getSamples(+averageCountValue).join(', ') : null}
           </td>
           <td className="p-2 border border-gray-700 whitespace-nowrap text-center hidden md:table-cell">
-            {extra.range as any}
+            {extra.range}
           </td>
-          <td className="p-2 border border-gray-700 hidden sm:table-cell">{unit as any}</td>
+          <td className="p-2 border border-gray-700 hidden sm:table-cell">
+            {typeof unit === 'string'
+              ? unit
+              : unit && typeof unit === 'object' && 'url' in unit
+                ? (unit as { url: string }).url
+                : ''}
+          </td>
           {showOrigColumns && (
-            <td className="p-2 border border-gray-700 hidden lg:table-cell">{extra.hasOrigin ? extra.originUnit : ''}</td>
+            <td className="p-2 border border-gray-700 hidden lg:table-cell">
+              {extra.hasOrigin ? extra.originUnit : ''}
+            </td>
           )}
         </tr>
         {isExpanded && (
@@ -314,18 +324,19 @@ const TableRow = React.memo(
 )
 
 const columns: ColumnDef<DisplayedEntry, any>[] = [
-  columnHelper.accessor('selection' as any, {
+  columnHelper.display({
+    id: 'selection',
     header: '',
   }),
   columnHelper.display({
     id: 'expand',
     header: '',
   }),
-  columnHelper.accessor('tag' as any, {
+  columnHelper.accessor('tag', {
     header: 'Tag',
     getGroupingValue: (row) => row.tag,
   }),
-  columnHelper.accessor('name' as any, {
+  columnHelper.accessor('name', {
     header: 'Name',
     footer: 'Supp',
   }),
@@ -334,7 +345,7 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
     // This avoids closure allocation overhead and speeds up the module initialization.
     const numLabels = labels.length
     // eslint-disable-next-line eslint-plugin-unicorn/no-new-array
-    const result = new Array(numLabels)
+    const result = new Array<ColumnDef<DisplayedEntry, any>>(numLabels)
     for (let index = 0; index < numLabels; index++) {
       const label = labels[index]
       const dist = numLabels - 1 - index
@@ -343,26 +354,32 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
       else if (dist > 2 && dist <= 4) className = 'hidden md:table-cell'
       else if (dist > 4) className = 'hidden lg:table-cell'
 
-      result[index] = columnHelper.accessor(label as any, {
-        header: getKeyFromTime(label),
-        meta: {
-          isRecord: true,
-          isLatest: index === numLabels - 1,
-          title: label,
-          className,
+      result[index] = columnHelper.accessor(
+        (row) => row[label as keyof typeof row] ?? row.values[index],
+        {
+          id: label,
+          header: getKeyFromTime(label),
+          meta: {
+            isRecord: true,
+            isLatest: index === numLabels - 1,
+            title: label,
+            className,
+          },
         },
-      })
+      )
     }
     return result
   })(),
-  columnHelper.accessor('placeholder' as any, {
+  columnHelper.display({
+    id: 'placeholder',
     header: '',
     meta: {
       placehoder: true,
       className: 'hidden lg:table-cell',
     },
   }),
-  columnHelper.accessor('range' as any, {
+  columnHelper.accessor((row) => row.extra.range, {
+    id: 'range',
     header: 'Range',
     meta: {
       ref: true,
@@ -370,7 +387,7 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
       className: 'hidden md:table-cell',
     },
   }),
-  columnHelper.accessor('unit' as any, {
+  columnHelper.accessor('unit', {
     header: ({ table }) => (
       <div className="flex items-center gap-2">
         <span>Unit</span>
@@ -381,8 +398,10 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
             aria-label="Toggle origin values"
             title="Toggle origin values"
             onChange={(e) => {
-              const meta = table.options.meta as any;
-              meta?.onOriginValueToggle?.(e.target.checked);
+              const meta = table.options.meta as {
+                onOriginValueToggle?: (checked: boolean) => void
+              }
+              meta?.onOriginValueToggle?.(e.target.checked)
             }}
           />
         </div>
@@ -393,9 +412,14 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
       className: 'hidden sm:table-cell',
     },
   }),
-  columnHelper.accessor('origUnit' as any, {
+  columnHelper.accessor((row) => row.extra.originUnit, {
+    id: 'origUnit',
     header: 'Orig Unit',
-    cell: (info) => (info.row.original.extra.hasOrigin && (info.table.options.meta as any)?.showOrigColumns) ? info.row.original.extra.originUnit : '',
+    cell: (info) =>
+      info.row.original.extra.hasOrigin &&
+      (info.table.options.meta as { showOrigColumns?: boolean })?.showOrigColumns
+        ? info.row.original.extra.originUnit
+        : '',
     meta: {
       ref: true,
       className: 'hidden lg:table-cell',
@@ -574,10 +598,10 @@ export default React.memo(
     const [expanded, setExpanded] = React.useState<ExpandedState>(true)
 
     const table = useReactTable({
-    meta: {
-      onOriginValueToggle,
-      showOrigColumns
-    },
+      meta: {
+        onOriginValueToggle,
+        showOrigColumns,
+      },
       data: displayedEntries,
       columns,
       getCoreRowModel: getCoreRowModel(),
@@ -632,27 +656,37 @@ export default React.memo(
           <thead className="sticky top-[39px] z-10 bg-dark-table-header">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    title={notes[
-                      (header.column.columnDef.meta as any)?.title as string
-                    ]?.items?.join('\n')}
-                    className={cn(
-                      'p-2 border border-gray-700 relative whitespace-nowrap',
-                      {
-                        'text-right': (header.column.columnDef.meta as any)?.isRecord,
-                        'text-center': (header.column.columnDef.meta as any)?.align === 'center',
-                        'is-latest': (header.column.columnDef.meta as any)?.isLatest,
-                        'sticky-left bg-dark-table-header': header.id === 'name',
-                        'w-1/4': (header.column.columnDef.meta as any)?.placehoder,
-                      },
-                      (header.column.columnDef.meta as any)?.className,
-                    )}
-                  >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                  </th>
-                ))}
+                {headerGroup.headers.map((header) => {
+                  const meta = header.column.columnDef.meta as
+                    | {
+                        title?: string
+                        isRecord?: boolean
+                        align?: string
+                        isLatest?: boolean
+                        placehoder?: boolean
+                        className?: string
+                      }
+                    | undefined
+                  return (
+                    <th
+                      key={header.id}
+                      title={notes[meta?.title as string]?.items?.join('\n')}
+                      className={cn(
+                        'p-2 border border-gray-700 relative whitespace-nowrap',
+                        {
+                          'text-right': meta?.isRecord,
+                          'text-center': meta?.align === 'center',
+                          'is-latest': meta?.isLatest,
+                          'sticky-left bg-dark-table-header': header.id === 'name',
+                          'w-1/4': meta?.placehoder,
+                        },
+                        meta?.className,
+                      )}
+                    >
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                    </th>
+                  )
+                })}
               </tr>
             ))}
           </thead>
@@ -764,29 +798,39 @@ export default React.memo(
           <tfoot>
             {table.getFooterGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    className={cn(
-                      'border border-gray-700 text-center relative p-0 h-full',
-                      {
-                        'is-latest': (header.column.columnDef.meta as any)?.isLatest,
-                        'sticky-left bg-dark-table-row': header.id === 'name',
-                        'w-1/4': (header.column.columnDef.meta as any)?.placehoder,
-                      },
-                      (header.column.columnDef.meta as any)?.className,
-                    )}
-                  >
-                    {notes[(header.column.columnDef.meta as any)?.title as string]?.supps ? (
-                      <SupplementsPopover
-                        supps={
-                          notes[(header.column.columnDef.meta as any)?.title as string]?.supps ?? []
-                        }
-                        onSupplementClick={setCorrelationSupplement}
-                      />
-                    ) : null}
-                  </th>
-                ))}
+                {headerGroup.headers.map((header) => {
+                  const meta = header.column.columnDef.meta as
+                    | {
+                        title?: string
+                        isRecord?: boolean
+                        align?: string
+                        isLatest?: boolean
+                        placehoder?: boolean
+                        className?: string
+                      }
+                    | undefined
+                  return (
+                    <th
+                      key={header.id}
+                      className={cn(
+                        'border border-gray-700 text-center relative p-0 h-full',
+                        {
+                          'is-latest': meta?.isLatest,
+                          'sticky-left bg-dark-table-row': header.id === 'name',
+                          'w-1/4': meta?.placehoder,
+                        },
+                        meta?.className,
+                      )}
+                    >
+                      {notes[meta?.title as string]?.supps ? (
+                        <SupplementsPopover
+                          supps={notes[meta?.title as string]?.supps ?? []}
+                          onSupplementClick={setCorrelationSupplement}
+                        />
+                      ) : null}
+                    </th>
+                  )
+                })}
               </tr>
             ))}
           </tfoot>
