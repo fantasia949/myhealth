@@ -65,29 +65,36 @@ const echartsOptions = {
 
 export default memo(({ keys }: ScatterChartProps) => {
   const dataMap = useAtomValue(dataMapAtom)
-  const yAxes = keys.map((key, index) => {
-    const isEven = index % 2 === 0
-    const sideOffset = Math.floor(index / 2) * 80
 
-    return {
-      type: 'value',
-      name: key,
-      position: isEven ? 'left' : 'right',
-      offset: sideOffset,
-      nameLocation: 'middle',
-      nameGap: 50,
-      axisLine: {
-        show: true,
-        lineStyle: {
-          color: CHART_PALETTE[index % CHART_PALETTE.length],
+  const yAxes = useMemo(() => {
+    const numKeys = keys.length
+    const result = Array<any>(numKeys)
+    for (let index = 0; index < numKeys; index++) {
+      const key = keys[index]
+      const isEven = index % 2 === 0
+      const sideOffset = Math.floor(index / 2) * 80
+
+      result[index] = {
+        type: 'value',
+        name: key,
+        position: isEven ? 'left' : 'right',
+        offset: sideOffset,
+        nameLocation: 'middle',
+        nameGap: 50,
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: CHART_PALETTE[index % CHART_PALETTE.length],
+          },
         },
-      },
-      axisLabel: {
-        formatter: '{value}',
-      },
-      min: 'dataMin',
+        axisLabel: {
+          formatter: '{value}',
+        },
+        min: 'dataMin',
+      }
     }
-  })
+    return result
+  }, [keys])
 
   const chartData = useMemo(() => {
     // Optimization: Replace chained Array.map() with a classic for-loop and pre-allocated array.
@@ -132,7 +139,7 @@ export default memo(({ keys }: ScatterChartProps) => {
     return result
   }, [dataMap, keys])
 
-  const options = {
+  const options = useMemo(() => ({
     ...echartsOptions,
     xAxis: {
       ...echartsOptions.xAxis,
@@ -147,7 +154,7 @@ export default memo(({ keys }: ScatterChartProps) => {
       left: Math.ceil(keys.length / 2) * 80,
       right: Math.max(Math.floor(keys.length / 2) * 80, 40),
     },
-  }
+  }), [yAxes, chartData, keys])
 
   return <ReactECharts option={options} style={options.style} notMerge={true} theme="dark" />
 })

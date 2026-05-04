@@ -104,7 +104,10 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
       }
     }
 
-    suppVectors.forEach((filteredSuppVector, suppName) => {
+    // ⚡ Bolt Optimization: Replaced suppVectors.forEach with a native for...of loop.
+    // Iterating over Map entries natively avoids creating a new function closure
+    // and its associated environment allocations on every run of this useMemo.
+    for (const [suppName, filteredSuppVector] of suppVectors.entries()) {
       // Calculate frequency of the supplement (number of times it was taken, i.e., 1s in the vector)
       let suppFrequency = 0
       for (let k = 0; k < count; k++) {
@@ -124,7 +127,7 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
       }
 
       if (!hasSuppVariation) {
-        return
+        continue
       }
 
       // 3. Calculate Spearman correlation
@@ -146,7 +149,7 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
           count: suppFrequency,
         })
       }
-    })
+    }
 
     // Sort by P-value ascending
     return results.sort((a, b) => a.pValue - b.pValue)

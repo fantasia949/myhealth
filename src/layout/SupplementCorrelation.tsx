@@ -65,13 +65,16 @@ const SupplementCorrelation = React.memo(
       const options = { alpha, alternative: 'two-sided' as const }
 
       // 2. Iterate through all biomarkers
-      dataMap.forEach((biomarkerEntry, biomarkerId) => {
-        if (SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS.includes(biomarkerId)) return
+      // ⚡ Bolt Optimization: Replaced dataMap.forEach with a native for...of loop.
+      // Iterating over Map entries natively avoids creating a new function closure
+      // and its associated environment allocations on every run of this useMemo.
+      for (const [biomarkerId, biomarkerEntry] of dataMap.entries()) {
+        if (SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS.includes(biomarkerId)) continue
         const rawValues = biomarkerEntry[1] // number[]
 
         if (rawValues.length !== maxLen) {
           // Skip mismatches
-          return
+          continue
         }
 
         // 3. Find valid indices where biomarker has a value
@@ -91,7 +94,7 @@ const SupplementCorrelation = React.memo(
           }
         }
 
-        if (count < 3) return // Need at least 3 valid points
+        if (count < 3) continue // Need at least 3 valid points
 
         const filteredBiomarkerValues = new Float64Array(
           filteredBiomarkerValuesArray.buffer,
@@ -114,7 +117,7 @@ const SupplementCorrelation = React.memo(
           }
         }
 
-        if (!hasLocalVariation) return
+        if (!hasLocalVariation) continue
 
         // Rank continuous variable for Spearman equivalent
         const rankedBiomarkerValues = rankData(filteredBiomarkerValues)
@@ -127,7 +130,7 @@ const SupplementCorrelation = React.memo(
 
         const rho = result.pcorr
 
-        if (rho === undefined || isNaN(rho)) return
+        if (rho === undefined || isNaN(rho)) continue
 
         // Derive one-sided p-value equivalent to autoAlternative (rho > 0 ? 'greater' : 'less')
         const pVal = result.pValue / 2
@@ -140,7 +143,7 @@ const SupplementCorrelation = React.memo(
             count: suppFrequency, // Global frequency of supplement, or could track co-occurrence count
           })
         }
-      })
+      }
 
       return results.sort((a, b) => a.pValue - b.pValue)
     }, [supplementName, noteValues, dataMap, alpha])
