@@ -62,7 +62,7 @@ export default function App() {
   )
 
   const onOriginValueToggle = React.useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => setShowOrigColumns(e.target.checked),
+    (checked: boolean) => setShowOrigColumns(checked),
     [],
   )
 
@@ -208,12 +208,10 @@ export default function App() {
       onClearSelection,
       filterText: searchText,
       filterTag,
-      showOrigColumns,
       showRecords,
       onShowRecordsChange,
       onTextChange,
       onFilterByTag,
-      onOriginValueToggle,
       onVisualize,
       onPValue,
       onSupplementCorrelation,
@@ -232,7 +230,6 @@ export default function App() {
       onShowRecordsChange,
       onTextChange,
       onFilterByTag,
-      onOriginValueToggle,
       onVisualize,
       onPValue,
       onSupplementCorrelation,
@@ -268,6 +265,7 @@ export default function App() {
       onClearFilters,
       onCorrelation,
       setCorrelationSupplement,
+      onOriginValueToggle,
     }),
     [
       showOrigColumns,
@@ -277,6 +275,7 @@ export default function App() {
       onClearFilters,
       onCorrelation,
       setCorrelationSupplement,
+      onOriginValueToggle,
     ],
   )
 

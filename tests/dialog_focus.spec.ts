@@ -8,11 +8,15 @@ test('dialog close buttons should have visible focus styles', async ({ page }) =
 
   // 1. Test "Correlations" Dialog (needs 1 selection)
   // Select first checkbox
-  const firstCheckbox = page.locator('table input[type="checkbox"]').first()
+  const firstCheckbox = page.locator('tbody input[type="checkbox"]').first()
   await firstCheckbox.check()
 
-  // Click "Correlations" button in Nav
-  await page.getByRole('button', { name: 'Correlate RBC with supplements' }).click()
+  // Click "Correlations" button in row
+  const rowLocator = page.locator('tbody tr:has(input[type="checkbox"])').first()
+  const correlationButton = rowLocator.locator(
+    'button[title^="Correlate "][title$=" with supplements"]',
+  )
+  await correlationButton.click()
 
   // Wait for button (this implies dialog is open)
   const closeCorrelation = page.getByRole('button', { name: 'Close dialog' }).first()
@@ -31,7 +35,7 @@ test('dialog close buttons should have visible focus styles', async ({ page }) =
 
   // 2. Test "P-Value" Dialog (needs 2 selections)
   // Select second checkbox
-  const secondCheckbox = page.locator('table input[type="checkbox"]').nth(1)
+  const secondCheckbox = page.locator('tbody input[type="checkbox"]').nth(1)
   await secondCheckbox.check()
 
   // Click "P-Value" button in Nav

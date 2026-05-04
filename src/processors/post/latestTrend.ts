@@ -1,6 +1,5 @@
 export default (entries: Entry[]): Entry[] => {
-  for (let i = 0; i < entries.length; i++) {
-    const entry = entries[i]
+  entries.forEach((entry) => {
     const values = entry[1]
     const extra = entry[3]
     const length = values.length
@@ -18,6 +17,6 @@ export default (entries: Entry[]): Entry[] => {
         }
       }
     }
-  }
+  })
   return entries
 }

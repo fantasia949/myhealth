@@ -278,8 +278,8 @@ const TableRow = React.memo(
             {extra.range as any}
           </td>
           <td className="p-2 border border-gray-700 hidden sm:table-cell">{unit as any}</td>
-          {showOrigColumns && extra.hasOrigin && (
-            <td className="p-2 border border-gray-700 hidden lg:table-cell">{extra.originUnit}</td>
+          {showOrigColumns && (
+            <td className="p-2 border border-gray-700 hidden lg:table-cell">{extra.hasOrigin ? extra.originUnit : ''}</td>
           )}
         </tr>
         {isExpanded && (
@@ -314,19 +314,18 @@ const TableRow = React.memo(
 )
 
 const columns: ColumnDef<DisplayedEntry, any>[] = [
-  columnHelper.display({
-    id: 'selection',
+  columnHelper.accessor('selection' as any, {
     header: '',
   }),
   columnHelper.display({
     id: 'expand',
     header: '',
   }),
-  columnHelper.accessor('tag', {
+  columnHelper.accessor('tag' as any, {
     header: 'Tag',
     getGroupingValue: (row) => row.tag,
   }),
-  columnHelper.accessor('name', {
+  columnHelper.accessor('name' as any, {
     header: 'Name',
     footer: 'Supp',
   }),
@@ -344,8 +343,7 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
       else if (dist > 2 && dist <= 4) className = 'hidden md:table-cell'
       else if (dist > 4) className = 'hidden lg:table-cell'
 
-      result[index] = columnHelper.accessor((row) => row.values[index], {
-        id: label,
+      result[index] = columnHelper.accessor(label as any, {
         header: getKeyFromTime(label),
         meta: {
           isRecord: true,
@@ -357,16 +355,14 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
     }
     return result
   })(),
-  columnHelper.display({
-    id: 'placeholder',
+  columnHelper.accessor('placeholder' as any, {
     header: '',
     meta: {
       placehoder: true,
       className: 'hidden lg:table-cell',
     },
   }),
-  columnHelper.accessor((row) => row.extra.range, {
-    id: 'range',
+  columnHelper.accessor('range' as any, {
     header: 'Range',
     meta: {
       ref: true,
@@ -374,16 +370,32 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
       className: 'hidden md:table-cell',
     },
   }),
-  columnHelper.accessor('unit', {
-    header: 'Unit',
+  columnHelper.accessor('unit' as any, {
+    header: ({ table }) => (
+      <div className="flex items-center gap-2">
+        <span>Unit</span>
+        <div className="flex items-center gap-1.5 ml-1" onClick={(e) => e.stopPropagation()}>
+          <input
+            type="checkbox"
+            className="w-3 h-3 text-blue-600 bg-gray-700 border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
+            aria-label="Toggle origin values"
+            title="Toggle origin values"
+            onChange={(e) => {
+              const meta = table.options.meta as any;
+              meta?.onOriginValueToggle?.(e.target.checked);
+            }}
+          />
+        </div>
+      </div>
+    ),
     meta: {
       ref: true,
       className: 'hidden sm:table-cell',
     },
   }),
-  columnHelper.accessor((row) => row.extra.originUnit, {
-    id: 'origUnit',
+  columnHelper.accessor('origUnit' as any, {
     header: 'Orig Unit',
+    cell: (info) => (info.row.original.extra.hasOrigin && (info.table.options.meta as any)?.showOrigColumns) ? info.row.original.extra.originUnit : '',
     meta: {
       ref: true,
       className: 'hidden lg:table-cell',
@@ -400,6 +412,7 @@ export default React.memo(
     onClearFilters,
     onCorrelation,
     setCorrelationSupplement,
+    onOriginValueToggle,
   }: TableProps) => {
     const convertedEntries = useAtomValue(visibleDataAtom)
     const averageCountValue = useAtomValue(averageCountAtom)
@@ -561,6 +574,10 @@ export default React.memo(
     const [expanded, setExpanded] = React.useState<ExpandedState>(true)
 
     const table = useReactTable({
+    meta: {
+      onOriginValueToggle,
+      showOrigColumns
+    },
       data: displayedEntries,
       columns,
       getCoreRowModel: getCoreRowModel(),
