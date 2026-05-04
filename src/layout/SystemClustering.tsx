@@ -74,9 +74,16 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
   const availableTags = useMemo(() => {
     if (!data) return []
     const tags = new Set<string>()
-    data.forEach((item) => {
-      item[3]?.tag?.forEach((t) => tags.add(t))
-    })
+    // ⚡ Bolt Optimization: Replace nested data.forEach and tag.forEach with standard for-loops.
+    // This avoids creating closures on every render when data dependencies change.
+    for (let i = 0; i < data.length; i++) {
+      const itemTags = data[i][3]?.tag
+      if (itemTags) {
+        for (let j = 0; j < itemTags.length; j++) {
+          tags.add(itemTags[j])
+        }
+      }
+    }
     return Array.from(tags).sort()
   }, [data])
 
