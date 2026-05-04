@@ -393,7 +393,7 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
       className: 'hidden sm:table-cell',
     },
   }),
-  columnHelper.accessor('extra.originUnit' as any, {
+  columnHelper.accessor('origUnit' as any, {
     header: 'Orig Unit',
     cell: (info) => (info.row.original.extra.hasOrigin && (info.table.options.meta as any)?.showOrigColumns) ? info.row.original.extra.originUnit : '',
     meta: {
@@ -554,7 +554,7 @@ export default React.memo(
       }
 
       if (!showOrigColumns) {
-        state['extra.originUnit'] = false
+        state.origUnit = false
       }
 
       return state
