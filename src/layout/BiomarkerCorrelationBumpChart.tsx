@@ -191,13 +191,17 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
         borderColor: '#3a3a3a80',
         textStyle: { color: '#f0f0f0' },
         formatter: (params: any) => {
-          let tooltipStr = `<strong>${params[0].axisValue}</strong>`
+          const index = parseInt(params[0].axisValue, 10)
+          const endIdx = index === numWindowsDynamic - 1 ? count : Math.floor(((index + 1) * count) / numWindowsDynamic)
+          const startIdx = Math.floor((index * count) / numWindowsDynamic)
+          const lIdx = validIndices[endIdx - 1] ?? validIndices[startIdx]
+          let tooltipStr = `<strong>${formattedLabels[lIdx] || ''}</strong>`
           const pArray = Array.isArray(params) ? params : [params]
           // Sort tooltip by rank value
           pArray.sort((a: any, b: any) => a.value - b.value)
           for (let i = 0; i < pArray.length; i++) {
             const p = pArray[i]
-            if (p.value <= 5) {
+            if (p.value !== undefined && p.value !== null && p.value <= 5) {
               tooltipStr += `<br/>${p.marker} ${p.seriesName}: Rank <strong>${p.value}</strong>`
             }
           }
@@ -237,7 +241,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
         max: 5,
         interval: 1,
         axisLine: { lineStyle: { color: '#555' } },
-        splitLine: { lineStyle: { color: '#333' } },
+        splitLine: { show: false }, // Remove horizontal grid lines
         axisLabel: { formatter: 'Rank {value}' },
       },
       series: series,
