@@ -206,8 +206,13 @@ export default memo(({ keys }: ChartProps) => {
       },
     ]
 
+    let regressionExpression = ''
+
     // Guard against regression transform crash on <2 points
     if (mappedScatterData.data.length >= 2) {
+      const regRes = (ecStat as any).regression('linear', mappedScatterData.data)
+      regressionExpression = regRes.expression
+
       dataset.push({
         transform: {
           type: 'ecStat:regression',
@@ -226,12 +231,8 @@ export default memo(({ keys }: ChartProps) => {
               ...series[1],
               datasetIndex: 1,
               tooltip: {
-                formatter: (params: any) => {
-                  const yVal =
-                    typeof params.value[1] === 'number'
-                      ? params.value[1].toFixed(2)
-                      : params.value[1]
-                  return `<strong>Regression Trend</strong><br/>Expected ${keys[1]}: <strong>${yVal}</strong>${params.value[2] ? `<br/>${params.value[2]}` : ''}`
+                formatter: () => {
+                  return `<strong>Regression Trend</strong>${regressionExpression ? `<br/>${regressionExpression}` : ''}`
                 },
               },
             },
@@ -270,9 +271,7 @@ export default memo(({ keys }: ChartProps) => {
               `${params.marker} ${keys[1]}: <strong>${val2}${u1}</strong>`
             )
           }
-          const yVal =
-            typeof params.value[1] === 'number' ? params.value[1].toFixed(2) : params.value[1]
-          return `<strong>Regression Trend</strong><br/>Expected ${keys[1]}: <strong>${yVal}</strong>${params.value[2] ? `<br/>${params.value[2]}` : ''}`
+          return `<strong>Regression Trend</strong>${regressionExpression ? `<br/>${regressionExpression}` : ''}`
         },
       },
       dataset,
