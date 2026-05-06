@@ -227,7 +227,11 @@ export default memo(({ keys }: ChartProps) => {
               datasetIndex: 1,
               tooltip: {
                 formatter: (params: any) => {
-                  return `<strong>Regression Trend</strong>${params.value[2] ? `<br/>${params.value[2]}` : ''}`
+                  const yVal =
+                    typeof params.value[1] === 'number'
+                      ? params.value[1].toFixed(2)
+                      : params.value[1]
+                  return `<strong>Regression Trend</strong><br/>Expected ${keys[1]}: <strong>${yVal}</strong>${params.value[2] ? `<br/>${params.value[2]}` : ''}`
                 },
               },
             },
@@ -266,7 +270,9 @@ export default memo(({ keys }: ChartProps) => {
               `${params.marker} ${keys[1]}: <strong>${val2}${u1}</strong>`
             )
           }
-          return `<strong>Regression Trend</strong>${params.value[2] ? `<br/>${params.value[2]}` : ''}`
+          const yVal =
+            typeof params.value[1] === 'number' ? params.value[1].toFixed(2) : params.value[1]
+          return `<strong>Regression Trend</strong><br/>Expected ${keys[1]}: <strong>${yVal}</strong>${params.value[2] ? `<br/>${params.value[2]}` : ''}`
         },
       },
       dataset,
