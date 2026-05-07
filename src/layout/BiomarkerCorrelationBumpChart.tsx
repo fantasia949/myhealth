@@ -64,10 +64,13 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
     // Dynamic number of windows based on actual valid data points to ensure enough data per window
     // Aim for 5 windows, but fallback to fewer if data is sparse. Require at least 2 points per window.
     const numWindowsDynamic = count >= 30 ? 5 : count >= 10 ? 3 : count >= 4 ? 2 : 1
-    const windowLabelsDynamic: string[] = []
+    const windowLabelsDynamic = Array<string>(numWindowsDynamic)
 
-    const windowedRanksMap = new Map<string, (number | string)[]>()
-    topCorrelations.forEach((supp) => windowedRanksMap.set(supp.name, []))
+    const windowedRanksMap = new Map<string, (number | string | null)[]>()
+    // ⚡ Bolt Optimization: Replace loop-based array building with pre-allocated Array(N)
+    for (let i = 0; i < topCorrelations.length; i++) {
+      windowedRanksMap.set(topCorrelations[i].name, Array<number | string | null>(numWindowsDynamic))
+    }
 
     // Chunk the valid data indices into windows and recalculate rho for each window
     for (let w = 0; w < numWindowsDynamic; w++) {
@@ -83,7 +86,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
 
       // Map to a complex object with a unique value to bypass category duplication,
       // and use a formatter to display the clean label.
-      windowLabelsDynamic.push(w.toString())
+      windowLabelsDynamic[w] = w.toString()
 
       // Without variation in the binary supplement vector (e.g. they took it every day, or never),
       // correlation is technically 0/undefined.
@@ -91,34 +94,33 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
       // otherwise ECharts won't connect the disjointed valid segments properly.
       if (windowCount < 2) {
         // Fall back to previous rank so line stays flat (or 6 if first) so the line doesn't break
-        topCorrelations.forEach((supp) => {
-          const currentRanks = windowedRanksMap.get(supp.name)!
-          const prevRank = currentRanks.length > 0 ? currentRanks[currentRanks.length - 1] : 6
-          currentRanks.push(prevRank)
-        })
+        for (let i = 0; i < topCorrelations.length; i++) {
+          const currentRanks = windowedRanksMap.get(topCorrelations[i].name)!
+          const prevRank = w > 0 ? currentRanks[w - 1] : 6
+          currentRanks[w] = prevRank
+        }
         continue
       }
 
       const windowBiomarkerRanks = new Float64Array(windowCount)
-      const windowSuppVectors = new Map<string, Int8Array>()
-      topCorrelations.forEach((supp) =>
-        windowSuppVectors.set(supp.name, new Int8Array(windowCount)),
-      )
 
       // Extract vectors for this specific window using our pre-calculated valid chunk
       for (let k = 0; k < windowCount; k++) {
         const globalK = startIdxInValid + k
         const globalI = validIndices[globalK]
         windowBiomarkerRanks[k] = targetRanks[globalI]
-        topCorrelations.forEach((supp) => {
-          windowSuppVectors.get(supp.name)![k] = suppVectors.get(supp.name)![globalK]
-        })
       }
 
-      const windowRhos: { name: string; rho: number }[] = []
+      const numCorrelations = topCorrelations.length
+      const windowRhos = Array<{ name: string; rho: number }>(numCorrelations)
 
-      topCorrelations.forEach((supp) => {
-        const suppVector = windowSuppVectors.get(supp.name)!
+      for (let c = 0; c < numCorrelations; c++) {
+        const suppName = topCorrelations[c].name
+        const fullVector = suppVectors.get(suppName)!
+
+        // ⚡ Bolt Optimization: Use subarray to create a zero-copy view of the TypedArray
+        // instead of re-allocating and copying a new Int8Array for every window.
+        const suppVector = fullVector.subarray(startIdxInValid, endIdxInValid)
 
         let hasSuppVariation = false
         const firstVal = suppVector[0]
@@ -130,15 +132,15 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
         }
 
         if (!hasSuppVariation) {
-          windowRhos.push({ name: supp.name, rho: 0 })
+          windowRhos[c] = { name: suppName, rho: 0 }
         } else {
           const result = calculatePearson(windowBiomarkerRanks, suppVector, {
             alpha: 0.05,
             alternative: 'two-sided',
           })
-          windowRhos.push({ name: supp.name, rho: Math.abs(result.pcorr || 0) })
+          windowRhos[c] = { name: suppName, rho: Math.abs(result.pcorr || 0) }
         }
-      })
+      }
 
       // Sort by absolute rho descending to determine rank
       windowRhos.sort((a, b) => b.rho - a.rho)
@@ -152,7 +154,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
         // If rho is exactly 0 and no variation existed, we omit the rank by pushing null
         // to avoid erratic jumps. connectNulls: true will bridge the gaps cleanly.
         if (wr.rho === 0) {
-          currentRanks.push(null as any) // Type assertion to bypass TS if needed, we typed it as (number | string)[]
+          currentRanks[w] = null
         } else {
           // Check for ties with the previous item
           if (i > 0 && Math.abs(windowRhos[i].rho - windowRhos[i - 1].rho) < 1e-9) {
@@ -160,7 +162,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
           } else {
             currentRank = i + 1
           }
-          currentRanks.push(currentRank)
+          currentRanks[w] = currentRank
         }
       }
     }
