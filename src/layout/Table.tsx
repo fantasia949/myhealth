@@ -23,6 +23,8 @@ import {
   MinusIcon,
   CalculatorIcon,
   ArrowsRightLeftIcon,
+  InboxIcon,
+  MagnifyingGlassIcon,
 } from '@heroicons/react/24/outline'
 import { averageCountAtom } from '../atom/averageValueAtom'
 import BiomarkerCorrelation from './BiomarkerCorrelation'
@@ -695,17 +697,29 @@ export default React.memo(
               <tr>
                 <td
                   colSpan={table.getVisibleLeafColumns().length}
-                  className="p-12 text-center border border-gray-700"
+                  className="p-16 text-center border border-gray-700 bg-dark-bg"
                 >
                   <div className="flex flex-col items-center justify-center gap-4">
-                    <div className="text-gray-400 text-base" role="status" aria-live="polite">
+                    <div className="bg-gray-800/50 rounded-full p-4 mb-2">
+                      {filterText || tag ? (
+                        <MagnifyingGlassIcon className="h-8 w-8 text-gray-400" aria-hidden="true" />
+                      ) : (
+                        <InboxIcon className="h-8 w-8 text-gray-400" aria-hidden="true" />
+                      )}
+                    </div>
+                    <div className="text-gray-300 text-lg font-medium" role="status" aria-live="polite">
                       {emptyStateMessage}
                     </div>
+                    <p className="text-sm text-gray-400 max-w-sm mb-2">
+                      {filterText || tag
+                        ? 'Try adjusting your search or filters to find what you are looking for.'
+                        : 'Import some data to see your biomarker records here.'}
+                    </p>
                     {(filterText || tag) && onClearFilters && (
                       <button
                         type="button"
                         onClick={onClearFilters}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
+                        className="mt-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
                         aria-label="Clear all filters"
                         title="Clear all filters"
                       >
