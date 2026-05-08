@@ -264,8 +264,45 @@ export function rankData(arr: number[] | Float64Array): Float64Array {
     indices[i] = i
   }
 
-  // Sort indices based on array values
-  indices.sort((a, b) => arr[a] - arr[b])
+  // Optimization: Inlined iterative QuickSort to avoid the heavy V8 callback overhead
+  // associated with native Array.prototype.sort when using a custom comparator on TypedArrays.
+  const stack = new Int32Array(n * 2)
+  let top = -1
+  stack[++top] = 0
+  stack[++top] = n - 1
+
+  while (top >= 0) {
+    const end = stack[top--]
+    const start = stack[top--]
+
+    if (start >= end) continue
+
+    const pivotValue = arr[indices[start + ((end - start) >> 1)]]
+    let i = start
+    let j = end
+
+    while (i <= j) {
+      while (arr[indices[i]] < pivotValue) i++
+      while (arr[indices[j]] > pivotValue) j--
+
+      if (i <= j) {
+        const temp = indices[i]
+        indices[i] = indices[j]
+        indices[j] = temp
+        i++
+        j--
+      }
+    }
+
+    if (start < j) {
+      stack[++top] = start
+      stack[++top] = j
+    }
+    if (i < end) {
+      stack[++top] = i
+      stack[++top] = end
+    }
+  }
 
   const ranks = new Float64Array(n)
 

@@ -123,3 +123,7 @@
 ## 2026-05-06 - Prevent Stale Object References in Optimized Hot Loops
 **Learning:** When caching an object property to a local variable for optimization in a hot loop (e.g., `const tags = entry[3].tag`), any fallback initialization must be performed on the parent object *before* variable assignment. If the property is initialized after extraction, the local reference remains `undefined`, leading to runtime crashes.
 **Action:** Always ensure object property initialization checks and mutations occur before caching the value to a local variable.
+
+## 2024-05-23 - Heavy V8 Callback Overhead in TypedArray Native Sort with Custom Comparators
+**Learning:** Using `Array.prototype.sort((a, b) => ...)` on `Int32Array` or `Float64Array` causes heavy V8 execution boundary crossing penalties (from C++ to JS) when evaluating the custom comparator.
+**Action:** When sorting numeric arrays based on a custom comparator (like sorting indices by corresponding values in another array), always implement a custom inline sort algorithm (e.g., iterative QuickSort). This completely removes the V8 callback overhead, achieving significant performance improvements in hot paths like statistical ranking logic.
