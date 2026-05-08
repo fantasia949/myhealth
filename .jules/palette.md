@@ -38,3 +38,7 @@
 
 **Learning:** Adding `role="status"` and `aria-label` directly to generic Spinner SVGs causes double announcements when the spinner is embedded alongside actual loading text that already has `aria-live="polite"` or `role="status"`.
 **Action:** Keep visual-only indicators like SVGs hidden from screen readers using `aria-hidden="true"`, and manage the accessible loading state purely through the surrounding text/container.
+
+## 2025-02-20 - Ensure Aria-Hidden on Decorative Icons
+**Learning:** Generic icon components (like `@heroicons/react`) can cause redundant screen reader announcements if used decoratively without `aria-hidden="true"`.
+**Action:** Always add `aria-hidden="true"` to SVG/icon components that do not convey meaningful unique information (e.g., when wrapped in a button with a clear `aria-label`).

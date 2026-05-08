@@ -204,9 +204,9 @@ const SupplementCorrelation = React.memo(
                           aria-live="polite"
                         >
                           {isCopied ? (
-                            <CheckIcon className="h-5 w-5 text-green-500" />
+                            <CheckIcon className="h-5 w-5 text-green-500" aria-hidden="true" />
                           ) : (
-                            <ClipboardDocumentIcon className="h-5 w-5" />
+                            <ClipboardDocumentIcon className="h-5 w-5" aria-hidden="true" />
                           )}
                         </button>
                       )}

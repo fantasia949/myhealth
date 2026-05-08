@@ -37,7 +37,7 @@ export default function SupplementsPopover({ supps, onSupplementClick }: Supplem
         title={`View ${supps.length} supplement${supps.length !== 1 ? 's' : ''} taken on this date`}
         className="w-full h-full cursor-pointer hover:bg-gray-800 hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded font-bold transition-colors flex justify-center items-center p-1"
       >
-        <BeakerIcon className="h-5 w-5" />
+        <BeakerIcon className="h-5 w-5" aria-hidden="true" />
       </PopoverButton>
       <PopoverPanel
         transition
@@ -60,7 +60,7 @@ export default function SupplementsPopover({ supps, onSupplementClick }: Supplem
                     title={`Correlate ${supp} with biomarkers`}
                     aria-label={`Correlate ${supp} with biomarkers`}
                   >
-                    <CalculatorIcon className="h-4 w-4" />
+                    <CalculatorIcon className="h-4 w-4" aria-hidden="true" />
                   </button>
                 )}
               </span>
