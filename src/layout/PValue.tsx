@@ -115,7 +115,7 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
                     aria-label="Close dialog"
                     title="Close dialog"
                   >
-                    <XMarkIcon className="h-6 w-6" />
+                    <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                   </button>
                 </Dialog.Title>
                 <div
@@ -174,11 +174,11 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
                     >
                       {isCopied ? (
                         <>
-                          <CheckIcon className="h-5 w-5" /> Copied!
+                          <CheckIcon className="h-5 w-5" aria-hidden="true" /> Copied!
                         </>
                       ) : (
                         <>
-                          <ClipboardDocumentIcon className="h-5 w-5" /> Copy Analysis
+                          <ClipboardDocumentIcon className="h-5 w-5" aria-hidden="true" /> Copy Analysis
                         </>
                       )}
                     </button>

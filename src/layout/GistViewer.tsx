@@ -127,7 +127,7 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
                         aria-label="Back to list"
                         title="Back to list"
                       >
-                        <ArrowLeftIcon className="h-5 w-5" />
+                        <ArrowLeftIcon className="h-5 w-5" aria-hidden="true" />
                       </button>
                     )}
                     <span>{selectedFile ? 'Analysis Details' : 'AI History'}</span>
@@ -139,7 +139,7 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
                     aria-label="Close dialog"
                     title="Close dialog"
                   >
-                    <XMarkIcon className="h-6 w-6" />
+                    <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                   </button>
                 </Dialog.Title>
 

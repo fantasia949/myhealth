@@ -302,7 +302,7 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
                     aria-label="Close dialog"
                     title="Close dialog"
                   >
-                    <XMarkIcon className="h-6 w-6" />
+                    <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                   </button>
                 </Dialog.Title>
 
