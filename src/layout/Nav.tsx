@@ -372,7 +372,7 @@ export default React.memo<NavProps>(
                           aria-label={`Remove ${item} from selection`}
                           title={`Remove ${item} from selection`}
                         >
-                          <XMarkIcon className="h-3 w-3" />
+                          <XMarkIcon className="h-3 w-3" aria-hidden="true" />
                         </button>
                       </span>
                     ))}
@@ -384,7 +384,7 @@ export default React.memo<NavProps>(
                         aria-label="Clear all selected items"
                         title="Clear All"
                       >
-                        <TrashIcon className="h-4 w-4" />
+                        <TrashIcon className="h-4 w-4" aria-hidden="true" />
                       </button>
                     )}
                   </div>
@@ -540,7 +540,6 @@ export default React.memo<NavProps>(
                     <option value="15">Last 15 records</option>
                   </select>
                 </div>
-
               </div>
             </div>
           </div>
@@ -590,7 +589,7 @@ export default React.memo<NavProps>(
                         aria-label="Close dialog"
                         title="Close dialog"
                       >
-                        <XMarkIcon className="h-6 w-6" />
+                        <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                       </button>
                     </Dialog.Title>
                     <div className="mt-2 prose prose-invert max-w-none overflow-y-auto">
@@ -615,11 +614,12 @@ export default React.memo<NavProps>(
                       >
                         {isCopied ? (
                           <>
-                            <CheckIcon className="h-5 w-5" /> Copied!
+                            <CheckIcon className="h-5 w-5" aria-hidden="true" /> Copied!
                           </>
                         ) : (
                           <>
-                            <ClipboardDocumentIcon className="h-5 w-5" /> Copy Analysis
+                            <ClipboardDocumentIcon className="h-5 w-5" aria-hidden="true" /> Copy
+                            Analysis
                           </>
                         )}
                       </button>

@@ -117,6 +117,13 @@
 
 **Learning:** Using computed results (like `!!text`) instead of intentional state (like `!!comparedSourceTarget`) to control dialog visibility causes silent failures when the computation yields no result. The user receives no feedback that their action was processed.
 **Action:** Always bind dialog visibility to the intentional state triggering it, and handle empty/error states inside the dialog content.
+
 ## 2026-05-02 - Moved Origin Values Toggle to Table Header
+
 **Learning:** The 'Origin values' toggle switch in the top navigation bar was too far removed from the data it controlled, breaking proximity principles. Furthermore, placing table-specific toggles in global navigation clutters the UI.
 **Action:** Always place controls that toggle table columns (like 'Origin values') directly inside the table header itself (e.g., inside the 'Unit' column) using TanStack Table's `table.options.meta` pattern, preserving proximity and cleaning up global navigation.
+
+## 2025-05-24 - Screen Reader Double Announcements with Decorative Icons in Text Buttons
+
+**Learning:** Adding SVGs inside generic buttons (e.g., "Copy Analysis" with an adjacent `<ClipboardDocumentIcon />`) without `aria-hidden="true"` can cause screen readers to announce the SVG unhelpfully before or after the text. While `aria-label` mitigates this for icon-only buttons, text-containing buttons inherently rely on their text content for accessibility.
+**Action:** When creating a button with both text and a decorative/illustrative icon, always set `aria-hidden="true"` on the icon itself to prevent screen readers from reading out arbitrary SVG elements and focus solely on the button's explicit text node or label.

@@ -115,13 +115,10 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
                     aria-label="Close dialog"
                     title="Close dialog"
                   >
-                    <XMarkIcon className="h-6 w-6" />
+                    <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                   </button>
                 </Dialog.Title>
-                <div
-                  className="mt-2 text-sm whitespace-pre-wrap flex-1"
-                  style={{ fontSize: 14 }}
-                >
+                <div className="mt-2 text-sm whitespace-pre-wrap flex-1" style={{ fontSize: 14 }}>
                   {comparedSourceTarget && (
                     <div className="mb-4 font-bold text-base flex items-center justify-center bg-dark-bg p-3 rounded border border-gray-700">
                       <span className="text-blue-400">{comparedSourceTarget[0][0]}</span>
@@ -174,11 +171,12 @@ export default React.memo(({ comparedSourceTarget, onClose }: PValueProps) => {
                     >
                       {isCopied ? (
                         <>
-                          <CheckIcon className="h-5 w-5" /> Copied!
+                          <CheckIcon className="h-5 w-5" aria-hidden="true" /> Copied!
                         </>
                       ) : (
                         <>
-                          <ClipboardDocumentIcon className="h-5 w-5" /> Copy Analysis
+                          <ClipboardDocumentIcon className="h-5 w-5" aria-hidden="true" /> Copy
+                          Analysis
                         </>
                       )}
                     </button>

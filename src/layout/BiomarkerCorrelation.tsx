@@ -214,11 +214,11 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
                       >
                         {isCopied ? (
                           <>
-                            <CheckIcon className="h-4 w-4" /> Copied!
+                            <CheckIcon className="h-4 w-4" aria-hidden="true" /> Copied!
                           </>
                         ) : (
                           <>
-                            <ClipboardDocumentIcon className="h-4 w-4" /> Copy
+                            <ClipboardDocumentIcon className="h-4 w-4" aria-hidden="true" /> Copy
                           </>
                         )}
                       </button>
@@ -230,7 +230,7 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
                       aria-label="Close dialog"
                       title="Close dialog"
                     >
-                      <XMarkIcon className="h-6 w-6" />
+                      <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                     </button>
                   </div>
                 </div>

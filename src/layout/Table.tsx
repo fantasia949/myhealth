@@ -188,9 +188,9 @@ const TableRow = React.memo(
                 aria-expanded={isExpanded}
               >
                 {isExpanded ? (
-                  <MinusIcon className="h-5 w-5" />
+                  <MinusIcon className="h-5 w-5" aria-hidden="true" />
                 ) : (
-                  <ChartBarIcon className="h-5 w-5" />
+                  <ChartBarIcon className="h-5 w-5" aria-hidden="true" />
                 )}
               </button>
               <button
@@ -209,7 +209,7 @@ const TableRow = React.memo(
                     : `Correlate ${name} with other biomarkers`
                 }
               >
-                <ArrowsRightLeftIcon className="h-5 w-5" />
+                <ArrowsRightLeftIcon className="h-5 w-5" aria-hidden="true" />
               </button>
               <button
                 type="button"
@@ -227,7 +227,7 @@ const TableRow = React.memo(
                     : `Correlate ${name} with supplements`
                 }
               >
-                <CalculatorIcon className="h-5 w-5" />
+                <CalculatorIcon className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
           </td>
@@ -736,9 +736,15 @@ export default React.memo(
                             title={`Toggle group ${row.original.displayTag}`}
                           >
                             {row.getIsExpanded() ? (
-                              <ChevronDownIcon className="h-4 w-4 text-gray-400" />
+                              <ChevronDownIcon
+                                className="h-4 w-4 text-gray-400"
+                                aria-hidden="true"
+                              />
                             ) : (
-                              <ChevronRightIcon className="h-4 w-4 text-gray-400" />
+                              <ChevronRightIcon
+                                className="h-4 w-4 text-gray-400"
+                                aria-hidden="true"
+                              />
                             )}
                             {row.original.displayTag} ({row.subRows.length})
                           </button>

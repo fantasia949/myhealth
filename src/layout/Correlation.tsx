@@ -188,11 +188,12 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                             >
                               {isCopied ? (
                                 <>
-                                  <CheckIcon className="h-4 w-4" /> Copied!
+                                  <CheckIcon className="h-4 w-4" aria-hidden="true" /> Copied!
                                 </>
                               ) : (
                                 <>
-                                  <ClipboardDocumentIcon className="h-4 w-4" /> Copy
+                                  <ClipboardDocumentIcon className="h-4 w-4" aria-hidden="true" />{' '}
+                                  Copy
                                 </>
                               )}
                             </button>
