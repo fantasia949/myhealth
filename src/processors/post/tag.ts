@@ -128,13 +128,18 @@ const tag: Record<string, string[]> = {
   ],
 }
 
-const taggedDic: Record<string, string[]> = Object.entries(tag).reduce(
-  (result, [tag, entries]) => {
-    entries.forEach((entry) => (result[entry] = [...(result[entry] || []), tag]))
-    return result
-  },
-  {} as Record<string, string[]>,
-)
+// Optimization: Replace Object.entries().reduce() and nested .forEach() array spreading
+// with a classic for-loop to avoid excessive intermediate array allocations and closure creation.
+const taggedDic: Record<string, string[]> = {}
+for (const [tagName, entries] of Object.entries(tag)) {
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i]
+    if (!taggedDic[entry]) {
+      taggedDic[entry] = []
+    }
+    taggedDic[entry].push(tagName)
+  }
+}
 
 export default ([name, values, unit, extra]: Entry): Entry => {
   if (extra) {

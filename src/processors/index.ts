@@ -1,7 +1,7 @@
 import preProcess from './pre'
 import { enrichBiomarkers, enrichTime } from './enrich'
 import postProcess from './post'
-import { tagKeys, unsortedTags } from './post/tag'
+import { tagKeys } from './post/tag'
 import { BioMarker } from '../types/biomarker'
 
 export const tags = tagKeys
@@ -18,7 +18,10 @@ export const processBiomarkers = (entries: Array<Entry>): BioMarker[] => {
 
   // Optimization: Pre-calculate normalized title to avoid repetitive toLowerCase() calls in filter loops
   // Optimization: Pre-calculate sortTag to avoid repetitive filtering in sort comparator
-  biomarkers.forEach((entry) => {
+  // ⚡ Bolt Optimization: Replaced .forEach(), .find(), .includes(), and .map() with a fast standard loop
+  // to avoid closure creation, index lookups, and multiple array allocations per biomarker entry.
+  for (let i = 0; i < biomarkers.length; i++) {
+    const entry = biomarkers[i]
     // Defensive: Ensure entry[3] and entry[3].tag exist to prevent crashes in optimized loops
     if (!entry[3]) {
       entry[3] = { tag: [] } as unknown as BioMarker[3]
@@ -26,17 +29,31 @@ export const processBiomarkers = (entries: Array<Entry>): BioMarker[] => {
     if (!entry[3].tag || entry[3].tag.length === 0) {
       entry[3].tag = ['b-Others']
     }
+    const tags = entry[3].tag
 
     entry[3].normalizedTitle = entry[0].toLowerCase()
-    entry[3].sortTag = entry[3].tag.find((tag) => !unsortedTags.includes(tag)) || ''
+
+    let sortTag = ''
+    for (let j = 0; j < tags.length; j++) {
+      const tag = tags[j]
+      if (tag !== 'a-PhenoAge' && tag !== 'b-Others') {
+        sortTag = tag
+        break
+      }
+    }
+    entry[3].sortTag = sortTag
 
     // Optimization: Pre-calculate displayTag and sortKey to avoid repetitive calculations in render loop
-    entry[3].processedTags = entry[3].tag.map((tag) => {
+    const tagsLen = tags.length
+    const processedTags = new Array(tagsLen)
+    for (let j = 0; j < tagsLen; j++) {
+      const tag = tags[j]
       const displayTag = tag.substring(tag.indexOf('-') + 1)
       const sortKey = /^\d/.test(tag) ? `1_${tag}` : `2_${tag}`
-      return { tag, displayTag, sortKey }
-    })
-  })
+      processedTags[j] = { tag, displayTag, sortKey }
+    }
+    entry[3].processedTags = processedTags as { tag: string; displayTag: string; sortKey: string }[]
+  }
 
   return biomarkers.sort((entry1, entry2) => {
     const tag1 = entry1[3]?.sortTag ?? ''
