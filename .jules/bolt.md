@@ -123,3 +123,6 @@
 ## 2026-05-18 - Optimize BumpChart Memory Allocation
 **Learning:** Using `Array.from()` or `[] as Type[]` combined with `.push()` inside hot rendering loops (like chart component re-renders) causes unnecessary garbage collection pressure and memory fragmentation.
 **Action:** Always pre-allocate fixed-length arrays using `Array<Type>(N)` or strictly-sized TypedArrays before executing loops to ensure contiguous memory allocation and zero dynamic resizing overhead. Additionally, use `.subarray(start, end)` to create zero-copy views over TypedArrays when iterating subsets.
+## 2026-05-06 - Prevent Stale Object References in Optimized Hot Loops
+**Learning:** When caching an object property to a local variable for optimization in a hot loop (e.g., `const tags = entry[3].tag`), any fallback initialization must be performed on the parent object *before* variable assignment. If the property is initialized after extraction, the local reference remains `undefined`, leading to runtime crashes.
+**Action:** Always ensure object property initialization checks and mutations occur before caching the value to a local variable.
