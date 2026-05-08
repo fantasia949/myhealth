@@ -120,3 +120,6 @@
 ## 2026-05-02 - Moved Origin Values Toggle to Table Header
 **Learning:** The 'Origin values' toggle switch in the top navigation bar was too far removed from the data it controlled, breaking proximity principles. Furthermore, placing table-specific toggles in global navigation clutters the UI.
 **Action:** Always place controls that toggle table columns (like 'Origin values') directly inside the table header itself (e.g., inside the 'Unit' column) using TanStack Table's `table.options.meta` pattern, preserving proximity and cleaning up global navigation.
+## 2024-05-08 - Redundant Screen Reader Announcements for Decorative SVG Icons
+**Learning:** Decorative icons (like `<CheckIcon />` or `<MinusIcon />` from `@heroicons/react`) placed inside buttons that already have an explicit `aria-label` or `title` can cause double announcements by screen readers. While `<Spinner />` had `aria-hidden="true"`, many other action-button icons in components like `Table.tsx` and `Correlation.tsx` were missing this attribute.
+**Action:** Always add `aria-hidden="true"` to generic/decorative SVGs when they are placed alongside explicit descriptive text or when wrapped in interactive elements with a clear `aria-label`.
