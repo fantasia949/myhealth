@@ -44,7 +44,7 @@ const echartsOptions: any = {
     {
       show: true,
       type: 'value',
-      splitLine: { lineStyle: { color: '#E7EAEF', type: 'dashed', width: 1 } },
+      splitLine: { lineStyle: { color: '#3a3a3a80', type: 'dashed', width: 1 } },
     },
     {
       show: false,
@@ -131,7 +131,7 @@ const echartsOptions: any = {
           normal: {
             show: true,
             textStyle: {
-              color: '#333',
+              color: '#f0f0f0',
               fontSize: 14,
             },
           },
