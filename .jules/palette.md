@@ -1,5 +1,10 @@
-## 2025-05-20 - Ensure tab toggles reflect state to screen readers
+## 2024-05-07 - Differentiating Filter-Driven vs Global Empty States
+**Learning:** Screen readers and sighted users both benefit from a clear distinction between a "global" empty state (no data available at all) and a "filter-driven" empty state (data exists, but doesn't match the search criteria). Previously, the table empty state simply stated the lack of results.
+**Action:** When designing empty states for data tables or lists with search/filter capabilities, dynamically swap the visual icon (e.g. `InboxIcon` vs `MagnifyingGlassIcon`), the descriptive helper text, and the `aria-live="polite"` region text based on the active filter state. This ensures users know exactly *why* the view is empty and *how* to resolve it (e.g., by clearing filters).
 
+## 2024-05-07 - Differentiating Filter-Driven vs Global Empty States
+**Learning:** Screen readers and sighted users both benefit from a clear distinction between a "global" empty state (no data available at all) and a "filter-driven" empty state (data exists, but doesn't match the search criteria). Previously, the table empty state simply stated the lack of results.
+**Action:** When designing empty states for data tables or lists with search/filter capabilities, dynamically swap the visual icon (e.g. `InboxIcon` vs `MagnifyingGlassIcon`), the descriptive helper text, and the `aria-live="polite"` region text based on the active filter state. This ensures users know exactly *why* the view is empty and *how* to resolve it (e.g., by clearing filters).
 **Learning:** Applications need skip-to-content links for keyboard users to bypass repetitive navigation elements, ensuring accessible workflows.
 
 ## 2025-04-11 - Add missing title tooltip to SystemClustering close button
