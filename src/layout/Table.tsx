@@ -391,10 +391,13 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
   }),
   columnHelper.accessor('unit', {
     header: ({ table }) => (
-      <div className="flex items-center gap-2">
-        <span>Unit</span>
-        <div className="flex items-center gap-1.5 ml-1" onClick={(e) => e.stopPropagation()}>
+      <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+        <label htmlFor="toggle-origin" className="cursor-pointer">
+          Unit
+        </label>
+        <div className="flex items-center gap-1.5 ml-1">
           <input
+            id="toggle-origin"
             type="checkbox"
             className="w-3 h-3 text-blue-600 bg-gray-700 border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
             aria-label="Toggle origin values"
@@ -707,7 +710,11 @@ export default React.memo(
                         <InboxIcon className="h-8 w-8 text-gray-400" aria-hidden="true" />
                       )}
                     </div>
-                    <div className="text-gray-300 text-lg font-medium" role="status" aria-live="polite">
+                    <div
+                      className="text-gray-300 text-lg font-medium"
+                      role="status"
+                      aria-live="polite"
+                    >
                       {emptyStateMessage}
                     </div>
                     <p className="text-sm text-gray-400 max-w-sm mb-2">
@@ -750,9 +757,15 @@ export default React.memo(
                             title={`Toggle group ${row.original.displayTag}`}
                           >
                             {row.getIsExpanded() ? (
-                              <ChevronDownIcon className="h-4 w-4 text-gray-400" aria-hidden="true" />
+                              <ChevronDownIcon
+                                className="h-4 w-4 text-gray-400"
+                                aria-hidden="true"
+                              />
                             ) : (
-                              <ChevronRightIcon className="h-4 w-4 text-gray-400" aria-hidden="true" />
+                              <ChevronRightIcon
+                                className="h-4 w-4 text-gray-400"
+                                aria-hidden="true"
+                              />
                             )}
                             {row.original.displayTag} ({row.subRows.length})
                           </button>

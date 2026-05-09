@@ -139,22 +139,25 @@ export default memo(({ keys }: ScatterChartProps) => {
     return result
   }, [dataMap, keys])
 
-  const options = useMemo(() => ({
-    ...echartsOptions,
-    xAxis: {
-      ...echartsOptions.xAxis,
-    },
-    yAxis: yAxes,
-    series: chartData,
-    legend: {
-      ...echartsOptions.legend,
-      data: keys,
-    },
-    grid: {
-      left: Math.ceil(keys.length / 2) * 80,
-      right: Math.max(Math.floor(keys.length / 2) * 80, 40),
-    },
-  }), [yAxes, chartData, keys])
+  const options = useMemo(
+    () => ({
+      ...echartsOptions,
+      xAxis: {
+        ...echartsOptions.xAxis,
+      },
+      yAxis: yAxes,
+      series: chartData,
+      legend: {
+        ...echartsOptions.legend,
+        data: keys,
+      },
+      grid: {
+        left: Math.ceil(keys.length / 2) * 80,
+        right: Math.max(Math.floor(keys.length / 2) * 80, 40),
+      },
+    }),
+    [yAxes, chartData, keys],
+  )
 
   return <ReactECharts option={options} style={options.style} notMerge={true} theme="dark" />
 })

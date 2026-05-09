@@ -117,15 +117,23 @@
 
 **Learning:** Generating arrays in the middle of a `useMemo` hook using functional fallbacks (like `Array.from`) creates significant garbage collection overhead, particularly when iterating over heavy structural matrices (like time series mapping or node graphs).
 **Action:** When a fallback or matrix row generation is required to process time-series elements across a known boundary, prefer initializing explicitly typed `Array<Type>(N)` to avoid closure evaluation and property-copying mechanisms. Additionally, combining array scans (avoiding `.includes` when checking for matches in string arrays) by caching state locally during a single forward pass improves processing latency across component mount events.
+
 ## 2024-05-04 - Native Loops Over Map Entries in useMemo
+
 **Learning:** In hot React `useMemo` hooks (like calculating statistics across large data maps), using `.forEach` on a `Map` creates a new function closure and its associated environment allocations on every run. When refactoring chained `.map().filter()` or `Map.forEach` callbacks, replacing them with a native `for...of` loop (e.g., `for (const [key, val] of map.entries())`) completely eliminates this closure allocation and garbage collection overhead, particularly inside components dealing with rapid filtering updates or matrix correlation.
 **Action:** When optimizing loop overhead in hot paths (especially inside React `useMemo` hooks or global data processors), always prefer native `for` and `for...of` loops over higher-order array/map methods that require callback functions.
+
 ## 2025-02-23 - Avoid Native Sort Callback Overhead for TypedArrays
+
 **Learning:** Using `Array.prototype.sort((a, b) => ...)` on `TypedArrays` (like `Int32Array`) incurs heavy V8 execution overhead due to repeated boundary-crossing between optimized internal array logic and user-provided JavaScript callback functions. For sorting a 10,000-element array by referencing another array, this callback overhead is the primary bottleneck.
 **Action:** When sorting `TypedArrays` using a custom comparison logic in a hot path (e.g., index-based array sorting for data ranking in stats processors), implement and use an inline sorting algorithm like QuickSort instead. This bypasses the callback entirely and yields ~2x performance gains.
+
 ## 2026-05-18 - Optimize BumpChart Memory Allocation
+
 **Learning:** Using `Array.from()` or `[] as Type[]` combined with `.push()` inside hot rendering loops (like chart component re-renders) causes unnecessary garbage collection pressure and memory fragmentation.
 **Action:** Always pre-allocate fixed-length arrays using `Array<Type>(N)` or strictly-sized TypedArrays before executing loops to ensure contiguous memory allocation and zero dynamic resizing overhead. Additionally, use `.subarray(start, end)` to create zero-copy views over TypedArrays when iterating subsets.
+
 ## 2026-05-06 - Prevent Stale Object References in Optimized Hot Loops
-**Learning:** When caching an object property to a local variable for optimization in a hot loop (e.g., `const tags = entry[3].tag`), any fallback initialization must be performed on the parent object *before* variable assignment. If the property is initialized after extraction, the local reference remains `undefined`, leading to runtime crashes.
+
+**Learning:** When caching an object property to a local variable for optimization in a hot loop (e.g., `const tags = entry[3].tag`), any fallback initialization must be performed on the parent object _before_ variable assignment. If the property is initialized after extraction, the local reference remains `undefined`, leading to runtime crashes.
 **Action:** Always ensure object property initialization checks and mutations occur before caching the value to a local variable.

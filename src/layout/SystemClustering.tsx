@@ -140,8 +140,27 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
       xAxisTag !== '' && yAxisTag !== '' && m1Indices.length > 0 && m2Indices.length > 0
     // Bolt Optimization: Hoist fallback array calculations outside the inner loop to
     // eliminate redundant object allocations and garbage collection per timepoint.
-    let g1: number[]; if (useTags) { g1 = m1Indices } else { const len = Math.floor(numMarkers / 2); g1 = Array<number>(len); for (let i = 0; i < len; i++) { g1[i] = i; } }
-    let g2: number[]; if (useTags) { g2 = m2Indices } else { const offset = Math.floor(numMarkers / 2); const len = Math.ceil(numMarkers / 2); g2 = Array<number>(len); for (let i = 0; i < len; i++) { g2[i] = i + offset; } }
+    let g1: number[]
+    if (useTags) {
+      g1 = m1Indices
+    } else {
+      const len = Math.floor(numMarkers / 2)
+      g1 = Array<number>(len)
+      for (let i = 0; i < len; i++) {
+        g1[i] = i
+      }
+    }
+    let g2: number[]
+    if (useTags) {
+      g2 = m2Indices
+    } else {
+      const offset = Math.floor(numMarkers / 2)
+      const len = Math.ceil(numMarkers / 2)
+      g2 = Array<number>(len)
+      for (let i = 0; i < len; i++) {
+        g2[i] = i + offset
+      }
+    }
 
     for (let t = 0; t < numTimepoints; t++) {
       let m1Valid = 0
