@@ -45,14 +45,14 @@ export const processBiomarkers = (entries: Array<Entry>): BioMarker[] => {
 
     // Optimization: Pre-calculate displayTag and sortKey to avoid repetitive calculations in render loop
     const tagsLen = tags.length
-    const processedTags = new Array(tagsLen)
+    const processedTags = Array<{ tag: string; displayTag: string; sortKey: string }>(tagsLen)
     for (let j = 0; j < tagsLen; j++) {
       const tag = tags[j]
       const displayTag = tag.substring(tag.indexOf('-') + 1)
       const sortKey = /^\d/.test(tag) ? `1_${tag}` : `2_${tag}`
       processedTags[j] = { tag, displayTag, sortKey }
     }
-    entry[3].processedTags = processedTags as { tag: string; displayTag: string; sortKey: string }[]
+    entry[3].processedTags = processedTags
   }
 
   return biomarkers.sort((entry1, entry2) => {
