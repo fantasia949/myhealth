@@ -95,7 +95,10 @@ export default memo(({ name, values, rangeStr }: LineChartProps) => {
       max = parseFloat(rangeStr.slice(2))
     }
 
-    if (min !== undefined || max !== undefined) {
+    const validMin = min !== undefined && !Number.isNaN(min)
+    const validMax = max !== undefined && !Number.isNaN(max)
+
+    if (validMin || validMax) {
       markArea = {
         itemStyle: {
           color: 'rgba(84, 112, 198, 0.1)',
@@ -103,10 +106,10 @@ export default memo(({ name, values, rangeStr }: LineChartProps) => {
         data: [
           [
             {
-              yAxis: min !== undefined && !isNaN(min) ? min : undefined,
+              yAxis: validMin ? min : undefined,
             },
             {
-              yAxis: max !== undefined && !isNaN(max) ? max : undefined,
+              yAxis: validMax ? max : undefined,
             },
           ],
         ],
