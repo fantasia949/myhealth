@@ -45,7 +45,7 @@ export const processBiomarkers = (entries: Array<Entry>): BioMarker[] => {
 
     // Optimization: Pre-calculate displayTag and sortKey to avoid repetitive calculations in render loop
     const tagsLen = tags.length
-    const processedTags = new Array(tagsLen)
+    const processedTags = Array<{ tag: string; displayTag: string; sortKey: string }>(tagsLen)
     for (let j = 0; j < tagsLen; j++) {
       const tag = tags[j]
       const displayTag = tag.substring(tag.indexOf('-') + 1)
