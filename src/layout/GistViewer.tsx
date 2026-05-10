@@ -149,6 +149,7 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
                       className="flex items-center justify-center h-32"
                       role="status"
                       aria-live="polite"
+                      aria-busy="true"
                     >
                       <Spinner /> <span className="ml-2 text-gray-400">Loading history...</span>
                     </div>

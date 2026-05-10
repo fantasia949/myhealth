@@ -299,7 +299,7 @@ const TableRow = React.memo(
             <td colSpan={visibleLeafColumnsCount} className="border border-gray-700">
               <React.Suspense
                 fallback={
-                  <div className="p-8 flex flex-col items-center justify-center gap-3 text-gray-400">
+                  <div className="p-8 flex flex-col items-center justify-center gap-3 text-gray-400" aria-busy="true">
                     <Spinner />
                     <span role="status" aria-live="polite">
                       Loading charts...
@@ -646,7 +646,7 @@ export default React.memo(
     return (
       <React.Suspense
         fallback={
-          <div className="p-12 flex flex-col items-center justify-center gap-3 text-gray-400">
+          <div className="p-12 flex flex-col items-center justify-center gap-3 text-gray-400" aria-busy="true">
             <Spinner />
             <span role="status" aria-live="polite">
               Loading table...
