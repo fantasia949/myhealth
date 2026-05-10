@@ -11,7 +11,7 @@ import { calculatePearson } from '../processors/stats'
 interface BumpChartProps {
   targetBiomarker: string
   correlations: CorrelationResult[]
-  noteValues: any[]
+  noteValues: NoteItem[]
 }
 
 export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartProps) => {
