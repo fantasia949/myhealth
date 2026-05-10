@@ -1,157 +1,80 @@
-## Part 1 — Implementation Report
-
-**The Issue:**
-`src/layout/Chart.tsx`, line 174. The `useEffect` that calls `instance.setOption()` included `ref.current` in its dependency array. Because `ref.current` is mutable and does not trigger re-renders, the effect might not re-run reliably when `keys` changes if `ref.current` isn't updated reactively. Additionally, `yAxis` names were overlapping tick labels because there was no offset configuration.
-
-**Discovery Signal:**
-Scan 5 — useEffect Dependency Correctness (Chart.tsx) & Scan 3 — Multi-Axis Legibility (ScatterChart & Chart).
-
-**context7 Reference:**
-Confirmed via context7 ECharts 6 docs for `yAxis.nameLocation` and `yAxis.nameGap` under the `axis` topic.
-
-**The Fix:**
-Removed `ref.current` from the `useEffect` dependency array in `src/layout/Chart.tsx`. Replaced `[ref.current, keys, yAxis]` with `[keys, yAxis]`. Also updated the `yAxis` generation inside the `useMemo` block to include `nameLocation: 'middle'` and `nameGap: 50` to push the axis label away from the tick values.
-
-**The Benefit:**
-Prevents stale axis renders when the user changes biomarker selections (ensuring `setOption` fires when `keys` changes). The `yAxis` names now have proper spacing and no longer visually collide with the axis tick marks, dramatically improving readability for multi-series graphs.
-
-**TypeScript result:**
-0 errors.
-
 ---
+**Proposal 1 of 3: Single Biomarker State Transition Markov Diagram**
 
-## Part 2 — Visualization Proposals
-
-These 5 visualization ideas use existing metadata to surface new health insights without requiring new dependencies or altering processing logic.
-
-**Proposal 1 of 5: Optimality Matrix Heatmap**
-
-**ECharts type:** `heatmap`
+**ECharts type:** `graph`
 
 **Codebase citation:**
-Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` and index-aligned with the time `labels[]` from `dataAtom.ts`.
+Reads `extra.optimality[]` pre-computed by `src/processors/post/range.ts`, index-aligned with `BioMarker[1]`.
 
 **Which existing data it uses:**
-Reads the boolean `optimality` arrays for all biomarkers within a currently active `tagAtom` subset (via `visibleDataAtom`). The X-axis uses `labels[]`, and the Y-axis uses the biomarker names.
+Iterates over a single biomarker from `visibleDataAtom` (e.g. `Glucose`) and uses the `extra.optimality[]` boolean array across time (`labels[]`) to compute transition probabilities between "In Range" (`false`) and "Out of Range" (`true`).
 
 **What it reveals that current charts don't:**
-Allows a user to instantly spot temporal patterns of failure across an entire biological system (e.g., all Kidney markers). A vertical band of 'out of range' colors across multiple rows clearly highlights a specific date where an entire physiological system was under stress, which is very hard to see on separate line charts.
+Instead of showing *when* out-of-range events occurred (which the time-series charts already do), this calculates the *probability of recovery or relapse*. It reveals systemic stability: "Once Glucose goes out of range, what is the probability it returns to normal on the next test, versus staying out of range?"
 
 **Where it would live:**
-New `src/layout/OptimalityHeatmap.tsx`, conditionally rendered inside `Nav.tsx` or `Table.tsx` when a specific tag is active.
+New `src/layout/MarkovStateChart.tsx`, rendered conditionally inside the biomarker detail view or row expansion.
 
 **Trigger / entry point:**
-A toggle button near the Tag Filter list that switches the table view to this heatmap for the selected system.
-
-**Implementation complexity:** Low
-(Requires mapping boolean arrays to binary `[xIndex, yIndex, value]` tuples natively supported by ECharts heatmap series).
-
-**ECharts 6 API confirmed via context7:** yes (`series[].type = 'heatmap'`)
-
----
-
-**Proposal 2 of 5: Time-Series Protocol Clustering**
-
-**ECharts type:** `ecStat:clustering`
-
-**Codebase citation:**
-Uses the `ecStat` transform on raw multi-dimensional vectors from `nonInferredDataAtom`.
-
-**Which existing data it uses:**
-Reads the `values[]` arrays for all currently visible measured biomarkers in `nonInferredDataAtom`, stacking them into a multi-dimensional array per timepoint in `labels[]`.
-
-**What it reveals that current charts don't:**
-Instead of showing individual lines, this applies k-means clustering to the combined state of the body over time. It can reveal if the user's overall physiological state naturally groups into distinct "regimes" or phases (e.g., highlighting that data from 2022 groups separately from 2024, implying a major metabolic shift or response to a supplement protocol).
-
-**Where it would live:**
-New `src/layout/SystemClusteringChart.tsx`, accessible inside the existing `SystemClustering.tsx` modal.
-
-**Trigger / entry point:**
-A new "Visualize Clusters" button inside the `SystemClustering.tsx` modal, which currently only handles hierarchical clustering text output.
-
-**Implementation complexity:** High
-(Requires structuring N-dimensional data into an `ecStat` transform dataset and handling varying dimensionality dynamically).
-
-**ECharts 6 API confirmed via context7:** yes (`dataset.transform.type = 'ecStat:clustering'`)
-
----
-
-**Proposal 3 of 5: LineChart Optimality VisualMap**
-
-**ECharts type:** `visualMap` on `LineChart`
-
-**Codebase citation:**
-Uses `extra.optimality[]` array generated by `src/processors/post/range.ts` inside the `BioMarker` metadata.
-
-**Which existing data it uses:**
-Reads the `optimality` boolean array for the single biomarker currently passed to `LineChartProps` (by retrieving it via `dataMapAtom.get(name)`).
-
-**What it reveals that current charts don't:**
-The current `LineChart.tsx` only uses `markArea` to draw a background horizontal band for the optimal range. A `visualMap` (piecewise) bound to the line series itself can color the exact line segments red when they step out of the optimal range and green when they return. This draws immediate visual attention to the severity of spikes without needing to trace the line against the background band.
-
-**Where it would live:**
-An extension to the existing `src/layout/LineChart.tsx`.
-
-**Trigger / entry point:**
-Automatically applied whenever a row is expanded in `Table.tsx` if the biomarker has an optimal range defined.
-
-**Implementation complexity:** Low
-(Requires injecting a `visualMap` configuration into `echartsOptions` and mapping the boolean array to a discrete color dimension).
-
-**ECharts 6 API confirmed via context7:** yes (`visualMap[].type = 'piecewise'`)
-
----
-
-**Proposal 4 of 5: Single Biomarker Radial Gauge**
-
-**ECharts type:** `gauge`
-
-**Codebase citation:**
-Uses `extra.range` string parsing and the latest value from the `values[]` array in `dataAtom`.
-
-**Which existing data it uses:**
-Parses the `min` and `max` limits from `extra.range` (e.g., "3.9 - 6.4") and maps the most recent non-null value from the `BioMarker` array as a percentage between those bounds.
-
-**What it reveals that current charts don't:**
-Time-series lines are great for history, but a gauge provides an instant, speedometer-like reading of the _current_ health status for a critical metric. It visually answers "how close am I to the danger zone right now?" with zero cognitive load.
-
-**Where it would live:**
-New `src/layout/BiomarkerGauge.tsx`, rendered inside the `Table.tsx` row expansion alongside or instead of the LineChart for the latest data point.
-
-**Trigger / entry point:**
-A small toggle inside the expanded table row to switch between "History" (LineChart) and "Current Status" (Gauge).
+Activated from the existing row expansion where `LineChart.tsx` currently lives.
 
 **Implementation complexity:** Medium
-(Requires robust parsing of the `rangeStr` to handle `>` and `<` edge cases securely, converting them into standard gauge `min`/`max` boundaries).
+Requires computing a simple 2x2 transition matrix from `extra.optimality[]` before mapping to `graph` nodes and links.
 
-**ECharts 6 API confirmed via context7:** yes (`series[].type = 'gauge'`)
+**ECharts 6 API confirmed via context7:** unavailable (fallback to verified ECharts 6 core `graph` series).
 
 ---
 
-**Proposal 5 of 5: Multi-Biomarker Parallel Status**
+**Proposal 2 of 3: Tag Group Anomaly Timeline**
 
-**ECharts type:** `parallel`
+**ECharts type:** `themeRiver` (Wait, `ThemeRiver` is banned. Using `scatter` with custom `symbolSize` and `opacity`)
 
 **Codebase citation:**
-Uses the `extra.range` optimal boundaries array computed by `src/processors/post/range.ts` and the latest value index from `labels[]` inside `dataAtom.ts`.
+Reads `extra.tag` arrays computed by `src/processors/post/tag.ts` and `extra.optimality[]` from `src/processors/post/range.ts`.
 
 **Which existing data it uses:**
-Reads the most recent values for all biomarkers within an active `tagAtom` subset from `visibleDataAtom`, normalizing each axis based on its specific `extra.range` boundaries.
+Aggregates all `BioMarker` entries in `dataAtom` by tag group. For each time point in `labels[]`, counts how many members of a specific tag group (e.g. `3-Liver`) were out of optimal range (`extra.optimality[i] === true`).
 
 **What it reveals that current charts don't:**
-Provides a comprehensive vertical slice of the user's latest health state. By plotting multiple different biomarkers as parallel vertical axes on a unified normalized scale, the user can instantly see a "profile" of their current state across an entire system (e.g., Lipid Panel), instantly spotting the specific markers pulling the profile out of alignment.
+Highlights systemic multi-marker cascading failures. Instead of viewing individual markers, it shows if the entire `5-Hormone` system was disrupted at a specific time point by rendering a single row per tag group on the Y-axis and a bubble on the X-axis (time) sized by the number of simultaneous anomalies.
 
 **Where it would live:**
-New `src/layout/ParallelStatusChart.tsx`, conditionally rendered inside `Nav.tsx` or `Table.tsx`.
+New `src/layout/TagAnomalyTimeline.tsx`, rendered as a global view toggle beside the current table/scatter views.
 
 **Trigger / entry point:**
-A toggle button near the Tag Filter list that switches the table view to this parallel coordinate chart for the selected system.
+A new toggle button next to the existing global "Charts" button, utilizing the global `dataAtom` without relying on active `filterTextAtom` selections.
 
-**Implementation complexity:** High
-(Requires dynamic creation of a parallel axis system and mapping of raw values to normalized coordinates across heterogeneous units).
+**Implementation complexity:** Low
+Data transformation is a simple grouping and counting pass over `dataAtom`, mapping directly to a standard Cartesian `scatter` series.
 
-**ECharts 6 API confirmed via context7:** yes (`series[].type = 'parallel'`)
+**ECharts 6 API confirmed via context7:** unavailable (fallback to verified ECharts 6 core `scatter` series).
 
 ---
 
-Recommended implementation order: Proposal 3 first (highest insight, lowest effort), then 1, then 4, then 5, then 2.
+**Proposal 3 of 3: Supplement Protocol Impact Waterfall**
+
+**ECharts type:** `bar` (with stack to simulate waterfall)
+
+**Codebase citation:**
+Reads `notesAtom` (specifically `Object.values(notes)`) from `src/atom/dataAtom.ts` which contains parsed supplements (`supps` or text) per time point.
+
+**Which existing data it uses:**
+Matches a single biomarker's time-series values from `dataAtom` against the sequence of active protocols parsed from `notesAtom`. Calculates the delta (change in value) between the start and end of each distinct protocol phase.
+
+**What it reveals that current charts don't:**
+Directly answers "Did protocol X move the needle?" The current `ScatterChart` shows dots over time, forcing the user to visually estimate the slope during a supplement phase. A waterfall chart plots the net positive/negative delta attributed to each protocol sequentially, clearly isolating which interventions drove the largest net change.
+
+**Where it would live:**
+New `src/layout/ProtocolImpactWaterfall.tsx`, rendered inside the AI/Correlation sidebar or a new tab.
+
+**Trigger / entry point:**
+Activated when a user selects a single biomarker and checks a "Analyze Protocols" toggle in the sidebar, leveraging `notesAtom` and the selected biomarker data.
+
+**Implementation complexity:** High
+Requires parsing the `notesAtom` phases, aligning the start/end dates with `labels[]`, and computing value deltas to format for stacked `bar` series (waterfall pattern).
+
+**ECharts 6 API confirmed via context7:** unavailable (fallback to verified ECharts 6 core `bar` series stack feature).
+
+---
+
+Recommended implementation order: Proposal 2 first (highest global systemic insight), then 1, then 3.
