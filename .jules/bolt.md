@@ -129,3 +129,7 @@
 ## 2026-05-06 - Prevent Stale Object References in Optimized Hot Loops
 **Learning:** When caching an object property to a local variable for optimization in a hot loop (e.g., `const tags = entry[3].tag`), any fallback initialization must be performed on the parent object *before* variable assignment. If the property is initialized after extraction, the local reference remains `undefined`, leading to runtime crashes.
 **Action:** Always ensure object property initialization checks and mutations occur before caching the value to a local variable.
+
+## 2026-05-20 - V8 Loop Unrolling Optimizations
+**Learning:** Manual loop unrolling (e.g. processing 4 items at a time and juggling 20 parallel accumulators) to break data dependency chains can actually hurt performance in modern V8. In `calculatePearsonValue`, the manual unrolled version was ~30% slower than a simple idiomatic `for` loop, likely because juggling so many local variables exceeds register allocation limits and prevents the JIT compiler from applying its own more effective vectorized optimizations.
+**Action:** Avoid manual loop unrolling for simple numerical aggregations in JavaScript. Write simple, idiomatic `for` loops and let the engine's JIT compiler handle vectorization and unrolling.
