@@ -192,9 +192,10 @@ export default memo(({ keys }: ChartProps) => {
   }, [dataMap, keys])
 
   const options: any = useMemo(() => {
-    let { series, yAxis, xAxis } = echartsOptions
-    ;(xAxis as any[])[0].name = keys[0]
-    ;(yAxis as any[])[0].name = keys[1]
+    const { series, yAxis, xAxis } = echartsOptions
+
+    const nextXAxis = [{ ...xAxis[0], name: keys[0] }, ...xAxis.slice(1)]
+    const nextYAxis = [{ ...yAxis[0], name: keys[1] }, ...yAxis.slice(1)]
 
     const dataset: any[] = [
       {
@@ -239,10 +240,13 @@ export default memo(({ keys }: ChartProps) => {
 
     return {
       ...echartsOptions,
+      xAxis: nextXAxis,
+      yAxis: nextYAxis,
       tooltip: {
         ...echartsOptions.tooltip,
         formatter: (params: any) => {
           if (params.seriesType === 'scatter') {
+            if (!params.value) return ''
             const val1 = params.value[0]
             const val2 = params.value[1]
 
