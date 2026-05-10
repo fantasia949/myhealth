@@ -200,7 +200,7 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
         const m2Score = (m2Optimal / m2Valid) * 100
 
         // Ensure we properly map notes depending on the type
-        const rawNote: any = noteValues[t]
+        const rawNote: NoteItem | undefined = noteValues[t]
         const supps =
           rawNote && rawNote.supps && rawNote.supps.length > 0 ? rawNote.supps.join(', ') : 'None'
 
