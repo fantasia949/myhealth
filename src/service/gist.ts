@@ -48,8 +48,10 @@ export async function getGistFiles(): Promise<GistFile[]> {
   const data = await response.json()
   if (!data.files) return []
 
-  return (Object.values(data.files) as { filename: string; content?: string | null }[]).map((file) => ({
-    filename: file.filename,
-    content: file.content || '',
-  }))
+  return (Object.values(data.files) as { filename: string; content?: string | null }[]).map(
+    (file) => ({
+      filename: file.filename,
+      content: file.content || '',
+    }),
+  )
 }

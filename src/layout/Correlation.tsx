@@ -192,7 +192,8 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                                 </>
                               ) : (
                                 <>
-                                  <ClipboardDocumentIcon className="h-4 w-4" aria-hidden="true" /> Copy
+                                  <ClipboardDocumentIcon className="h-4 w-4" aria-hidden="true" />{' '}
+                                  Copy
                                 </>
                               )}
                             </button>

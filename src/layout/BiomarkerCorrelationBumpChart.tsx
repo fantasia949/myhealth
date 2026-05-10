@@ -69,20 +69,23 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
     const windowedRanksMap = new Map<string, (number | string | null)[]>()
     // ⚡ Bolt Optimization: Replace loop-based array building with pre-allocated Array(N)
     for (let i = 0; i < topCorrelations.length; i++) {
-      windowedRanksMap.set(topCorrelations[i].name, Array<number | string | null>(numWindowsDynamic))
+      windowedRanksMap.set(
+        topCorrelations[i].name,
+        Array<number | string | null>(numWindowsDynamic),
+      )
     }
 
     // Chunk the valid data indices into windows and recalculate rho for each window
     for (let w = 0; w < numWindowsDynamic; w++) {
       // Use floating point division to distribute elements evenly across windows
       const startIdxInValid = Math.floor((w * count) / numWindowsDynamic)
-      const endIdxInValid = w === numWindowsDynamic - 1 ? count : Math.floor(((w + 1) * count) / numWindowsDynamic)
+      const endIdxInValid =
+        w === numWindowsDynamic - 1 ? count : Math.floor(((w + 1) * count) / numWindowsDynamic)
 
       const windowValidIndices = validIndices.slice(startIdxInValid, endIdxInValid)
       const windowCount = windowValidIndices.length
 
       // Use the last date of the window for the label so we can see the time span
-
 
       // Map to a complex object with a unique value to bypass category duplication,
       // and use a formatter to display the clean label.
@@ -194,7 +197,10 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
         textStyle: { color: '#f0f0f0' },
         formatter: (params: any) => {
           const index = parseInt(params[0].axisValue, 10)
-          const endIdx = index === numWindowsDynamic - 1 ? count : Math.floor(((index + 1) * count) / numWindowsDynamic)
+          const endIdx =
+            index === numWindowsDynamic - 1
+              ? count
+              : Math.floor(((index + 1) * count) / numWindowsDynamic)
           const startIdx = Math.floor((index * count) / numWindowsDynamic)
           const lIdx = validIndices[endIdx - 1] ?? validIndices[startIdx]
           let tooltipStr = `<strong>${formattedLabels[lIdx] || ''}</strong>`
@@ -229,12 +235,15 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
         splitLine: { show: false },
         axisLabel: {
           formatter: (value: string, index: number) => {
-            const endIdx = index === numWindowsDynamic - 1 ? count : Math.floor(((index + 1) * count) / numWindowsDynamic)
+            const endIdx =
+              index === numWindowsDynamic - 1
+                ? count
+                : Math.floor(((index + 1) * count) / numWindowsDynamic)
             const startIdx = Math.floor((index * count) / numWindowsDynamic)
             const lIdx = validIndices[endIdx - 1] ?? validIndices[startIdx]
             return formattedLabels[lIdx] || ''
-          }
-        }
+          },
+        },
       },
       yAxis: {
         type: 'value',

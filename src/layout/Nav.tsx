@@ -540,7 +540,6 @@ export default React.memo<NavProps>(
                     <option value="15">Last 15 records</option>
                   </select>
                 </div>
-
               </div>
             </div>
           </div>
@@ -619,7 +618,8 @@ export default React.memo<NavProps>(
                           </>
                         ) : (
                           <>
-                            <ClipboardDocumentIcon className="h-5 w-5" aria-hidden="true" /> Copy Analysis
+                            <ClipboardDocumentIcon className="h-5 w-5" aria-hidden="true" /> Copy
+                            Analysis
                           </>
                         )}
                       </button>

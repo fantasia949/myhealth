@@ -1,10 +1,12 @@
 ## 2024-05-07 - Differentiating Filter-Driven vs Global Empty States
+
 **Learning:** Screen readers and sighted users both benefit from a clear distinction between a "global" empty state (no data available at all) and a "filter-driven" empty state (data exists, but doesn't match the search criteria). Previously, the table empty state simply stated the lack of results.
-**Action:** When designing empty states for data tables or lists with search/filter capabilities, dynamically swap the visual icon (e.g. `InboxIcon` vs `MagnifyingGlassIcon`), the descriptive helper text, and the `aria-live="polite"` region text based on the active filter state. This ensures users know exactly *why* the view is empty and *how* to resolve it (e.g., by clearing filters).
+**Action:** When designing empty states for data tables or lists with search/filter capabilities, dynamically swap the visual icon (e.g. `InboxIcon` vs `MagnifyingGlassIcon`), the descriptive helper text, and the `aria-live="polite"` region text based on the active filter state. This ensures users know exactly _why_ the view is empty and _how_ to resolve it (e.g., by clearing filters).
 
 ## 2024-05-07 - Differentiating Filter-Driven vs Global Empty States
+
 **Learning:** Screen readers and sighted users both benefit from a clear distinction between a "global" empty state (no data available at all) and a "filter-driven" empty state (data exists, but doesn't match the search criteria). Previously, the table empty state simply stated the lack of results.
-**Action:** When designing empty states for data tables or lists with search/filter capabilities, dynamically swap the visual icon (e.g. `InboxIcon` vs `MagnifyingGlassIcon`), the descriptive helper text, and the `aria-live="polite"` region text based on the active filter state. This ensures users know exactly *why* the view is empty and *how* to resolve it (e.g., by clearing filters).
+**Action:** When designing empty states for data tables or lists with search/filter capabilities, dynamically swap the visual icon (e.g. `InboxIcon` vs `MagnifyingGlassIcon`), the descriptive helper text, and the `aria-live="polite"` region text based on the active filter state. This ensures users know exactly _why_ the view is empty and _how_ to resolve it (e.g., by clearing filters).
 **Learning:** Applications need skip-to-content links for keyboard users to bypass repetitive navigation elements, ensuring accessible workflows.
 
 ## 2025-04-11 - Add missing title tooltip to SystemClustering close button
@@ -45,5 +47,6 @@
 **Action:** Keep visual-only indicators like SVGs hidden from screen readers using `aria-hidden="true"`, and manage the accessible loading state purely through the surrounding text/container.
 
 ## 2025-02-20 - Ensure Aria-Hidden on Decorative Icons
+
 **Learning:** Generic icon components (like `@heroicons/react`) can cause redundant screen reader announcements if used decoratively without `aria-hidden="true"`.
 **Action:** Always add `aria-hidden="true"` to SVG/icon components that do not convey meaningful unique information (e.g., when wrapped in a button with a clear `aria-label`).
