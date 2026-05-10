@@ -69,7 +69,7 @@ export default {
     '-thotitu',
     '+oyster',
     '+cacao',
-    '~nutritionyeast',
+    '~yeast',
     '+tmg',
   ],
 }

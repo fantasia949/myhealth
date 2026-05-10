@@ -55,7 +55,6 @@ export type Note =
   | 'mulberry-leaf-tea'
   | 'nac'
   | 'niacin'
-  | 'nutritionyeast'
   | 'olive-oil'
   | 'oyster'
   | 'pregnenolone'

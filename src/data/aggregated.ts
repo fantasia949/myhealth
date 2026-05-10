@@ -888,7 +888,7 @@ export default [
       '-thotitu',
       '+oyster',
       '+cacao',
-      '~nutritionyeast',
+      '~yeast',
       '+tmg',
     ],
     time: '241019',
