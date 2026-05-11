@@ -28,13 +28,14 @@ const echartsOptions = {
     },
     formatter: (params: any) => {
       const pArray = Array.isArray(params) ? params : [params]
-      if (pArray.length === 0) return ''
+      if (pArray.length === 0 || !pArray[0].value) return ''
 
       let tooltipStr = `${pArray[0].value[0]}`
       let hasValidValues = false
 
       for (let i = 0; i < pArray.length; i++) {
         const p = pArray[i]
+        if (!p.value) continue
         const val = p.value[1]
 
         if (
