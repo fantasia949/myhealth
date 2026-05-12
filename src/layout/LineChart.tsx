@@ -79,85 +79,88 @@ export default memo(({ name, values, rangeStr }: LineChartProps) => {
     return result
   }, [values])
 
-  let markArea: any = undefined
+  const options = useMemo(() => {
+    let markArea: any = undefined
 
-  if (rangeStr) {
-    let min: number | undefined
-    let max: number | undefined
+    if (rangeStr) {
+      let min: number | undefined
+      let max: number | undefined
 
-    if (rangeStr.includes(' - ')) {
-      const parts = rangeStr.split(' - ')
-      min = parseFloat(parts[0])
-      max = parseFloat(parts[1])
-    } else if (rangeStr.startsWith('>=')) {
-      min = parseFloat(rangeStr.slice(2))
-    } else if (rangeStr.startsWith('<=')) {
-      max = parseFloat(rangeStr.slice(2))
-    }
+      if (rangeStr.includes(' - ')) {
+        const parts = rangeStr.split(' - ')
+        min = parseFloat(parts[0])
+        max = parseFloat(parts[1])
+      } else if (rangeStr.startsWith('>=')) {
+        min = parseFloat(rangeStr.slice(2))
+      } else if (rangeStr.startsWith('<=')) {
+        max = parseFloat(rangeStr.slice(2))
+      }
 
-    const validMin = min !== undefined && !Number.isNaN(min)
-    const validMax = max !== undefined && !Number.isNaN(max)
+      const validMin = min !== undefined && !Number.isNaN(min)
+      const validMax = max !== undefined && !Number.isNaN(max)
 
-    if (validMin || validMax) {
-      markArea = {
-        itemStyle: {
-          color: 'rgba(84, 112, 198, 0.1)',
-        },
-        data: [
-          [
-            {
-              yAxis: validMin ? min : undefined,
-            },
-            {
-              yAxis: validMax ? max : undefined,
-            },
+      if (validMin || validMax) {
+        markArea = {
+          itemStyle: {
+            color: 'rgba(84, 112, 198, 0.1)',
+          },
+          data: [
+            [
+              {
+                yAxis: validMin ? min : undefined,
+              },
+              {
+                yAxis: validMax ? max : undefined,
+              },
+            ],
           ],
-        ],
+        }
       }
     }
-  }
 
-  const options = {
-    ...echartsOptions,
-    tooltip: {
-      ...echartsOptions.tooltip,
-      formatter: (params: any) => {
-        // ECharts axis trigger passes an array of series data for that axis index
-        const p = Array.isArray(params) ? params[0] : params
-        if (
-          !p ||
-          p.value[1] === '-' ||
-          p.value[1] === '' ||
-          p.value[1] === 'NaN' ||
-          p.value[1] === null ||
-          p.value[1] === undefined ||
-          Number.isNaN(p.value[1])
-        ) {
-          return ''
-        }
-        const unitStr = unit ? ` ${unit}` : ''
-        return `${p.seriesName}<br/>${p.value[0]}<br/><strong>${p.value[1]}${unitStr}</strong>`
+    return {
+      ...echartsOptions,
+      tooltip: {
+        ...echartsOptions.tooltip,
+        formatter: (params: any) => {
+          // ECharts axis trigger passes an array of series data for that axis index
+          const p = Array.isArray(params) ? params[0] : params
+          if (
+            !p ||
+            !p.value ||
+            p.value[1] === '-' ||
+            p.value[1] === '' ||
+            p.value[1] === 'NaN' ||
+            p.value[1] === null ||
+            p.value[1] === undefined ||
+            Number.isNaN(p.value[1])
+          ) {
+            return ''
+          }
+          const unitStr = unit ? ` ${unit}` : ''
+          return `${p.seriesName}<br/>${p.value[0]}<br/><strong>${p.value[1]}${unitStr}</strong>`
+        },
       },
-    },
-    title: {
-      text: name,
-      left: 'center',
-      textStyle: {
-        color: '#ccc',
+      title: {
+        text: name,
+        left: 'center',
+        textStyle: {
+          color: '#ccc',
+        },
       },
-    },
-    series: [
-      {
-        name: name,
-        type: 'line',
-        data: data,
-        smooth: true, // Make the line smooth
-        symbol: 'circle',
-        symbolSize: 6,
-        markArea: markArea,
-      },
-    ],
-  }
+      series: [
+        {
+          name: name,
+          type: 'line',
+          data: data,
+          smooth: true, // Make the line smooth
+          symbol: 'circle',
+          symbolSize: 6,
+          markArea: markArea,
+        },
+      ],
+    }
+  }, [rangeStr, name, data, unit])
 
   return <ReactECharts option={options} style={echartsOptions.style} notMerge={true} theme="dark" />
 })
