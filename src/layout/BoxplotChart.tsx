@@ -150,8 +150,7 @@ export default memo(({ name, values }: BoxplotChartProps) => {
 
     // Optimization: Replace Object.keys().map() chaining with a single classic loop
     const datasetsLen = periods.length
-    // eslint-disable-next-line eslint-plugin-unicorn/no-new-array
-    const datasets = new Array(datasetsLen)
+    const datasets = Array<number[]>(datasetsLen)
     for (let i = 0; i < datasetsLen; i++) {
       datasets[i] = groupedData[periods[i]]
     }

@@ -6,16 +6,16 @@ test('benchmark biomarker correlation optimized v4', async () => {
 
   // Create mock data
   const N = 500
-  const filteredBiomarkerValues = new Array(N).fill(0).map(() => Math.random() * 100)
+  const filteredBiomarkerValues = Array(N).fill(0).map(() => Math.random() * 100)
   const rankedBiomarker = rankData(filteredBiomarkerValues)
 
-  const supplements = new Array(500).fill(0).map((_, i) => `Supp${i}`)
+  const supplements = Array(500).fill(0).map((_, i) => `Supp${i}`)
 
-  const noteValues = new Array(N).fill(0).map(() => ({
+  const noteValues = Array(N).fill(0).map(() => ({
     supps: supplements.filter(() => Math.random() > 0.9),
   }))
 
-  const validIndices = new Array(N).fill(0).map((_, i) => i)
+  const validIndices = Array(N).fill(0).map((_, i) => i)
 
   const results = []
   const alpha = 0.05
@@ -30,7 +30,7 @@ test('benchmark biomarker correlation optimized v4', async () => {
 
   // Optimization: use typed arrays for numbers for faster memory access
   for (const supp of supplements) {
-    suppVectors.set(supp, new Array(validIndices.length).fill(0))
+    suppVectors.set(supp, Array(validIndices.length).fill(0))
   }
 
   const numValid = validIndices.length

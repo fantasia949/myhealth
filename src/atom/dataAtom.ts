@@ -43,21 +43,32 @@ export const dataMapAtom = atom((get) => {
 export const rankedDataMapAtom = atom((get) => {
   const data = get(dataAtom)
   const map = new Map<string, Float64Array>()
-  // Optimization: Replacing Array.forEach and Array.map with a traditional for-loop
-  // and a pre-allocated Float64Array to avoid object allocation and garbage collection
-  // overhead inside derived atoms. This also provides a fast zero-copy path for rankData.
+
+  if (data.length === 0) return map
+
+  // Optimization: Pre-allocate a single shared Float64Array buffer instead of creating
+  // a new one for every biomarker. Using .subarray() creates a zero-copy view, eliminating
+  // O(Biomarkers * N) array allocations and garbage collection overhead during data updates.
+  const maxLen = data[0][1].length
+  const sharedBuffer = new Float64Array(maxLen)
+
   for (let i = 0; i < data.length; i++) {
     const item = data[i]
     const rawValues = item[1]
     const len = rawValues.length
-    const values = new Float64Array(len)
+
+    // Reset buffer up to len to avoid stale data from previous iteration
+    sharedBuffer.fill(0, 0, len)
+
     for (let j = 0; j < len; j++) {
       const v = rawValues[j]
-      if (v) {
-        values[j] = +v
+      if (v !== null && v !== undefined && (v as any) !== '') {
+        sharedBuffer[j] = +v
       }
     }
-    map.set(item[0], rankData(values))
+
+    // Pass a zero-copy slice of the full length array to retain date alignment
+    map.set(item[0], rankData(sharedBuffer.subarray(0, len)))
   }
   return map
 })

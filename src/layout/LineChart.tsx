@@ -70,8 +70,7 @@ export default memo(({ name, values, rangeStr }: LineChartProps) => {
     // Also, wrap in useMemo so that the date formatting isn't re-run unneccessarily when
     // other props (like rangeStr or parent component states) trigger a re-render.
     const numLabels = labels.length
-    // eslint-disable-next-line eslint-plugin-unicorn/no-new-array
-    const result = new Array(numLabels)
+    const result = Array<[string, number | string]>(numLabels)
     for (let i = 0; i < numLabels; i++) {
       const value = values[i]
       result[i] = [formattedLabels[i], value !== null && value !== undefined ? value : '-']

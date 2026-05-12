@@ -23,7 +23,7 @@ test('benchmark Point-Biserial Correlation', async () => {
   const n = 1000
   const numSupplements = 100
 
-  const biomarker = new Array(n)
+  const biomarker = Array(n)
   for (let i = 0; i < n; i++) biomarker[i] = Math.random()
   const rankedBiomarker = rankData(biomarker)
 
