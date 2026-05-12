@@ -15,7 +15,7 @@ export default (inputs: Array<RawEntry>): Entry[] => {
       if (matchedEntry) {
         matchedEntry[1][index] = value
       } else {
-        const values = Array.from<string>({ length: len })
+        const values = Array<string>(len).fill(undefined as any)
         values[index] = value
         matchedEntry = [name, values, unit as string, extra]
         map.set(name, matchedEntry)
