@@ -50,3 +50,8 @@
 
 **Learning:** Generic icon components (like `@heroicons/react`) can cause redundant screen reader announcements if used decoratively without `aria-hidden="true"`.
 **Action:** Always add `aria-hidden="true"` to SVG/icon components that do not convey meaningful unique information (e.g., when wrapped in a button with a clear `aria-label`).
+
+## 2026-05-24 - Avoiding Nested Interactive Elements in Data Cells
+
+**Learning:** Data table cells (`<td>`) that map to diverse data types often mistakenly apply global interactive attributes (like `role="button"` or `tabIndex=0` for a "click-to-copy" feature) even when the inner content is already interactive (like an `<a>` tag for an external URL). This creates a "nested interactive element" accessibility violation, confusing screen readers.
+**Action:** When a table cell renders an interactive element (like a link), conditionally strip the outer `<td>` of its interactive ARIA roles, keyboard focus attributes, and click handlers, delegating interaction entirely to the inner element. Additionally, if the cell is completely empty, it should simply return a semantic `<td>` with no interactive attributes whatsoever.
