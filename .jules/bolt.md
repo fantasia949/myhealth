@@ -141,3 +141,8 @@
 ## 2026-05-20 - V8 Loop Unrolling Optimizations
 **Learning:** Manual loop unrolling (e.g. processing 4 items at a time and juggling 20 parallel accumulators) to break data dependency chains can actually hurt performance in modern V8. In `calculatePearsonValue`, the manual unrolled version was ~30% slower than a simple idiomatic `for` loop, likely because juggling so many local variables exceeds register allocation limits and prevents the JIT compiler from applying its own more effective vectorized optimizations.
 **Action:** Avoid manual loop unrolling for simple numerical aggregations in JavaScript. Write simple, idiomatic `for` loops and let the engine's JIT compiler handle vectorization and unrolling.
+
+## 2026-06-03 - Avoid `Array.from` for creating initialized arrays
+
+**Learning:** `Array.from({ length: N })` creates unnecessary garbage collection overhead when used inside tight loops or frequent React renders (e.g. `useMemo`). The `unicorn/no-new-array` rule flags `new Array(len)`, pushing developers to incorrectly use `Array.from`.
+**Action:** Always pre-allocate fixed-length arrays directly using explicit types: `Array<Type>(N)`. This bypasses the linting rule while preserving the high-performance memory allocation behavior of `new Array()`.
