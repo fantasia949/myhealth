@@ -257,7 +257,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
       },
       series: series,
     }
-  }, [targetBiomarker, correlations, rankedDataMap])
+  }, [targetBiomarker, correlations, rankedDataMap, noteValues])
 
   if (Object.keys(options).length === 0) {
     return (

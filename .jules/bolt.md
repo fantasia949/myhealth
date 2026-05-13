@@ -144,3 +144,8 @@
 ## 2026-05-21 - Memory Optimization with Zero-Copy TypedArrays
 **Learning:** Instantiating `new Float64Array(len)` on every iteration for thousands of time-series records creates massive garbage collection pressure and latency spikes. Compacting arrays into smaller sub-views without explicitly handling missing data alignments introduces structural defects in cross-correlation math pipelines.
 **Action:** When filtering or formatting typed arrays in hot-paths where index alignment matters (like time-series), pre-allocate a single max-size `sharedBuffer` array outside the loop. Use `sharedBuffer.fill(0, 0, len)` to clear stale data, index over it locally, and safely pass the aligned sub-slice to math processors via `.subarray(0, len)` to achieve zero-copy memory re-use.
+
+## 2026-06-03 - Avoid `Array.from` for creating initialized arrays
+
+**Learning:** `Array.from({ length: N })` creates unnecessary garbage collection overhead when used inside tight loops or frequent React renders (e.g. `useMemo`). The `unicorn/no-new-array` rule flags `new Array(len)`, pushing developers to incorrectly use `Array.from`.
+**Action:** Always pre-allocate fixed-length arrays directly using explicit types: `Array<Type>(N)`. This bypasses the linting rule while preserving the high-performance memory allocation behavior of `new Array()`.

@@ -469,15 +469,17 @@ export default React.memo(
 
     const cellBaseClasses = React.useMemo(() => {
       const count = showRecords || labels.length
-      return Array.from({ length: count }, (_, index) => {
+      const result = Array<string>(count)
+      for (let index = 0; index < count; index++) {
         const dist = count - 1 - index
-        return cn('p-2 border border-gray-700 text-right cursor-pointer select-none', {
+        result[index] = cn('p-2 border border-gray-700 text-right cursor-pointer select-none', {
           'is-latest': dist === 0,
           'hidden sm:table-cell': dist === 2,
           'hidden md:table-cell': dist > 2 && dist <= 4,
           'hidden lg:table-cell': dist > 4,
         })
-      })
+      }
+      return result
     }, [showRecords, labels.length])
 
     const { displayedEntries, hiddenCountPerGroup } = React.useMemo(() => {
