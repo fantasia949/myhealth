@@ -24,7 +24,7 @@ test('benchmark complete spearman loop', async () => {
   const numSupplements = 100
 
   // mock ranked biomarker
-  const biomarker = new Array(n)
+  const biomarker = Array(n)
   for (let i = 0; i < n; i++) biomarker[i] = Math.random()
   const rankedBiomarker = rankData(biomarker)
 
@@ -34,7 +34,7 @@ test('benchmark complete spearman loop', async () => {
   for (let s = 0; s < numSupplements; s++) {
     const name = `supp_${s}`
     supplements.push(name)
-    const vec = new Array(n)
+    const vec = Array(n)
     for (let i = 0; i < n; i++) {
       vec[i] = Math.random() > 0.8 ? 1 : 0
     }

@@ -21,7 +21,7 @@ function rankBinaryData(arr: number[]): Float64Array {
 
 test('benchmark rankData vs binary rankData', async () => {
   const n = 1000
-  const arr = new Array(n)
+  const arr = Array(n)
   for (let i = 0; i < n; i++) arr[i] = Math.random() > 0.8 ? 1 : 0
 
   const start1 = performance.now()

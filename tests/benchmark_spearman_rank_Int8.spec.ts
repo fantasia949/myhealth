@@ -50,7 +50,7 @@ test('spearman rank int8 vector optimization benchmark', async () => {
     noteValues.push({ supps: [`supp_${i % N}`, `supp_${(i + 1) % N}`] })
   }
 
-  const biomarker = new Array(M)
+  const biomarker = Array(M)
   for (let i = 0; i < M; i++) biomarker[i] = Math.random()
   const rankedBiomarker = rankData(biomarker)
 
@@ -58,7 +58,7 @@ test('spearman rank int8 vector optimization benchmark', async () => {
   for (let iter = 0; iter < 10; iter++) {
     const suppVectors = new Map<string, number[]>()
     uniqueSupplements.forEach((supp) => {
-      suppVectors.set(supp, new Array(validIndices.length).fill(0))
+      suppVectors.set(supp, Array(validIndices.length).fill(0))
     })
 
     const numValid = validIndices.length

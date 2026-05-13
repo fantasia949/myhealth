@@ -150,7 +150,6 @@ export default memo(({ keys }: ChartProps) => {
     const entry0 = dataMap.get(keys[0])
     const entry1 = dataMap.get(keys[1])
 
-    const mappedData: any[][] = []
     let minX = 0,
       maxX = 100,
       minY = 0,
@@ -163,6 +162,9 @@ export default memo(({ keys }: ChartProps) => {
       const unitY = entry1[2] || ''
       const len = labels.length
 
+      const mappedData = Array<any[]>(len)
+      let count = 0
+
       let initializedBounds = false
 
       for (let i = 0; i < len; i++) {
@@ -170,7 +172,7 @@ export default memo(({ keys }: ChartProps) => {
         const v1 = values1[i]
         if (v0 !== null && v0 !== undefined && v1 !== null && v1 !== undefined) {
           const formattedDate = formattedLabels[i]
-          mappedData.push([v0, v1, formattedDate, unitX, unitY])
+          mappedData[count++] = [v0, v1, formattedDate, unitX, unitY]
 
           if (!initializedBounds) {
             minX = v0
@@ -186,9 +188,10 @@ export default memo(({ keys }: ChartProps) => {
           }
         }
       }
+      return { data: mappedData.slice(0, count), minX, maxX, minY, maxY }
     }
 
-    return { data: mappedData, minX, maxX, minY, maxY }
+    return { data: [], minX, maxX, minY, maxY }
   }, [dataMap, keys])
 
   const options: any = useMemo(() => {

@@ -141,6 +141,9 @@
 ## 2026-05-20 - V8 Loop Unrolling Optimizations
 **Learning:** Manual loop unrolling (e.g. processing 4 items at a time and juggling 20 parallel accumulators) to break data dependency chains can actually hurt performance in modern V8. In `calculatePearsonValue`, the manual unrolled version was ~30% slower than a simple idiomatic `for` loop, likely because juggling so many local variables exceeds register allocation limits and prevents the JIT compiler from applying its own more effective vectorized optimizations.
 **Action:** Avoid manual loop unrolling for simple numerical aggregations in JavaScript. Write simple, idiomatic `for` loops and let the engine's JIT compiler handle vectorization and unrolling.
+## 2026-05-21 - Memory Optimization with Zero-Copy TypedArrays
+**Learning:** Instantiating `new Float64Array(len)` on every iteration for thousands of time-series records creates massive garbage collection pressure and latency spikes. Compacting arrays into smaller sub-views without explicitly handling missing data alignments introduces structural defects in cross-correlation math pipelines.
+**Action:** When filtering or formatting typed arrays in hot-paths where index alignment matters (like time-series), pre-allocate a single max-size `sharedBuffer` array outside the loop. Use `sharedBuffer.fill(0, 0, len)` to clear stale data, index over it locally, and safely pass the aligned sub-slice to math processors via `.subarray(0, len)` to achieve zero-copy memory re-use.
 
 ## 2026-06-03 - Avoid `Array.from` for creating initialized arrays
 
