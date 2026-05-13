@@ -149,3 +149,7 @@
 
 **Learning:** `Array.from({ length: N })` creates unnecessary garbage collection overhead when used inside tight loops or frequent React renders (e.g. `useMemo`). The `unicorn/no-new-array` rule flags `new Array(len)`, pushing developers to incorrectly use `Array.from`.
 **Action:** Always pre-allocate fixed-length arrays directly using explicit types: `Array<Type>(N)`. This bypasses the linting rule while preserving the high-performance memory allocation behavior of `new Array()`.
+
+## 2024-05-13 - Initial Data Parsing Optimizations
+**Learning:** During the initial load phase of the application (`src/data/loader.ts`), using concise array methods like `Array.fromEntries(inputs.map(...))` and `Array.map` can lead to unnecessary object allocations and closure creation. Although not a part of the critical rendering loop, optimizing these parsing paths with standard `for` loops and pre-allocated arrays helps mitigate garbage collection spikes at startup, particularly given the amount of data being merged.
+**Action:** When inspecting data loading and parsing files, replace `Array.map` and `Array.reduce` with pre-allocated traditional `for` loops to minimize initial memory footprint.
