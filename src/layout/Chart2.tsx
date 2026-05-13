@@ -35,6 +35,7 @@ const echartsOptions: any = {
     {
       type: 'value',
       show: true,
+      scale: true,
       axisLine: { show: false },
       axisTick: { show: false },
       splitLine: { show: false },
@@ -44,6 +45,7 @@ const echartsOptions: any = {
     {
       show: true,
       type: 'value',
+      scale: true,
       splitLine: { lineStyle: { color: '#3a3a3a80', type: 'dashed', width: 1 } },
     },
     {
@@ -89,20 +91,6 @@ const echartsOptions: any = {
     top: 40,
     bottom: 40,
   },
-  dataZoom: [
-    {
-      type: 'slider',
-      show: false,
-      xAxisIndex: [0],
-      bottom: 30,
-    },
-    {
-      type: 'slider',
-      show: false,
-      yAxisIndex: [0],
-      right: 30,
-    },
-  ],
   series: [
     {
       type: 'scatter',
@@ -150,11 +138,6 @@ export default memo(({ keys }: ChartProps) => {
     const entry0 = dataMap.get(keys[0])
     const entry1 = dataMap.get(keys[1])
 
-    let minX = 0,
-      maxX = 100,
-      minY = 0,
-      maxY = 100
-
     if (entry0 && entry1) {
       const values0 = entry0[1]
       const values1 = entry1[1]
@@ -165,33 +148,18 @@ export default memo(({ keys }: ChartProps) => {
       const mappedData = Array<any[]>(len)
       let count = 0
 
-      let initializedBounds = false
-
       for (let i = 0; i < len; i++) {
         const v0 = values0[i]
         const v1 = values1[i]
         if (v0 !== null && v0 !== undefined && v1 !== null && v1 !== undefined) {
           const formattedDate = formattedLabels[i]
           mappedData[count++] = [v0, v1, formattedDate, unitX, unitY]
-
-          if (!initializedBounds) {
-            minX = v0
-            maxX = v0
-            minY = v1
-            maxY = v1
-            initializedBounds = true
-          } else {
-            if (v0 < minX) minX = v0
-            if (v0 > maxX) maxX = v0
-            if (v1 < minY) minY = v1
-            if (v1 > maxY) maxY = v1
-          }
         }
       }
-      return { data: mappedData.slice(0, count), minX, maxX, minY, maxY }
+      return { data: mappedData.slice(0, count) }
     }
 
-    return { data: [], minX, maxX, minY, maxY }
+    return { data: [] }
   }, [dataMap, keys])
 
   const options: any = useMemo(() => {
@@ -280,18 +248,6 @@ export default memo(({ keys }: ChartProps) => {
       },
       dataset,
       series: nextSeries,
-      dataZoom: [
-        {
-          ...(echartsOptions.dataZoom as any[])[0],
-          startValue: mappedScatterData.minX,
-          endValue: mappedScatterData.maxX,
-        },
-        {
-          ...(echartsOptions.dataZoom as any[])[1],
-          startValue: mappedScatterData.minY,
-          endValue: mappedScatterData.maxY,
-        },
-      ],
     }
   }, [mappedScatterData, keys])
 

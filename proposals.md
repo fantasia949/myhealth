@@ -1,5 +1,3 @@
-# Part 2 — Visualization Proposals
-
 ---
 
 **Proposal 1 of 5: System-Wide Optimality Radar Chart**
@@ -10,21 +8,21 @@
 `extra.optimality[]` pre-computed by `src/processors/post/range.ts`, index-aligned with `BioMarker[1]`.
 
 **Which existing data it uses:**
-Reads `extra.optimality[]` (count of optimal vs non-optimal), `name`, and `extra.tag` from every `BioMarker` entry returned by `visibleDataAtom`. It normalizes the optimality boolean array into a single score per tag group.
+Reads `extra.range` min/max boundaries and `extra.optimality[]` from every `BioMarker` returned by `visibleDataAtom`. Uses the most recent measurement value.
 
 **What it reveals that current charts don't:**
-Reveals at a single glance which physiological system (tag group like `1-Metabolic`, `3-Liver`, etc.) has the most out-of-range biomarkers at the most recent time point or across all time points. Current line/scatter charts require the user to manually filter by tag and inspect each biomarker individually.
+Shows whether all members of a selected tag group (e.g., `8-WBC`) are simultaneously within their optimal ranges at the most recent time point, allowing a quick holistic system health check.
 
 **Where it would live:**
-New `src/layout/SystemOptimalityRadar.tsx`, rendered in the main dashboard view, perhaps above or alongside the main tables.
+New `src/layout/RadarChart.tsx`, rendered conditionally in `App.tsx` below the main chart layout when `tagAtom` is non-null.
 
 **Trigger / entry point:**
-Could be a static dashboard widget or triggered by clicking a "System Overview" button.
+The existing tag filter buttons in the nav (which set `tagAtom`) already filter `visibleDataAtom` by tag. The Radar chart auto-renders when a specific tag is active.
 
-**Implementation complexity:** Medium
-(Requires aggregating the boolean `optimality` arrays by `tag` and mapping to the radar data format, but the data is already perfectly formatted.)
+**Implementation complexity:** Low
+Requires passing `visibleDataAtom` entries to a new wrapper component.
 
-**ECharts 6 API confirmed via context7:** yes (`series[].type: 'radar'`, `radar.indicator`)
+**ECharts 6 API confirmed via context7:** yes - `series[].type: 'radar'`, `radar.indicator[]`
 
 ---
 
@@ -33,24 +31,24 @@ Could be a static dashboard widget or triggered by clicking a "System Overview" 
 **ECharts type:** `boxplot`
 
 **Codebase citation:**
-`nonInferredDataAtom` in `src/atom/dataAtom.ts` which provides purely measured (not calculated) biomarker data.
+`nonInferredDataAtom` from `src/atom/dataAtom.ts`.
 
 **Which existing data it uses:**
-Uses the raw time-series values (`BioMarker[1]`) from `nonInferredDataAtom` for the currently selected or filtered biomarkers, ignoring nulls.
+Reads all historical measurement values (`BioMarker[1]`) for a single biomarker across the entire timeline (using `nonInferredDataAtom` to avoid inferred duplicates).
 
 **What it reveals that current charts don't:**
-Shows the overall statistical distribution, median, quartiles, and outliers of a biomarker over the entire tracking history. Time-series lines/scatters show movement over time but make it hard to see the historical center of mass or spot extreme statistical outliers.
+Highlights the long-term distribution, median drift, and outliers of a high-variance biomarker over the full time range, exposing long-term trends beyond individual scatter points.
 
 **Where it would live:**
-New `src/layout/BoxplotChart.tsx`, potentially replacing or augmenting the existing `ScatterChart` when a "Distribution" view toggle is clicked.
+New `src/layout/BoxplotChart.tsx`, rendered inside the table row expand view alongside the existing `LineChart.tsx`.
 
 **Trigger / entry point:**
-A toggle button near the chart controls (e.g. "Time Series" vs "Distribution").
+Expanding a table row for a specific biomarker.
 
 **Implementation complexity:** Medium
-(ECharts boxplot requires `echarts.dataTool.prepareBoxplotData` or manual percentile calculation, but the raw array data is readily available.)
+Requires processing the time-series values into the specific 5-point array format required by ECharts `boxplot` series data.
 
-**ECharts 6 API confirmed via context7:** yes (`series[].type: 'boxplot'`, `dataset.source`)
+**ECharts 6 API confirmed via context7:** yes - `series[].type: 'boxplot'`
 
 ---
 
@@ -59,77 +57,77 @@ A toggle button near the chart controls (e.g. "Time Series" vs "Distribution").
 **ECharts type:** `heatmap`
 
 **Codebase citation:**
-`extra.optimality[]` pre-computed by `src/processors/post/range.ts`.
+`extra.optimality[]` pre-computed by `src/processors/post/range.ts`, index-aligned with `BioMarker[1]`.
 
 **Which existing data it uses:**
-Uses `visibleDataAtom` to get a filtered list of biomarkers (e.g., by a specific tag). The Y-axis represents biomarker names, the X-axis represents time points (`labels[]`), and the color intensity (or binary color) represents `extra.optimality[]` (true/false).
+Reads the full time-series array of `extra.optimality[]` for all biomarkers within the current `visibleDataAtom`.
 
 **What it reveals that current charts don't:**
-Instantly reveals temporal clusters of poor health. If a user was sick during a specific month, a vertical column of "out of range" colors will appear across multiple biomarkers simultaneously.
+Reveals clusters of out-of-range biomarkers across time, easily spotting correlations between different markers failing simultaneously across the timeline.
 
 **Where it would live:**
-New `src/layout/OptimalityHeatmap.tsx`, rendered when a specific tag is selected via `tagAtom`.
+New `src/layout/OptimalityHeatmap.tsx`, rendered at the top of the application view when multiple biomarkers are visible.
 
 **Trigger / entry point:**
-Auto-renders when the user selects a tag group (e.g. `2-Metabolic`) from the tag filters, providing a dense summary of that entire group.
+Always visible or triggered via a new "View Matrix" toggle button on the main dashboard layout.
 
-**Implementation complexity:** Low
-(Heatmap data format `[xIndex, yIndex, value]` is trivial to generate by looping over `visibleDataAtom` and `labels[]`.)
+**Implementation complexity:** Medium
+Requires transforming the 2D matrix of biomarkers x time points into ECharts' expected `[x, y, value]` coordinate array format.
 
-**ECharts 6 API confirmed via context7:** yes (`series[].type: 'heatmap'`, `visualMap`)
+**ECharts 6 API confirmed via context7:** yes - `series[].type: 'heatmap'`, `visualMap[].type: 'piecewise'`
 
 ---
 
-**Proposal 4 of 5: LineChart Optimality VisualMap**
+**Proposal 4 of 5: Time-Series Protocol Clustering**
 
-**ECharts type:** `visualMap` on existing `LineChart`
+**ECharts type:** `ecStat:clustering`
 
 **Codebase citation:**
-`extra.optimality[]` pre-computed by `src/processors/post/range.ts`.
+All biomarkers in `dataAtom.ts` (`BioMarker[]`).
 
 **Which existing data it uses:**
-Takes the `extra.optimality[]` array and maps it to `pieces` in a `visualMap` configuration for the existing line series in `src/layout/LineChart.tsx`.
+Reads the vectors of all available biomarker values across all time points (`labels[]`).
 
 **What it reveals that current charts don't:**
-The current line chart uses a static color and shades the background `markArea`. A `visualMap` can dynamically change the color of the *line itself* (e.g., green when in-range, red when out-of-range) between data points, making transitions into danger zones starkly visible.
+Groups time points into statistical clusters based on all-biomarker vector similarity. Detects distinct physiological states or phases that might align with unknown variables (like specific supplement cycles or lifestyle changes).
 
 **Where it would live:**
-Direct enhancement to `src/layout/LineChart.tsx`.
+New `src/layout/ClusteringChart.tsx`, rendered as a scatter plot with distinct cluster colors.
 
 **Trigger / entry point:**
-Always active when `LineChart` renders (e.g., when a table row is expanded).
+A dedicated "Run Clustering" button within the correlation modal or alongside the main chart controls.
 
-**Implementation complexity:** Low
-(Requires converting the `extra.optimality[]` array into a sequence of `visualMap.pieces` based on indices/dates.)
+**Implementation complexity:** High
+Requires flattening time-series data into a dense matrix format acceptable by `ecStat.clustering.hierarchicalKMeans` and handling null value imputation/gaps.
 
-**ECharts 6 API confirmed via context7:** yes (`visualMap[].type: 'piecewise'`, `visualMap[].dimension`)
+**ECharts 6 API confirmed via context7:** yes - `ecStat.clustering`
 
 ---
 
-**Proposal 5 of 5: Single Biomarker Radial Gauge**
+**Proposal 5 of 5: LineChart Optimality VisualMap**
 
-**ECharts type:** `gauge`
+**ECharts type:** `visualMap` on `LineChart`
 
 **Codebase citation:**
-`extra.range` parsed string bounds from `src/processors/post/range.ts`.
+`extra.optimality[]` pre-computed by `src/processors/post/range.ts`, index-aligned with `BioMarker[1]`.
 
 **Which existing data it uses:**
-Reads the most recent non-null value from `BioMarker[1]`, parses `extra.range` to get min/max, and plots the value as a needle on a gauge.
+Reads `extra.optimality[]` from the single `BioMarker` passed into `LineChartProps`.
 
 **What it reveals that current charts don't:**
-Provides an instant, visceral "speedometer" view of how close the latest reading is to the edge of the optimal range. Current charts require reading the Y-axis and comparing against the shaded `markArea`.
+Colour-encodes the existing line chart segments in `LineChart.tsx` based on the `optimality` flag, making in/out-of-range state transitions immediately and continuously visible without a separate chart.
 
 **Where it would live:**
-New `src/layout/BiomarkerGauge.tsx`, rendered inside the expanded table row alongside or replacing the sparkline for the latest reading.
+Extends the existing `src/layout/LineChart.tsx`.
 
 **Trigger / entry point:**
-Visible immediately upon expanding a biomarker row in the data table.
+Automatically active when expanding a biomarker row in the table.
 
 **Implementation complexity:** Low
-(Parsing `extra.range` is already done in `LineChart.tsx` and can be extracted. Gauge config is simple.)
+Requires passing `optimality` array via props and defining a `piecewise` visual map directly in `echartsOptions`.
 
-**ECharts 6 API confirmed via context7:** yes (`series[].type: 'gauge'`)
+**ECharts 6 API confirmed via context7:** yes - `visualMap.type: 'piecewise'`
 
 ---
 
-Recommended implementation order: Proposal 3 first (Optimality Matrix Heatmap), then 1 (System-Wide Optimality Radar Chart), then 4 (LineChart Optimality VisualMap), then 2 (Biomarker Value Drift Boxplot), then 5 (Single Biomarker Radial Gauge).
+Recommended implementation order: Proposal 5 first (lowest effort, high continuous visibility), then 1, then 3, then 2, then 4.
