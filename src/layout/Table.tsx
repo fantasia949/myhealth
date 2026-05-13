@@ -70,26 +70,33 @@ const DataCell = React.memo(
       setTimeout(() => setCopied(false), 1500)
     }, [onCopy, rawValue])
 
+    if (displayValue === null || displayValue === undefined || displayValue === '') {
+      return <td className={className}></td>
+    }
+
     const isUrlUnit =
       typeof unit === 'object' && unit !== null && 'url' in unit && typeof unit.url === 'string'
-    const content = isUrlUnit ? (
-      <a
-        href={isUrlUnit ? (unit as { url: string }).url : ''}
-        target="_blank"
-        rel="noreferrer"
-        className="text-blue-400 hover:underline"
-      >
-        {displayValue}
-      </a>
-    ) : (
-      displayValue
-    )
+
+    if (isUrlUnit) {
+      return (
+        <td className={className}>
+          <a
+            href={(unit as { url: string }).url}
+            target="_blank"
+            rel="noreferrer"
+            className="text-blue-400 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-sm"
+          >
+            {displayValue}
+          </a>
+        </td>
+      )
+    }
 
     return (
       <td
         className={cn(
           className,
-          'relative group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-sm',
+          'relative group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-sm hover:bg-gray-600/30 transition-colors',
         )}
         onClick={handleInteraction}
         tabIndex={0}
@@ -107,7 +114,7 @@ const DataCell = React.memo(
         }
         title="Copy to clipboard"
       >
-        {content}
+        {displayValue}
         {copied && (
           <span
             className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 text-xs text-white bg-blue-600 rounded shadow-lg z-50 animate-fade-in-out pointer-events-none whitespace-nowrap"
@@ -299,7 +306,10 @@ const TableRow = React.memo(
             <td colSpan={visibleLeafColumnsCount} className="border border-gray-700">
               <React.Suspense
                 fallback={
-                  <div className="p-8 flex flex-col items-center justify-center gap-3 text-gray-400" aria-busy="true">
+                  <div
+                    className="p-8 flex flex-col items-center justify-center gap-3 text-gray-400"
+                    aria-busy="true"
+                  >
                     <Spinner />
                     <span role="status" aria-live="polite">
                       Loading charts...
@@ -651,7 +661,10 @@ export default React.memo(
     return (
       <React.Suspense
         fallback={
-          <div className="p-12 flex flex-col items-center justify-center gap-3 text-gray-400" aria-busy="true">
+          <div
+            className="p-12 flex flex-col items-center justify-center gap-3 text-gray-400"
+            aria-busy="true"
+          >
             <Spinner />
             <span role="status" aria-live="polite">
               Loading table...
