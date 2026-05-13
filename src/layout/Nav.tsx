@@ -205,7 +205,7 @@ export default React.memo<NavProps>(
       } finally {
         setIsAsking(false)
       }
-    }, [selected, data, filterTag, key, model, fullData, nonInferredData])
+    }, [selected, data, filterTag, key, model, fullData, nonInferredData, rankedDataMap])
 
     const [canvasText, setCanvasText] = React.useState<string | null>(null)
     const [gistUrl, setGistUrl] = React.useState<string | null>(null)
@@ -229,7 +229,7 @@ export default React.memo<NavProps>(
 
     const onAverageCount = React.useCallback(
       (e: React.ChangeEvent<HTMLSelectElement>) => setAverageCount(e.target.value),
-      [],
+      [setAverageCount],
     )
     return (
       <>
