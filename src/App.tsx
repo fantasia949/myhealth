@@ -73,17 +73,17 @@ export default function App() {
 
   const onAiKeyChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => setAiKey(e.target.value),
-    [],
+    [setAiKey],
   )
 
   const onAiModelChange = React.useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => setAiModel(e.target.value),
-    [],
+    [setAiModel],
   )
 
   const onGistTokenChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => setGistToken(e.target.value),
-    [],
+    [setGistToken],
   )
 
   const onFilterByTag = React.useCallback(
