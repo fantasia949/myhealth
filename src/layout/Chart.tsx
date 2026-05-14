@@ -43,6 +43,7 @@ const echartsOptions: any = {
         // Eliminating the array callback reduces closure allocation and garbage collection overhead.
         for (let i = 0; i < pArray.length; i++) {
           const p = pArray[i]
+          if (!p.value) continue
           const dimName = p.dimensionNames[p.encode.y[0]]
           const val = p.value[dimName]
           const unit = p.value[`${dimName}_unit`] || ''
