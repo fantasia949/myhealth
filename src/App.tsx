@@ -225,7 +225,6 @@ export default function App() {
       onClearSelection,
       searchText,
       filterTag,
-      showOrigColumns,
       showRecords,
       onShowRecordsChange,
       onTextChange,
