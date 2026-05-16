@@ -6,7 +6,7 @@ import { labels, formattedLabels } from '../data'
 import ReactECharts from 'echarts-for-react'
 import * as echarts from 'echarts'
 import * as ecStat from 'echarts-stat'
-import { ChartProps } from './Chart2.types'
+import { ChartProps } from './Chart.types'
 
 echarts.registerTransform((ecStat as any).transform.regression)
 
