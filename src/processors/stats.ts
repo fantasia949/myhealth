@@ -245,14 +245,27 @@ function quickSortIndices(
   if (i < right) quickSortIndices(arr, indices, i, right)
 }
 
+// Global shared index array to avoid repeated memory allocation overhead in hot paths
+// Max size can safely handle typical arrays (e.g., thousands of test records)
+const MAX_SHARED_ARRAY_SIZE = 10000
+const _sharedIndices = new Int32Array(MAX_SHARED_ARRAY_SIZE)
+
 /**
  * Calculates the ranks of the input array.
  * Ties are assigned the average rank.
  */
 export function rankData(arr: number[] | Float64Array): Float64Array {
   const n = arr.length
-  // Optimization: use a typed array of indices to avoid allocating `{v, i}` objects
-  const indices = new Int32Array(n)
+  // Optimization: Use a pre-allocated shared indices buffer to avoid
+  // heavy memory churn and garbage collection spikes when calculating
+  // thousands of correlations in hot UI loops.
+  let indices: Int32Array
+  if (n <= MAX_SHARED_ARRAY_SIZE) {
+    indices = _sharedIndices.subarray(0, n)
+  } else {
+    indices = new Int32Array(n)
+  }
+
   for (let i = 0; i < n; i++) {
     indices[i] = i
   }
