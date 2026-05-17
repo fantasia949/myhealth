@@ -152,6 +152,8 @@ export default memo(({ keys }: ChartProps) => {
     ref.current = node
     if (node) {
       setIsChartReady(true)
+    } else {
+      setIsChartReady(false)
     }
   }, [])
 
