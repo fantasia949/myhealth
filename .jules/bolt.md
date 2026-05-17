@@ -153,3 +153,8 @@
 ## 2024-05-13 - Initial Data Parsing Optimizations
 **Learning:** During the initial load phase of the application (`src/data/loader.ts`), using concise array methods like `Array.fromEntries(inputs.map(...))` and `Array.map` can lead to unnecessary object allocations and closure creation. Although not a part of the critical rendering loop, optimizing these parsing paths with standard `for` loops and pre-allocated arrays helps mitigate garbage collection spikes at startup, particularly given the amount of data being merged.
 **Action:** When inspecting data loading and parsing files, replace `Array.map` and `Array.reduce` with pre-allocated traditional `for` loops to minimize initial memory footprint.
+
+## 2026-06-03 - Shared TypedArray Buffers for Temporary Operations
+
+**Learning:** When a function requires a temporary `TypedArray` (like an `Int32Array` of indices for sorting) that does NOT escape the function's scope, repeatedly allocating a `new Int32Array(n)` inside hot loops (like computing thousands of cross-correlations) creates massive garbage collection pressure and latency spikes.
+**Action:** Declare a module-scoped, pre-allocated shared buffer (`const _sharedIndices = new Int32Array(MAX_SIZE)`). Inside the function, use `_sharedIndices.subarray(0, n)` to get a zero-copy temporary view, falling back to dynamic allocation only if `n > MAX_SIZE`. Ensure the shared buffer is never returned from the function to prevent cross-call state corruption.
