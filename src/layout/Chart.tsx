@@ -5,10 +5,7 @@ import { ChartProvider, ChartContext } from '@echarts-readymade/core'
 import { Line } from '@echarts-readymade/line'
 import { labels, formattedLabels } from '../data'
 import { CHART_PALETTE } from './Chart2'
-
-interface ChartProps {
-  keys: string[]
-}
+import { ChartProps } from './Chart.types'
 
 const dimension = [
   {
