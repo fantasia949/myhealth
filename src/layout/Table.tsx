@@ -309,11 +309,11 @@ const TableRow = React.memo(
                   <div
                     className="p-8 flex flex-col items-center justify-center gap-3 text-gray-400"
                     aria-busy="true"
+                    role="status"
+                    aria-live="polite"
                   >
                     <Spinner />
-                    <span role="status" aria-live="polite">
-                      Loading charts...
-                    </span>
+                    <span>Loading charts...</span>
                   </div>
                 }
               >
@@ -666,11 +666,11 @@ export default React.memo(
           <div
             className="p-12 flex flex-col items-center justify-center gap-3 text-gray-400"
             aria-busy="true"
+            role="status"
+            aria-live="polite"
           >
             <Spinner />
-            <span role="status" aria-live="polite">
-              Loading table...
-            </span>
+            <span>Loading table...</span>
           </div>
         }
       >

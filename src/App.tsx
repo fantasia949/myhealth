@@ -309,11 +309,14 @@ export default function App() {
       <main id="main-content" tabIndex={-1}>
         <React.Suspense
           fallback={
-            <div className="flex flex-col items-center justify-center p-12 gap-3 text-gray-400" aria-busy="true">
+            <div
+              className="flex flex-col items-center justify-center p-12 gap-3 text-gray-400"
+              aria-busy="true"
+              role="status"
+              aria-live="polite"
+            >
               <Spinner />
-              <span role="status" aria-live="polite">
-                Loading chart...
-              </span>
+              <span>Loading chart...</span>
             </div>
           }
         >

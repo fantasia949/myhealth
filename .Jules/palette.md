@@ -127,3 +127,6 @@
 
 **Learning:** Decorative icons (like `<CheckIcon />` or `<MinusIcon />` from `@heroicons/react`) placed inside buttons that already have an explicit `aria-label` or `title` can cause double announcements by screen readers. While `<Spinner />` had `aria-hidden="true"`, many other action-button icons in components like `Table.tsx` and `Correlation.tsx` were missing this attribute.
 **Action:** Always add `aria-hidden="true"` to generic/decorative SVGs when they are placed alongside explicit descriptive text or when wrapped in interactive elements with a clear `aria-label`.
+## 2026-05-17 - Suspense Loading Fallbacks
+**Learning:** When using loading states like React Suspense fallbacks that contain both text and a generic spinner icon, applying `aria-live="polite"` and `role="status"` to the container wrapper alongside `aria-busy="true"` improves screen reader announcements instead of isolating the announcement to a single inner span while leaving the spinner and container attributes unassociated.
+**Action:** Always group loading indicators and their descriptive text holistically at the container level by putting `aria-busy`, `role="status"`, and `aria-live` on the wrapper element to provide clear, unified context to assistive technologies.
