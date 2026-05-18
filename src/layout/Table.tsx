@@ -492,7 +492,7 @@ export default React.memo(
         })
       }
       return result
-    }, [showRecords, labels.length])
+    }, [showRecords])
 
     const { displayedEntries, hiddenCountPerGroup } = React.useMemo(() => {
       // Optimization: Pre-calculate visible values/optimality to avoid slicing in the render loop.
