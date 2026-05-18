@@ -106,10 +106,10 @@ export default memo(({ name, values, rangeStr }: LineChartProps) => {
           data: [
             [
               {
-                yAxis: validMin ? min : undefined,
+                yAxis: validMin ? min : 'min',
               },
               {
-                yAxis: validMax ? max : undefined,
+                yAxis: validMax ? max : 'max',
               },
             ],
           ],
