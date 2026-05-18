@@ -280,7 +280,7 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
         },
       ],
     }
-  }, [data, noteValues, xAxisTag, yAxisTag, availableTags])
+  }, [data, noteValues, xAxisTag, yAxisTag])
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
