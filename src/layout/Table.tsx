@@ -401,10 +401,12 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
   }),
   columnHelper.accessor('unit', {
     header: ({ table }) => (
-      <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-        <label htmlFor="toggle-origin" className="cursor-pointer">
-          Unit
-        </label>
+      <label
+        htmlFor="toggle-origin"
+        className="flex items-center gap-2 cursor-pointer"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <span>Unit</span>
         <div className="flex items-center gap-1.5 ml-1">
           <input
             id="toggle-origin"
@@ -420,7 +422,7 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
             }}
           />
         </div>
-      </div>
+      </label>
     ),
     meta: {
       ref: true,
