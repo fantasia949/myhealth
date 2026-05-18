@@ -297,7 +297,19 @@ export default function App() {
         </div>
       </React.Suspense>
       <Nav {...navProps} />
-      <React.Suspense fallback={null}>
+      <React.Suspense
+        fallback={
+          <div
+            className="fixed bottom-4 right-4 z-50 flex items-center justify-center px-4 py-3 bg-gray-800 text-gray-300 rounded-md shadow-xl border border-gray-700 gap-3 animate-pulse"
+            aria-busy="true"
+            role="status"
+            aria-live="polite"
+          >
+            <Spinner />
+            <span className="text-sm font-medium">Loading module...</span>
+          </div>
+        }
+      >
         <PValue comparedSourceTarget={comparedSourceTarget} onClose={onPValueClose} />
         <Correlation target={corrlationKey} onClose={onCorrelationClose} />
         <SupplementCorrelation

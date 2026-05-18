@@ -545,7 +545,19 @@ export default React.memo<NavProps>(
           </div>
         </nav>
 
-        <React.Suspense fallback={null}>
+        <React.Suspense
+          fallback={
+            <div
+              className="fixed bottom-4 right-4 z-50 flex items-center justify-center px-4 py-3 bg-gray-800 text-gray-300 rounded-md shadow-xl border border-gray-700 gap-3 animate-pulse"
+              aria-busy="true"
+              role="status"
+              aria-live="polite"
+            >
+              <Spinner />
+              <span className="text-sm font-medium">Loading module...</span>
+            </div>
+          }
+        >
           {hasGistViewerMounted && (
             <GistViewer isOpen={isGistViewerOpen} onClose={() => setIsGistViewerOpen(false)} />
           )}
