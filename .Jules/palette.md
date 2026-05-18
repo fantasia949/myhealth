@@ -130,3 +130,8 @@
 ## 2026-05-17 - Suspense Loading Fallbacks
 **Learning:** When using loading states like React Suspense fallbacks that contain both text and a generic spinner icon, applying `aria-live="polite"` and `role="status"` to the container wrapper alongside `aria-busy="true"` improves screen reader announcements instead of isolating the announcement to a single inner span while leaving the spinner and container attributes unassociated.
 **Action:** Always group loading indicators and their descriptive text holistically at the container level by putting `aria-busy`, `role="status"`, and `aria-live` on the wrapper element to provide clear, unified context to assistive technologies.
+
+## 2026-12-18 - Jarring Modals and Suspense Overlays
+
+**Learning:** When using `React.Suspense` for lazy-loaded modals, utilizing a full-screen, semi-transparent background overlay as the fallback loading state causes a jarring screen flash for the user because the loading state often appears for only a fraction of a second.
+**Action:** Always use a subtle, localized loading indicator (e.g., a floating bottom-right notification) instead of a full-screen overlay for `React.Suspense` fallbacks on modals. This ensures an accessible loading state is communicated to screen readers (via `aria-busy="true"`, `role="status"`, `aria-live="polite"`) without causing visual disruption.
