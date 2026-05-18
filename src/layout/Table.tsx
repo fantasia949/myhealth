@@ -38,6 +38,7 @@ import { Spinner } from './Spinner'
 const LineChart = React.lazy(() => import('./LineChart'))
 const BoxplotChart = React.lazy(() => import('./BoxplotChart'))
 const HistogramChart = React.lazy(() => import('./HistogramChart'))
+const InferredValidationChart = React.lazy(() => import('./InferredValidationChart'))
 
 const columnHelper = createColumnHelper<DisplayedEntry>()
 
@@ -326,6 +327,15 @@ const TableRow = React.memo(
                   <BoxplotChart name={name} values={values} />
                   <HistogramChart name={name} values={values} />
                 </div>
+                {extra.inferred && (
+                  <div className="p-3 w-full">
+                    <InferredValidationChart
+                      name={name}
+                      values={values}
+                      originValues={extra.originValues}
+                    />
+                  </div>
+                )}
               </React.Suspense>
             </td>
           </tr>
