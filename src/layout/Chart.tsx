@@ -186,7 +186,8 @@ export default memo(({ keys }: ChartProps) => {
         )
       }
     }
-  }, [keys, yAxis, isChartReady])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [keys, yAxis, isChartReady, ref.current])
 
   return (
     <ChartProvider data={chartData} echartsOptions={echartsOptions}>
