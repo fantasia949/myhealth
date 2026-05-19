@@ -16,4 +16,6 @@ export type NavProps = {
   onPValue: () => void
   onSupplementCorrelation: (name: string) => void
   onOpenClustering?: () => void
+  isNetworkViewOpen: boolean
+  onToggleNetworkView: () => void
 }
