@@ -5,14 +5,8 @@ import { rankedDataMapAtom } from '../atom/dataAtom'
 import { correlationMethodAtom } from '../atom/correlationAtom'
 import { CHART_PALETTE } from './Chart2'
 import { formattedLabels } from '../data'
-import { CorrelationResult } from './BiomarkerCorrelation.types'
+import { BumpChartProps } from './BiomarkerCorrelationBumpChart.types'
 import { calculatePearson } from '../processors/stats'
-
-interface BumpChartProps {
-  targetBiomarker: string
-  correlations: CorrelationResult[]
-  noteValues: NoteItem[]
-}
 
 export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartProps) => {
   const rankedDataMap = useAtomValue(rankedDataMapAtom)
