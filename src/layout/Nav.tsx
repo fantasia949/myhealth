@@ -143,14 +143,27 @@ export default React.memo<NavProps>(
         const relatedContext = (() => {
           if (!fullData || fullData.length === 0) return undefined
 
-          const selectedEntries = fullData.filter((d) => selectedSet.has(d[0]))
-          const candidates = nonInferredData.filter(
-            (d) =>
+          // Optimization: Replace chained Array.filter() with standard for-loops
+          // to eliminate closure creation and array allocation overhead in candidate generation.
+          const selectedEntries: typeof fullData = []
+          for (let i = 0; i < fullData.length; i++) {
+            if (selectedSet.has(fullData[i][0])) {
+              selectedEntries.push(fullData[i])
+            }
+          }
+
+          const candidates: typeof nonInferredData = []
+          for (let i = 0; i < nonInferredData.length; i++) {
+            const d = nonInferredData[i]
+            if (
               !selectedSet.has(d[0]) &&
               !d[0].startsWith('HOMA') &&
               !d[0].startsWith('eGFR') &&
-              !d[0].startsWith('SL '),
-          )
+              !d[0].startsWith('SL ')
+            ) {
+              candidates.push(d)
+            }
+          }
           const related = new Map<string, string>()
 
           // Optimization: Use pre-calculated ranks for all sources and candidates to avoid
