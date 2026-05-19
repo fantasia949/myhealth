@@ -143,7 +143,7 @@ export default memo(({ keys }: ChartProps) => {
     }
 
     return result
-  }, [dataMap, keys, valueList, labels])
+  }, [dataMap, keys, valueList])
 
   const ref = useRef<any>(null)
   const [isChartReady, setIsChartReady] = useState(false)
