@@ -57,7 +57,7 @@ Uses `labels[]` from `src/data/index.ts` and `BioMarker[1]` non-null values.
 Scans the time-series arrays (`BioMarker[1]`) across all items in `dataAtom` to tally the number of non-null measurements for each date corresponding to the `labels[]` array (converted to standard Date strings via `formattedLabels`).
 
 **What it reveals that current charts don't:**
-Current time-series charts skip gaps, making it hard to see *when* blood panels were actually drawn or how comprehensive a specific testing day was. A calendar heatmap immediately visualizes testing frequency, gaps in tracking, and the density/comprehensiveness of past lab visits.
+Current time-series charts skip gaps, making it hard to see _when_ blood panels were actually drawn or how comprehensive a specific testing day was. A calendar heatmap immediately visualizes testing frequency, gaps in tracking, and the density/comprehensiveness of past lab visits.
 
 **Where it would live:**
 New `src/layout/TestingCalendar.tsx`.
@@ -99,7 +99,7 @@ Reads `extra.optimality[]` from `BioMarker[3]` pre-computed by `range.ts`.
 Maps the X-axis to time (`labels[]`) and the Y-axis to biomarker names (categorical axis derived from `visibleDataAtom`). It plots points only at indices where `extra.optimality[i] === true`.
 
 **What it reveals that current charts don't:**
-While `Chart.tsx` shows lines over time, it's difficult to see a summary of *all* infractions across the system simultaneously. This chart acts as an "incident log", plotting only the points where a marker was out of range. A cluster of points vertically on a specific date indicates a systemic health event (e.g., an infection throwing off many markers at once), while a horizontal line of points indicates a chronic, unresolved issue for a specific marker.
+While `Chart.tsx` shows lines over time, it's difficult to see a summary of _all_ infractions across the system simultaneously. This chart acts as an "incident log", plotting only the points where a marker was out of range. A cluster of points vertically on a specific date indicates a systemic health event (e.g., an infection throwing off many markers at once), while a horizontal line of points indicates a chronic, unresolved issue for a specific marker.
 
 **Where it would live:**
 New `src/layout/IncidentTimelineChart.tsx`.
@@ -108,4 +108,5 @@ New `src/layout/IncidentTimelineChart.tsx`.
 A "Show Anomalies" toggle that replaces the main multi-axis line chart with this categorical scatter view for rapid diagnostic scanning.
 
 ---
+
 Recommended implementation order: Proposal 2 first (highest coefficient/correlations insight, historical insight, then other insights), then 1, then 4, then 5, then 3.
