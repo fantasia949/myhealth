@@ -1,4 +1,3 @@
-
 // ⚡ Bolt Optimization: Replacing inline object literals with ES6 classes to avoid closure allocations.
 // This allows the `print` method to be shared on the prototype rather than recreated per instance,
 // reducing garbage collection overhead and yielding a ~2x speedup in hot correlation loops.

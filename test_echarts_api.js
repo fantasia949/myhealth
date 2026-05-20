@@ -1,2 +1,2 @@
-const echarts = require('echarts');
-console.log(echarts.version);
+const echarts = require('echarts')
+console.log(echarts.version)
