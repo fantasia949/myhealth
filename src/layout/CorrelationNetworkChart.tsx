@@ -197,7 +197,7 @@ const CorrelationNetworkChart = React.memo(() => {
   if (!visibleData || visibleData.length === 0) return null
 
   return (
-    <div className="w-full h-full min-h-[600px]">
+    <div className="w-full h-[600px] border border-gray-700 rounded bg-dark-bg/50 mt-4 overflow-hidden relative">
       <ReactECharts
         option={options}
         style={{ height: '100%', width: '100%' }}
