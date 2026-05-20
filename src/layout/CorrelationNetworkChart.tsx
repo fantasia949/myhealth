@@ -107,7 +107,7 @@ const CorrelationNetworkChart = React.memo(() => {
 
                 const result = calculateSpearmanRanked(sourceRanks, targetRanks, options)
                 if (result.pValue <= alpha) {
-                    validPairs.push({ source: sourceName, target: targetName, rho: result.statistic, pValue: result.pValue })
+                    validPairs.push({ source: sourceName, target: targetName, rho: result.pcorr, pValue: result.pValue })
                 }
             }
         }
@@ -118,7 +118,8 @@ const CorrelationNetworkChart = React.memo(() => {
     validPairs.forEach(pair => {
         const isPositive = pair.rho > 0
         const absRho = Math.abs(pair.rho)
-        const width = 1 + Math.pow(absRho, 2) * 8
+        const width = 0.5 + Math.pow(absRho, 2) * 2;
+        const opacity = 0.1 + absRho * 0.4;
 
         edges.push({
             source: pair.source,
@@ -126,9 +127,10 @@ const CorrelationNetworkChart = React.memo(() => {
             value: pair.rho,
             lineStyle: {
               width: width,
-              curveness: 0.2,
+              curveness: 0.15,
+              type: 'solid',
               color: isPositive ? '#10b981' : '#ef4444',
-              opacity: 0.6,
+              opacity: opacity,
             }
         })
 
@@ -184,8 +186,9 @@ const CorrelationNetworkChart = React.memo(() => {
             show: true,
           },
           force: {
-            repulsion: 300,
-            edgeLength: 150,
+            repulsion: 800,
+            edgeLength: [50, 200],
+            gravity: 0.1,
           },
           data: nodes,
           edges: edges,

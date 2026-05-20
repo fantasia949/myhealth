@@ -135,3 +135,6 @@
 
 **Learning:** When using `React.Suspense` for lazy-loaded modals, utilizing a full-screen, semi-transparent background overlay as the fallback loading state causes a jarring screen flash for the user because the loading state often appears for only a fraction of a second.
 **Action:** Always use a subtle, localized loading indicator (e.g., a floating bottom-right notification) instead of a full-screen overlay for `React.Suspense` fallbacks on modals. This ensures an accessible loading state is communicated to screen readers (via `aria-busy="true"`, `role="status"`, `aria-live="polite"`) without causing visual disruption.
+## 2024-05-20 - Correlation Network Graph Edges
+**Learning:** Dense correlation network graphs in ECharts can render edges weirdly (as chunky polygons instead of distinct lines) if thickness scales excessively and `type: 'solid'` is omitted on curved connections.
+**Action:** When visualizing network edges mapping to weight/value, explicitly set `lineStyle.type: 'solid'`, increase `force.repulsion`, and constrain edge widths (e.g. `0.5 + Math.pow(rho, 2) * 2`) to ensure visually clean distinct paths rather than massive overlapping visual artifacts.
