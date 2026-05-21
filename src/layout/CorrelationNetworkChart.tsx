@@ -164,7 +164,7 @@ const CorrelationNetworkChart = React.memo(() => {
 
     return {
       theme: 'dark',
-      backgroundColor: 'transparent',
+      backgroundColor: 'rgba(0,0,0,0)',
       tooltip: {
         backgroundColor: '#111111',
         borderColor: '#3a3a3a80',
@@ -188,6 +188,10 @@ const CorrelationNetworkChart = React.memo(() => {
       series: [
         {
           type: 'graph',
+          top: '0%',
+          bottom: '0%',
+          left: '0%',
+          right: '0%',
           initLayout: 'circular',
           layoutAnimation: true,
           layout: 'force',
