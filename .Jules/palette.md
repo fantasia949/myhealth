@@ -141,3 +141,6 @@
 ## 2024-05-20 - Correlation Network Node Spacing
 **Learning:** ECharts force graph nodes tend to cluster tightly in the center if default settings are used, creating tangles.
 **Action:** When working with ECharts force layouts, use a combination of low `gravity` (e.g. 0.05), high range arrays for `repulsion` (e.g. `[3000, 5000]`), and `initLayout: 'circular'` combined with `layoutAnimation: true` to help ECharts evenly distribute the nodes before the physics simulation settles.
+## 2024-05-20 - ECharts Graph Roam & Drag Context
+**Learning:** In ECharts graph layouts, allowing nodes to be dynamically draggable (`draggable: true`, or default on some layouts) severely interferes with canvas camera panning/roaming (`roam: true`). Furthermore, system-level wheel events may be absorbed.
+**Action:** Always add an explicit ECharts `toolbox` configuration with `dataZoom`, `restore`, and `saveAsImage` when using `roam: true` so the user has guaranteed visible UI controls if the mouse wheel fails. Additionally, explicitly set `draggable: false` inside the `series` config if dragging the canvas is the primary interactive priority over moving individual nodes.

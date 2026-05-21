@@ -177,6 +177,14 @@ const CorrelationNetworkChart = React.memo(() => {
           return params.name
         },
       },
+      toolbox: {
+        show: true,
+        feature: {
+          dataZoom: { yAxisIndex: 'none' },
+          restore: {},
+          saveAsImage: {}
+        }
+      },
       series: [
         {
           type: 'graph',
@@ -184,6 +192,8 @@ const CorrelationNetworkChart = React.memo(() => {
           layoutAnimation: true,
           layout: 'force',
           roam: true,
+          draggable: false,
+
           label: {
             show: true,
           },
