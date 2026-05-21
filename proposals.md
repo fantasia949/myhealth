@@ -1,112 +1,107 @@
-### Visualization Proposals for MyHealth Dashboard
-
-These visualization ideas leverage the existing data structure (like `extra.optimality[]`, `extra.tag[]`, and statistical atoms) to uncover health insights that current single/multi-line scatter charts do not fully surface.
-
 ---
 
-**Proposal 1 of 5: System Health Radial Heatmap (Optimality Clock)**
+**Proposal 1 of 5: System Group Range Status Gauge**
 
-**ECharts type:** `pie` (with `roseType: 'radius'`) or `polar` `heatmap`
+**ECharts type:** `gauge`
 
 **Codebase citation:**
-Reads `extra.optimality[]` from every `BioMarker` entry via `visibleDataAtom`.
+`extra.optimality[]` pre-computed by `src/processors/post/range.ts` and `tag` grouping output from `src/processors/post/tag.ts`
 
 **Which existing data it uses:**
-It will iterate over the `dataAtom` or `visibleDataAtom`. For each biomarker, it will count the number of `true` values in the pre-computed `extra.optimality[]` boolean array (representing out-of-range measurements) and divide by the total number of non-null measurements in `BioMarker[1]` to get an "out-of-range frequency" percentage.
+Reads the `extra.optimality[]` arrays and `tag` strings from all `BioMarker` entries returned by `dataAtom`, filtered down to a specific system/tag group (e.g., `8-WBC`).
 
 **What it reveals that current charts don't:**
-The current scatter and line charts show raw values over time, forcing users to manually check if points fall within the shaded `markArea` for each individual marker. A polar heatmap/rose chart groups all biomarkers into a single holistic "system health" view, immediately revealing which biomarkers are chronically out of range across the entire recorded history.
+Shows an overall "system health" score for a single time point (e.g., latest data) by calculating the percentage of biomarkers within a specific tag group that are in their optimal range. The current scatter and line charts show individual trajectories but do not provide a quick aggregate view of an entire physiological system's status.
 
 **Where it would live:**
-New `src/layout/OptimalityRoseChart.tsx`, rendered in a "System Overview" tab or at the top of the main dashboard.
+New `src/layout/SystemHealthGauge.tsx`, rendered as summary cards in a dashboard view above or alongside the existing table/charts.
 
 **Trigger / entry point:**
-Always visible at the top level, dynamically updating as `tagAtom` changes to show the optimality breakdown specifically for the currently filtered category (e.g. `3-Liver`).
+Could be triggered by clicking on a tag filter button in `Nav.tsx`, which currently sets `tagAtom`. When a tag is active, the gauge(s) for that tag's health score appear.
 
 ---
 
-**Proposal 2 of 5: Biomarker Correlation Network Graph**
+**Proposal 2 of 5: Inferred vs. Measured Correlation Matrix Heatmap**
 
-**ECharts type:** `graph`
+**ECharts type:** `heatmap`
 
 **Codebase citation:**
-Reads the `rankedDataMapAtom` cache and `correlationMethodAtom` (`'spearman'` / `'pearson'`).
+`correlationMethodAtom` from `src/atom/correlationAtom.ts` and `inferred: true` flag from `src/types/biomarker.ts`
 
 **Which existing data it uses:**
-Utilizes the pre-calculated Spearman/Pearson ranks from `rankedDataMapAtom` across the filtered `visibleDataAtom` pool. It connects biomarkers (nodes) with edges if their correlation coefficient exceeds the `correlationAlphaAtom` threshold. The edge color can map to positive/negative correlation, and the edge thickness to the absolute coefficient magnitude.
+Computes correlations (using the method defined by `correlationMethodAtom`) between the measured markers (`nonInferredDataAtom`) and the computed/inferred markers (filtered from `dataAtom` where `inferred: true`).
 
 **What it reveals that current charts don't:**
-Current charts plot two biomarkers against each other (`Chart2.tsx`) based on a manual dual-selection. A network graph automatically reveals the entire web of statistically significant relationships within a system (e.g., how all `4-Lipid` markers co-move), identifying central "hub" biomarkers that influence many others.
+Highlights how well raw physiological measurements (like Glucose, Lipid panels) correlate with complex derived indices (like PhenoAge or HOMA-IR). This exposes the driving factors behind the inferred metrics at a glance.
 
 **Where it would live:**
-New `src/layout/CorrelationNetworkChart.tsx`, added as a new view mode alongside the existing dual-biomarker `Chart2.tsx` view.
+New `src/layout/InferredCorrelationHeatmap.tsx`, potentially added as an alternative view within the existing `Correlation.tsx` component or a dedicated tab.
 
 **Trigger / entry point:**
-Activated via a "View Network" toggle button in the Correlation section, computing edges on the fly using the currently selected `tagAtom` to limit node density.
+A new toggle in the correlation settings panel (alongside Alpha and Alternative selection) to switch between "All-to-All" and "Measured vs Inferred" matrix views.
 
 ---
 
-**Proposal 3 of 5: Measurement Density Calendar**
+**Proposal 3 of 5: Biomarker Missingness / Data Density Calendar**
 
-**ECharts type:** `calendar` with `heatmap` or `scatter`
+**ECharts type:** `calendar` (or a categorical `heatmap`)
 
 **Codebase citation:**
-Uses `labels[]` from `src/data/index.ts` and `BioMarker[1]` non-null values.
+`labels[]` from `src/data/index.ts` and the presence of `null` values within `BioMarker[1]` (values array).
 
 **Which existing data it uses:**
-Scans the time-series arrays (`BioMarker[1]`) across all items in `dataAtom` to tally the number of non-null measurements for each date corresponding to the `labels[]` array (converted to standard Date strings via `formattedLabels`).
+Iterates through all dates in `labels[]` and counts the number of non-null values across all `BioMarker` entries in `visibleDataAtom` for each date.
 
 **What it reveals that current charts don't:**
-Current time-series charts skip gaps, making it hard to see _when_ blood panels were actually drawn or how comprehensive a specific testing day was. A calendar heatmap immediately visualizes testing frequency, gaps in tracking, and the density/comprehensiveness of past lab visits.
+Provides a clear visual map of testing frequency and comprehensiveness over time. It immediately shows which dates were comprehensive full-panel blood draws versus isolated single-marker tests, helping contextualize the data density shown in the time-series charts.
 
 **Where it would live:**
-New `src/layout/TestingCalendar.tsx`.
+New `src/layout/DataDensityCalendar.tsx`, perhaps placed at the top of the timeline or as a collapsable data quality overview.
 
 **Trigger / entry point:**
-Could live in a "Testing History" modal or side panel, or as an optional overlay on the main dashboard to help users pick dates for comparison.
+A "Data Density" or "Timeline Overview" toggle button near the main chart controls.
 
 ---
 
-**Proposal 4 of 5: Tag Group Deviation Bar (Tornado Chart)**
+**Proposal 4 of 5: Out-of-Range Frequency Parallel Coordinates**
 
-**ECharts type:** `bar` (Diverging Bar Chart)
+**ECharts type:** `parallel`
 
 **Codebase citation:**
-Reads `extra.tag[]` from `BioMarker[3]`, `extra.range` string, and `BioMarker[1]`.
+`extra.range` string and `extra.optimality[]` from `src/processors/post/range.ts`
 
 **Which existing data it uses:**
-Filters `dataAtom` by the currently active `tagAtom` (e.g., `1-RBC`). For each biomarker in the group, it extracts the most recent non-null value from `BioMarker[1]`, parses the `extra.range` string to find the optimal midpoint, and calculates the percentage deviation of the current value from that midpoint.
+Selects a subset of biomarkers (e.g., top 5 most frequently out-of-range based on `optimality[]`) from `visibleDataAtom` and plots their raw `values[]` across parallel axes, using `extra.range` to color or highlight the paths that fall outside the optimal bounds.
 
 **What it reveals that current charts don't:**
-Instead of viewing 10 different line charts with 10 different y-axis scales to understand the current state of a tag group (like Liver or Kidney health), a tornado chart normalizes all current measurements into percentage deviations from their respective optimal midpoints, immediately showing which markers are trending high vs. low relative to their safe zones.
+Shows multi-variate relationships and co-occurrences of out-of-range events across different biomarkers simultaneously for each time point. It helps identify if certain markers tend to go out of range together (e.g., high Glucose co-occurring with high Triglycerides).
 
 **Where it would live:**
-New `src/layout/TagDeviationChart.tsx`.
+New `src/layout/ParallelOutliersChart.tsx`.
 
 **Trigger / entry point:**
-Auto-renders when `tagAtom` is not null, summarizing the most recent health state for the selected category.
+Activated when exactly 3 to 6 biomarkers are selected (keys are set), offering a "Multivariate View" alongside the existing `Chart.tsx` and `ScatterChart.tsx`.
 
 ---
 
-**Proposal 5 of 5: Out-of-Bounds Timeline (Scatter + MarkArea)**
+**Proposal 5 of 5: Biomarker Volatility Boxplot**
 
-**ECharts type:** `scatter` with custom `symbol` and `visualMap`
+**ECharts type:** `boxplot`
 
 **Codebase citation:**
-Reads `extra.optimality[]` from `BioMarker[3]` pre-computed by `range.ts`.
+`BioMarker[1]` (values array) and `nonInferredDataAtom` from `src/atom/dataAtom.ts`
 
 **Which existing data it uses:**
-Maps the X-axis to time (`labels[]`) and the Y-axis to biomarker names (categorical axis derived from `visibleDataAtom`). It plots points only at indices where `extra.optimality[i] === true`.
+Takes the raw `values[]` for the currently selected biomarkers (via `keys`) or all markers in `visibleDataAtom`, calculates statistical quartiles (min, Q1, median, Q3, max) ignoring `null` values.
 
 **What it reveals that current charts don't:**
-While `Chart.tsx` shows lines over time, it's difficult to see a summary of _all_ infractions across the system simultaneously. This chart acts as an "incident log", plotting only the points where a marker was out of range. A cluster of points vertically on a specific date indicates a systemic health event (e.g., an infection throwing off many markers at once), while a horizontal line of points indicates a chronic, unresolved issue for a specific marker.
+Visualizes the historical volatility, variance, and distribution spread of a biomarker independently of time. This helps determine if a current value is an extreme outlier relative to the user's personal historical baseline, which a simple time-series line chart makes difficult to quantify visually.
 
 **Where it would live:**
-New `src/layout/IncidentTimelineChart.tsx`.
+New `src/layout/VolatilityBoxplot.tsx`.
 
 **Trigger / entry point:**
-A "Show Anomalies" toggle that replaces the main multi-axis line chart with this categorical scatter view for rapid diagnostic scanning.
+A "Distribution View" tab or toggle on individual biomarker detail cards (like the one that contains `LineChart.tsx`).
 
 ---
-
-Recommended implementation order: Proposal 2 first (highest coefficient/correlations insight, historical insight, then other insights), then 1, then 4, then 5, then 3.
+Recommended implementation order: Proposal 2 first (highest coefficient/correlations insight, historical insight, then other insights), then 1, then 5, then 4, then 3.
