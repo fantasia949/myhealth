@@ -139,6 +139,11 @@ const CorrelationNetworkChart = React.memo(() => {
     })
 
     // Add nodes
+    nodes.push({ id: '__corner_tl', name: '', x: 0, y: 0, fixed: true, symbolSize: 0, itemStyle: { opacity: 0 } })
+    nodes.push({ id: '__corner_tr', name: '', x: 2000, y: 0, fixed: true, symbolSize: 0, itemStyle: { opacity: 0 } })
+    nodes.push({ id: '__corner_bl', name: '', x: 0, y: 2000, fixed: true, symbolSize: 0, itemStyle: { opacity: 0 } })
+    nodes.push({ id: '__corner_br', name: '', x: 2000, y: 2000, fixed: true, symbolSize: 0, itemStyle: { opacity: 0 } })
+
     Array.from(nodesSet).forEach((nodeName, index) => {
         const degree = degreeMap.get(nodeName) || 0
         const size = 15 + degree * 2 // Node size proportional to connections
@@ -164,7 +169,7 @@ const CorrelationNetworkChart = React.memo(() => {
 
     return {
       theme: 'dark',
-      backgroundColor: 'rgba(0,0,0,0)',
+      backgroundColor: 'rgba(1, 1, 1, 0.01)',
       tooltip: {
         backgroundColor: '#111111',
         borderColor: '#3a3a3a80',
@@ -174,13 +179,13 @@ const CorrelationNetworkChart = React.memo(() => {
             const rho = (params.data.value as number).toFixed(3)
             return `${params.data.source} ↔ ${params.data.target}<br/>Rho: <strong>${rho}</strong>`
           }
-          return params.name
+          return params.id && params.id.startsWith('__corner') ? '' : params.name
         },
       },
       toolbox: {
         show: true,
         feature: {
-          dataZoom: { yAxisIndex: 'none' },
+
           restore: {},
           saveAsImage: {}
         }
@@ -195,7 +200,7 @@ const CorrelationNetworkChart = React.memo(() => {
           initLayout: 'circular',
           layoutAnimation: true,
           layout: 'force',
-          roam: true,
+          roam: true, scaleLimit: { min: 0.1, max: 10 },
           draggable: false,
 
           label: {

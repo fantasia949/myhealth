@@ -144,3 +144,7 @@
 ## 2024-05-20 - ECharts Graph Roam & Drag Context
 **Learning:** In ECharts graph layouts, allowing nodes to be dynamically draggable (`draggable: true`, or default on some layouts) severely interferes with canvas camera panning/roaming (`roam: true`). Furthermore, system-level wheel events may be absorbed.
 **Action:** Always add an explicit ECharts `toolbox` configuration with `dataZoom`, `restore`, and `saveAsImage` when using `roam: true` so the user has guaranteed visible UI controls if the mouse wheel fails. Additionally, explicitly set `draggable: false` inside the `series` config if dragging the canvas is the primary interactive priority over moving individual nodes.
+## 2026-05-21 - ECharts Graph Roam Hit Area
+
+**Learning:** ECharts graph `roam: true` panning and zooming only captures events within the bounding box of the graph's nodes. If nodes are clumped in the center, panning and zooming on the edges of the canvas will completely fail. Adding `top/bottom/left/right: 0` or `width: 100%` does NOT expand the internal node bounding box.
+**Action:** When using `roam: true` on an ECharts graph that may clump or leave empty margins, explicitly add invisible dummy nodes with `fixed: true` coordinates at the extreme boundaries (e.g., `x: 0, y: 0` and `x: 2000, y: 2000`) and `symbolSize: 0` to forcefully stretch the event capture bounding box across the entire canvas. Additionally, update your tooltip formatter to explicitly ignore these dummy nodes.
