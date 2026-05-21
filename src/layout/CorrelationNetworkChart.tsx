@@ -118,7 +118,7 @@ const CorrelationNetworkChart = React.memo(() => {
     validPairs.forEach(pair => {
         const isPositive = pair.rho > 0
         const absRho = Math.abs(pair.rho)
-        const width = 0.5 + Math.pow(absRho, 2) * 2;
+        const width = 0.5 + Math.pow(absRho, 4) * 8;
         const opacity = 0.1 + absRho * 0.4;
 
         edges.push({
@@ -186,9 +186,9 @@ const CorrelationNetworkChart = React.memo(() => {
             show: true,
           },
           force: {
-            repulsion: 800,
-            edgeLength: [50, 200],
-            gravity: 0.1,
+            repulsion: 3000,
+            edgeLength: [100, 300],
+                        gravity: 0.1,
           },
           data: nodes,
           edges: edges,
