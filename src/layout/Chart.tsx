@@ -6,6 +6,7 @@ import { Line } from '@echarts-readymade/line'
 import { labels, formattedLabels } from '../data'
 import { CHART_PALETTE } from './Chart2'
 import { ChartProps } from './Chart.types'
+import type { EChartsReactProps } from 'echarts-for-react'
 
 const dimension = [
   {
@@ -14,7 +15,7 @@ const dimension = [
   },
 ]
 
-const echartsOptions: any = {
+const echartsOptions: EChartsReactProps = {
   style: { height: 400 },
   theme: 'dark',
   option: {
