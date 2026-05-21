@@ -180,15 +180,18 @@ const CorrelationNetworkChart = React.memo(() => {
       series: [
         {
           type: 'graph',
+          initLayout: 'circular',
+          layoutAnimation: true,
           layout: 'force',
           roam: true,
           label: {
             show: true,
           },
           force: {
-            repulsion: 3000,
-            edgeLength: [100, 300],
-                        gravity: 0.1,
+            repulsion: [3000, 5000],
+            edgeLength: [150, 400],
+            gravity: 0.05,
+            friction: 0.2,
           },
           data: nodes,
           edges: edges,

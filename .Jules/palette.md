@@ -138,3 +138,6 @@
 ## 2024-05-20 - Correlation Network Graph Edges
 **Learning:** Dense correlation network graphs in ECharts can render edges weirdly (as chunky polygons instead of distinct lines) if thickness scales excessively and `type: 'solid'` is omitted on curved connections.
 **Action:** When visualizing network edges mapping to weight/value, explicitly set `lineStyle.type: 'solid'`, increase `force.repulsion`, and constrain edge widths (e.g. `0.5 + Math.pow(rho, 2) * 2`) to ensure visually clean distinct paths rather than massive overlapping visual artifacts.
+## 2024-05-20 - Correlation Network Node Spacing
+**Learning:** ECharts force graph nodes tend to cluster tightly in the center if default settings are used, creating tangles.
+**Action:** When working with ECharts force layouts, use a combination of low `gravity` (e.g. 0.05), high range arrays for `repulsion` (e.g. `[3000, 5000]`), and `initLayout: 'circular'` combined with `layoutAnimation: true` to help ECharts evenly distribute the nodes before the physics simulation settles.
