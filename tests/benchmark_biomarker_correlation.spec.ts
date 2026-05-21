@@ -6,16 +6,24 @@ test('benchmark biomarker correlation optimized v4', async () => {
 
   // Create mock data
   const N = 500
-  const filteredBiomarkerValues = Array(N).fill(0).map(() => Math.random() * 100)
+  const filteredBiomarkerValues = Array(N)
+    .fill(0)
+    .map(() => Math.random() * 100)
   const rankedBiomarker = rankData(filteredBiomarkerValues)
 
-  const supplements = Array(500).fill(0).map((_, i) => `Supp${i}`)
+  const supplements = Array(500)
+    .fill(0)
+    .map((_, i) => `Supp${i}`)
 
-  const noteValues = Array(N).fill(0).map(() => ({
-    supps: supplements.filter(() => Math.random() > 0.9),
-  }))
+  const noteValues = Array(N)
+    .fill(0)
+    .map(() => ({
+      supps: supplements.filter(() => Math.random() > 0.9),
+    }))
 
-  const validIndices = Array(N).fill(0).map((_, i) => i)
+  const validIndices = Array(N)
+    .fill(0)
+    .map((_, i) => i)
 
   const results = []
   const alpha = 0.05
