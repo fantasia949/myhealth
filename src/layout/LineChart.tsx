@@ -2,12 +2,7 @@ import React, { memo } from 'react'
 import ReactECharts from 'echarts-for-react'
 import { labels, formattedLabels } from '../data'
 import { CHART_PALETTE } from './Chart2'
-
-interface LineChartProps {
-  name: string
-  values: number[]
-  rangeStr?: string
-}
+import type { LineChartProps } from './LineChart.types'
 
 const echartsOptions = {
   style: { height: 300, width: '100%' },
