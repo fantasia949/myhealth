@@ -139,10 +139,9 @@ const CorrelationNetworkChart = React.memo(() => {
     })
 
     // Add nodes
-    nodes.push({ id: '__corner_tl', name: '', x: 0, y: 0, fixed: true, symbolSize: 0, itemStyle: { opacity: 0 } })
-    nodes.push({ id: '__corner_tr', name: '', x: 2000, y: 0, fixed: true, symbolSize: 0, itemStyle: { opacity: 0 } })
-    nodes.push({ id: '__corner_bl', name: '', x: 0, y: 2000, fixed: true, symbolSize: 0, itemStyle: { opacity: 0 } })
-    nodes.push({ id: '__corner_br', name: '', x: 2000, y: 2000, fixed: true, symbolSize: 0, itemStyle: { opacity: 0 } })
+    // Dummy background node to capture roam events everywhere
+    nodes.push({ id: '__background', name: '', fixed: true, x: 500, y: 500, symbolSize: 5000, itemStyle: { color: 'transparent' } })
+
 
     Array.from(nodesSet).forEach((nodeName, index) => {
         const degree = degreeMap.get(nodeName) || 0
@@ -169,7 +168,24 @@ const CorrelationNetworkChart = React.memo(() => {
 
     return {
       theme: 'dark',
-      backgroundColor: 'rgba(1, 1, 1, 0.01)',
+      graphic: [
+        {
+          type: 'rect',
+          left: 0,
+          top: 0,
+          right: 0,
+          bottom: 0,
+          bounding: 'all',
+          style: {
+            fill: 'rgba(0,0,0,0.01)'
+          },
+          cursor: 'default',
+          // Graphic events don't automatically trigger roam, but they capture mouse.
+          // However, if the graphic is behind the graph (z: -1), does roam work?
+          z: -1
+        }
+      ],
+      backgroundColor: 'transparent',
       tooltip: {
         backgroundColor: '#111111',
         borderColor: '#3a3a3a80',
@@ -179,7 +195,7 @@ const CorrelationNetworkChart = React.memo(() => {
             const rho = (params.data.value as number).toFixed(3)
             return `${params.data.source} ↔ ${params.data.target}<br/>Rho: <strong>${rho}</strong>`
           }
-          return params.id && params.id.startsWith('__corner') ? '' : params.name
+          return params.id && params.id.startsWith('__') ? '' : params.name
         },
       },
       toolbox: {
