@@ -148,3 +148,7 @@
 
 **Learning:** ECharts graph `roam: true` panning and zooming only captures events within the bounding box of the graph's nodes. If nodes are clumped in the center, panning and zooming on the edges of the canvas will completely fail. Adding `top/bottom/left/right: 0` or `width: 100%` does NOT expand the internal node bounding box.
 **Action:** When using `roam: true` on an ECharts graph that may clump or leave empty margins, explicitly add invisible dummy nodes with `fixed: true` coordinates at the extreme boundaries (e.g., `x: 0, y: 0` and `x: 2000, y: 2000`) and `symbolSize: 0` to forcefully stretch the event capture bounding box across the entire canvas. Additionally, update your tooltip formatter to explicitly ignore these dummy nodes.
+
+## 2026-05-21 - ECharts Graph Roam Continued
+**Learning:** Adding dummy corner nodes with `fixed: true` is not always enough to fix `roam: true` panning in ECharts if the graph series height/width collapses dynamically to the computed force layout bounding box.
+**Action:** When attempting to force the `roam` hit area to expand across the entire canvas for a force-directed graph, you must explicitly declare `width: '100%'` and `height: '100%'` on the `series` configuration itself, in addition to placing the dummy coordinates.
