@@ -1,107 +1,81 @@
 ---
-
-**Proposal 1 of 5: System Group Range Status Gauge**
-
-**ECharts type:** `gauge`
-
-**Codebase citation:**
-`extra.optimality[]` pre-computed by `src/processors/post/range.ts` and `tag` grouping output from `src/processors/post/tag.ts`
-
-**Which existing data it uses:**
-Reads the `extra.optimality[]` arrays and `tag` strings from all `BioMarker` entries returned by `dataAtom`, filtered down to a specific system/tag group (e.g., `8-WBC`).
-
-**What it reveals that current charts don't:**
-Shows an overall "system health" score for a single time point (e.g., latest data) by calculating the percentage of biomarkers within a specific tag group that are in their optimal range. The current scatter and line charts show individual trajectories but do not provide a quick aggregate view of an entire physiological system's status.
-
-**Where it would live:**
-New `src/layout/SystemHealthGauge.tsx`, rendered as summary cards in a dashboard view above or alongside the existing table/charts.
-
-**Trigger / entry point:**
-Could be triggered by clicking on a tag filter button in `Nav.tsx`, which currently sets `tagAtom`. When a tag is active, the gauge(s) for that tag's health score appear.
-
----
-
-**Proposal 2 of 5: Inferred vs. Measured Correlation Matrix Heatmap**
+**Proposal 1 of 5: Out-of-Range Tag Heatmap**
 
 **ECharts type:** `heatmap`
 
-**Codebase citation:**
-`correlationMethodAtom` from `src/atom/correlationAtom.ts` and `inferred: true` flag from `src/types/biomarker.ts`
+**Codebase citation:** `extra.optimality[]` pre-computed by `src/processors/post/range.ts` and tag groups defined in `src/processors/post/tag.ts`
 
-**Which existing data it uses:**
-Computes correlations (using the method defined by `correlationMethodAtom`) between the measured markers (`nonInferredDataAtom`) and the computed/inferred markers (filtered from `dataAtom` where `inferred: true`).
+**Which existing data it uses:** Reads `extra.optimality[]` from every `BioMarker` in `dataAtom` and groups them by `extra.tag`. Uses `labels[]` from `src/data/index.ts` for the X-axis.
 
-**What it reveals that current charts don't:**
-Highlights how well raw physiological measurements (like Glucose, Lipid panels) correlate with complex derived indices (like PhenoAge or HOMA-IR). This exposes the driving factors behind the inferred metrics at a glance.
+**What it reveals that current charts don't:** Provides a high-level system overview showing which physiological systems (e.g., `3-Liver`, `6-Kidney`) have the highest density of out-of-range biomarkers at any given time, allowing the user to spot systemic issues at a glance without drilling down into individual biomarker charts.
 
-**Where it would live:**
-New `src/layout/InferredCorrelationHeatmap.tsx`, potentially added as an alternative view within the existing `Correlation.tsx` component or a dedicated tab.
+**Where it would live:** New `src/layout/SystemOptimalityHeatmap.tsx`, rendered in a new tab or an expandable section in `App.tsx` above the table.
 
-**Trigger / entry point:**
-A new toggle in the correlation settings panel (alongside Alpha and Alternative selection) to switch between "All-to-All" and "Measured vs Inferred" matrix views.
+**Trigger / entry point:** A new "System View" toggle or button in the navigation bar that switches the main view to this heatmap.
 
 ---
 
-**Proposal 3 of 5: Biomarker Missingness / Data Density Calendar**
-
-**ECharts type:** `calendar` (or a categorical `heatmap`)
-
-**Codebase citation:**
-`labels[]` from `src/data/index.ts` and the presence of `null` values within `BioMarker[1]` (values array).
-
-**Which existing data it uses:**
-Iterates through all dates in `labels[]` and counts the number of non-null values across all `BioMarker` entries in `visibleDataAtom` for each date.
-
-**What it reveals that current charts don't:**
-Provides a clear visual map of testing frequency and comprehensiveness over time. It immediately shows which dates were comprehensive full-panel blood draws versus isolated single-marker tests, helping contextualize the data density shown in the time-series charts.
-
-**Where it would live:**
-New `src/layout/DataDensityCalendar.tsx`, perhaps placed at the top of the timeline or as a collapsable data quality overview.
-
-**Trigger / entry point:**
-A "Data Density" or "Timeline Overview" toggle button near the main chart controls.
-
----
-
-**Proposal 4 of 5: Out-of-Range Frequency Parallel Coordinates**
-
-**ECharts type:** `parallel`
-
-**Codebase citation:**
-`extra.range` string and `extra.optimality[]` from `src/processors/post/range.ts`
-
-**Which existing data it uses:**
-Selects a subset of biomarkers (e.g., top 5 most frequently out-of-range based on `optimality[]`) from `visibleDataAtom` and plots their raw `values[]` across parallel axes, using `extra.range` to color or highlight the paths that fall outside the optimal bounds.
-
-**What it reveals that current charts don't:**
-Shows multi-variate relationships and co-occurrences of out-of-range events across different biomarkers simultaneously for each time point. It helps identify if certain markers tend to go out of range together (e.g., high Glucose co-occurring with high Triglycerides).
-
-**Where it would live:**
-New `src/layout/ParallelOutliersChart.tsx`.
-
-**Trigger / entry point:**
-Activated when exactly 3 to 6 biomarkers are selected (keys are set), offering a "Multivariate View" alongside the existing `Chart.tsx` and `ScatterChart.tsx`.
-
----
-
-**Proposal 5 of 5: Biomarker Volatility Boxplot**
+**Proposal 2 of 5: Biomarker Value Drift Boxplot**
 
 **ECharts type:** `boxplot`
 
-**Codebase citation:**
-`BioMarker[1]` (values array) and `nonInferredDataAtom` from `src/atom/dataAtom.ts`
+**Codebase citation:** `BioMarker[1]` (values array) and `extra.range` string from `src/processors/post/range.ts`.
 
-**Which existing data it uses:**
-Takes the raw `values[]` for the currently selected biomarkers (via `keys`) or all markers in `visibleDataAtom`, calculates statistical quartiles (min, Q1, median, Q3, max) ignoring `null` values.
+**Which existing data it uses:** Reads `BioMarker[1]` from all `visibleDataAtom` entries. It groups historical values for each biomarker into a boxplot representation.
 
-**What it reveals that current charts don't:**
-Visualizes the historical volatility, variance, and distribution spread of a biomarker independently of time. This helps determine if a current value is an extreme outlier relative to the user's personal historical baseline, which a simple time-series line chart makes difficult to quantify visually.
+**What it reveals that current charts don't:** Shows the distribution, median, and outliers of a biomarker's historical values, revealing whether the user's values typically drift high or low relative to their own median and the optimal range, which time-series charts don't summarize as clearly.
 
-**Where it would live:**
-New `src/layout/VolatilityBoxplot.tsx`.
+**Where it would live:** Extended in `src/layout/LineChart.tsx` or as a new `src/layout/DistributionChart.tsx` rendered alongside the line chart in the expanded row view.
 
-**Trigger / entry point:**
-A "Distribution View" tab or toggle on individual biomarker detail cards (like the one that contains `LineChart.tsx`).
+**Trigger / entry point:** A new "Distribution" tab/toggle within the expanded row view of the main data table.
+
+---
+
+**Proposal 3 of 5: Measured vs Inferred Ratio Gauge**
+
+**ECharts type:** `gauge`
+
+**Codebase citation:** `extra.inferred` boolean assigned in `src/types/biomarker.ts` and `nonInferredDataAtom` in `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:** Compares the length of `nonInferredDataAtom` to the total length of `dataAtom` (or within a specific tag via `visibleDataAtom`).
+
+**What it reveals that current charts don't:** Visualizes the "data quality" or "measurement density" of the current view, showing how much of the displayed data is actual lab results vs. computed/inferred values.
+
+**Where it would live:** A small inline component `src/layout/DataQualityGauge.tsx` rendered in the table header or filter bar.
+
+**Trigger / entry point:** Always visible when filtering by tags or searching, updating dynamically as `visibleDataAtom` changes.
+
+---
+
+**Proposal 4 of 5: Correlation Matrix Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:** `rankedDataMapAtom` in `src/atom/dataAtom.ts` and `correlationMethodAtom` in `src/atom/correlationAtom.ts`.
+
+**Which existing data it uses:** Uses the pre-computed Spearman/Pearson rank arrays from `rankedDataMapAtom` for all `visibleDataAtom` entries to generate a cross-correlation matrix between all visible biomarkers.
+
+**What it reveals that current charts don't:** Shows how every biomarker in the current view correlates with every other biomarker simultaneously, revealing hidden clusters of related markers (e.g., how different lipid markers correlate with inflammation markers).
+
+**Where it would live:** New `src/layout/CorrelationMatrix.tsx`, rendered in the existing Correlation dialog.
+
+**Trigger / entry point:** Added as a new tab ("Matrix View") inside the existing Correlation dialog opened via the table tools.
+
+---
+
+**Proposal 5 of 5: Missing Data / Sparsity Calendar Chart**
+
+**ECharts type:** `calendar` (with `scatter` or `heatmap` series)
+
+**Codebase citation:** Null values in `BioMarker[1]` arrays and `labels[]` from `src/data/index.ts`.
+
+**Which existing data it uses:** Scans `BioMarker[1]` arrays from `dataAtom` for non-null values and maps them against the actual dates derived from `labels[]` (e.g., `20YY/MM/DD`).
+
+**What it reveals that current charts don't:** Provides a "punch card" view of measurement frequency, showing exactly which days/months/years the user took blood tests and how comprehensive those tests were, highlighting gaps in tracking.
+
+**Where it would live:** New `src/layout/MeasurementHistoryCalendar.tsx`.
+
+**Trigger / entry point:** A small calendar icon button next to the date range selector or in the main navigation.
 
 ---
 
