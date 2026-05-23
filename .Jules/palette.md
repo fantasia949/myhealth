@@ -137,3 +137,20 @@
 
 **Learning:** When using `React.Suspense` for lazy-loaded modals, utilizing a full-screen, semi-transparent background overlay as the fallback loading state causes a jarring screen flash for the user because the loading state often appears for only a fraction of a second.
 **Action:** Always use a subtle, localized loading indicator (e.g., a floating bottom-right notification) instead of a full-screen overlay for `React.Suspense` fallbacks on modals. This ensures an accessible loading state is communicated to screen readers (via `aria-busy="true"`, `role="status"`, `aria-live="polite"`) without causing visual disruption.
+## 2024-05-20 - Correlation Network Graph Edges
+**Learning:** Dense correlation network graphs in ECharts can render edges weirdly (as chunky polygons instead of distinct lines) if thickness scales excessively and `type: 'solid'` is omitted on curved connections.
+**Action:** When visualizing network edges mapping to weight/value, explicitly set `lineStyle.type: 'solid'`, increase `force.repulsion`, and constrain edge widths (e.g. `0.5 + Math.pow(rho, 2) * 2`) to ensure visually clean distinct paths rather than massive overlapping visual artifacts.
+## 2024-05-20 - Correlation Network Node Spacing
+**Learning:** ECharts force graph nodes tend to cluster tightly in the center if default settings are used, creating tangles.
+**Action:** When working with ECharts force layouts, use a combination of low `gravity` (e.g. 0.05), high range arrays for `repulsion` (e.g. `[3000, 5000]`), and `initLayout: 'circular'` combined with `layoutAnimation: true` to help ECharts evenly distribute the nodes before the physics simulation settles.
+## 2024-05-20 - ECharts Graph Roam & Drag Context
+**Learning:** In ECharts graph layouts, allowing nodes to be dynamically draggable (`draggable: true`, or default on some layouts) severely interferes with canvas camera panning/roaming (`roam: true`). Furthermore, system-level wheel events may be absorbed.
+**Action:** Always add an explicit ECharts `toolbox` configuration with `dataZoom`, `restore`, and `saveAsImage` when using `roam: true` so the user has guaranteed visible UI controls if the mouse wheel fails. Additionally, explicitly set `draggable: false` inside the `series` config if dragging the canvas is the primary interactive priority over moving individual nodes.
+## 2026-05-21 - ECharts Graph Roam Hit Area
+
+**Learning:** ECharts graph `roam: true` panning and zooming only captures events within the bounding box of the graph's nodes. If nodes are clumped in the center, panning and zooming on the edges of the canvas will completely fail. Adding `top/bottom/left/right: 0` or `width: 100%` does NOT expand the internal node bounding box.
+**Action:** When using `roam: true` on an ECharts graph that may clump or leave empty margins, explicitly add invisible dummy nodes with `fixed: true` coordinates at the extreme boundaries (e.g., `x: 0, y: 0` and `x: 2000, y: 2000`) and `symbolSize: 0` to forcefully stretch the event capture bounding box across the entire canvas. Additionally, update your tooltip formatter to explicitly ignore these dummy nodes.
+
+## 2026-05-21 - ECharts Graph Roam Continued
+**Learning:** Adding dummy corner nodes with `fixed: true` is not always enough to fix `roam: true` panning in ECharts if the graph series height/width collapses dynamically to the computed force layout bounding box.
+**Action:** When attempting to force the `roam` hit area to expand across the entire canvas for a force-directed graph, you must explicitly declare `width: '100%'` and `height: '100%'` on the `series` configuration itself, in addition to placing the dummy coordinates.
