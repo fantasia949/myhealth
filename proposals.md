@@ -79,4 +79,4 @@
 
 ---
 
-Recommended implementation order: Proposal 4 first (Correlation Matrix Heatmap), then 1, then 2, then 5, then 3.
+Recommended implementation order: Proposal 2 first (highest coefficient/correlations insight, historical insight, then other insights), then 1, then 5, then 4, then 3.
