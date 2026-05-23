@@ -226,7 +226,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                             <select
                               id="corr-method"
                               value={method}
-                              onChange={(e) => setMethod(e.target.value as any)}
+                              onChange={(e) => setMethod(e.target.value as 'spearman' | 'pearson')}
                               className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
                             >
                               <option value="spearman">Spearman</option>
@@ -256,7 +256,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                             <select
                               id="corr-alt"
                               value={alternative}
-                              onChange={(e) => setAlternative(e.target.value as any)}
+                              onChange={(e) => setAlternative(e.target.value as 'two-sided' | 'less' | 'greater')}
                               className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
                             >
                               <option value="two-sided">Two-sided</option>
