@@ -3,6 +3,7 @@ import ReactECharts from 'echarts-for-react'
 import { labels, formattedLabels } from '../data'
 import { CHART_PALETTE } from './Chart2'
 import type { LineChartProps } from './LineChart.types'
+import type { MarkAreaComponentOption } from 'echarts'
 
 const echartsOptions = {
   style: { height: 300, width: '100%' },
@@ -74,7 +75,7 @@ export default memo(({ name, values, rangeStr }: LineChartProps) => {
   }, [values])
 
   const options = useMemo(() => {
-    let markArea: any = undefined
+    let markArea: MarkAreaComponentOption | undefined = undefined
 
     if (rangeStr) {
       let min: number | undefined
