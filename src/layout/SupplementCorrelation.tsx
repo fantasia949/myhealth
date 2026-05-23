@@ -68,6 +68,13 @@ const SupplementCorrelation = React.memo(
       // ⚡ Bolt Optimization: Replaced dataMap.forEach with a native for...of loop.
       // Iterating over Map entries natively avoids creating a new function closure
       // and its associated environment allocations on every run of this useMemo.
+
+      // ⚡ Bolt Optimization: Pre-allocate TypedArrays outside the loop and reuse them
+      // via .subarray() to eliminate O(N) array allocations inside the hot correlation loop.
+      const sharedValidIndices = new Int32Array(maxLen)
+      const sharedFilteredBiomarkerValues = new Float64Array(maxLen)
+      const sharedFilteredSuppVector = new Float64Array(maxLen)
+
       for (const [biomarkerId, biomarkerEntry] of dataMap.entries()) {
         if (SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS.includes(biomarkerId)) continue
         const rawValues = biomarkerEntry[1] // number[]
@@ -78,8 +85,6 @@ const SupplementCorrelation = React.memo(
         }
 
         // 3. Find valid indices where biomarker has a value
-        const validIndicesArray = new Int32Array(maxLen)
-        const filteredBiomarkerValuesArray = new Float64Array(maxLen)
         let count = 0
 
         for (let i = 0; i < maxLen; i++) {
@@ -87,8 +92,8 @@ const SupplementCorrelation = React.memo(
           if (val !== null && val !== undefined) {
             const numVal = Number(val)
             if (!isNaN(numVal)) {
-              filteredBiomarkerValuesArray[count] = numVal
-              validIndicesArray[count] = i
+              sharedFilteredBiomarkerValues[count] = numVal
+              sharedValidIndices[count] = i
               count++
             }
           }
@@ -96,15 +101,11 @@ const SupplementCorrelation = React.memo(
 
         if (count < 3) continue // Need at least 3 valid points
 
-        const filteredBiomarkerValues = new Float64Array(
-          filteredBiomarkerValuesArray.buffer,
-          0,
-          count,
-        )
-        const filteredSuppVector = new Float64Array(count)
+        const filteredBiomarkerValues = sharedFilteredBiomarkerValues.subarray(0, count)
+        const filteredSuppVector = sharedFilteredSuppVector.subarray(0, count)
 
         for (let k = 0; k < count; k++) {
-          filteredSuppVector[k] = suppVector[validIndicesArray[k]]
+          filteredSuppVector[k] = suppVector[sharedValidIndices[k]]
         }
 
         // Check variation in filtered supp vector

@@ -104,4 +104,5 @@ New `src/layout/VolatilityBoxplot.tsx`.
 A "Distribution View" tab or toggle on individual biomarker detail cards (like the one that contains `LineChart.tsx`).
 
 ---
+
 Recommended implementation order: Proposal 2 first (highest coefficient/correlations insight, historical insight, then other insights), then 1, then 5, then 4, then 3.
