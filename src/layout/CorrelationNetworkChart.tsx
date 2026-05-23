@@ -140,7 +140,7 @@ const CorrelationNetworkChart = React.memo(() => {
 
     // Add nodes
     // Dummy background node to capture roam events everywhere
-    nodes.push({ id: '__background', name: '', fixed: true, x: 500, y: 500, symbolSize: 5000, itemStyle: { color: 'transparent' } })
+    nodes.push({ id: '__background', name: '', fixed: false, x: 500, y: 500, symbolSize: 5000, itemStyle: { color: 'rgba(0,0,0,0.01)' } })
 
 
     Array.from(nodesSet).forEach((nodeName, index) => {
@@ -177,7 +177,7 @@ const CorrelationNetworkChart = React.memo(() => {
           bottom: 0,
           bounding: 'all',
           style: {
-            fill: 'rgba(0,0,0,0.01)'
+            fill: 'rgba(0,0,0,0.02)'
           },
           cursor: 'default',
           // Graphic events don't automatically trigger roam, but they capture mouse.
@@ -185,7 +185,7 @@ const CorrelationNetworkChart = React.memo(() => {
           z: -1
         }
       ],
-      backgroundColor: 'transparent',
+      backgroundColor: 'rgba(0,0,0,0.01)',
       tooltip: {
         backgroundColor: '#111111',
         borderColor: '#3a3a3a80',
