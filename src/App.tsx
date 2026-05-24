@@ -339,7 +339,7 @@ export default function App() {
         >
           {isNetworkViewOpen ? (
             <div className="mb-8 px-4">
-               <CorrelationNetworkChart />
+              <CorrelationNetworkChart />
             </div>
           ) : (
             <>
