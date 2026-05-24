@@ -5,6 +5,7 @@ import { dataMapAtom } from '../atom/dataAtom'
 import { labels, formattedLabels } from '../data'
 import ReactECharts from 'echarts-for-react'
 import * as echarts from 'echarts'
+import type { DatasetComponentOption } from 'echarts'
 import * as ecStat from 'echarts-stat'
 import { ChartProps } from './Chart.types'
 
@@ -168,7 +169,7 @@ export default memo(({ keys }: ChartProps) => {
     const nextXAxis = [{ ...xAxis[0], name: keys[0] }, ...xAxis.slice(1)]
     const nextYAxis = [{ ...yAxis[0], name: keys[1] }, ...yAxis.slice(1)]
 
-    const dataset: any[] = [
+    const dataset: DatasetComponentOption[] = [
       {
         dimensions: [keys[0], keys[1], 'Date', 'unitX', 'unitY'],
         source: mappedScatterData.data,
