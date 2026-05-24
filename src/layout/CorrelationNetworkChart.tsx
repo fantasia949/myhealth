@@ -171,6 +171,7 @@ const CorrelationNetworkChart = React.memo(() => {
 
     Array.from(nodesSet).forEach((nodeName, index) => {
       const degree = degreeMap.get(nodeName) || 0
+      if (degree === 0) return
       const size = 15 + degree * 2 // Node size proportional to connections
       const colorIndex = index % CHART_PALETTE.length
 
