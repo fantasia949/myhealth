@@ -6,3 +6,6 @@
 ## 2025-05-23 - Pre-allocate TypedArrays across loops
 **Learning:** Repeatedly instantiating temporary `Float64Array` inside nested loops or React `useMemo` iterations causes enormous garbage collection churn, even when arrays are small. `Map.prototype.entries()` should be traversed without function closures using `for (const [k, v] of map.entries())` instead of `.forEach()`.
 **Action:** Hoist TypedArray allocations to the highest viable scope before the loop, and reuse the memory buffer inside the loop via `.subarray(0, count)` to pass zero-copy, right-sized views to subsequent operations.
+## 2024-05-24 - Pre-allocate Arrays when replacing array.map()
+**Learning:** Replaced array.map() with traditional for-loops, saving closure allocation and function call overheads per item.
+**Action:** Replace `recipes.map(...)` with `for (let i = 0; i < recipes.length; i++)` and preallocate output arrays where lengths are known statically.
