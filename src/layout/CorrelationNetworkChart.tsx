@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import ReactECharts from 'echarts-for-react'
 import { useAtomValue } from 'jotai'
-import { visibleDataAtom, dataMapAtom, rankedDataMapAtom } from '../atom/dataAtom'
+import { nonInferredDataAtom, dataMapAtom, rankedDataMapAtom } from '../atom/dataAtom'
 import {
   correlationAlphaAtom,
   correlationAlternativeAtom,
@@ -11,7 +11,7 @@ import { calculateSpearmanRanked, calculatePearson } from '../processors/stats'
 import { CHART_PALETTE } from './Chart2'
 
 const CorrelationNetworkChart = React.memo(() => {
-  const visibleData = useAtomValue(visibleDataAtom)
+  const visibleData = useAtomValue(nonInferredDataAtom)
   const dataMap = useAtomValue(dataMapAtom)
   const rankedDataMap = useAtomValue(rankedDataMapAtom)
   const alpha = useAtomValue(correlationAlphaAtom)
@@ -32,159 +32,158 @@ const CorrelationNetworkChart = React.memo(() => {
 
     // Create nodes for all visible data
     for (let i = 0; i < numData; i++) {
-        const item = visibleData[i]
-        nodesSet.add(item[0])
+      const item = visibleData[i]
+      nodesSet.add(item[0])
     }
 
     if (method === 'pearson') {
-       // Pre-parse the source values and record valid indices to avoid O(N * M) parsing and null checks.
-       // This is complex for N*N matrix, so we'll do it pair-wise carefully.
+      // Pre-parse the source values and record valid indices to avoid O(N * M) parsing and null checks.
+      // This is complex for N*N matrix, so we'll do it pair-wise carefully.
 
-       for (let i = 0; i < numData; i++) {
-          const sourceName = visibleData[i][0]
-          const sourceValuesRaw = dataMap.get(sourceName)?.[1]
-          if (!sourceValuesRaw) continue
+      for (let i = 0; i < numData; i++) {
+        const sourceName = visibleData[i][0]
+        const sourceValuesRaw = dataMap.get(sourceName)?.[1]
+        if (!sourceValuesRaw) continue
 
-          const len = sourceValuesRaw.length
-          const parsedSource = new Float64Array(len)
-          const validIndices: number[] = []
+        const len = sourceValuesRaw.length
+        const parsedSource = new Float64Array(len)
+        const validIndices: number[] = []
 
-          for (let k = 0; k < len; k++) {
-            const v = sourceValuesRaw[k]
-            if (v !== null) {
-              const vNum = Number(v)
-              if (!isNaN(vNum)) {
-                parsedSource[k] = vNum
-                validIndices.push(k)
-              }
+        for (let k = 0; k < len; k++) {
+          const v = sourceValuesRaw[k]
+          if (v !== null) {
+            const vNum = Number(v)
+            if (!isNaN(vNum)) {
+              parsedSource[k] = vNum
+              validIndices.push(k)
             }
           }
-
-          const maxLen = validIndices.length
-          if (maxLen < 4) continue
-
-          const x = new Float64Array(maxLen)
-          const y = new Float64Array(maxLen)
-
-          for (let j = i + 1; j < numData; j++) {
-              const targetName = visibleData[j][0]
-              const targetValuesRaw = dataMap.get(targetName)?.[1]
-              if (!targetValuesRaw) continue
-
-              let count = 0
-              for (let k = 0; k < maxLen; k++) {
-                  const idx = validIndices[k]
-                  const t = targetValuesRaw[idx]
-                  if (t !== null) {
-                      const tNum = Number(t)
-                      if (!isNaN(tNum)) {
-                          x[count] = parsedSource[idx]
-                          y[count] = tNum
-                          count++
-                      }
-                  }
-              }
-
-              if (count < 4) continue
-
-              const result = calculatePearson(x.subarray(0, count), y.subarray(0, count), options)
-              if (result.pValue <= alpha) {
-                  validPairs.push({ source: sourceName, target: targetName, rho: result.pcorr, pValue: result.pValue })
-              }
-          }
-       }
-    } else {
-        // Spearman
-        for (let i = 0; i < numData; i++) {
-            const sourceName = visibleData[i][0]
-            const sourceRanks = rankedDataMap.get(sourceName)
-            if (!sourceRanks) continue
-
-            for (let j = i + 1; j < numData; j++) {
-                const targetName = visibleData[j][0]
-                const targetRanks = rankedDataMap.get(targetName)
-                if (!targetRanks) continue
-
-                const result = calculateSpearmanRanked(sourceRanks, targetRanks, options)
-                if (result.pValue <= alpha) {
-                    validPairs.push({ source: sourceName, target: targetName, rho: result.pcorr, pValue: result.pValue })
-                }
-            }
         }
+
+        const maxLen = validIndices.length
+        if (maxLen < 4) continue
+
+        const x = new Float64Array(maxLen)
+        const y = new Float64Array(maxLen)
+
+        for (let j = i + 1; j < numData; j++) {
+          const targetName = visibleData[j][0]
+          const targetValuesRaw = dataMap.get(targetName)?.[1]
+          if (!targetValuesRaw) continue
+
+          let count = 0
+          for (let k = 0; k < maxLen; k++) {
+            const idx = validIndices[k]
+            const t = targetValuesRaw[idx]
+            if (t !== null) {
+              const tNum = Number(t)
+              if (!isNaN(tNum)) {
+                x[count] = parsedSource[idx]
+                y[count] = tNum
+                count++
+              }
+            }
+          }
+
+          if (count < 4) continue
+
+          const result = calculatePearson(x.subarray(0, count), y.subarray(0, count), options)
+          if (result.pValue <= alpha) {
+            validPairs.push({
+              source: sourceName,
+              target: targetName,
+              rho: result.pcorr,
+              pValue: result.pValue,
+            })
+          }
+        }
+      }
+    } else {
+      // Spearman
+      for (let i = 0; i < numData; i++) {
+        const sourceName = visibleData[i][0]
+        const sourceRanks = rankedDataMap.get(sourceName)
+        if (!sourceRanks) continue
+
+        for (let j = i + 1; j < numData; j++) {
+          const targetName = visibleData[j][0]
+          const targetRanks = rankedDataMap.get(targetName)
+          if (!targetRanks) continue
+
+          const result = calculateSpearmanRanked(sourceRanks, targetRanks, options)
+          if (result.pValue <= alpha) {
+            validPairs.push({
+              source: sourceName,
+              target: targetName,
+              rho: result.pcorr,
+              pValue: result.pValue,
+            })
+          }
+        }
+      }
     }
 
     const degreeMap = new Map<string, number>()
 
-    validPairs.forEach(pair => {
-        const isPositive = pair.rho > 0
-        const absRho = Math.abs(pair.rho)
-        const width = 0.5 + Math.pow(absRho, 4) * 8;
-        const opacity = 0.1 + absRho * 0.4;
+    validPairs.forEach((pair) => {
+      const isPositive = pair.rho > 0
+      const absRho = Math.abs(pair.rho)
+      const width = 0.5 + Math.pow(absRho, 4) * 8
+      const opacity = 0.1 + absRho * 0.4
 
-        edges.push({
-            source: pair.source,
-            target: pair.target,
-            value: pair.rho,
-            lineStyle: {
-              width: width,
-              curveness: 0.15,
-              type: 'solid',
-              color: isPositive ? '#10b981' : '#ef4444',
-              opacity: opacity,
-            }
-        })
+      edges.push({
+        source: pair.source,
+        target: pair.target,
+        value: pair.rho,
+        lineStyle: {
+          width: width,
+          curveness: 0.15,
+          type: 'solid',
+          color: isPositive ? '#10b981' : '#ef4444',
+          opacity: opacity,
+        },
+      })
 
-        degreeMap.set(pair.source, (degreeMap.get(pair.source) || 0) + 1)
-        degreeMap.set(pair.target, (degreeMap.get(pair.target) || 0) + 1)
+      degreeMap.set(pair.source, (degreeMap.get(pair.source) || 0) + 1)
+      degreeMap.set(pair.target, (degreeMap.get(pair.target) || 0) + 1)
     })
 
     // Add nodes
     // Dummy background node to capture roam events everywhere
-    nodes.push({ id: '__background', name: '', fixed: true, x: 500, y: 500, symbolSize: 5000, itemStyle: { color: 'transparent' } })
-
-
-    Array.from(nodesSet).forEach((nodeName, index) => {
-        const degree = degreeMap.get(nodeName) || 0
-        const size = 15 + degree * 2 // Node size proportional to connections
-        const colorIndex = index % CHART_PALETTE.length
-
-        // Hide nodes with 0 connections if there are many nodes?
-        // We'll show all to maintain "entire web", but make them small.
-        nodes.push({
-            id: nodeName,
-            name: nodeName,
-            symbolSize: size,
-            itemStyle: {
-                color: CHART_PALETTE[colorIndex]
-            },
-            label: {
-                show: degree > 0, // only show labels for connected nodes to avoid clutter
-                color: '#a3a3a3',
-                position: 'bottom'
-            }
-        })
+    nodes.push({
+      id: '__background',
+      name: '',
+      fixed: true,
+      x: 500,
+      y: 500,
+      symbolSize: 5000,
+      itemStyle: { color: 'transparent' },
     })
 
+    Array.from(nodesSet).forEach((nodeName, index) => {
+      const degree = degreeMap.get(nodeName) || 0
+      const size = 15 + degree * 2 // Node size proportional to connections
+      const colorIndex = index % CHART_PALETTE.length
+
+      // Hide nodes with 0 connections if there are many nodes?
+      // We'll show all to maintain "entire web", but make them small.
+      nodes.push({
+        id: nodeName,
+        name: nodeName,
+        symbolSize: size,
+        itemStyle: {
+          color: CHART_PALETTE[colorIndex],
+        },
+        label: {
+          show: degree > 0, // only show labels for connected nodes to avoid clutter
+          color: '#a3a3a3',
+          position: 'bottom',
+        },
+      })
+    })
 
     return {
       theme: 'dark',
-      graphic: [
-        {
-          type: 'rect',
-          left: 0,
-          top: 0,
-          right: 0,
-          bottom: 0,
-          bounding: 'all',
-          style: {
-            fill: 'rgba(0,0,0,0.01)'
-          },
-          cursor: 'default',
-          // Graphic events don't automatically trigger roam, but they capture mouse.
-          // However, if the graphic is behind the graph (z: -1), does roam work?
-          z: -1
-        }
-      ],
       backgroundColor: 'transparent',
       tooltip: {
         backgroundColor: '#111111',
@@ -201,10 +200,9 @@ const CorrelationNetworkChart = React.memo(() => {
       toolbox: {
         show: true,
         feature: {
-
           restore: {},
-          saveAsImage: {}
-        }
+          saveAsImage: {},
+        },
       },
       series: [
         {
@@ -218,7 +216,8 @@ const CorrelationNetworkChart = React.memo(() => {
           initLayout: 'circular',
           layoutAnimation: true,
           layout: 'force',
-          roam: true, scaleLimit: { min: 0.1, max: 10 },
+          roam: true,
+          scaleLimit: { min: 0.1, max: 10 },
           draggable: false,
 
           label: {

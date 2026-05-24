@@ -471,9 +471,7 @@ export default React.memo<NavProps>(
                 onClick={onToggleNetworkView}
                 title="View Biomarker Network Graph"
                 className={`hidden md:flex ml-4 px-3 py-1 text-xs font-medium text-white rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors ${
-                  isNetworkViewOpen
-                    ? 'bg-blue-700 shadow-inner'
-                    : 'bg-blue-600 hover:bg-blue-500'
+                  isNetworkViewOpen ? 'bg-blue-700 shadow-inner' : 'bg-blue-600 hover:bg-blue-500'
                 }`}
                 aria-pressed={isNetworkViewOpen}
               >
