@@ -51,13 +51,22 @@ export default (entries: BioMarker[]): BioMarker[] => {
     entryMap.set(entries[i][0], entries[i][1])
   }
 
-  const data = recipes.map(([name, fields, func, extra = {}]) => {
+  // Optimization: Replace array.map with a traditional for loop to avoid closure creation
+  // and multiple array allocations per recipe.
+  const data = Array<any>(recipes.length)
+  for (let r = 0; r < recipes.length; r++) {
+    const [name, fields, func, extra = {}] = recipes[r]
     // Look up required field arrays once per recipe
-    const fieldArrays = fields.map((field) => entryMap.get(field))
-
-    // If any required field is entirely missing, all calculated values for this recipe will be null
-    const hasMissingField = fieldArrays.some((arr) => arr === undefined)
-    const numFields = fieldArrays.length
+    const numFields = fields.length
+    const fieldArrays = Array<number[] | undefined>(numFields)
+    let hasMissingField = false
+    for (let f = 0; f < numFields; f++) {
+      const arr = entryMap.get(fields[f])
+      fieldArrays[f] = arr
+      if (arr === undefined) {
+        hasMissingField = true
+      }
+    }
 
     // Optimization: Avoid chaining Array.from({ length }).map() and inner array.map().some()
     // inside hot loops to reduce multiple array allocations and closure overheads per period.
@@ -91,8 +100,8 @@ export default (entries: BioMarker[]): BioMarker[] => {
       ;(extra as any).originValues = Array<any>(periods)
     }
     ;(extra as any).inferred = true
-    return [name, values, null, extra] as any
-  })
+    data[r] = [name, values, null, extra] as any
+  }
 
   return [...entries, ...data]
 }
