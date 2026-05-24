@@ -151,13 +151,22 @@ const CorrelationNetworkChart = React.memo(() => {
     // Add nodes
     // Dummy background node to capture roam events everywhere
     nodes.push({
-      id: '__background',
+      id: '__bg_1',
       name: '',
       fixed: true,
-      x: 500,
-      y: 500,
-      symbolSize: 5000,
-      itemStyle: { color: 'transparent' },
+      x: 0,
+      y: 0,
+      symbolSize: 0,
+      itemStyle: { opacity: 0 },
+    })
+    nodes.push({
+      id: '__bg_2',
+      name: '',
+      fixed: true,
+      x: 2000,
+      y: 2000,
+      symbolSize: 0,
+      itemStyle: { opacity: 0 },
     })
 
     Array.from(nodesSet).forEach((nodeName, index) => {
