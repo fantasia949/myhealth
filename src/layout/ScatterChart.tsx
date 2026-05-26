@@ -4,10 +4,7 @@ import { dataMapAtom } from '../atom/dataAtom'
 import ReactECharts from 'echarts-for-react'
 import { labels, formattedLabels } from '../data'
 import { CHART_PALETTE } from './Chart2'
-
-interface ScatterChartProps {
-  keys: string[]
-}
+import type { ScatterChartProps } from './ScatterChart.types'
 
 const echartsOptions = {
   style: { height: 400 },
