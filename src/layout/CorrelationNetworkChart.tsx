@@ -47,7 +47,8 @@ const CorrelationNetworkChart = React.memo(() => {
 
         const len = sourceValuesRaw.length
         const parsedSource = new Float64Array(len)
-        const validIndices: number[] = []
+        const validIndices = new Int32Array(len)
+        let validCount = 0
 
         for (let k = 0; k < len; k++) {
           const v = sourceValuesRaw[k]
@@ -55,12 +56,12 @@ const CorrelationNetworkChart = React.memo(() => {
             const vNum = Number(v)
             if (!isNaN(vNum)) {
               parsedSource[k] = vNum
-              validIndices.push(k)
+              validIndices[validCount++] = k
             }
           }
         }
 
-        const maxLen = validIndices.length
+        const maxLen = validCount
         if (maxLen < 4) continue
 
         const x = new Float64Array(maxLen)
