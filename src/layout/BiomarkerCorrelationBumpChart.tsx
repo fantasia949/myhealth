@@ -27,13 +27,16 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
     const targetRanks = rankedDataMap.get(targetBiomarker)
     if (!targetRanks) return {}
 
-    const validIndices: number[] = []
-    for (let i = 0; i < formattedLabels.length; i++) {
+    const maxLen = formattedLabels.length
+    const validIndicesArray = new Int32Array(maxLen)
+    let count = 0
+    for (let i = 0; i < maxLen; i++) {
       if (!Number.isNaN(targetRanks[i])) {
-        validIndices.push(i)
+        validIndicesArray[count++] = i
       }
     }
-    const count = validIndices.length
+
+    const validIndices = validIndicesArray.subarray(0, count)
 
     // Create binary vectors for top supplements over the entire valid length
     const suppVectors = new Map<string, Int8Array>()
@@ -76,7 +79,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
       const endIdxInValid =
         w === numWindowsDynamic - 1 ? count : Math.floor(((w + 1) * count) / numWindowsDynamic)
 
-      const windowValidIndices = validIndices.slice(startIdxInValid, endIdxInValid)
+      const windowValidIndices = validIndices.subarray(startIdxInValid, endIdxInValid)
       const windowCount = windowValidIndices.length
 
       // Use the last date of the window for the label so we can see the time span
