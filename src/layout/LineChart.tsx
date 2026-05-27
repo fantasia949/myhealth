@@ -23,6 +23,7 @@ const echartsOptions = {
       const p = Array.isArray(params) ? params[0] : params
       if (
         !p ||
+        !p.value ||
         p.value[1] === '-' ||
         p.value[1] === '' ||
         p.value[1] === 'NaN' ||
