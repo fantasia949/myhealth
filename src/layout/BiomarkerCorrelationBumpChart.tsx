@@ -27,13 +27,14 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
     const targetRanks = rankedDataMap.get(targetBiomarker)
     if (!targetRanks) return {}
 
-    const validIndices: number[] = []
+    const validIndices = new Int32Array(formattedLabels.length)
+    let validCount = 0
     for (let i = 0; i < formattedLabels.length; i++) {
       if (!Number.isNaN(targetRanks[i])) {
-        validIndices.push(i)
+        validIndices[validCount++] = i
       }
     }
-    const count = validIndices.length
+    const count = validCount
 
     // Create binary vectors for top supplements over the entire valid length
     const suppVectors = new Map<string, Int8Array>()
@@ -70,13 +71,15 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
     }
 
     // Chunk the valid data indices into windows and recalculate rho for each window
+    const windowBiomarkerRanks = new Float64Array(count)
+
     for (let w = 0; w < numWindowsDynamic; w++) {
       // Use floating point division to distribute elements evenly across windows
       const startIdxInValid = Math.floor((w * count) / numWindowsDynamic)
       const endIdxInValid =
         w === numWindowsDynamic - 1 ? count : Math.floor(((w + 1) * count) / numWindowsDynamic)
 
-      const windowValidIndices = validIndices.slice(startIdxInValid, endIdxInValid)
+      const windowValidIndices = validIndices.subarray(startIdxInValid, endIdxInValid)
       const windowCount = windowValidIndices.length
 
       // Use the last date of the window for the label so we can see the time span
@@ -98,8 +101,6 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
         }
         continue
       }
-
-      const windowBiomarkerRanks = new Float64Array(windowCount)
 
       // Extract vectors for this specific window using our pre-calculated valid chunk
       for (let k = 0; k < windowCount; k++) {
@@ -131,7 +132,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
         if (!hasSuppVariation) {
           windowRhos[c] = { name: suppName, rho: 0 }
         } else {
-          const result = calculatePearson(windowBiomarkerRanks, suppVector, {
+          const result = calculatePearson(windowBiomarkerRanks.subarray(0, windowCount), suppVector, {
             alpha: 0.05,
             alternative: 'two-sided',
           })
