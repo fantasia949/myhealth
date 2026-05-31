@@ -24,11 +24,16 @@ const CorrelationChordDiagram = React.memo(() => {
 
     const nodes: any[] = []
     const edges: any[] = []
+    const nodesSet = new Set<string>()
 
     const options = { alpha, alternative }
     const validPairs: { source: string; target: string; rho: number; pValue: number }[] = []
 
     const numData = visibleData.length
+
+    for (let i = 0; i < numData; i++) {
+      nodesSet.add(visibleData[i][0])
+    }
 
     if (method === 'pearson') {
       let maxDatasetLen = 0
@@ -147,14 +152,21 @@ const CorrelationChordDiagram = React.memo(() => {
       degreeMap.set(pair.target, (degreeMap.get(pair.target) || 0) + 1)
     })
 
+    // Ensure uniqueness of nodeItems in case visibleData has duplicates
+    const uniqueNodes = new Map<string, any>()
+    visibleData.forEach((item) => {
+      const name = item[0]
+      if (nodesSet.has(name) && !uniqueNodes.has(name)) {
+        uniqueNodes.set(name, {
+          name: name,
+          degree: degreeMap.get(name) || 0,
+          sortTag: item[3]?.sortTag || item[3]?.tag?.[0] || 'ZZZ',
+        })
+      }
+    })
+
     // Group and sort nodes by Tag to visually cluster them in the circular layout
-    const nodeItems = visibleData
-      .filter((item) => (degreeMap.get(item[0]) || 0) > 0)
-      .map((item) => ({
-        name: item[0],
-        degree: degreeMap.get(item[0]) || 0,
-        sortTag: item[3]?.sortTag || item[3]?.tag?.[0] || 'ZZZ',
-      }))
+    const nodeItems = Array.from(uniqueNodes.values())
       .sort((a, b) => a.sortTag.localeCompare(b.sortTag))
 
     // Assign consistent colors by tag group
