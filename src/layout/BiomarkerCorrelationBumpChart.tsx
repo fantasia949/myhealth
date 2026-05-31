@@ -132,10 +132,14 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
         if (!hasSuppVariation) {
           windowRhos[c] = { name: suppName, rho: 0 }
         } else {
-          const result = calculatePearson(windowBiomarkerRanks.subarray(0, windowCount), suppVector, {
-            alpha: 0.05,
-            alternative: 'two-sided',
-          })
+          const result = calculatePearson(
+            windowBiomarkerRanks.subarray(0, windowCount),
+            suppVector,
+            {
+              alpha: 0.05,
+              alternative: 'two-sided',
+            },
+          )
           windowRhos[c] = { name: suppName, rho: Math.abs(result.pcorr || 0) }
         }
       }

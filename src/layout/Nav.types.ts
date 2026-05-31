@@ -18,4 +18,6 @@ export type NavProps = {
   onOpenClustering?: () => void
   isNetworkViewOpen: boolean
   onToggleNetworkView: () => void
+  isChordViewOpen: boolean
+  onToggleChordView: () => void
 }
