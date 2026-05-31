@@ -73,8 +73,10 @@ const CorrelationNetworkChart = React.memo(() => {
           }
         }
 
-        if (validCount < 4) continue
-        const validIndices = validIndicesArray.subarray(0, validCount)
+        const maxLen = validCount
+        if (maxLen < 4) continue
+
+
 
         for (let j = i + 1; j < numData; j++) {
           const targetName = visibleData[j][0]
@@ -83,7 +85,7 @@ const CorrelationNetworkChart = React.memo(() => {
 
           let count = 0
           for (let k = 0; k < validCount; k++) {
-            const idx = validIndices[k]
+            const idx = validIndicesArray[k]
             const t = targetValuesRaw[idx]
             if (t !== null) {
               const tNum = Number(t)

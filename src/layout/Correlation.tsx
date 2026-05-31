@@ -64,11 +64,12 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
         }
       }
 
-      const validIndices = validIndicesArray.subarray(0, validCount)
+
 
       // Optimization: Pre-allocate Float64Arrays for pairwise values and reuse them
       // across targets to avoid the overhead of `[]` array allocations and `push()` inside the loop.
       const maxLen = validCount
+      const validIndices = validIndicesArray.subarray(0, validCount)
       const x = new Float64Array(maxLen)
       const y = new Float64Array(maxLen)
 

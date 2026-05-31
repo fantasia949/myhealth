@@ -27,16 +27,14 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
     const targetRanks = rankedDataMap.get(targetBiomarker)
     if (!targetRanks) return {}
 
-    const maxLen = formattedLabels.length
-    const validIndicesArray = new Int32Array(maxLen)
-    let count = 0
-    for (let i = 0; i < maxLen; i++) {
+    const validIndices = new Int32Array(formattedLabels.length)
+    let validCount = 0
+    for (let i = 0; i < formattedLabels.length; i++) {
       if (!Number.isNaN(targetRanks[i])) {
-        validIndicesArray[count++] = i
+        validIndices[validCount++] = i
       }
     }
-
-    const validIndices = validIndicesArray.subarray(0, count)
+    const count = validCount
 
     // Create binary vectors for top supplements over the entire valid length
     const suppVectors = new Map<string, Int8Array>()
