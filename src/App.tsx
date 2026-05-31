@@ -150,8 +150,8 @@ export default function App() {
     const sourceTargetMap = new Map(sourceTarget.map((item) => [item![0], item]))
     sourceTarget = selected.map((name) => sourceTargetMap.get(name))
 
-    if (sourceTarget.some((i) => !i)) {
-      return
+    for (let i = 0; i < sourceTarget.length; i++) {
+      if (!sourceTarget[i]) return
     }
     setSourceTarget((v) => {
       if (v && sourceTarget[0] === v[0] && sourceTarget[1] === v[1]) {
