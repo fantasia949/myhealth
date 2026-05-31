@@ -146,18 +146,20 @@ export default memo(({ keys }: ChartProps) => {
       const unitY = entry1[2] || ''
       const len = labels.length
 
-      const mappedData = Array<any[]>(len)
-      let count = 0
+      // ⚡ Bolt Optimization: Avoid pre-allocating 'holey' arrays for generic types.
+      // Pre-allocating Array<any[]>(len) creates sparse arrays which de-optimize modern V8 engines.
+      // Replacing with standard array pushes and eliminating the slice operation improves performance.
+      const mappedData: any[] = []
 
       for (let i = 0; i < len; i++) {
         const v0 = values0[i]
         const v1 = values1[i]
         if (v0 !== null && v0 !== undefined && v1 !== null && v1 !== undefined) {
           const formattedDate = formattedLabels[i]
-          mappedData[count++] = [v0, v1, formattedDate, unitX, unitY]
+          mappedData.push([v0, v1, formattedDate, unitX, unitY])
         }
       }
-      return { data: mappedData.slice(0, count) }
+      return { data: mappedData }
     }
 
     return { data: [] }
