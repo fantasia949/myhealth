@@ -50,7 +50,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
       // Pre-parse the source values and record valid indices to avoid O(N * M) parsing and null checks.
       const len = sourceValues.length
       const parsedSource = new Float64Array(len)
-      const validIndices = new Int32Array(len)
+      const validIndicesArray = new Int32Array(len)
       let validCount = 0
 
       for (let i = 0; i < len; i++) {
@@ -59,7 +59,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
           const vNum = Number(v)
           if (!isNaN(vNum)) {
             parsedSource[i] = vNum
-            validIndices[validCount++] = i
+            validIndicesArray[validCount++] = i
           }
         }
       }
@@ -67,6 +67,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
       // Optimization: Pre-allocate Float64Arrays for pairwise values and reuse them
       // across targets to avoid the overhead of `[]` array allocations and `push()` inside the loop.
       const maxLen = validCount
+      const validIndices = validIndicesArray.subarray(0, validCount)
       const x = new Float64Array(maxLen)
       const y = new Float64Array(maxLen)
 

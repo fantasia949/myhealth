@@ -83,7 +83,7 @@ export default memo(({ keys }: ScatterChartProps) => {
     for (let index = 0; index < numKeys; index++) {
       const key = keys[index]
       const isEven = index % 2 === 0
-      const sideOffset = Math.floor(index / 2) * 80
+      const sideOffset = Math.floor(index / 2) * 100
 
       result[index] = {
         type: 'value',
@@ -101,7 +101,7 @@ export default memo(({ keys }: ScatterChartProps) => {
         axisLabel: {
           formatter: '{value}',
         },
-        min: 'dataMin',
+        scale: true,
       }
     }
     return result
@@ -162,8 +162,8 @@ export default memo(({ keys }: ScatterChartProps) => {
         data: keys,
       },
       grid: {
-        left: Math.ceil(keys.length / 2) * 80,
-        right: Math.max(Math.floor(keys.length / 2) * 80, 40),
+        left: Math.ceil(keys.length / 2) * 100,
+        right: Math.max(Math.floor(keys.length / 2) * 100, 40),
       },
     }),
     [yAxes, chartData, keys],
