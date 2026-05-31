@@ -37,6 +37,20 @@ const CorrelationNetworkChart = React.memo(() => {
     }
 
     if (method === 'pearson') {
+      // Optimization: Hoist TypedArray allocations outside the loops to eliminate
+      // O(N^2) dynamic allocations and garbage collection overhead in hot network rendering.
+      // Use Int32Array for validIndices instead of standard arrays with .push().
+      let maxDatasetLen = 0
+      for (let i = 0; i < numData; i++) {
+        const len = dataMap.get(visibleData[i][0])?.[1].length || 0
+        if (len > maxDatasetLen) maxDatasetLen = len
+      }
+
+      const parsedSource = new Float64Array(maxDatasetLen)
+      const validIndicesArray = new Int32Array(maxDatasetLen)
+      const x = new Float64Array(maxDatasetLen)
+      const y = new Float64Array(maxDatasetLen)
+
       // Pre-parse the source values and record valid indices to avoid O(N * M) parsing and null checks.
       // This is complex for N*N matrix, so we'll do it pair-wise carefully.
 
@@ -46,8 +60,7 @@ const CorrelationNetworkChart = React.memo(() => {
         if (!sourceValuesRaw) continue
 
         const len = sourceValuesRaw.length
-        const parsedSource = new Float64Array(len)
-        const validIndices: number[] = []
+        let validCount = 0
 
         for (let k = 0; k < len; k++) {
           const v = sourceValuesRaw[k]
@@ -55,16 +68,15 @@ const CorrelationNetworkChart = React.memo(() => {
             const vNum = Number(v)
             if (!isNaN(vNum)) {
               parsedSource[k] = vNum
-              validIndices.push(k)
+              validIndicesArray[validCount++] = k
             }
           }
         }
 
-        const maxLen = validIndices.length
+        const maxLen = validCount
         if (maxLen < 4) continue
 
-        const x = new Float64Array(maxLen)
-        const y = new Float64Array(maxLen)
+
 
         for (let j = i + 1; j < numData; j++) {
           const targetName = visibleData[j][0]
@@ -72,8 +84,8 @@ const CorrelationNetworkChart = React.memo(() => {
           if (!targetValuesRaw) continue
 
           let count = 0
-          for (let k = 0; k < maxLen; k++) {
-            const idx = validIndices[k]
+          for (let k = 0; k < validCount; k++) {
+            const idx = validIndicesArray[k]
             const t = targetValuesRaw[idx]
             if (t !== null) {
               const tNum = Number(t)
