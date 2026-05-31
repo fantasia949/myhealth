@@ -12,7 +12,6 @@ import { useAtomValue, useAtom } from 'jotai'
 
 const ScatterChart = React.lazy(() => import('./layout/ScatterChart'))
 const RadarChart = React.lazy(() => import('./layout/RadarChart'))
-const CorrelationNetworkChart = React.lazy(() => import('./layout/CorrelationNetworkChart'))
 const CorrelationChordDiagram = React.lazy(() => import('./layout/CorrelationChordDiagram'))
 import {
   getBioMarkersAtom,
@@ -46,7 +45,6 @@ export default function App() {
   const [showAiKey, setShowAiKey] = React.useState(false)
   const [showGistToken, setShowGistToken] = React.useState(false)
   const [isNetworkViewOpen, setIsNetworkViewOpen] = React.useState(false)
-  const [isChordViewOpen, setIsChordViewOpen] = React.useState(false)
 
   React.useEffect(() => {
     const handler = setTimeout(() => {
@@ -222,9 +220,7 @@ export default function App() {
       onOpenClustering: () => setIsClusteringOpen(true),
       isNetworkViewOpen,
       onToggleNetworkView: () => setIsNetworkViewOpen((prev) => !prev),
-      isChordViewOpen,
-      onToggleChordView: () => setIsChordViewOpen((prev) => !prev),
-    }),
+          }),
     [
       selected,
       onSelect,
@@ -242,8 +238,7 @@ export default function App() {
       onSupplementCorrelation,
       setIsClusteringOpen,
       isNetworkViewOpen,
-      isChordViewOpen,
-    ],
+          ],
   )
 
   // Optimization: Pre-filter radar chart data in a memoized hook with a single-pass loop.
@@ -344,10 +339,6 @@ export default function App() {
         >
           {isNetworkViewOpen ? (
             <div className="mb-8 px-4">
-              <CorrelationNetworkChart />
-            </div>
-          ) : isChordViewOpen ? (
-            <div className="mb-8 px-4">
               <CorrelationChordDiagram />
             </div>
           ) : (
@@ -361,7 +352,7 @@ export default function App() {
             </>
           )}
         </React.Suspense>
-        {!isNetworkViewOpen && !isChordViewOpen && <Table {...tableProps} />}
+        {!isNetworkViewOpen && <Table {...tableProps} />}
         <div className="flex flex-wrap justify-center gap-4 mt-4 pb-8">
           <div className="flex flex-col gap-1">
             <label htmlFor="ai-model" className="text-xs text-gray-400 font-medium ml-1">

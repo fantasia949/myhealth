@@ -53,8 +53,6 @@ export default React.memo<NavProps>(
     onOpenClustering,
     isNetworkViewOpen,
     onToggleNetworkView,
-    isChordViewOpen,
-    onToggleChordView,
   }) => {
     const [averageCount, setAverageCount] = useAtom(averageCountAtom)
     const key = useAtomValue(aiKeyAtom)
@@ -471,24 +469,13 @@ export default React.memo<NavProps>(
               <button
                 type="button"
                 onClick={onToggleNetworkView}
-                title="View Biomarker Network Graph"
+                title="View Biomarker Chord Diagram"
                 className={`hidden md:flex ml-4 px-3 py-1 text-xs font-medium text-white rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors ${
                   isNetworkViewOpen ? 'bg-blue-700 shadow-inner' : 'bg-blue-600 hover:bg-blue-500'
                 }`}
                 aria-pressed={isNetworkViewOpen}
               >
-                View Network
-              </button>
-              <button
-                type="button"
-                onClick={onToggleChordView}
-                title="View Biomarker Chord Diagram"
-                className={`hidden md:flex ml-4 px-3 py-1 text-xs font-medium text-white rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors ${
-                  isChordViewOpen ? 'bg-blue-700 shadow-inner' : 'bg-blue-600 hover:bg-blue-500'
-                }`}
-                aria-pressed={isChordViewOpen}
-              >
-                View Chord
+                View Chord Diagram
               </button>
 
               {onOpenClustering && (
