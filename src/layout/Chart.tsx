@@ -102,7 +102,7 @@ export default memo(({ keys }: ChartProps) => {
     const result = Array<any>(numKeys)
     for (let i = 0; i < numKeys; i++) {
       const isEven = i % 2 === 0
-      const sideOffset = Math.floor(i / 2) * 80
+      const sideOffset = Math.floor(i / 2) * 100
 
       result[i] = {
         scale: true,
@@ -188,8 +188,8 @@ export default memo(({ keys }: ChartProps) => {
             grid: {
               top: 40,
               bottom: 20,
-              left: Math.ceil(keys.length / 2) * 80,
-              right: Math.max(Math.floor(keys.length / 2) * 80, 40),
+              left: Math.ceil(keys.length / 2) * 100,
+              right: Math.max(Math.floor(keys.length / 2) * 100, 40),
             },
             series,
           },
