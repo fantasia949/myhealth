@@ -18,6 +18,9 @@
 **Learning:** Replaced array.map() with traditional for-loops, saving closure allocation and function call overheads per item.
 **Action:** Replace `recipes.map(...)` with `for (let i = 0; i < recipes.length; i++)` and preallocate output arrays where lengths are known statically.
 
+## YYYY-MM-DD - Performance Anti-Pattern (V8 Engine)
+**Learning:** Do not replace native `Array.prototype.map()` calls with `for` loops and pre-allocated standard arrays (e.g., `Array(len)`) in React render cycles. Pre-allocating standard arrays creates 'holey' (sparse) arrays, which de-optimize operations in modern V8 engines and are often slower than using `.map()` or initializing an empty array and using `.push()`.
+**Action:** Reserve pre-allocation optimization strategies strictly for TypedArrays. Avoid converting native `.map()` to loops where holey arrays are created.
 ## 2024-05-18 - TypedArray Buffer Sizing Bug in Nested Loops
 
 **Learning:** When hoisting TypedArray allocations (like `Float64Array` and `Int32Array`) out of N-squared rendering loops, you cannot assume all datasets share the exact same length by just checking `data[0].length`. If a subsequent array is longer than the hoisted buffer, JS will silently ignore out-of-bounds writes, leading to data truncation and broken charts.

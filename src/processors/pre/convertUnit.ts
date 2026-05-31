@@ -63,7 +63,7 @@ const valueMapper = (
     unit = 'μg/dL'
   }
 
-  if (unit === 'mmol/L' && ['Cholesterol', 'HDL', 'LDL'].includes(name)) {
+  if (unit === 'mmol/L' && (name === 'Cholesterol' || name === 'HDL' || name === 'LDL')) {
     originValue = value
     value = converter[name](value)
     originUnit = unit
