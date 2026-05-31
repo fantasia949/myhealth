@@ -74,7 +74,7 @@ Uses the raw length of `BioMarker[1]` null-gaps and `labels[]` from `src/data/in
 Reads the `values[]` array for biomarkers in `visibleDataAtom`, counting the occurrence of `null` vs `number` across time.
 
 **What it reveals that current charts don't:**
-Visualizes test frequency gaps and measurement consistency over time. Instead of merely plotting points where data exists, it actively highlights the _missing_ measurements as negative space blocks, showing testing compliance.
+Visualizes test frequency gaps and measurement consistency over time. Instead of merely plotting points where data exists, it actively highlights the *missing* measurements as negative space blocks, showing testing compliance.
 
 **Where it would live:**
 New `src/layout/TestingFrequencyWaterfall.tsx`, available via a global toggle.
