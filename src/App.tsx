@@ -12,7 +12,7 @@ import { useAtomValue, useAtom } from 'jotai'
 
 const ScatterChart = React.lazy(() => import('./layout/ScatterChart'))
 const RadarChart = React.lazy(() => import('./layout/RadarChart'))
-const CorrelationNetworkChart = React.lazy(() => import('./layout/CorrelationNetworkChart'))
+const CorrelationChordDiagram = React.lazy(() => import('./layout/CorrelationChordDiagram'))
 import {
   getBioMarkersAtom,
   filterTextAtom,
@@ -220,7 +220,7 @@ export default function App() {
       onOpenClustering: () => setIsClusteringOpen(true),
       isNetworkViewOpen,
       onToggleNetworkView: () => setIsNetworkViewOpen((prev) => !prev),
-    }),
+          }),
     [
       selected,
       onSelect,
@@ -238,7 +238,7 @@ export default function App() {
       onSupplementCorrelation,
       setIsClusteringOpen,
       isNetworkViewOpen,
-    ],
+          ],
   )
 
   // Optimization: Pre-filter radar chart data in a memoized hook with a single-pass loop.
@@ -339,7 +339,7 @@ export default function App() {
         >
           {isNetworkViewOpen ? (
             <div className="mb-8 px-4">
-              <CorrelationNetworkChart />
+              <CorrelationChordDiagram />
             </div>
           ) : (
             <>
