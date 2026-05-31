@@ -76,6 +76,8 @@ const CorrelationNetworkChart = React.memo(() => {
         const maxLen = validCount
         if (maxLen < 4) continue
 
+
+
         for (let j = i + 1; j < numData; j++) {
           const targetName = visibleData[j][0]
           const targetValuesRaw = dataMap.get(targetName)?.[1]
