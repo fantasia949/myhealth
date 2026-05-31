@@ -227,6 +227,12 @@ const CorrelationChordDiagram = React.memo(() => {
           label: {
             show: true,
           },
+          emphasis: {
+            focus: 'adjacency',
+            lineStyle: {
+              width: 10,
+            },
+          },
           data: nodes,
           edges: edges,
         } as GraphSeriesOption,
