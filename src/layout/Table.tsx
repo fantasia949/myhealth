@@ -338,7 +338,16 @@ const TableRow = React.memo(
 const columns: ColumnDef<DisplayedEntry, any>[] = [
   columnHelper.display({
     id: 'selection',
-    header: '',
+    header: ({ table }) => (
+      <input
+        type="checkbox"
+        className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
+        checked={table.getIsAllRowsSelected()}
+        onChange={table.getToggleAllRowsSelectedHandler()}
+        aria-label="Select all rows"
+        title="Select all rows"
+      />
+    ),
   }),
   columnHelper.display({
     id: 'expand',
