@@ -101,7 +101,7 @@ export default memo(({ keys }: ScatterChartProps) => {
         axisLabel: {
           formatter: '{value}',
         },
-        min: 'dataMin',
+        scale: true,
       }
     }
     return result

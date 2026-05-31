@@ -1,108 +1,108 @@
 ---
 
-**Proposal 1 of 5: Measurement Modality Pictorial Bar**
+**Proposal 1 of 5: Inferred vs Measured Accuracy Area**
 
-**ECharts type:** `pictorialBar`
+**ECharts type:** `line` (with `areaStyle` representing delta)
 
 **Codebase citation:**
-`nonInferredDataAtom` vs full `dataAtom` from `src/atom/dataAtom.ts`.
+Reads `inferred: true` and `originValues` from `BioMarker[3]` as populated by `src/types/biomarker.ts` and inferred markers from `nonInferredDataAtom` in `src/atom/dataAtom.ts`.
 
 **Which existing data it uses:**
-Compares the length of `nonInferredDataAtom` against the full `dataAtom` per tag group (from `src/processors/post/tag.ts`). It explicitly uses the `extra.inferred` flag on `BioMarker[3]` to classify the measurements.
+It uses `nonInferredDataAtom` to grab all directly measured biomarkers, and compares those against inferred biomarkers (e.g., computed equations). It plots the direct components against the resultant inferred value across time.
 
 **What it reveals that current charts don't:**
-Shows the ratio of purely measured (`nonInferredDataAtom`) to computationally inferred biomarkers per body system (e.g., `2-Metabolic`). Uses custom SVG icons in a `pictorialBar` to visually represent the "realness" or density of actual lab data in each system, helping users understand data provenance.
+Highlights measurement drift by plotting inferred mathematical values against their measured origin components (e.g. tracking eGFR equation confidence over time). It reveals if a patient's lab components are diverging mathematically from standard calculations.
 
 **Where it would live:**
-New `src/layout/ModalityPictorialChart.tsx`.
+New `src/layout/InferredAccuracyArea.tsx`, rendered conditionally in `App.tsx` when an inferred biomarker is selected.
 
 **Trigger / entry point:**
-A global dashboard widget rendered above the main table view that helps contextualize data quality before drilling down into specific rows.
+Triggered automatically when a biomarker with `extra.inferred === true` is selected from the `visibleDataAtom`.
 
 ---
 
-**Proposal 2 of 5: Biomarker Correlation Timeline Brush**
+**Proposal 2 of 5: Ranked Correlation Network Timeline**
 
-**ECharts type:** `scatter` + `brush` + `dataZoom`
+**ECharts type:** `themeRiver` / `streamgraph`
 
 **Codebase citation:**
-`rankedDataMapAtom` from `src/atom/dataAtom.ts` which provides the Spearman rank cache per biomarker as `Float64Array`.
+Utilizes `rankedDataMapAtom` (Spearman rank cache: `Map<string, Float64Array>`) from `src/atom/dataAtom.ts` and the currently selected `correlationMethodAtom` from `src/atom/correlationAtom.ts`.
 
 **Which existing data it uses:**
-It uses the `BioMarker[1]` time-series data from `visibleDataAtom` for the scatter plot and dynamically re-computes correlations against `rankedDataMapAtom` based on the brushed time window.
+It uses the pre-computed `Float64Array` rank values from `rankedDataMapAtom` for the active tag group (`tagAtom`), applying the user's `correlationMethodAtom` settings.
 
 **What it reveals that current charts don't:**
-Allows the user to brush (select) a specific short-term time window on a primary biomarker scatter plot, and instantly see which other biomarkers have the strongest rank correlation *only during that specific time period*, revealing short-term metabolic shifts that are hidden when looking at all-time historical correlation.
+Visualizes the shift in statistical rank importance among a tag group's members over time. It exposes long-term systemic shifts (e.g. which `8-WBC` component is dominating the statistical distribution historically).
 
 **Where it would live:**
-Extends `src/layout/ScatterChart.tsx`.
+New `src/layout/RankStreamGraph.tsx`, inserted below the `ScatterChart.tsx`.
 
 **Trigger / entry point:**
-The user activates the ECharts `toolbox.feature.brush` tool on the multi-series scatter chart to highlight a date range.
+Activated when the user toggles a new "View Ranked Stream" switch in `Nav.tsx`, filtering by the active `tagAtom`.
 
 ---
 
-**Proposal 3 of 5: Missing Data Interpolation Line**
+**Proposal 3 of 5: Out-of-Range Severity Gauge**
 
-**ECharts type:** `line` (with `lineStyle.type: 'dashed'`)
+**ECharts type:** `gauge` (customized for time-series aggregation)
 
 **Codebase citation:**
-`BioMarker[1]` arrays containing `null` for missing measurements, and `labels[]` from `src/data/index.ts`.
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` and `labels[]` from `src/data/index.ts`.
 
 **Which existing data it uses:**
-Reads the exact `BioMarker[1]` value array and `labels[]` from `src/data/index.ts` to identify the `null` gap sentinel markers (`'-'`).
+Iterates through all datasets in `dataAtom`, counting `true` values within the `optimality[]` array for the most recent index in `labels[]`, producing a global system score.
 
 **What it reveals that current charts don't:**
-Rather than just dropping `null` values (which ECharts does by default when `connectNulls: false`), this chart explicitly plots the missing segments as a distinct dashed line (using a secondary series) connecting the known points. This visually highlights the uncertainty intervals in the patient's history, preventing false assumptions about linear progression during long gaps between lab tests.
+Provides a single, immediately digestible "System Status" score indicating what percentage of all tracked biomarkers are currently out-of-range at the latest time point, allowing a high-level health glance without scanning individual charts.
 
 **Where it would live:**
-Extends `src/layout/LineChart.tsx`.
+New `src/layout/SystemSeverityGauge.tsx`, placed in the global dashboard header.
 
 **Trigger / entry point:**
-Auto-renders as a secondary visual series for any biomarker rendered in `LineChart.tsx` that contains at least one `null` value in its historical array.
+Auto-renders on initial dashboard load and updates whenever `dataAtom` is fully populated.
 
 ---
 
-**Proposal 4 of 5: Optimality Duration Bar Gantt**
+**Proposal 4 of 5: Data Density Waterfall**
 
-**ECharts type:** `bar` (stacked horizontal)
+**ECharts type:** `bar` (waterfall configuration)
 
 **Codebase citation:**
-`extra.optimality[]` pre-computed boolean array in `BioMarker[3]`.
+Uses the raw length of `BioMarker[1]` null-gaps and `labels[]` from `src/data/index.ts`.
 
 **Which existing data it uses:**
-Iterates through `extra.optimality[]` for all biomarkers in `visibleDataAtom` and maps sequences of `false` (in range) and `true` (out of range) to stacked horizontal bars along the `labels[]` time axis.
+Reads the `values[]` array for biomarkers in `visibleDataAtom`, counting the occurrence of `null` vs `number` across time.
 
 **What it reveals that current charts don't:**
-Shows the exact *duration* a biomarker stayed optimal before falling out of range, aggregating the sequences into a gantt-style view. This helps differentiate chronic (long red bars) from acute (short red bars) issues across all visible biomarkers simultaneously.
+Visualizes test frequency gaps and measurement consistency over time. Instead of merely plotting points where data exists, it actively highlights the *missing* measurements as negative space blocks, showing testing compliance.
 
 **Where it would live:**
-New `src/layout/OptimalityDurationChart.tsx`.
+New `src/layout/TestingFrequencyWaterfall.tsx`, available via a global toggle.
 
 **Trigger / entry point:**
-Displayed in the main table view above the `LineChart` expanders to summarize the current `visibleDataAtom` list's stability over time.
+A new "Test History" button in `Nav.tsx` toggles the dashboard from value-view to density-view.
 
 ---
 
-**Proposal 5 of 5: Significance Threshold Sensitivity Plot**
+**Proposal 5 of 5: Bivariate Tag Scatter**
 
-**ECharts type:** `line` + `markLine`
+**ECharts type:** `scatter` (with `visualMap`)
 
 **Codebase citation:**
-`correlationAlphaAtom` from `src/atom/correlationAtom.ts`.
+Reads `extra.processedTags` from `src/types/biomarker.ts` and output from `src/processors/post/tag.ts`.
 
 **Which existing data it uses:**
-Reads the currently selected `correlationAlphaAtom` and calculates the number of significant pairs across `rankedDataMapAtom` across a simulated sweep of alpha values (e.g., 0.001 to 0.1).
+Reads `values[]` from `visibleDataAtom` but groups axes strictly by two opposing tags (e.g. `2-Metabolic` vs `4-Lipid`), averaging their normalized values.
 
 **What it reveals that current charts don't:**
-Plots the number of statistically significant correlations (y-axis) against different possible alpha values (x-axis), with a `markLine` at the currently selected `correlationAlphaAtom`. This helps the user visually determine if their current alpha is too strict or too loose by showing the "elbow" of the correlation drop-off curve.
+Exposes macro-level system interplay by comparing the aggregate health of one complete physiological system against another at each point in time, revealing if (for example) liver stress directly correlates with kidney stress across the patient's entire timeline.
 
 **Where it would live:**
-New `src/layout/CorrelationSensitivityChart.tsx`.
+New `src/layout/SystemInterplayScatter.tsx`, rendered when exactly two tags are compared.
 
 **Trigger / entry point:**
-Rendered in the settings/correlation view directly next to the correlation alpha input control.
+Activated when the user selects a "Compare Tags" feature in the sidebar, setting two active entries in a new `compareTagsAtom`.
 
 ---
 
-Recommended implementation order: Proposal 2 first (highest coefficient/correlations insight, historical insight, then other insights), then 4, then 3, then 1, then 5.
+Recommended implementation order: Proposal 2 first (highest coefficient/correlations insight, historical insight, then other insights), then 5, then 1, then 3, then 4.
