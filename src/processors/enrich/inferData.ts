@@ -2,7 +2,7 @@ import { getPhenotypicAge, getPhenotypicAge2 } from './phenoAge'
 import { labels } from '../../data'
 import { BioMarker } from '../../types/biomarker'
 
-type Recipe = [string, string[], (...args: any[]) => string, Partial<BioMarker[3]>?]
+type Recipe = [string, string[], (...args: number[]) => string, Partial<BioMarker[3]>?]
 
 const recipes: Recipe[] = [
   [
