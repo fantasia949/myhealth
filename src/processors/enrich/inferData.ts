@@ -19,13 +19,13 @@ const recipes: Recipe[] = [
     'PhenoAge1',
     ['Albumin', 'Creatinin', 'Glucose', 'CRP-hs', '% Lymphocyte', 'MCV', 'RDW-CV', 'ALP', 'WBC'],
     (a, b, c, d, e, f, g, h, i, age) =>
-      getPhenotypicAge(a, b, c, d.replace('<', ''), e, f, g, h, i, age).toFixed(1),
+      getPhenotypicAge(a, b, c, String(d).replace('<', ''), e, f, g, h, i, age).toFixed(1),
   ],
   [
     'PhenoAge2',
     ['Albumin', 'Creatinin', 'Glucose', 'CRP-hs', '% Lymphocyte', 'MCV', 'RDW-CV', 'ALP', 'WBC'],
     (a, b, c, d, e, f, g, h, i, age) =>
-      getPhenotypicAge2(a, b, c, d.replace('<', ''), e, f, g, h, i, age).toFixed(1),
+      getPhenotypicAge2(a, b, c, String(d).replace('<', ''), e, f, g, h, i, age).toFixed(1),
   ],
   ['VLDL', ['Triglyceride'], (triglyceride) => (triglyceride / 5).toFixed(0)],
   ['Age', [], (age) => age.toFixed(1)],
