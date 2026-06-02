@@ -74,6 +74,14 @@ const DataCell = React.memo(
       return <td className={className}></td>
     }
 
+    if (
+      (typeof displayValue === 'number' && Number.isNaN(displayValue)) ||
+      (typeof displayValue === 'string' && displayValue.trim() === '') ||
+      displayValue === '-'
+    ) {
+      return <td className={className}>{displayValue}</td>
+    }
+
     const isUrlUnit =
       typeof unit === 'object' && unit !== null && 'url' in unit && typeof unit.url === 'string'
 
