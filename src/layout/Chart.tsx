@@ -197,7 +197,7 @@ export default memo(({ keys }: ChartProps) => {
         )
       }
     }
-  }, [keys, yAxis, isChartReady, ref])
+  }, [keys, yAxis, isChartReady])
 
   return (
     <ChartProvider data={chartData} echartsOptions={echartsOptions}>
