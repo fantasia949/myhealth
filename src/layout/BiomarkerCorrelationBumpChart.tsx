@@ -71,7 +71,12 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
     }
 
     // Chunk the valid data indices into windows and recalculate rho for each window
-    const windowBiomarkerRanks = new Float64Array(count)
+    // ⚡ Bolt Optimization: Pre-extract all valid targetRanks into a single Float64Array
+    // outside the loop, avoiding repeated array population and allowing zero-copy subarray views.
+    const fullBiomarkerRanks = new Float64Array(count)
+    for (let k = 0; k < count; k++) {
+      fullBiomarkerRanks[k] = targetRanks[validIndices[k]]
+    }
 
     for (let w = 0; w < numWindowsDynamic; w++) {
       // Use floating point division to distribute elements evenly across windows
@@ -102,13 +107,6 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
         continue
       }
 
-      // Extract vectors for this specific window using our pre-calculated valid chunk
-      for (let k = 0; k < windowCount; k++) {
-        const globalK = startIdxInValid + k
-        const globalI = validIndices[globalK]
-        windowBiomarkerRanks[k] = targetRanks[globalI]
-      }
-
       const numCorrelations = topCorrelations.length
       const windowRhos = Array<{ name: string; rho: number }>(numCorrelations)
 
@@ -133,7 +131,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
           windowRhos[c] = { name: suppName, rho: 0 }
         } else {
           const result = calculatePearson(
-            windowBiomarkerRanks.subarray(0, windowCount),
+            fullBiomarkerRanks.subarray(startIdxInValid, endIdxInValid),
             suppVector,
             {
               alpha: 0.05,
