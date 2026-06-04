@@ -7,6 +7,7 @@ import { labels, formattedLabels } from '../data'
 import { CHART_PALETTE } from './Chart2'
 import { ChartProps } from './Chart.types'
 import type { EChartsReactProps } from 'echarts-for-react'
+import type { YAXisComponentOption, LineSeriesOption } from 'echarts'
 
 const dimension = [
   {
@@ -95,11 +96,11 @@ export default memo(({ keys }: ChartProps) => {
     return result
   }, [keys])
 
-  const yAxis: any[] = useMemo(() => {
+  const yAxis: YAXisComponentOption[] = useMemo(() => {
     // Optimization: Replace array map in the render loop with a classic for-loop
     // and pre-allocated array to avoid closure and garbage collection overhead.
     const numKeys = keys.length
-    const result = Array<any>(numKeys)
+    const result = Array<YAXisComponentOption>(numKeys)
     for (let i = 0; i < numKeys; i++) {
       const isEven = i % 2 === 0
       const sideOffset = Math.floor(i / 2) * 100
@@ -175,7 +176,7 @@ export default memo(({ keys }: ChartProps) => {
         // Optimization: Replace array map in the render loop with a classic for-loop
         // and pre-allocated array to avoid closure and garbage collection overhead.
         const len = keys.length
-        const series = Array<any>(len)
+        const series = Array<LineSeriesOption>(len)
         for (let i = 0; i < len; i++) {
           series[i] = {
             type: 'line',
