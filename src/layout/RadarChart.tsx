@@ -1,11 +1,6 @@
 import { memo, useMemo } from 'react'
 import ReactECharts from 'echarts-for-react'
-import { BioMarker } from '../types/biomarker'
-
-interface RadarChartProps {
-  data: BioMarker[]
-  tag: string
-}
+import { RadarChartProps } from './RadarChart.types'
 
 export default memo(({ data, tag }: RadarChartProps) => {
   const options = useMemo(() => {
