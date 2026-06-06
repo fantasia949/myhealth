@@ -132,7 +132,7 @@ export default {
       "%"
     ],
     [
-      "TIBC",
+      "Khả năng gắn sắt toàn phần",
       "55.26",
       "μmol/L"
     ],
@@ -292,15 +292,23 @@ export default {
   ],
   notes: <UpdateNote[]>[
     '+astaxanthin',
-    '+gac-oil', '+pine-bark', '+inositol', '+sea-buckthon', '+gastrodia-elata',
+    '+gac-oil',
+    '+pine-bark',
+    '+inositol',
+    '+sea-buckthon',
+    '+gastrodia-elata',
     'urolithin',
     '-tmg',
     '-theanine',
-    '++vitamin-c',
+    '++vitamin-c', // 2 dose
     '++magnesium' // all form
   ],
   review: [
-    'bun rieu'
+    'bun rieu',
+    'Higher carb may higher WBC',
+    'Higher carb may lower testosterone, DHEA,SHBG, albumin, protein, HDL',
+    '2 dose vitamin-c lower uric',
+    'inositol does not have effect'
   ],
-  plan: [],
+  plan: ['++DHEA'],
 }
