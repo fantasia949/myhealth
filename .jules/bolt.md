@@ -40,3 +40,6 @@
 ## 2025-05-24 - V8 Array Pre-allocation for Generic Types
 **Learning:** Pre-allocating `Array(N)` for generic object arrays creates 'holey' (sparse) arrays in V8, which deoptimizes array operations. However, replacing `arr.map()` with a standard for-loop and pushing to an empty array `[]` is still faster and avoids closure overhead.
 **Action:** When replacing `.map()` in React render cycles for non-numeric types, use `const result = []; for(...) result.push(item)` instead of `const result = Array(N)`.
+## YYYY-MM-DD - Refactoring Constaints: UI Side Effects
+**Learning:** When applying performance optimizations (like fixing 'holey' array allocations) in ECharts layout components, it is critical to strictly preserve the exact object structures. I accidentally added `symbolSize` and `itemStyle` to the scatter chart dataset as a side effect while modifying the loop. This can cause reference errors (if styling objects aren't imported) or visual regressions.
+**Action:** When refactoring loop bodies or object creations for performance, do not introduce new properties or styling configurations that were not in the original code unless explicitly instructed.
