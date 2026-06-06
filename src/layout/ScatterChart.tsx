@@ -77,7 +77,7 @@ export default memo(({ keys }: ScatterChartProps) => {
 
   const yAxes: YAXisComponentOption[] = useMemo(() => {
     const numKeys = keys.length
-    const result = Array<YAXisComponentOption>(numKeys)
+    const result: YAXisComponentOption[] = []
     for (let index = 0; index < numKeys; index++) {
       const key = keys[index]
       const isEven = index % 2 === 0
@@ -109,7 +109,7 @@ export default memo(({ keys }: ScatterChartProps) => {
     // Optimization: Replace chained Array.map() with a classic for-loop and pre-allocated array.
     // This eliminates the closure allocation and avoids garbage collection spikes in component render paths.
     const numKeys = keys.length
-    const result = Array<ScatterSeriesOption>(numKeys)
+    const result: ScatterSeriesOption[] = []
     for (let k = 0; k < numKeys; k++) {
       const key = keys[k]
       const bioMarker = dataMap.get(key)
