@@ -36,3 +36,6 @@
 
 **Learning:** Allocating TypedArrays like `new Float64Array(N)` and populating them element-by-element inside rendering loops or `useMemo` blocks creates significant garbage collection overhead, especially when multiplied by the number of iterations (e.g. data windows).
 **Action:** Pre-extract valid data points into a single master `Float64Array` outside the inner loops. Inside the loops, use `.subarray(startIndex, endIndex)` to generate zero-copy views. This achieves an order-of-magnitude speedup and zero memory churn.
+## 2025-02-12 - The Sparse Array Pitfall
+**Learning:** Pre-allocating standard JavaScript arrays in hot render paths (e.g., `Array(N)` without `.fill()`) creates "holey" or sparse arrays which severely de-optimize modern V8 engines compared to dense arrays. Pre-allocation should strictly be reserved for TypedArrays (e.g., `Int32Array`, `Float64Array`).
+**Action:** When working with objects or generic types, initialize an empty dense array (`[]`) and populate it using `.push()` or use `.map()` natively, to prevent V8 de-optimizations. Avoid `Array(len)` allocations.
