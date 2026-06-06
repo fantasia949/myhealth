@@ -167,8 +167,13 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
       }
     }
 
-    const series = topCorrelations.map((supp) => {
-      return {
+    // Optimization: Replace chained .map() with classic for-loop and push to avoid holey arrays
+    const series = []
+    const legendData = []
+    for (let i = 0; i < topCorrelations.length; i++) {
+      const supp = topCorrelations[i]
+      legendData.push(supp.name)
+      series.push({
         name: supp.name,
         type: 'line',
         smooth: true,
@@ -179,8 +184,14 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
           width: 4,
         },
         data: windowedRanksMap.get(supp.name),
-      }
-    })
+      })
+    }
+
+    // Optimization: Replace .map()
+    const xAxisData = []
+    for (let i = 0; i < windowLabelsDynamic.length; i++) {
+      xAxisData.push(windowLabelsDynamic[i].toString())
+    }
 
     return {
       style: { height: 350, width: '100%' },
@@ -214,7 +225,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
         },
       },
       legend: {
-        data: topCorrelations.map((c) => c.name),
+        data: legendData,
         bottom: 0,
         textStyle: { color: '#ccc' },
       },
@@ -226,7 +237,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
       },
       xAxis: {
         type: 'category',
-        data: windowLabelsDynamic.map((w) => w.toString()),
+        data: xAxisData,
         boundaryGap: false,
         axisLine: { lineStyle: { color: '#555' } },
         splitLine: { show: false },

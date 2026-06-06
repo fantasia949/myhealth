@@ -36,3 +36,7 @@
 
 **Learning:** Allocating TypedArrays like `new Float64Array(N)` and populating them element-by-element inside rendering loops or `useMemo` blocks creates significant garbage collection overhead, especially when multiplied by the number of iterations (e.g. data windows).
 **Action:** Pre-extract valid data points into a single master `Float64Array` outside the inner loops. Inside the loops, use `.subarray(startIndex, endIndex)` to generate zero-copy views. This achieves an order-of-magnitude speedup and zero memory churn.
+
+## 2025-05-24 - V8 Array Pre-allocation for Generic Types
+**Learning:** Pre-allocating `Array(N)` for generic object arrays creates 'holey' (sparse) arrays in V8, which deoptimizes array operations. However, replacing `arr.map()` with a standard for-loop and pushing to an empty array `[]` is still faster and avoids closure overhead.
+**Action:** When replacing `.map()` in React render cycles for non-numeric types, use `const result = []; for(...) result.push(item)` instead of `const result = Array(N)`.
