@@ -75,14 +75,15 @@ export default memo(({ keys }: ScatterChartProps) => {
   const dataMap = useAtomValue(dataMapAtom)
 
   const yAxes = useMemo(() => {
+    // ⚡ Bolt Optimization: Avoid pre-allocating 'holey' arrays. Use push() to maintain dense arrays for V8.
     const numKeys = keys.length
-    const result = Array<any>(numKeys)
+    const result: any[] = []
     for (let index = 0; index < numKeys; index++) {
       const key = keys[index]
       const isEven = index % 2 === 0
       const sideOffset = Math.floor(index / 2) * 100
 
-      result[index] = {
+      result.push({
         type: 'value',
         name: key,
         position: isEven ? 'left' : 'right',
@@ -99,27 +100,28 @@ export default memo(({ keys }: ScatterChartProps) => {
           formatter: '{value}',
         },
         scale: true,
-      }
+      })
     }
     return result
   }, [keys])
 
   const chartData = useMemo(() => {
-    // Optimization: Replace chained Array.map() with a classic for-loop and pre-allocated array.
+    // Optimization: Replace chained Array.map() with a classic for-loop.
+    // ⚡ Bolt Optimization: Avoid pre-allocating 'holey' arrays. Use push() to maintain dense arrays for V8.
     // This eliminates the closure allocation and avoids garbage collection spikes in component render paths.
     const numKeys = keys.length
-    const result = Array<any>(numKeys)
+    const result: any[] = []
     for (let k = 0; k < numKeys; k++) {
       const key = keys[k]
       const bioMarker = dataMap.get(key)
 
       if (!bioMarker) {
-        result[k] = {
+        result.push({
           name: key,
           type: 'scatter',
           yAxisIndex: k,
           data: [],
-        }
+        })
         continue
       }
 
@@ -136,12 +138,16 @@ export default memo(({ keys }: ScatterChartProps) => {
         }
       }
 
-      result[k] = {
+      result.push({
         name: key,
         type: 'scatter',
         yAxisIndex: k,
         data: validData,
-      }
+        symbolSize: 10,
+        itemStyle: {
+          color: CHART_PALETTE[k % CHART_PALETTE.length],
+        },
+      })
     }
     return result
   }, [dataMap, keys])
