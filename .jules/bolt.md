@@ -36,3 +36,7 @@
 
 **Learning:** Allocating TypedArrays like `new Float64Array(N)` and populating them element-by-element inside rendering loops or `useMemo` blocks creates significant garbage collection overhead, especially when multiplied by the number of iterations (e.g. data windows).
 **Action:** Pre-extract valid data points into a single master `Float64Array` outside the inner loops. Inside the loops, use `.subarray(startIndex, endIndex)` to generate zero-copy views. This achieves an order-of-magnitude speedup and zero memory churn.
+
+## YYYY-MM-DD - Refactoring Constaints: UI Side Effects
+**Learning:** When applying performance optimizations (like fixing 'holey' array allocations) in ECharts layout components, it is critical to strictly preserve the exact object structures. I accidentally added `symbolSize` and `itemStyle` to the scatter chart dataset as a side effect while modifying the loop. This can cause reference errors (if styling objects aren't imported) or visual regressions.
+**Action:** When refactoring loop bodies or object creations for performance, do not introduce new properties or styling configurations that were not in the original code unless explicitly instructed.

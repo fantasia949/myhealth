@@ -83,7 +83,7 @@ export default memo(({ keys }: ScatterChartProps) => {
       const isEven = index % 2 === 0
       const sideOffset = Math.floor(index / 2) * 100
 
-      result[index] = {
+      result.push({
         type: 'value',
         name: key,
         position: isEven ? 'left' : 'right',
@@ -100,7 +100,7 @@ export default memo(({ keys }: ScatterChartProps) => {
           formatter: '{value}',
         },
         scale: true,
-      }
+      })
     }
     return result
   }, [keys])
@@ -115,12 +115,12 @@ export default memo(({ keys }: ScatterChartProps) => {
       const bioMarker = dataMap.get(key)
 
       if (!bioMarker) {
-        result[k] = {
+        result.push({
           name: key,
           type: 'scatter',
           yAxisIndex: k,
           data: [],
-        }
+        })
         continue
       }
 
@@ -137,12 +137,16 @@ export default memo(({ keys }: ScatterChartProps) => {
         }
       }
 
-      result[k] = {
+      result.push({
         name: key,
         type: 'scatter',
         yAxisIndex: k,
         data: validData,
-      }
+        symbolSize: 10,
+        itemStyle: {
+          color: CHART_PALETTE[k % CHART_PALETTE.length],
+        },
+      })
     }
     return result
   }, [dataMap, keys])

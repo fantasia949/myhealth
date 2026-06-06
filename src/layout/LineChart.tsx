@@ -63,14 +63,15 @@ export default memo(({ name, values, rangeStr }: LineChartProps) => {
   // Map null/undefined values to '-' and pair them with labels
   // Preserving missing points prevents misrepresenting data gaps (connectNulls: false by default)
   const data = useMemo(() => {
-    // Optimization: Replace array map in the render loop with a pre-allocated array.
+    // Optimization: Replace array map in the render loop with a classic for-loop.
+    // ⚡ Bolt Optimization: Avoid pre-allocating 'holey' arrays. Use push() to maintain dense arrays for V8.
     // Also, wrap in useMemo so that the date formatting isn't re-run unneccessarily when
     // other props (like rangeStr or parent component states) trigger a re-render.
     const numLabels = labels.length
-    const result = Array<[string, number | string]>(numLabels)
+    const result: [string, number | string][] = []
     for (let i = 0; i < numLabels; i++) {
       const value = values[i]
-      result[i] = [formattedLabels[i], value !== null && value !== undefined ? value : '-']
+      result.push([formattedLabels[i], value !== null && value !== undefined ? value : '-'])
     }
     return result
   }, [values])
