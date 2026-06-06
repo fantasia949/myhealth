@@ -2,6 +2,7 @@ import { memo, useMemo } from 'react'
 import { useAtomValue } from 'jotai'
 import { dataMapAtom } from '../atom/dataAtom'
 import ReactECharts from 'echarts-for-react'
+import type { YAXisComponentOption, ScatterSeriesOption } from 'echarts'
 import { labels, formattedLabels } from '../data'
 import { CHART_PALETTE } from './Chart2'
 import type { ScatterChartProps } from './ScatterChart.types'
@@ -14,8 +15,8 @@ const echartsOptions = {
   xAxis: {
     type: 'time',
   },
-  yAxis: [] as any[],
-  series: [] as any[],
+  yAxis: [] as YAXisComponentOption[],
+  series: [] as ScatterSeriesOption[],
   tooltip: {
     trigger: 'axis',
     backgroundColor: '#111111',
@@ -74,10 +75,9 @@ const echartsOptions = {
 export default memo(({ keys }: ScatterChartProps) => {
   const dataMap = useAtomValue(dataMapAtom)
 
-  const yAxes = useMemo(() => {
-    // ⚡ Bolt Optimization: Avoid pre-allocating 'holey' arrays. Use push() to maintain dense arrays for V8.
+  const yAxes: YAXisComponentOption[] = useMemo(() => {
     const numKeys = keys.length
-    const result: any[] = []
+    const result = Array<YAXisComponentOption>(numKeys)
     for (let index = 0; index < numKeys; index++) {
       const key = keys[index]
       const isEven = index % 2 === 0
@@ -105,12 +105,11 @@ export default memo(({ keys }: ScatterChartProps) => {
     return result
   }, [keys])
 
-  const chartData = useMemo(() => {
-    // Optimization: Replace chained Array.map() with a classic for-loop.
-    // ⚡ Bolt Optimization: Avoid pre-allocating 'holey' arrays. Use push() to maintain dense arrays for V8.
+  const chartData: ScatterSeriesOption[] = useMemo(() => {
+    // Optimization: Replace chained Array.map() with a classic for-loop and pre-allocated array.
     // This eliminates the closure allocation and avoids garbage collection spikes in component render paths.
     const numKeys = keys.length
-    const result: any[] = []
+    const result = Array<ScatterSeriesOption>(numKeys)
     for (let k = 0; k < numKeys; k++) {
       const key = keys[k]
       const bioMarker = dataMap.get(key)
