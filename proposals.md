@@ -1,112 +1,106 @@
-# Visualization Proposals
-
-Based on the existing data model and charts in the MyHealth dashboard, here are 5 new visualization proposals.
-
----
-
-**Proposal 1 of 5: Optimality Heatmap**
+**Proposal 1 of 5: Correlation P-Value / Significance Heatmap**
 
 **ECharts type:** `heatmap`
 
 **Codebase citation:**
-`extra.optimality[]` pre-computed by `src/processors/post/range.ts` (index-aligned with `BioMarker[1]`) and `visibleDataAtom` from `src/atom/dataAtom.ts`.
+`correlationAlphaAtom` and `correlationAlternativeAtom` from `src/atom/correlationAtom.ts`. `dataMapAtom` from `src/atom/dataAtom.ts`.
 
 **Which existing data it uses:**
-Reads `extra.optimality[]` array and names (`BioMarker[0]`) from every entry returned by `visibleDataAtom`. The X-axis uses `labels[]` from `src/data/index.ts`.
+Reads `correlationAlphaAtom` for the threshold, uses the `pcorrtest` logic (if available, otherwise standard Spearman calculation), loops through all pairwise biomarker arrays in `dataMapAtom` (accessing `BioMarker[1]`) to compute significance levels.
 
 **What it reveals that current charts don't:**
-Shows exactly when multiple biomarkers simultaneously went out of bounds at a glance. The current scatter/line charts can only answer this by scanning each row individually. A heatmap provides a dense, system-wide overview of "red flags" (out-of-range values) across time.
+The current scatter plot and regression line show correlation visually between *two* specific biomarkers, but this heatmap would show the statistical significance matrix across *all* biomarker pairs simultaneously. This allows users to quickly spot strongly linked systems (e.g., discovering their sleep score strongly predicts next-day cortisol).
 
 **Where it would live:**
-New `src/layout/OptimalityHeatmap.tsx`, rendered when the user selects a heatmap view or as a high-level summary at the top of the dashboard.
+New `src/layout/CorrelationHeatmap.tsx`, rendered conditionally as a new tab or overlay when a "Correlations" view is active.
 
 **Trigger / entry point:**
-Activated automatically when `tagAtom` is set, showing the out-of-range heatmap for all biomarkers in the selected tag group (e.g., `3-Liver`), providing an instant "system health" snapshot.
+A new "Correlation Matrix" button near the tag filters in `Nav.tsx`, passing the currently visible `tagAtom` biomarkers to the heatmap.
 
 ---
 
-**Proposal 2 of 5: Inferred vs Measured Accuracy Area**
-
-**ECharts type:** `line` (with `areaStyle`) overlaid with `scatter`
-
-**Codebase citation:**
-`extra.inferred`, `extra.originValues`, and `extra.hasOrigin` from `BioMarker[3]` (`src/types/biomarker.ts`).
-
-**Which existing data it uses:**
-Filters `dataAtom` for markers where `extra.inferred === true` and `extra.hasOrigin === true`, plotting both the calculated/inferred `values[]` and the original measured `extra.originValues[]` on a shared timeline.
-
-**What it reveals that current charts don't:**
-Reveals how closely the inferred/calculated values (e.g. from a formula) track the actual raw/original measurements over time, highlighting divergence, accuracy, and data quality issues.
-
-**Where it would live:**
-New `src/layout/InferredAccuracyChart.tsx`.
-
-**Trigger / entry point:**
-Selected from a new "Data Quality" view or by clicking an info icon next to an inferred biomarker row in the main table.
-
----
-
-**Proposal 3 of 5: Tag Group Progression Funnel**
-
-**ECharts type:** `funnel`
-
-**Codebase citation:**
-`extra.tag` mapped to `tagKeys` (e.g. `1-RBC`, `2-Metabolic`) from `src/processors/post/tag.ts` and `nonInferredDataAtom`.
-
-**Which existing data it uses:**
-Computes the proportion of biomarkers within each tag group that have `extra.optimality` === true for the most recent date in `labels[]`. The funnel is ordered by severity (percentage out of range).
-
-**What it reveals that current charts don't:**
-Immediately identifies which bodily system (tag group) is currently under the most stress or has the most abnormal readings, guiding the user to focus there. It aggregates row-level optimality into a system-level prioritization.
-
-**Where it would live:**
-New `src/layout/SystemFunnelChart.tsx`.
-
-**Trigger / entry point:**
-A system overview dashboard widget, shown when `tagAtom` is null (overall view), giving the user a top-down entry point to filter the table.
-
----
-
-**Proposal 4 of 5: Correlation Impact Radar**
+**Proposal 2 of 5: Biomarker Volatility (CV) Radar Chart**
 
 **ECharts type:** `radar`
 
 **Codebase citation:**
-`correlationMethodAtom` and `correlationAlphaAtom` from `src/atom/correlationAtom.ts` and `rankedDataMapAtom`.
+`tagAtom` and `visibleDataAtom` from `src/atom/dataAtom.ts`.
 
 **Which existing data it uses:**
-For a selected target biomarker, uses the pre-computed Spearman ranks in `rankedDataMapAtom` to compute correlation coefficients against representative markers from other major system tag groups.
+Iterates through all `BioMarker[1]` arrays returned by `visibleDataAtom` (which filters by the current `tagAtom`). For each array, it calculates the Coefficient of Variation (Standard Deviation / Mean) over the time series.
 
 **What it reveals that current charts don't:**
-Shows a multivariate correlation profile—how strongly a single target marker positively or negatively correlates with different physiological systems simultaneously, moving beyond the 1-to-1 analysis of `Chart2.tsx`.
+Rather than tracking absolute values, this chart shows *which biomarkers are fluctuating the most*. A high CV in 'HbA1c' might indicate poor metabolic control, even if the absolute values occasionally hit the normal range. The radar chart allows comparing volatility across the entire tag group at once.
 
 **Where it would live:**
-New `src/layout/CorrelationRadarChart.tsx`.
+New `src/layout/VolatilityRadar.tsx`, replacing or accompanying the scatter chart when multiple biomarkers are selected.
 
 **Trigger / entry point:**
-Clicking "View Impact Profile" on a single biomarker row in the main table, rendering the radar chart in an expanded row view or modal.
+A toggle button in `Nav.tsx` or `scatter` view: "Show Values vs Show Volatility".
 
 ---
 
-**Proposal 5 of 5: PhenoAge Component Contribution Waterfall**
+**Proposal 3 of 5: Optimality Duration Gantt Chart**
 
-**ECharts type:** `bar` (waterfall style: using `stack` and invisible lower bars)
+**ECharts type:** `custom` (acting as a Gantt chart) or `boxplot` (modified)
 
 **Codebase citation:**
-The `a-PhenoAge` tag group members from `src/processors/post/tag.ts` (Albumin, Glucose, Creatinin, MCV, etc.) and `dataMapAtom`.
+`extra.optimality[]` pre-computed by `src/processors/post/range.ts`, index-aligned with `BioMarker[1]`.
 
 **Which existing data it uses:**
-Compares the `a-PhenoAge` component values for the latest date against their strict/optimal midpoints (from `strictRange` in `src/processors/post/range.ts` if available), plotting the positive/negative deviation of each component.
+Reads `extra.optimality[]` and the `labels[]` from `src/data/index.ts` for each biomarker in `nonInferredDataAtom`.
 
 **What it reveals that current charts don't:**
-Breaks down the composite biological age score to show exactly which individual markers are driving the PhenoAge up (aging) or down (youthful) at the current time point.
+The current `LineChart` uses `markArea` to show the optimal band, but a Gantt chart would show *how long* a biomarker was out of range across its history, as a continuous block. This helps answer: "Did my 3-month intervention actually keep my LDL in range the whole time, or was it just one good test?"
 
 **Where it would live:**
-New `src/layout/PhenoAgeWaterfallChart.tsx`.
+New `src/layout/OptimalityGantt.tsx`, rendered as a timeline summary below the main charts.
 
 **Trigger / entry point:**
-Activated when `tagAtom` is set to `a-PhenoAge`, or when expanding the PhenoAge row in the table.
+A global "Health Journey Summary" button, displaying the Gantt chart for the current `tagAtom` group.
 
 ---
 
-Recommended implementation order: Proposal 4 first (coefficient/correlations insight), then 1, then 5, then 3, then 2.
+**Proposal 4 of 5: Inferred Metric Influence Tree (Sankey)**
+
+**ECharts type:** `sankey`
+
+**Codebase citation:**
+`inferred?: boolean` and `originValues?: (string|number|null)[]` on `BioMarker[3]`.
+
+**Which existing data it uses:**
+Filters `dataMapAtom` for biomarkers with `inferred: true` (e.g., HOMA-IR, eGFR). It maps the known mathematical relationships (e.g., Glucose + Insulin -> HOMA-IR, Creatinine -> eGFR) to create the Sankey nodes.
+
+**What it reveals that current charts don't:**
+Shows users *why* an inferred metric is out of range. If HOMA-IR is high, the Sankey diagram visually weights whether it's driven more by high fasting glucose or high fasting insulin based on their relative deviation from optimal, helping target the root cause.
+
+**Where it would live:**
+New `src/layout/InferredInfluenceTree.tsx`, rendered in a modal when an inferred biomarker is clicked.
+
+**Trigger / entry point:**
+Clicking the name of an `inferred: true` biomarker in the `BiomarkerTable` or `ScatterChart` legend.
+
+---
+
+**Proposal 5 of 5: Missing Data / Gap Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+`labels[]` from `src/data/index.ts` and `BioMarker[1]` from `dataAtom`.
+
+**Which existing data it uses:**
+Maps the `labels[]` (X-axis) against all biomarker names in `visibleDataAtom` (Y-axis). The cell value is 1 if `BioMarker[1][i]` is not null, and 0 (or null) if it is missing.
+
+**What it reveals that current charts don't:**
+Visualizes test panel completeness. The scatter and line charts simply don't draw points for missing data, making it hard to see patterns in *what wasn't tested*. A gap heatmap immediately shows if a specific doctor keeps forgetting to order the 'Insulin' test on the '2-Metabolic' panel.
+
+**Where it would live:**
+New `src/layout/MissingDataHeatmap.tsx`, rendered in a "Data Quality" or "Audit" view.
+
+**Trigger / entry point:**
+A small "Data Audit" icon in the footer or settings menu.
+
+---
+
+Recommended implementation order: Proposal 1 first (highest coefficient/correlations insight, historical insight, then other insights), then 2, then 3, then 4, then 5.
