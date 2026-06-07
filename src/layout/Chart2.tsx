@@ -4,8 +4,9 @@ import { dataMapAtom } from '../atom/dataAtom'
 
 import { labels, formattedLabels } from '../data'
 import ReactECharts from 'echarts-for-react'
+import type { EChartsReactProps } from 'echarts-for-react'
 import * as echarts from 'echarts'
-import type { DatasetComponentOption } from 'echarts'
+import type { DatasetComponentOption, EChartsOption } from 'echarts'
 import * as ecStat from 'echarts-stat'
 import { ChartProps } from './Chart.types'
 
@@ -26,7 +27,7 @@ export const CHART_PALETTE = [
   '#2559B7',
 ]
 
-const echartsOptions: any = {
+const echartsOptions: EChartsOption & Pick<EChartsReactProps, 'style' | 'theme'> = {
   style: { height: 400, maxWidth: 800 },
   theme: 'dark',
   backgroundColor: 'transparent',
@@ -98,12 +99,12 @@ const echartsOptions: any = {
       symbolSize: 40,
       legendHoverLink: true,
       large: false,
-      zIndex: 2,
+      zlevel: 2,
     },
     {
       type: 'line',
       symbol: 'circle',
-      zIndex: -1,
+      zlevel: 0,
       showSymbol: false,
       lineStyle: {
         color: '#5470C688',
@@ -112,18 +113,12 @@ const echartsOptions: any = {
       legendHoverLink: true,
       markPoint: {
         itemStyle: {
-          normal: {
-            color: 'transparent',
-          },
+          color: 'transparent',
         },
         label: {
-          normal: {
-            show: true,
-            textStyle: {
-              color: '#f0f0f0',
-              fontSize: 14,
-            },
-          },
+          show: true,
+          color: '#f0f0f0',
+          fontSize: 14,
         },
       },
     },
@@ -149,7 +144,7 @@ export default memo(({ keys }: ChartProps) => {
       // ⚡ Bolt Optimization: Avoid pre-allocating 'holey' arrays for generic types.
       // Pre-allocating Array<any[]>(len) creates sparse arrays which de-optimize modern V8 engines.
       // Replacing with standard array pushes and eliminating the slice operation improves performance.
-      const mappedData: any[] = []
+      const mappedData: (string | number)[][] = []
 
       for (let i = 0; i < len; i++) {
         const v0 = values0[i]
@@ -165,11 +160,13 @@ export default memo(({ keys }: ChartProps) => {
     return { data: [] }
   }, [dataMap, keys])
 
-  const options: any = useMemo(() => {
-    const { series, yAxis, xAxis } = echartsOptions
+  const options: EChartsOption & Pick<EChartsReactProps, 'style' | 'theme'> = useMemo(() => {
+    const series = (echartsOptions.series as echarts.SeriesOption[]) || []
+    const xAxis = (echartsOptions.xAxis as echarts.XAXisComponentOption[]) || []
+    const yAxis = (echartsOptions.yAxis as echarts.YAXisComponentOption[]) || []
 
-    const nextXAxis = [{ ...xAxis[0], name: keys[0] }, ...xAxis.slice(1)]
-    const nextYAxis = [{ ...yAxis[0], name: keys[1] }, ...yAxis.slice(1)]
+    const nextXAxis = xAxis.length > 0 ? [{ ...xAxis[0], name: keys[0] }, ...xAxis.slice(1)] : []
+    const nextYAxis = yAxis.length > 0 ? [{ ...yAxis[0], name: keys[1] }, ...yAxis.slice(1)] : []
 
     const dataset: DatasetComponentOption[] = [
       {
