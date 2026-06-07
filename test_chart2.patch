@@ -1,0 +1,12 @@
+--- src/layout/Chart2.tsx
++++ src/layout/Chart2.tsx
+@@ -10,3 +10,4 @@
+ import * as ecStat from 'echarts-stat'
+ import { ChartProps } from './Chart.types'
++import type { EChartsOption } from 'echarts-for-react'
+
+@@ -28,3 +29,3 @@
+
+-const echartsOptions: any = {
++const echartsOptions: EChartsOption = {
+   style: { height: 400, maxWidth: 800 },
