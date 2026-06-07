@@ -1,112 +1,110 @@
-# Visualization Proposals
-
-Based on the existing data model and charts in the MyHealth dashboard, here are 5 new visualization proposals.
+# New Visualization Proposals
 
 ---
 
-**Proposal 1 of 5: Optimality Heatmap**
+**Proposal 1 of 5: Out-of-Range Frequency vs Optimality Matrix Scatter**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+Reads `extra.optimality[]` pre-computed by `src/processors/post/range.ts` (index-aligned with `BioMarker[1]`) and the Spearman rank cache `rankedDataMapAtom` computed in `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+It utilizes the output of `visibleDataAtom` to get the list of active biomarkers. For each biomarker, it calculates the percentage of time points where `extra.optimality[]` is `true` (Out of Range Frequency). It pairs this with its Spearman rank values from `rankedDataMapAtom`.
+
+**What it reveals that current charts don't:**
+It isolates biomarkers that frequently drift out of their optimal range and visualizes how their variance behaves within the overall system rank, helping identify unstable vs chronically out-of-range biomarkers without digging into individual timelines.
+
+**Where it would live:**
+New file `src/layout/OptimalityFrequencyScatter.tsx`, rendered conditionally as a sub-view within `SystemClustering.tsx` or `App.tsx` when the user selects a specific tag group.
+
+**Trigger / entry point:**
+Activated via a new "View Optimality Matrix" toggle button placed near the existing correlation chart mode switch, utilizing the current `tagAtom` to scope the analysis.
+
+---
+
+**Proposal 2 of 5: Measurement Gap Density Heatmap**
 
 **ECharts type:** `heatmap`
 
 **Codebase citation:**
-`extra.optimality[]` pre-computed by `src/processors/post/range.ts` (index-aligned with `BioMarker[1]`) and `visibleDataAtom` from `src/atom/dataAtom.ts`.
+Utilizes `BioMarker[1]` (the time-series value array which may contain nulls) and `labels[]` from `src/data/index.ts`.
 
 **Which existing data it uses:**
-Reads `extra.optimality[]` array and names (`BioMarker[0]`) from every entry returned by `visibleDataAtom`. The X-axis uses `labels[]` from `src/data/index.ts`.
+It processes the `dataAtom` to map which biomarkers have `null` or missing values (`'-'`) at each time point in `labels[]`. The heatmap axes will be `labels` (X) vs `BioMarker[0]` names (Y).
 
 **What it reveals that current charts don't:**
-Shows exactly when multiple biomarkers simultaneously went out of bounds at a glance. The current scatter/line charts can only answer this by scanning each row individually. A heatmap provides a dense, system-wide overview of "red flags" (out-of-range values) across time.
+It provides a macroscopic view of data completeness across all tests. Current charts handle nulls silently by leaving gaps (e.g. `connectNulls: false` in `Chart.tsx`), but a user cannot easily see *when* the most comprehensive panels were drawn vs when only partial panels were drawn.
 
 **Where it would live:**
-New `src/layout/OptimalityHeatmap.tsx`, rendered when the user selects a heatmap view or as a high-level summary at the top of the dashboard.
+New file `src/layout/DataCompletenessHeatmap.tsx`, added as a global data health dashboard view.
 
 **Trigger / entry point:**
-Activated automatically when `tagAtom` is set, showing the out-of-range heatmap for all biomarkers in the selected tag group (e.g., `3-Liver`), providing an instant "system health" snapshot.
+A global "Data Quality" tab or modal triggered from the `Nav.tsx` or `App.tsx` header area.
 
 ---
 
-**Proposal 2 of 5: Inferred vs Measured Accuracy Area**
-
-**ECharts type:** `line` (with `areaStyle`) overlaid with `scatter`
-
-**Codebase citation:**
-`extra.inferred`, `extra.originValues`, and `extra.hasOrigin` from `BioMarker[3]` (`src/types/biomarker.ts`).
-
-**Which existing data it uses:**
-Filters `dataAtom` for markers where `extra.inferred === true` and `extra.hasOrigin === true`, plotting both the calculated/inferred `values[]` and the original measured `extra.originValues[]` on a shared timeline.
-
-**What it reveals that current charts don't:**
-Reveals how closely the inferred/calculated values (e.g. from a formula) track the actual raw/original measurements over time, highlighting divergence, accuracy, and data quality issues.
-
-**Where it would live:**
-New `src/layout/InferredAccuracyChart.tsx`.
-
-**Trigger / entry point:**
-Selected from a new "Data Quality" view or by clicking an info icon next to an inferred biomarker row in the main table.
-
----
-
-**Proposal 3 of 5: Tag Group Progression Funnel**
-
-**ECharts type:** `funnel`
-
-**Codebase citation:**
-`extra.tag` mapped to `tagKeys` (e.g. `1-RBC`, `2-Metabolic`) from `src/processors/post/tag.ts` and `nonInferredDataAtom`.
-
-**Which existing data it uses:**
-Computes the proportion of biomarkers within each tag group that have `extra.optimality` === true for the most recent date in `labels[]`. The funnel is ordered by severity (percentage out of range).
-
-**What it reveals that current charts don't:**
-Immediately identifies which bodily system (tag group) is currently under the most stress or has the most abnormal readings, guiding the user to focus there. It aggregates row-level optimality into a system-level prioritization.
-
-**Where it would live:**
-New `src/layout/SystemFunnelChart.tsx`.
-
-**Trigger / entry point:**
-A system overview dashboard widget, shown when `tagAtom` is null (overall view), giving the user a top-down entry point to filter the table.
-
----
-
-**Proposal 4 of 5: Correlation Impact Radar**
+**Proposal 3 of 5: Tag Group Deviation Radar**
 
 **ECharts type:** `radar`
 
 **Codebase citation:**
-`correlationMethodAtom` and `correlationAlphaAtom` from `src/atom/correlationAtom.ts` and `rankedDataMapAtom`.
+Reads `extra.processedTags` mapped in `src/types/biomarker.ts` and `src/processors/post/tag.ts` along with `extra.isNotOptimal(value)`.
 
 **Which existing data it uses:**
-For a selected target biomarker, uses the pre-computed Spearman ranks in `rankedDataMapAtom` to compute correlation coefficients against representative markers from other major system tag groups.
+Groups data from `dataAtom` by tag group (e.g. `1-RBC`, `2-Metabolic`). For a given time slice (from `labels[]`), it calculates the percentage of optimal vs non-optimal biomarkers within each tag group. The radar chart axes represent the different tag groups.
 
 **What it reveals that current charts don't:**
-Shows a multivariate correlation profile—how strongly a single target marker positively or negatively correlates with different physiological systems simultaneously, moving beyond the 1-to-1 analysis of `Chart2.tsx`.
+Provides a cross-system snapshot of health for a single time point. Currently, users have to filter by tag and look at individual lines/scatters. This would show immediately if "2-Metabolic" is doing poorly while "1-RBC" is perfect at a specific date.
 
 **Where it would live:**
-New `src/layout/CorrelationRadarChart.tsx`.
+New file `src/layout/TagGroupRadar.tsx`.
 
 **Trigger / entry point:**
-Clicking "View Impact Profile" on a single biomarker row in the main table, rendering the radar chart in an expanded row view or modal.
+When a specific date is selected (e.g., clicking on a point in the scatter chart or adding a global date filter state), the radar chart updates to show the systemic breakdown for that date.
 
 ---
 
-**Proposal 5 of 5: PhenoAge Component Contribution Waterfall**
+**Proposal 4 of 5: Inferred vs Measured Value Discrepancy Bar**
 
-**ECharts type:** `bar` (waterfall style: using `stack` and invisible lower bars)
+**ECharts type:** `bar` (stacked or divergent)
 
 **Codebase citation:**
-The `a-PhenoAge` tag group members from `src/processors/post/tag.ts` (Albumin, Glucose, Creatinin, MCV, etc.) and `dataMapAtom`.
+Reads `extra.inferred` and `extra.hasOrigin` from `BioMarker[3]` mapped in `src/types/biomarker.ts`, along with `nonInferredDataAtom` vs `dataAtom`.
 
 **Which existing data it uses:**
-Compares the `a-PhenoAge` component values for the latest date against their strict/optimal midpoints (from `strictRange` in `src/processors/post/range.ts` if available), plotting the positive/negative deviation of each component.
+Filters `dataAtom` for biomarkers where `extra.inferred === true` and their corresponding base values. It calculates the variance or impact of the inferred computation vs raw measurements (using `extra.originValues` if available).
 
 **What it reveals that current charts don't:**
-Breaks down the composite biological age score to show exactly which individual markers are driving the PhenoAge up (aging) or down (youthful) at the current time point.
+Highlights how much of the "out of range" data is directly measured vs calculated/inferred. This helps users understand the confidence level of their out-of-range metrics.
 
 **Where it would live:**
-New `src/layout/PhenoAgeWaterfallChart.tsx`.
+New file `src/layout/InferredDiscrepancyBar.tsx`.
 
 **Trigger / entry point:**
-Activated when `tagAtom` is set to `a-PhenoAge`, or when expanding the PhenoAge row in the table.
+A sub-view toggle on the main dashboard, or automatically displayed below the main scatter chart when `visibleDataAtom` contains mostly inferred metrics.
 
 ---
 
-Recommended implementation order: Proposal 4 first (coefficient/correlations insight), then 1, then 5, then 3, then 2.
+**Proposal 5 of 5: Correlation Significance Distribution Boxplot**
+
+**ECharts type:** `boxplot`
+
+**Codebase citation:**
+Reads `correlationAlphaAtom`, `correlationMethodAtom`, and `correlationAlternativeAtom` from `src/atom/correlationAtom.ts`.
+
+**Which existing data it uses:**
+When computing correlations (e.g., in `SystemClustering.tsx` or a new analyzer), it takes the distribution of correlation coefficients (or p-values) across different tag groups and plots them as boxplots.
+
+**What it reveals that current charts don't:**
+Instead of just showing a linear regression for two specific biomarkers (`Chart2.tsx`), this summarizes the *overall strength* of correlations within a system (e.g., are metabolic markers tightly coupled or loosely coupled?).
+
+**Where it would live:**
+New file `src/layout/CorrelationDistributionBoxplot.tsx`.
+
+**Trigger / entry point:**
+A new "Correlation Analysis" tab that leverages the existing `correlationAtom` configuration states.
+
+---
+
+Recommended implementation order: Proposal 1 first (highest coefficient/correlations insight, historical insight, then other insights), then 3, then 2, then 5, then 4.

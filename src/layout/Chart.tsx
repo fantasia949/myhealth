@@ -65,7 +65,8 @@ const echartsOptions: EChartsReactProps = {
             val !== undefined &&
             !Number.isNaN(val)
           ) {
-            tooltipStr += `<br/>${p.marker} ${p.seriesName}: <strong>${val} ${unit}</strong>`
+            const unitStr = unit ? ` ${unit}` : ''
+            tooltipStr += `<br/>${p.marker} ${p.seriesName}: <strong>${val}${unitStr}</strong>`
             hasValidValues = true
           }
         }
