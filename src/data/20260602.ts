@@ -308,7 +308,9 @@ export default {
     'Higher carb may higher WBC',
     'Higher carb may lower testosterone, DHEA,SHBG, albumin, protein, HDL',
     '2 dose vitamin-c lower uric',
-    'inositol does not have effect'
+    'inositol does not have effect',
+    'tongkat-ali confirmed not affect testosterone',
+    'New: garlic, urolithin, sea-buckthon',
   ],
-  plan: ['++DHEA'],
+  plan: ['++DHEA', '+bromelain', '+fuicodan'],
 }
