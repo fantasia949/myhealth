@@ -53,7 +53,7 @@ export default (entries: BioMarker[]): BioMarker[] => {
 
   // Optimization: Replace array.map with a traditional for loop to avoid closure creation
   // and multiple array allocations per recipe.
-  const data = Array<any>(recipes.length)
+  const data: BioMarker[] = []
   for (let r = 0; r < recipes.length; r++) {
     const [name, fields, func, extra = {}] = recipes[r]
     // Look up required field arrays once per recipe
@@ -96,11 +96,11 @@ export default (entries: BioMarker[]): BioMarker[] => {
       }
     }
 
-    if (!(extra as any).originValues) {
-      ;(extra as any).originValues = Array<any>(periods)
+    if (!extra.originValues) {
+      extra.originValues = Array<string | number | null>(periods)
     }
-    ;(extra as any).inferred = true
-    data[r] = [name, values, null, extra] as any
+    extra.inferred = true
+    data.push([name, values as any, '', extra as any])
   }
 
   return [...entries, ...data]

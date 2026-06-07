@@ -8,6 +8,7 @@ import * as echarts from 'echarts'
 import type { DatasetComponentOption } from 'echarts'
 import * as ecStat from 'echarts-stat'
 import { ChartProps } from './Chart.types'
+import type { EChartsOption } from 'echarts-for-react'
 
 echarts.registerTransform((ecStat as any).transform.regression)
 
@@ -26,7 +27,7 @@ export const CHART_PALETTE = [
   '#2559B7',
 ]
 
-const echartsOptions: any = {
+const echartsOptions: EChartsOption = {
   style: { height: 400, maxWidth: 800 },
   theme: 'dark',
   backgroundColor: 'transparent',
