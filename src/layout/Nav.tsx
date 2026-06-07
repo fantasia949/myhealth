@@ -229,12 +229,6 @@ export default React.memo<NavProps>(
     const [isGistViewerOpen, setIsGistViewerOpen] = React.useState(false)
     const [hasGistViewerMounted, setHasGistViewerMounted] = React.useState(false)
 
-    React.useEffect(() => {
-      if (isGistViewerOpen && !hasGistViewerMounted) {
-        setHasGistViewerMounted(true)
-      }
-    }, [isGistViewerOpen, hasGistViewerMounted])
-
     const handleClose = React.useCallback(() => {
       setCanvasText(null)
       setGistUrl(null)
@@ -525,7 +519,7 @@ export default React.memo<NavProps>(
 
               <button
                 type="button"
-                onClick={() => setIsGistViewerOpen(true)}
+                onClick={() => { setIsGistViewerOpen(true); setHasGistViewerMounted(true); }}
                 title="View AI History"
                 className="hidden md:flex ml-4 px-3 py-1 text-xs font-medium bg-gray-700 text-white rounded hover:bg-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 transition-colors"
               >
