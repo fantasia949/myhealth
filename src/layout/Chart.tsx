@@ -82,30 +82,30 @@ export default memo(({ keys }: ChartProps) => {
   const valueList = useMemo(() => {
     // Optimization: Wrap with useMemo to prevent creating a new array reference every render,
     // which invalidates the downstream chartData useMemo dependency check.
-    // Replace chained array map with a pre-allocated array and a classic for-loop
+    // ⚡ Bolt Optimization: Avoid pre-allocating 'holey' arrays. Use push() to maintain dense arrays for V8.
     const len = keys.length
-    const result = Array<any>(len)
+    const result: any[] = []
     for (let i = 0; i < len; i++) {
-      result[i] = {
+      result.push({
         fieldKey: 'v' + i,
         fieldName: keys[i],
         decimalLength: 2,
         yAxisIndex: i,
-      }
+      })
     }
     return result
   }, [keys])
 
   const yAxis: YAXisComponentOption[] = useMemo(() => {
-    // Optimization: Replace array map in the render loop with a classic for-loop
-    // and pre-allocated array to avoid closure and garbage collection overhead.
+    // Optimization: Replace array map in the render loop with a classic for-loop.
+    // ⚡ Bolt Optimization: Avoid pre-allocating 'holey' arrays. Use push() to maintain dense arrays for V8.
     const numKeys = keys.length
-    const result = Array<YAXisComponentOption>(numKeys)
+    const result: YAXisComponentOption[] = []
     for (let i = 0; i < numKeys; i++) {
       const isEven = i % 2 === 0
       const sideOffset = Math.floor(i / 2) * 100
 
-      result[i] = {
+      result.push({
         scale: true,
         name: keys[i],
         position: isEven ? 'left' : 'right',
@@ -118,7 +118,7 @@ export default memo(({ keys }: ChartProps) => {
             color: CHART_PALETTE[i % CHART_PALETTE.length],
           },
         },
-      }
+      })
     }
     return result
   }, [keys])
@@ -142,7 +142,8 @@ export default memo(({ keys }: ChartProps) => {
     }
 
     const len = labels.length
-    const result = Array<Record<string, any>>(len)
+    // ⚡ Bolt Optimization: Avoid pre-allocating 'holey' arrays. Use push() to maintain dense arrays for V8.
+    const result: Record<string, any>[] = []
     for (let i = 0; i < len; i++) {
       const item: Record<string, any> = { d1: formattedLabels[i] }
       for (let j = 0; j < validSeries.length; j++) {
@@ -151,7 +152,7 @@ export default memo(({ keys }: ChartProps) => {
         item[series.fieldKey] = v !== null && v !== undefined ? v : '-'
         item[`${series.fieldKey}_unit`] = series.unit || ''
       }
-      result[i] = item
+      result.push(item)
     }
 
     return result
@@ -173,15 +174,15 @@ export default memo(({ keys }: ChartProps) => {
     if (isChartReady && ref.current) {
       const instance = ref.current.getEchartsInstance()
       if (instance && !instance.isDisposed()) {
-        // Optimization: Replace array map in the render loop with a classic for-loop
-        // and pre-allocated array to avoid closure and garbage collection overhead.
+        // Optimization: Replace array map in the render loop with a classic for-loop.
+        // ⚡ Bolt Optimization: Avoid pre-allocating 'holey' arrays. Use push() to maintain dense arrays for V8.
         const len = keys.length
-        const series = Array<LineSeriesOption>(len)
+        const series: LineSeriesOption[] = []
         for (let i = 0; i < len; i++) {
-          series[i] = {
+          series.push({
             type: 'line',
             connectNulls: false,
-          }
+          })
         }
         instance.setOption(
           {

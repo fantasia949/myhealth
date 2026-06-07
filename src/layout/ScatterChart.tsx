@@ -2,6 +2,7 @@ import { memo, useMemo } from 'react'
 import { useAtomValue } from 'jotai'
 import { dataMapAtom } from '../atom/dataAtom'
 import ReactECharts from 'echarts-for-react'
+import type { YAXisComponentOption, ScatterSeriesOption } from 'echarts'
 import { labels, formattedLabels } from '../data'
 import { CHART_PALETTE } from './Chart2'
 import type { ScatterChartProps } from './ScatterChart.types'
@@ -14,8 +15,8 @@ const echartsOptions = {
   xAxis: {
     type: 'time',
   },
-  yAxis: [] as any[],
-  series: [] as any[],
+  yAxis: [] as YAXisComponentOption[],
+  series: [] as ScatterSeriesOption[],
   tooltip: {
     trigger: 'axis',
     backgroundColor: '#111111',
@@ -74,15 +75,15 @@ const echartsOptions = {
 export default memo(({ keys }: ScatterChartProps) => {
   const dataMap = useAtomValue(dataMapAtom)
 
-  const yAxes = useMemo(() => {
+  const yAxes: YAXisComponentOption[] = useMemo(() => {
     const numKeys = keys.length
-    const result = Array<any>(numKeys)
+    const result: YAXisComponentOption[] = []
     for (let index = 0; index < numKeys; index++) {
       const key = keys[index]
       const isEven = index % 2 === 0
       const sideOffset = Math.floor(index / 2) * 100
 
-      result[index] = {
+      result.push({
         type: 'value',
         name: key,
         position: isEven ? 'left' : 'right',
@@ -99,27 +100,27 @@ export default memo(({ keys }: ScatterChartProps) => {
           formatter: '{value}',
         },
         scale: true,
-      }
+      })
     }
     return result
   }, [keys])
 
-  const chartData = useMemo(() => {
+  const chartData: ScatterSeriesOption[] = useMemo(() => {
     // Optimization: Replace chained Array.map() with a classic for-loop and pre-allocated array.
     // This eliminates the closure allocation and avoids garbage collection spikes in component render paths.
     const numKeys = keys.length
-    const result = Array<any>(numKeys)
+    const result: ScatterSeriesOption[] = []
     for (let k = 0; k < numKeys; k++) {
       const key = keys[k]
       const bioMarker = dataMap.get(key)
 
       if (!bioMarker) {
-        result[k] = {
+        result.push({
           name: key,
           type: 'scatter',
           yAxisIndex: k,
           data: [],
-        }
+        })
         continue
       }
 
@@ -136,12 +137,16 @@ export default memo(({ keys }: ScatterChartProps) => {
         }
       }
 
-      result[k] = {
+      result.push({
         name: key,
         type: 'scatter',
         yAxisIndex: k,
         data: validData,
-      }
+        symbolSize: 10,
+        itemStyle: {
+          color: CHART_PALETTE[k % CHART_PALETTE.length],
+        },
+      })
     }
     return result
   }, [dataMap, keys])

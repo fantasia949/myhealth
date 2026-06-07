@@ -59,15 +59,12 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
     // Dynamic number of windows based on actual valid data points to ensure enough data per window
     // Aim for 5 windows, but fallback to fewer if data is sparse. Require at least 2 points per window.
     const numWindowsDynamic = count >= 30 ? 5 : count >= 10 ? 3 : count >= 4 ? 2 : 1
-    const windowLabelsDynamic = Array<string>(numWindowsDynamic)
+    const windowLabelsDynamic: string[] = []
 
     const windowedRanksMap = new Map<string, (number | string | null)[]>()
-    // ⚡ Bolt Optimization: Replace loop-based array building with pre-allocated Array(N)
+    // ⚡ Bolt Optimization: Avoid pre-allocating 'holey' arrays for generic types.
     for (let i = 0; i < topCorrelations.length; i++) {
-      windowedRanksMap.set(
-        topCorrelations[i].name,
-        Array<number | string | null>(numWindowsDynamic),
-      )
+      windowedRanksMap.set(topCorrelations[i].name, [])
     }
 
     // Chunk the valid data indices into windows and recalculate rho for each window
@@ -91,7 +88,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
 
       // Map to a complex object with a unique value to bypass category duplication,
       // and use a formatter to display the clean label.
-      windowLabelsDynamic[w] = w.toString()
+      windowLabelsDynamic.push(w.toString())
 
       // Without variation in the binary supplement vector (e.g. they took it every day, or never),
       // correlation is technically 0/undefined.
@@ -102,7 +99,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
         for (let i = 0; i < topCorrelations.length; i++) {
           const currentRanks = windowedRanksMap.get(topCorrelations[i].name)!
           const prevRank = w > 0 ? currentRanks[w - 1] : 6
-          currentRanks[w] = prevRank
+          currentRanks.push(prevRank)
         }
         continue
       }
@@ -154,7 +151,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
         // If rho is exactly 0 and no variation existed, we omit the rank by pushing null
         // to avoid erratic jumps. connectNulls: true will bridge the gaps cleanly.
         if (wr.rho === 0) {
-          currentRanks[w] = null
+          currentRanks.push(null)
         } else {
           // Check for ties with the previous item
           if (i > 0 && Math.abs(windowRhos[i].rho - windowRhos[i - 1].rho) < 1e-9) {
@@ -162,13 +159,18 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
           } else {
             currentRank = i + 1
           }
-          currentRanks[w] = currentRank
+          currentRanks.push(currentRank)
         }
       }
     }
 
-    const series = topCorrelations.map((supp) => {
-      return {
+    // Optimization: Replace chained .map() with classic for-loop and push to avoid holey arrays
+    const series = []
+    const legendData = []
+    for (let i = 0; i < topCorrelations.length; i++) {
+      const supp = topCorrelations[i]
+      legendData.push(supp.name)
+      series.push({
         name: supp.name,
         type: 'line',
         smooth: true,
@@ -179,8 +181,14 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
           width: 4,
         },
         data: windowedRanksMap.get(supp.name),
-      }
-    })
+      })
+    }
+
+    // Optimization: Replace .map()
+    const xAxisData = []
+    for (let i = 0; i < windowLabelsDynamic.length; i++) {
+      xAxisData.push(windowLabelsDynamic[i].toString())
+    }
 
     return {
       style: { height: 350, width: '100%' },
@@ -214,7 +222,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
         },
       },
       legend: {
-        data: topCorrelations.map((c) => c.name),
+        data: legendData,
         bottom: 0,
         textStyle: { color: '#ccc' },
       },
@@ -226,7 +234,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
       },
       xAxis: {
         type: 'category',
-        data: windowLabelsDynamic.map((w) => w.toString()),
+        data: xAxisData,
         boundaryGap: false,
         axisLine: { lineStyle: { color: '#555' } },
         splitLine: { show: false },
