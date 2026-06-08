@@ -1,4 +1,4 @@
-import { memo, useMemo, useState, useEffect } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import ReactECharts from 'echarts-for-react'
@@ -87,23 +87,16 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
     return Array.from(tags).sort()
   }, [data])
 
-  const [xAxisTag, setXAxisTag] = useState<string>('')
-  const [yAxisTag, setYAxisTag] = useState<string>('')
+  const [selectedXAxisTag, setSelectedXAxisTag] = useState<string | null>(null)
+  const [selectedYAxisTag, setSelectedYAxisTag] = useState<string | null>(null)
 
-  // Set defaults when tags load
-  useEffect(() => {
-    if (availableTags.length > 0) {
-      if (!xAxisTag)
-        setXAxisTag(availableTags.find((t) => t.includes('2-Metabolic')) || availableTags[0] || '')
-      if (!yAxisTag)
-        setYAxisTag(
-          availableTags.find((t) => t.includes('3-Liver') || t.includes('4-Lipid')) ||
-            availableTags[1] ||
-            availableTags[0] ||
-            '',
-        )
-    }
-  }, [availableTags, xAxisTag, yAxisTag])
+  const xAxisTag = selectedXAxisTag !== null
+    ? selectedXAxisTag
+    : (availableTags.find((t) => t.includes('2-Metabolic')) || availableTags[0] || '')
+
+  const yAxisTag = selectedYAxisTag !== null
+    ? selectedYAxisTag
+    : (availableTags.find((t) => t.includes('3-Liver') || t.includes('4-Lipid')) || availableTags[1] || availableTags[0] || '')
 
   const options = useMemo(() => {
     if (!data || data.length === 0 || !noteValues || noteValues.length === 0) return echartsOptions
@@ -343,7 +336,7 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
                       <select
                         id="x-axis-group"
                         value={xAxisTag}
-                        onChange={(e) => setXAxisTag(e.target.value)}
+                        onChange={(e) => setSelectedXAxisTag(e.target.value)}
                         className="bg-[#111111] text-white border border-[#3a3a3a] rounded p-2 text-sm focus:outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
                       >
                         {availableTags.map((t) => (
@@ -363,7 +356,7 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
                       <select
                         id="y-axis-group"
                         value={yAxisTag}
-                        onChange={(e) => setYAxisTag(e.target.value)}
+                        onChange={(e) => setSelectedYAxisTag(e.target.value)}
                         className="bg-[#111111] text-white border border-[#3a3a3a] rounded p-2 text-sm focus:outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
                       >
                         {availableTags.map((t) => (
