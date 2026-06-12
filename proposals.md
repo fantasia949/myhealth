@@ -1,106 +1,106 @@
-**Proposal 1 of 5: Correlation P-Value / Significance Heatmap**
+**Proposal 1 of 5: Correlation Alternative Distribution Violin Plot**
 
-**ECharts type:** `heatmap`
+**ECharts type:** Custom (using paths or SVG to simulate violin shape/density plot) or `boxplot` if custom is too complex.
 
 **Codebase citation:**
-`correlationAlphaAtom` and `correlationAlternativeAtom` from `src/atom/correlationAtom.ts`. `dataMapAtom` from `src/atom/dataAtom.ts`.
+`correlationAlternativeAtom` ('two-sided' | 'less' | 'greater') from `src/atom/correlationAtom.ts`. `rankedDataMapAtom` from `src/atom/dataAtom.ts`.
 
 **Which existing data it uses:**
-Reads `correlationAlphaAtom` for the threshold, uses the `pcorrtest` logic (if available, otherwise standard Spearman calculation), loops through all pairwise biomarker arrays in `dataMapAtom` (accessing `BioMarker[1]`) to compute significance levels.
+Takes the rank arrays cached in `rankedDataMapAtom` for the active tag group and graphs their distribution density, visually splitting or skewing the plot based on the current `correlationAlternativeAtom` choice to demonstrate how the one-sided vs two-sided hypotheses cluster the data.
 
 **What it reveals that current charts don't:**
-The current scatter plot and regression line show correlation visually between *two* specific biomarkers, but this heatmap would show the statistical significance matrix across *all* biomarker pairs simultaneously. This allows users to quickly spot strongly linked systems (e.g., discovering their sleep score strongly predicts next-day cortisol).
+The current scatter plot merely shows linear trends. A distribution plot that adjusts based on the chosen "alternative" hypothesis helps the user understand *why* a particular correlation is or isn't significant when restricting to a one-tailed test (e.g. 'less'). It visualizes the shape of the data, not just the mean.
 
 **Where it would live:**
-New `src/layout/CorrelationHeatmap.tsx`, rendered conditionally as a new tab or overlay when a "Correlations" view is active.
+New `src/layout/CorrelationDistributionPlot.tsx`, rendered in the `CorrelationDialog`.
 
 **Trigger / entry point:**
-A new "Correlation Matrix" button near the tag filters in `Nav.tsx`, passing the currently visible `tagAtom` biomarkers to the heatmap.
+Changing the 'Alternative' dropdown in the Correlation dialog.
 
 ---
 
-**Proposal 2 of 5: Biomarker Volatility (CV) Radar Chart**
+**Proposal 2 of 5: Biomarker Range Volatility Band Chart**
 
-**ECharts type:** `radar`
+**ECharts type:** `line` (with `areastyle` / band data overlay)
 
 **Codebase citation:**
-`tagAtom` and `visibleDataAtom` from `src/atom/dataAtom.ts`.
+`extra.range` formatted string pre-computed by `src/processors/post/range.ts` and `BioMarker[1]`.
 
 **Which existing data it uses:**
-Iterates through all `BioMarker[1]` arrays returned by `visibleDataAtom` (which filters by the current `tagAtom`). For each array, it calculates the Coefficient of Variation (Standard Deviation / Mean) over the time series.
+For a specific biomarker in `dataMapAtom`, it parses `extra.range` to construct dynamic upper and lower boundaries (the "band") and plots the `BioMarker[1]` time series data within this band over the `labels[]` timeline.
 
 **What it reveals that current charts don't:**
-Rather than tracking absolute values, this chart shows *which biomarkers are fluctuating the most*. A high CV in 'HbA1c' might indicate poor metabolic control, even if the absolute values occasionally hit the normal range. The radar chart allows comparing volatility across the entire tag group at once.
+While `LineChart` uses `markArea` to shade a static optimal band, a volatility band chart dynamically scales the Y-axis so the *optimal band takes up a consistent visual percentage of the chart*. This makes it instantly obvious how severely out of range a metric is relative to its own specific normal bounds, instead of just showing absolute values which are hard to interpret without a medical degree.
 
 **Where it would live:**
-New `src/layout/VolatilityRadar.tsx`, replacing or accompanying the scatter chart when multiple biomarkers are selected.
+New `src/layout/VolatilityBandChart.tsx`, supplementing or replacing the standard `LineChart`.
 
 **Trigger / entry point:**
-A toggle button in `Nav.tsx` or `scatter` view: "Show Values vs Show Volatility".
+A toggle button on the biomarker's row to switch from "Absolute Scale" to "Range-Normalized Scale".
 
 ---
 
-**Proposal 3 of 5: Optimality Duration Gantt Chart**
+**Proposal 3 of 5: Missing Origin Value Contribution Chart**
 
-**ECharts type:** `custom` (acting as a Gantt chart) or `boxplot` (modified)
-
-**Codebase citation:**
-`extra.optimality[]` pre-computed by `src/processors/post/range.ts`, index-aligned with `BioMarker[1]`.
-
-**Which existing data it uses:**
-Reads `extra.optimality[]` and the `labels[]` from `src/data/index.ts` for each biomarker in `nonInferredDataAtom`.
-
-**What it reveals that current charts don't:**
-The current `LineChart` uses `markArea` to show the optimal band, but a Gantt chart would show *how long* a biomarker was out of range across its history, as a continuous block. This helps answer: "Did my 3-month intervention actually keep my LDL in range the whole time, or was it just one good test?"
-
-**Where it would live:**
-New `src/layout/OptimalityGantt.tsx`, rendered as a timeline summary below the main charts.
-
-**Trigger / entry point:**
-A global "Health Journey Summary" button, displaying the Gantt chart for the current `tagAtom` group.
-
----
-
-**Proposal 4 of 5: Inferred Metric Influence Tree (Sankey)**
-
-**ECharts type:** `sankey`
+**ECharts type:** `pie` (specifically `roseType: 'radius'`)
 
 **Codebase citation:**
 `inferred?: boolean` and `originValues?: (string|number|null)[]` on `BioMarker[3]`.
 
 **Which existing data it uses:**
-Filters `dataMapAtom` for biomarkers with `inferred: true` (e.g., HOMA-IR, eGFR). It maps the known mathematical relationships (e.g., Glucose + Insulin -> HOMA-IR, Creatinine -> eGFR) to create the Sankey nodes.
+It filters the active `visibleDataAtom` for biomarkers that have `inferred: true` and compares the lengths of their `originValues` against their computed `values`. It counts how many times an inferred value was generated despite missing a standard component vs having full data.
 
 **What it reveals that current charts don't:**
-Shows users *why* an inferred metric is out of range. If HOMA-IR is high, the Sankey diagram visually weights whether it's driven more by high fasting glucose or high fasting insulin based on their relative deviation from optimal, helping target the root cause.
+Shows the user how much of their "Inferred" data is actually built on assumptions vs complete underlying measurements. If the pie chart shows that 50% of the HOMA-IR data points were calculated using only a fasting glucose value with an assumed insulin average, the user knows that metric is less reliable.
 
 **Where it would live:**
-New `src/layout/InferredInfluenceTree.tsx`, rendered in a modal when an inferred biomarker is clicked.
+New `src/layout/InferredDataQualityChart.tsx`, accessible in a data audit view.
 
 **Trigger / entry point:**
-Clicking the name of an `inferred: true` biomarker in the `BiomarkerTable` or `ScatterChart` legend.
+A small "Data Confidence" metric badge next to inferred variables that expands into the chart on click.
 
 ---
 
-**Proposal 5 of 5: Missing Data / Gap Heatmap**
+**Proposal 4 of 5: Spearman vs Pearson Divergence Scatter**
 
-**ECharts type:** `heatmap`
+**ECharts type:** `scatter` (with a Y=X reference `markLine`)
 
 **Codebase citation:**
-`labels[]` from `src/data/index.ts` and `BioMarker[1]` from `dataAtom`.
+`correlationMethodAtom` from `src/atom/correlationAtom.ts`. `dataMapAtom` from `src/atom/dataAtom.ts`.
 
 **Which existing data it uses:**
-Maps the `labels[]` (X-axis) against all biomarker names in `visibleDataAtom` (Y-axis). The cell value is 1 if `BioMarker[1][i]` is not null, and 0 (or null) if it is missing.
+Computes the correlation between all active pairs (using `visibleDataAtom`) *twice*: once using Pearson and once using Spearman. It plots each pair as a dot where X = Pearson coefficient and Y = Spearman coefficient.
 
 **What it reveals that current charts don't:**
-Visualizes test panel completeness. The scatter and line charts simply don't draw points for missing data, making it hard to see patterns in *what wasn't tested*. A gap heatmap immediately shows if a specific doctor keeps forgetting to order the 'Insulin' test on the '2-Metabolic' panel.
+Highlights non-linear relationships. Points that fall directly on the Y=X line have identical linear and monotonic correlations. Points that deviate far from the line (e.g., high Spearman, low Pearson) indicate a strong but non-linear relationship (like exponential growth) that the user might miss if they only looked at the standard correlation table.
 
 **Where it would live:**
-New `src/layout/MissingDataHeatmap.tsx`, rendered in a "Data Quality" or "Audit" view.
+New `src/layout/CorrelationDivergencePlot.tsx`, rendered inside the `CorrelationDialog`.
 
 **Trigger / entry point:**
-A small "Data Audit" icon in the footer or settings menu.
+A new tab inside the Correlation Dialog next to "Correlation Matrix".
 
 ---
 
-Recommended implementation order: Proposal 1 first (highest coefficient/correlations insight, historical insight, then other insights), then 2, then 3, then 4, then 5.
+**Proposal 5 of 5: Out-of-Range Severity Gradient Heatmap**
+
+**ECharts type:** `heatmap` (using `visualMap` gradient)
+
+**Codebase citation:**
+`extra.optimality[]` array and the `isNotOptimal: (value: number) => boolean` function from `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+Maps the `labels[]` (X-axis) against all biomarker names in `visibleDataAtom` (Y-axis). For each cell, if `extra.optimality[i]` is true, it passes the corresponding `BioMarker[1][i]` value back into a severity calculation (how far outside the bounds it is) and assigns a gradient color from yellow (mildly out) to deep red (severely out).
+
+**What it reveals that current charts don't:**
+The existing views only tell you *if* a value is out of bounds, not *how badly* out of bounds it is relative to the rest of your health system. This heatmap provides a whole-body overview of acute distress, making it easy to see if a particular date was a mild anomaly across many systems, or a severe spike in just one.
+
+**Where it would live:**
+New `src/layout/SeverityHeatmap.tsx`, rendered below the main scatter chart.
+
+**Trigger / entry point:**
+A "Health System Distress" toggle switch near the tag filters.
+
+---
+
+Recommended implementation order: Proposal 5 first (highest coefficient/correlations insight, historical insight, then other insights), then 4, then 1, then 2, then 3.
