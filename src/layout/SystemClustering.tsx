@@ -145,9 +145,9 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
       g1 = m1Indices
     } else {
       const len = Math.floor(numMarkers / 2)
-      g1 = Array<number>(len)
+      g1 = []
       for (let i = 0; i < len; i++) {
-        g1[i] = i
+        g1.push(i)
       }
     }
     let g2: number[]
@@ -156,9 +156,9 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
     } else {
       const offset = Math.floor(numMarkers / 2)
       const len = Math.ceil(numMarkers / 2)
-      g2 = Array<number>(len)
+      g2 = []
       for (let i = 0; i < len; i++) {
-        g2[i] = i + offset
+        g2.push(i + offset)
       }
     }
 
