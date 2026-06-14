@@ -13,6 +13,8 @@ import { useAtomValue, useAtom } from 'jotai'
 const ScatterChart = React.lazy(() => import('./layout/ScatterChart'))
 const RadarChart = React.lazy(() => import('./layout/RadarChart'))
 const CorrelationChordDiagram = React.lazy(() => import('./layout/CorrelationChordDiagram'))
+const RankScatterMatrix = React.lazy(() => import('./layout/RankScatterMatrix'))
+
 import {
   getBioMarkersAtom,
   filterTextAtom,
@@ -348,6 +350,9 @@ export default function App() {
               )}
               {chartKeys && chartKeys.length > 0 && chartType === 'scatter' && (
                 <ScatterChart keys={chartKeys} />
+              )}
+              {chartKeys && (chartKeys.length === 2 || chartKeys.length === 3) && chartType === 'scatter' && (
+                <RankScatterMatrix keys={chartKeys} />
               )}
             </>
           )}
