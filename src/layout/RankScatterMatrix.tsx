@@ -12,7 +12,7 @@ export default memo(({ keys }: RankScatterMatrixProps) => {
 
   const options = useMemo(() => {
     const numVars = keys.length
-    if (numVars !== 2 && numVars !== 3) return null
+    if (numVars < 2 || numVars > 5) return null
 
     const datasetSource: any[][] = []
     const headerRow: any[] = ['Date']
@@ -61,7 +61,7 @@ export default memo(({ keys }: RankScatterMatrixProps) => {
     // Left padding: 50, right padding: 20
     // Top padding: 50, bottom padding: 50
     // Gap: 10%
-    const gap = 10
+    const gap = numVars > 3 ? 5 : 10
     const cellWidth = (100 - gap * (numVars - 1)) / numVars
     const cellHeight = (100 - gap * (numVars - 1)) / numVars
 
