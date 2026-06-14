@@ -16,6 +16,7 @@ This document provides an overview of all implemented charts in the application.
 11. [ScatterChart](#scatterchart)
 12. [SupplementCorrelationGraph](#supplementcorrelationgraph)
 13. [SystemClustering](#systemclustering)
+14. [CorrelationHeatmap](#correlationheatmap)
 
 ---
 
@@ -146,3 +147,8 @@ This document provides an overview of all implemented charts in the application.
 **Technical info:**
 - **Chart Type:** `treemap`
 - **Data/Atom:** Props: `isOpen: boolean`, `onClose: () => void`. Directly consumes Jotai atoms for global data state (e.g., `dataMapAtom`).
+
+--
+## CorrelationHeatmap
+
+--
