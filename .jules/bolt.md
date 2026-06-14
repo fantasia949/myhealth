@@ -43,3 +43,6 @@
 ## YYYY-MM-DD - Refactoring Constaints: UI Side Effects
 **Learning:** When applying performance optimizations (like fixing 'holey' array allocations) in ECharts layout components, it is critical to strictly preserve the exact object structures. I accidentally added `symbolSize` and `itemStyle` to the scatter chart dataset as a side effect while modifying the loop. This can cause reference errors (if styling objects aren't imported) or visual regressions.
 **Action:** When refactoring loop bodies or object creations for performance, do not introduce new properties or styling configurations that were not in the original code unless explicitly instructed.
+## 2025-05-24 - V8 Array Slicing & Spreading in Hot Paths
+**Learning:** Chained array slicing and spreading operations like `[...arr.slice(0, 10), ...arr.slice(-10)]` create multiple intermediate array allocations that must be immediately garbage collected. In component rendering paths, this causes unnecessary memory churn.
+**Action:** Replace spreading and slicing combinations with a single pre-allocated array (or `.push()` into a dense array) and a `for` loop that uses conditional logic to jump indices, gathering only the required elements in one pass.
