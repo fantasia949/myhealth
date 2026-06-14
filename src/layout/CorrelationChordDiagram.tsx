@@ -166,8 +166,9 @@ const CorrelationChordDiagram = React.memo(() => {
     })
 
     // Group and sort nodes by Tag to visually cluster them in the circular layout
-    const nodeItems = Array.from(uniqueNodes.values())
-      .sort((a, b) => a.sortTag.localeCompare(b.sortTag))
+    const nodeItems = Array.from(uniqueNodes.values()).sort((a, b) =>
+      a.sortTag.localeCompare(b.sortTag),
+    )
 
     // Assign consistent colors by tag group
     const tagGroups = Array.from(new Set(nodeItems.map((n) => n.sortTag)))
