@@ -215,7 +215,7 @@ const SupplementCorrelation = React.memo(
                         type="button"
                         className="rounded-md text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                         onClick={onClose}
-                        title="Close"
+                        title="Close dialog"
                         aria-label="Close dialog"
                       >
                         <XMarkIcon className="h-6 w-6" aria-hidden="true" />
