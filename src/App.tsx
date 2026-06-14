@@ -220,7 +220,7 @@ export default function App() {
       onOpenClustering: () => setIsClusteringOpen(true),
       isNetworkViewOpen,
       onToggleNetworkView: () => setIsNetworkViewOpen((prev) => !prev),
-          }),
+    }),
     [
       selected,
       onSelect,
@@ -238,7 +238,7 @@ export default function App() {
       onSupplementCorrelation,
       setIsClusteringOpen,
       isNetworkViewOpen,
-          ],
+    ],
   )
 
   // Optimization: Pre-filter radar chart data in a memoized hook with a single-pass loop.

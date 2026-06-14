@@ -15,21 +15,29 @@ export default memo(({ correlations, alpha }: FocusedCorrelationChartProps) => {
     const topAndBottom =
       sorted.length > 20 ? [...sorted.slice(0, 10), ...sorted.slice(-10)] : sorted
 
-    const names = topAndBottom.map((c) => c[0])
-    const values = topAndBottom.map((c) => {
+    // Optimization: Replace chained Array.map() calls with a single standard for-loop.
+    // This eliminates multiple passes over the array, reduces closure creation overhead,
+    // and avoids generating holey arrays.
+    const names = []
+    const values = []
+    const len = topAndBottom.length
+    for (let i = 0; i < len; i++) {
+      const c = topAndBottom[i]
+      names.push(c[0])
+
       // Scale opacity based on how close the pValue is to the chosen alpha threshold
       // Closer to 0 -> 1.0 opacity. Closer to alpha -> 0.3 opacity.
       const ratio = Math.min(1, Math.max(0, c[2] / alpha))
       const opacity = Math.max(0.3, 1 - ratio * 0.7)
 
-      return {
+      values.push({
         value: c[3],
         itemStyle: {
           color: c[3] > 0 ? CHART_PALETTE[7] : CHART_PALETTE[0], // Blue for positive, Red for negative
           opacity: opacity,
         },
-      }
-    })
+      })
+    }
 
     return {
       style: { height: Math.max(300, topAndBottom.length * 30), width: '100%' },
