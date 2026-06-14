@@ -10,29 +10,39 @@ interface FocusedCorrelationChartProps {
 export default memo(({ correlations, alpha }: FocusedCorrelationChartProps) => {
   const options = useMemo(() => {
     // Sort by coefficient (descending) to show strongest positive at top, strongest negative at bottom
-    // We only take the top 10 and bottom 10 for readability
+    // Optimization: Replace array slicing, spreading, and chained .map() with a classic
+    // for-loop to eliminate intermediate allocations, holey arrays, and closure overhead.
     const sorted = [...correlations].sort((a, b) => a[3] - b[3])
-    const topAndBottom =
-      sorted.length > 20 ? [...sorted.slice(0, 10), ...sorted.slice(-10)] : sorted
+    const len = sorted.length
+    const isLarge = len > 20
+    const displayLen = isLarge ? 20 : len
 
-    const names = topAndBottom.map((c) => c[0])
-    const values = topAndBottom.map((c) => {
+    const names: string[] = []
+    const values: any[] = []
+
+    for (let i = 0; i < displayLen; i++) {
+      // If large, take top 10 (indices 0-9) and bottom 10 (indices len-10 to len-1)
+      const idx = isLarge && i >= 10 ? len - 20 + i : i
+      const c = sorted[idx]
+
+      names.push(c[0])
+
       // Scale opacity based on how close the pValue is to the chosen alpha threshold
       // Closer to 0 -> 1.0 opacity. Closer to alpha -> 0.3 opacity.
       const ratio = Math.min(1, Math.max(0, c[2] / alpha))
       const opacity = Math.max(0.3, 1 - ratio * 0.7)
 
-      return {
+      values.push({
         value: c[3],
         itemStyle: {
           color: c[3] > 0 ? CHART_PALETTE[7] : CHART_PALETTE[0], // Blue for positive, Red for negative
           opacity: opacity,
         },
-      }
-    })
+      })
+    }
 
     return {
-      style: { height: Math.max(300, topAndBottom.length * 30), width: '100%' },
+      style: { height: Math.max(300, displayLen * 30), width: '100%' },
       theme: 'dark',
       backgroundColor: 'transparent',
       tooltip: {

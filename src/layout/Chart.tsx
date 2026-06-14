@@ -1,4 +1,4 @@
-import { memo, useRef, useEffect, useMemo, useState, useCallback, ElementRef } from 'react'
+import { memo, useMemo, useCallback, ElementRef } from 'react'
 import { useAtomValue } from 'jotai'
 import { dataMapAtom } from '../atom/dataAtom'
 import { ChartProvider, ChartContext } from '@echarts-readymade/core'
@@ -65,7 +65,8 @@ const echartsOptions: EChartsReactProps = {
             val !== undefined &&
             !Number.isNaN(val)
           ) {
-            tooltipStr += `<br/>${p.marker} ${p.seriesName}: <strong>${val} ${unit}</strong>`
+            const unitStr = unit ? ` ${unit}` : ''
+            tooltipStr += `<br/>${p.marker} ${p.seriesName}: <strong>${val}${unitStr}</strong>`
             hasValidValues = true
           }
         }
@@ -158,48 +159,32 @@ export default memo(({ keys }: ChartProps) => {
     return result
   }, [dataMap, keys, valueList])
 
-  const ref = useRef<ElementRef<typeof Line> | null>(null)
-  const [isChartReady, setIsChartReady] = useState(false)
-
   const handleRef = useCallback((node: ElementRef<typeof Line> | null) => {
-    ref.current = node
-    if (node) {
-      setIsChartReady(true)
-    } else {
-      setIsChartReady(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (isChartReady && ref.current) {
-      const instance = ref.current.getEchartsInstance()
-      if (instance && !instance.isDisposed()) {
-        // Optimization: Replace array map in the render loop with a classic for-loop.
-        // ⚡ Bolt Optimization: Avoid pre-allocating 'holey' arrays. Use push() to maintain dense arrays for V8.
-        const len = keys.length
-        const series: LineSeriesOption[] = []
-        for (let i = 0; i < len; i++) {
-          series.push({
-            type: 'line',
-            connectNulls: false,
-          })
-        }
-        instance.setOption(
-          {
-            yAxis,
-            grid: {
-              top: 40,
-              bottom: 20,
-              left: Math.ceil(keys.length / 2) * 100,
-              right: Math.max(Math.floor(keys.length / 2) * 100, 40),
-            },
-            series,
-          },
-          { replaceMerge: ['series', 'yAxis'] },
-        )
+    const instance = node?.getEchartsInstance();
+    if (instance && !instance.isDisposed()) {
+      const len = keys.length
+      const series: LineSeriesOption[] = []
+      for (let i = 0; i < len; i++) {
+        series.push({
+          type: 'line',
+          connectNulls: false,
+        })
       }
+      instance.setOption(
+        {
+          yAxis,
+          grid: {
+            top: 40,
+            bottom: 20,
+            left: Math.ceil(keys.length / 2) * 100,
+            right: Math.max(Math.floor(keys.length / 2) * 100, 40),
+          },
+          series,
+        },
+        { replaceMerge: ['series', 'yAxis'] },
+      )
     }
-  }, [keys, yAxis, isChartReady])
+  }, [keys, yAxis])
 
   return (
     <ChartProvider data={chartData} echartsOptions={echartsOptions}>

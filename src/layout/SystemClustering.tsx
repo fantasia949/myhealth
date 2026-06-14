@@ -1,4 +1,4 @@
-import { memo, useMemo, useState, useEffect } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import ReactECharts from 'echarts-for-react'
@@ -87,23 +87,11 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
     return Array.from(tags).sort()
   }, [data])
 
-  const [xAxisTag, setXAxisTag] = useState<string>('')
-  const [yAxisTag, setYAxisTag] = useState<string>('')
+  const [xAxisTag, setXAxisTag] = useState<string | null>(null)
+  const [yAxisTag, setYAxisTag] = useState<string | null>(null)
 
-  // Set defaults when tags load
-  useEffect(() => {
-    if (availableTags.length > 0) {
-      if (!xAxisTag)
-        setXAxisTag(availableTags.find((t) => t.includes('2-Metabolic')) || availableTags[0] || '')
-      if (!yAxisTag)
-        setYAxisTag(
-          availableTags.find((t) => t.includes('3-Liver') || t.includes('4-Lipid')) ||
-            availableTags[1] ||
-            availableTags[0] ||
-            '',
-        )
-    }
-  }, [availableTags, xAxisTag, yAxisTag])
+  const effectiveXAxisTag = xAxisTag !== null ? xAxisTag : (availableTags.length > 0 ? (availableTags.find((t) => t.includes('2-Metabolic')) || availableTags[0] || '') : '')
+  const effectiveYAxisTag = yAxisTag !== null ? yAxisTag : (availableTags.length > 0 ? (availableTags.find((t) => t.includes('3-Liver') || t.includes('4-Lipid')) || availableTags[1] || availableTags[0] || '') : '')
 
   const options = useMemo(() => {
     if (!data || data.length === 0 || !noteValues || noteValues.length === 0) return echartsOptions
@@ -127,8 +115,8 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
       let hasY = false
       const tagsLen = tags.length
       for (let i = 0; i < tagsLen; i++) {
-        if (xAxisTag && tags[i] === xAxisTag) hasX = true
-        if (yAxisTag && tags[i] === yAxisTag) hasY = true
+        if (effectiveXAxisTag && tags[i] === effectiveXAxisTag) hasX = true
+        if (effectiveYAxisTag && tags[i] === effectiveYAxisTag) hasY = true
       }
 
       if (hasX) m1Indices.push(m)
@@ -137,7 +125,7 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
 
     // Fallback: If we don't have enough markers in tags, just use the first half vs second half
     const useTags =
-      xAxisTag !== '' && yAxisTag !== '' && m1Indices.length > 0 && m2Indices.length > 0
+      effectiveXAxisTag !== '' && effectiveYAxisTag !== '' && m1Indices.length > 0 && m2Indices.length > 0
     // Bolt Optimization: Hoist fallback array calculations outside the inner loop to
     // eliminate redundant object allocations and garbage collection per timepoint.
     let g1: number[]
@@ -242,7 +230,7 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
       })
     }
 
-    const _useTags = xAxisTag !== '' && yAxisTag !== ''
+    const _useTags = effectiveXAxisTag !== '' && effectiveYAxisTag !== ''
     const formatTag = (tag: string) => tag.replace(/^\w-/, '')
 
     return {
@@ -260,12 +248,12 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
       xAxis: {
         ...echartsOptions.xAxis,
         scale: true,
-        name: _useTags ? `${formatTag(xAxisTag)} Optimality (%)` : 'Group 1 Optimality (%)',
+        name: _useTags ? `${formatTag(effectiveXAxisTag)} Optimality (%)` : 'Group 1 Optimality (%)',
       },
       yAxis: {
         ...echartsOptions.yAxis,
         scale: true,
-        name: _useTags ? `${formatTag(yAxisTag)} Optimality (%)` : 'Group 2 Optimality (%)',
+        name: _useTags ? `${formatTag(effectiveYAxisTag)} Optimality (%)` : 'Group 2 Optimality (%)',
       },
       series: [
         {
@@ -280,7 +268,7 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
         },
       ],
     }
-  }, [data, noteValues, xAxisTag, yAxisTag])
+  }, [data, noteValues, effectiveXAxisTag, effectiveYAxisTag])
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -342,7 +330,7 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
                       </label>
                       <select
                         id="x-axis-group"
-                        value={xAxisTag}
+                        value={effectiveXAxisTag}
                         onChange={(e) => setXAxisTag(e.target.value)}
                         className="bg-[#111111] text-white border border-[#3a3a3a] rounded p-2 text-sm focus:outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
                       >
@@ -362,7 +350,7 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
                       </label>
                       <select
                         id="y-axis-group"
-                        value={yAxisTag}
+                        value={effectiveYAxisTag}
                         onChange={(e) => setYAxisTag(e.target.value)}
                         className="bg-[#111111] text-white border border-[#3a3a3a] rounded p-2 text-sm focus:outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
                       >
