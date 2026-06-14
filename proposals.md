@@ -1,106 +1,64 @@
-**Proposal 1 of 5: Correlation P-Value / Significance Heatmap**
-
-**ECharts type:** `heatmap`
-
-**Codebase citation:**
-`correlationAlphaAtom` and `correlationAlternativeAtom` from `src/atom/correlationAtom.ts`. `dataMapAtom` from `src/atom/dataAtom.ts`.
-
-**Which existing data it uses:**
-Reads `correlationAlphaAtom` for the threshold, uses the `pcorrtest` logic (if available, otherwise standard Spearman calculation), loops through all pairwise biomarker arrays in `dataMapAtom` (accessing `BioMarker[1]`) to compute significance levels.
-
-**What it reveals that current charts don't:**
-The current scatter plot and regression line show correlation visually between *two* specific biomarkers, but this heatmap would show the statistical significance matrix across *all* biomarker pairs simultaneously. This allows users to quickly spot strongly linked systems (e.g., discovering their sleep score strongly predicts next-day cortisol).
-
-**Where it would live:**
-New `src/layout/CorrelationHeatmap.tsx`, rendered conditionally as a new tab or overlay when a "Correlations" view is active.
-
-**Trigger / entry point:**
-A new "Correlation Matrix" button near the tag filters in `Nav.tsx`, passing the currently visible `tagAtom` biomarkers to the heatmap.
-
----
-
-**Proposal 2 of 5: Biomarker Volatility (CV) Radar Chart**
+**Proposal 1 of 3: Tag Group Completeness Radar**
 
 **ECharts type:** `radar`
 
 **Codebase citation:**
-`tagAtom` and `visibleDataAtom` from `src/atom/dataAtom.ts`.
+Reads `tag` keys dynamically derived from `src/processors/post/tag.ts` via `extra.tag` on `BioMarker[3]` elements of the `dataAtom`.
 
 **Which existing data it uses:**
-Iterates through all `BioMarker[1]` arrays returned by `visibleDataAtom` (which filters by the current `tagAtom`). For each array, it calculates the Coefficient of Variation (Standard Deviation / Mean) over the time series.
+It utilizes `dataAtom` from `src/atom/dataAtom.ts` and iterates over each `BioMarker` entry. It extracts the `extra.tag` arrays and counts the occurrences of each tag group (e.g., `1-RBC`, `2-Metabolic`).
 
 **What it reveals that current charts don't:**
-Rather than tracking absolute values, this chart shows *which biomarkers are fluctuating the most*. A high CV in 'HbA1c' might indicate poor metabolic control, even if the absolute values occasionally hit the normal range. The radar chart allows comparing volatility across the entire tag group at once.
+Shows which physiological systems (tag groups) have the most robust data coverage and which are missing measurements. Current scatter and line charts require the user to visually inspect each tag group one by one to infer completeness, whereas a radar chart instantly visualizes the density and completeness of all system clusters in one view.
 
 **Where it would live:**
-New `src/layout/VolatilityRadar.tsx`, replacing or accompanying the scatter chart when multiple biomarkers are selected.
+New `src/layout/CompletenessRadar.tsx`, rendered conditionally in `App.tsx` or a new summary dashboard panel.
 
 **Trigger / entry point:**
-A toggle button in `Nav.tsx` or `scatter` view: "Show Values vs Show Volatility".
+Could be toggled via a new "Data Coverage" button in the global navigation or sidebar, activating a modal that renders this summary chart.
 
 ---
 
-**Proposal 3 of 5: Optimality Duration Gantt Chart**
+**Proposal 2 of 3: Inferred Marker Network Diagram**
 
-**ECharts type:** `custom` (acting as a Gantt chart) or `boxplot` (modified)
+**ECharts type:** `graph` (Network)
 
 **Codebase citation:**
-`extra.optimality[]` pre-computed by `src/processors/post/range.ts`, index-aligned with `BioMarker[1]`.
+Reads `extra.inferred`, `extra.originValues`, and `extra.hasOrigin` from `BioMarker[3]`, which are defined in `src/types/biomarker.ts` and set during preprocessing.
 
 **Which existing data it uses:**
-Reads `extra.optimality[]` and the `labels[]` from `src/data/index.ts` for each biomarker in `nonInferredDataAtom`.
+It queries `dataAtom` for all biomarkers where `extra.inferred === true` and uses their `extra.originValues` references (or names, if map is updated to link them) to draw connections to the measured biomarkers that generated them.
 
 **What it reveals that current charts don't:**
-The current `LineChart` uses `markArea` to show the optimal band, but a Gantt chart would show *how long* a biomarker was out of range across its history, as a continuous block. This helps answer: "Did my 3-month intervention actually keep my LDL in range the whole time, or was it just one good test?"
+Visualizes the dependency tree between actual measured lab results and computed/inferred scores (like eGFR, HOMA-IR, or PhenoAge). This clarifies for the user which raw measurements have the highest "leverage" (i.e., contribute to the most computed metrics), which is impossible to see in isolated time-series plots.
 
 **Where it would live:**
-New `src/layout/OptimalityGantt.tsx`, rendered as a timeline summary below the main charts.
+New `src/layout/InferredNetworkDiagram.tsx`, potentially added as an extra tab in the `BiomarkerCorrelation.tsx` view or as a standalone exploration tool.
 
 **Trigger / entry point:**
-A global "Health Journey Summary" button, displaying the Gantt chart for the current `tagAtom` group.
+Activated via a "View Dependencies" toggle on inferred biomarkers, or as a global view when no specific tag is selected.
 
 ---
 
-**Proposal 4 of 5: Inferred Metric Influence Tree (Sankey)**
+**Proposal 3 of 3: Correlation Rank Scatter Matrix**
 
-**ECharts type:** `sankey`
+**ECharts type:** `scatter` (SPLOM - Scatter Plot Matrix)
 
 **Codebase citation:**
-`inferred?: boolean` and `originValues?: (string|number|null)[]` on `BioMarker[3]`.
+Uses `rankedDataMapAtom` from `src/atom/dataAtom.ts`, which caches the Spearman rank array (Float64Array) for each biomarker name.
 
 **Which existing data it uses:**
-Filters `dataMapAtom` for biomarkers with `inferred: true` (e.g., HOMA-IR, eGFR). It maps the known mathematical relationships (e.g., Glucose + Insulin -> HOMA-IR, Creatinine -> eGFR) to create the Sankey nodes.
+It accesses `visibleDataAtom` to get the current list of biomarkers being viewed and retrieves their corresponding rank arrays from `rankedDataMapAtom`. It plots these rank values against each other for all possible pairs in the visible set.
 
 **What it reveals that current charts don't:**
-Shows users *why* an inferred metric is out of range. If HOMA-IR is high, the Sankey diagram visually weights whether it's driven more by high fasting glucose or high fasting insulin based on their relative deviation from optimal, helping target the root cause.
+The existing correlation tools (like the network graph or bump chart) only show the *strength* of the correlation (the coefficient). A scatter matrix of the underlying rank values reveals the *shape* of the relationship (e.g., non-linear patterns, clusters, or outliers) that drive the correlation score, providing deeper statistical context.
 
 **Where it would live:**
-New `src/layout/InferredInfluenceTree.tsx`, rendered in a modal when an inferred biomarker is clicked.
+New `src/layout/RankScatterMatrix.tsx`, rendered inside the existing `Correlation.tsx` view.
 
 **Trigger / entry point:**
-Clicking the name of an `inferred: true` biomarker in the `BiomarkerTable` or `ScatterChart` legend.
+Activated when exactly two or three biomarkers are visible (via search or tag filters), rendering below the main `ScatterChart.tsx` to provide immediate correlation context.
 
 ---
 
-**Proposal 5 of 5: Missing Data / Gap Heatmap**
-
-**ECharts type:** `heatmap`
-
-**Codebase citation:**
-`labels[]` from `src/data/index.ts` and `BioMarker[1]` from `dataAtom`.
-
-**Which existing data it uses:**
-Maps the `labels[]` (X-axis) against all biomarker names in `visibleDataAtom` (Y-axis). The cell value is 1 if `BioMarker[1][i]` is not null, and 0 (or null) if it is missing.
-
-**What it reveals that current charts don't:**
-Visualizes test panel completeness. The scatter and line charts simply don't draw points for missing data, making it hard to see patterns in *what wasn't tested*. A gap heatmap immediately shows if a specific doctor keeps forgetting to order the 'Insulin' test on the '2-Metabolic' panel.
-
-**Where it would live:**
-New `src/layout/MissingDataHeatmap.tsx`, rendered in a "Data Quality" or "Audit" view.
-
-**Trigger / entry point:**
-A small "Data Audit" icon in the footer or settings menu.
-
----
-
-Recommended implementation order: Proposal 1 first (highest coefficient/correlations insight, historical insight, then other insights), then 2, then 3, then 4, then 5.
+Recommended implementation order: Proposal 3 first (correlation insight), then 1, then 2.

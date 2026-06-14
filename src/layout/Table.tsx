@@ -370,11 +370,10 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
     footer: 'Supp',
   }),
   ...(() => {
-    // Optimization: Replace labels.map() with a classic for-loop and pre-allocated array.
-    // This avoids closure allocation overhead and speeds up the module initialization.
+    // Optimization: Replace labels.map() with a classic for-loop and dense array.
+    // This avoids closure allocation overhead and V8 'holey' array de-optimization.
     const numLabels = labels.length
-    // eslint-disable-next-line eslint-plugin-unicorn/no-new-array
-    const result = new Array<ColumnDef<DisplayedEntry, any>>(numLabels)
+    const result: ColumnDef<DisplayedEntry, any>[] = []
     for (let index = 0; index < numLabels; index++) {
       const label = labels[index]
       const dist = numLabels - 1 - index
@@ -383,9 +382,8 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
       else if (dist > 2 && dist <= 4) className = 'hidden md:table-cell'
       else if (dist > 4) className = 'hidden lg:table-cell'
 
-      result[index] = columnHelper.accessor(
-        (row) => row[label as keyof typeof row] ?? row.values[index],
-        {
+      result.push(
+        columnHelper.accessor((row) => row[label as keyof typeof row] ?? row.values[index], {
           id: label,
           header: getKeyFromTime(label),
           meta: {
@@ -394,7 +392,7 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
             title: label,
             className,
           },
-        },
+        }),
       )
     }
     return result
@@ -498,15 +496,17 @@ export default React.memo(
 
     const cellBaseClasses = React.useMemo(() => {
       const count = showRecords || labels.length
-      const result = Array<string>(count)
+      const result: string[] = []
       for (let index = 0; index < count; index++) {
         const dist = count - 1 - index
-        result[index] = cn('p-2 border border-gray-700 text-right cursor-pointer select-none', {
-          'is-latest': dist === 0,
-          'hidden sm:table-cell': dist === 2,
-          'hidden md:table-cell': dist > 2 && dist <= 4,
-          'hidden lg:table-cell': dist > 4,
-        })
+        result.push(
+          cn('p-2 border border-gray-700 text-right cursor-pointer select-none', {
+            'is-latest': dist === 0,
+            'hidden sm:table-cell': dist === 2,
+            'hidden md:table-cell': dist > 2 && dist <= 4,
+            'hidden lg:table-cell': dist > 4,
+          }),
+        )
       }
       return result
     }, [showRecords])
