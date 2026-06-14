@@ -33,7 +33,8 @@ const CorrelationHeatmap = React.memo(() => {
     const optionsStats = { alpha, alternative }
 
     // Data format: [xIndex, yIndex, rho, pValue]
-    const dataPoints: [number, number, number, number][] = []
+    // Data format: [xIndex, yIndex, displayRhoOrPValue, pValue, actualRho]
+    const dataPoints: [number, number, number, number, number][] = []
 
     if (method === 'pearson') {
       let maxDatasetLen = 0
@@ -70,7 +71,7 @@ const CorrelationHeatmap = React.memo(() => {
         if (maxLen < 4) continue
 
         // Self correlation
-        dataPoints.push([i, i, 1, 0])
+        dataPoints.push([i, i, colorMode === 'rho' ? 1 : 0, 0, 1])
 
         for (let j = i + 1; j < numData; j++) {
           const targetName = names[j]
@@ -95,8 +96,15 @@ const CorrelationHeatmap = React.memo(() => {
 
           const result = calculatePearson(x.subarray(0, count), y.subarray(0, count), optionsStats)
 
-          dataPoints.push([i, j, result.pcorr, result.pValue])
-          dataPoints.push([j, i, result.pcorr, result.pValue]) // symmetric
+          const isSig = result.pValue <= alpha
+          let displayVal = 0
+          if (colorMode === 'rho') {
+            displayVal = isSig ? result.pcorr : 0
+          } else {
+            displayVal = result.pValue
+          }
+          dataPoints.push([i, j, displayVal, result.pValue, result.pcorr])
+          dataPoints.push([j, i, displayVal, result.pValue, result.pcorr]) // symmetric
         }
       }
     } else {
@@ -106,7 +114,7 @@ const CorrelationHeatmap = React.memo(() => {
         const sourceRanks = rankedDataMap.get(sourceName)
         if (!sourceRanks) continue
 
-        dataPoints.push([i, i, 1, 0])
+        dataPoints.push([i, i, colorMode === 'rho' ? 1 : 0, 0, 1])
 
         for (let j = i + 1; j < numData; j++) {
           const targetName = names[j]
@@ -114,8 +122,15 @@ const CorrelationHeatmap = React.memo(() => {
           if (!targetRanks) continue
 
           const result = calculateSpearmanRanked(sourceRanks, targetRanks, optionsStats)
-          dataPoints.push([i, j, result.pcorr, result.pValue])
-          dataPoints.push([j, i, result.pcorr, result.pValue])
+          const isSig = result.pValue <= alpha
+          let displayVal = 0
+          if (colorMode === 'rho') {
+            displayVal = isSig ? result.pcorr : 0
+          } else {
+            displayVal = result.pValue
+          }
+          dataPoints.push([i, j, displayVal, result.pValue, result.pcorr])
+          dataPoints.push([j, i, displayVal, result.pValue, result.pcorr])
         }
       }
     }
@@ -132,7 +147,7 @@ const CorrelationHeatmap = React.memo(() => {
         textStyle: { color: '#f0f0f0' },
         formatter: (params: any) => {
           const val = params.data
-          const rho = val[2].toFixed(3)
+          const rho = val[4].toFixed(3)
           const pvalStr = val[3].toFixed(4)
           let pvalFormatted = pvalStr
           if (val[3] <= 0.001) pvalFormatted = '< 0.001'
