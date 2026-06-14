@@ -1,4 +1,4 @@
-import { memo, useRef, useEffect, useMemo, useState, useCallback, ElementRef } from 'react'
+import { memo, useRef, useEffect, useMemo, useCallback, ElementRef } from 'react'
 import { useAtomValue } from 'jotai'
 import { dataMapAtom } from '../atom/dataAtom'
 import { ChartProvider, ChartContext } from '@echarts-readymade/core'
@@ -159,19 +159,13 @@ export default memo(({ keys }: ChartProps) => {
   }, [dataMap, keys, valueList])
 
   const ref = useRef<ElementRef<typeof Line> | null>(null)
-  const [isChartReady, setIsChartReady] = useState(false)
 
   const handleRef = useCallback((node: ElementRef<typeof Line> | null) => {
     ref.current = node
-    if (node) {
-      setIsChartReady(true)
-    } else {
-      setIsChartReady(false)
-    }
   }, [])
 
   useEffect(() => {
-    if (isChartReady && ref.current) {
+    if (ref.current) {
       const instance = ref.current.getEchartsInstance()
       if (instance && !instance.isDisposed()) {
         // Optimization: Replace array map in the render loop with a classic for-loop.
@@ -199,7 +193,7 @@ export default memo(({ keys }: ChartProps) => {
         )
       }
     }
-  }, [keys, yAxis, isChartReady])
+  }, [keys, yAxis])
 
   return (
     <ChartProvider data={chartData} echartsOptions={echartsOptions}>
