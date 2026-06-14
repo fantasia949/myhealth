@@ -352,7 +352,7 @@ export default function App() {
                 <ScatterChart keys={chartKeys} />
               )}
               {chartKeys && (chartKeys.length === 2 || chartKeys.length === 3) && chartType === 'scatter' && (
-                <RankScatterMatrix />
+                <RankScatterMatrix keys={chartKeys} />
               )}
             </>
           )}

@@ -1,1 +1,3 @@
-export interface RankScatterMatrixProps {}
+export interface RankScatterMatrixProps {
+  keys: string[];
+}

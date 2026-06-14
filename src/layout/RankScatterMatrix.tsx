@@ -1,23 +1,14 @@
 import { memo, useMemo } from 'react'
 import { useAtomValue } from 'jotai'
-import { visibleDataAtom, rankedDataMapAtom } from '../atom/dataAtom'
+import { rankedDataMapAtom } from '../atom/dataAtom'
 import ReactECharts from 'echarts-for-react'
 import type { GridComponentOption, XAXisComponentOption, YAXisComponentOption, ScatterSeriesOption, TooltipComponentOption } from 'echarts'
 import { CHART_PALETTE } from './Chart2'
 import { formattedLabels } from '../data'
 import { RankScatterMatrixProps } from './RankScatterMatrix.types'
 
-export default memo((_props: RankScatterMatrixProps) => {
-  const visibleData = useAtomValue(visibleDataAtom)
+export default memo(({ keys }: RankScatterMatrixProps) => {
   const rankedDataMap = useAtomValue(rankedDataMapAtom)
-
-  const keys = useMemo(() => {
-    const k = []
-    for (let i = 0; i < visibleData.length; i++) {
-      k.push(visibleData[i][0])
-    }
-    return k
-  }, [visibleData])
 
   const options = useMemo(() => {
     const numVars = keys.length
