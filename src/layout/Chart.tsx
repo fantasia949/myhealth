@@ -1,4 +1,4 @@
-import { memo, useMemo, useCallback, ElementRef } from 'react'
+import { memo, useMemo, useCallback, useState, useEffect, ElementRef } from 'react'
 import { useAtomValue } from 'jotai'
 import { dataMapAtom } from '../atom/dataAtom'
 import { ChartProvider, ChartContext } from '@echarts-readymade/core'
@@ -159,9 +159,14 @@ export default memo(({ keys }: ChartProps) => {
     return result
   }, [dataMap, keys, valueList])
 
+  const [chartInstance, setChartInstance] = useState<echarts.ECharts | null>(null)
+
   const handleRef = useCallback((node: ElementRef<typeof Line> | null) => {
-    const instance = node?.getEchartsInstance();
-    if (instance && !instance.isDisposed()) {
+    setChartInstance(node?.getEchartsInstance() || null)
+  }, [])
+
+  useEffect(() => {
+    if (chartInstance && !chartInstance.isDisposed()) {
       const len = keys.length
       const series: LineSeriesOption[] = []
       for (let i = 0; i < len; i++) {
@@ -170,7 +175,7 @@ export default memo(({ keys }: ChartProps) => {
           connectNulls: false,
         })
       }
-      instance.setOption(
+      chartInstance.setOption(
         {
           yAxis,
           grid: {
@@ -184,7 +189,7 @@ export default memo(({ keys }: ChartProps) => {
         { replaceMerge: ['series', 'yAxis'] },
       )
     }
-  }, [keys, yAxis])
+  }, [keys, yAxis, chartInstance])
 
   return (
     <ChartProvider data={chartData} echartsOptions={echartsOptions}>
