@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState, useCallback, ElementRef } from 'react'
+import { memo, useMemo, useCallback, ElementRef } from 'react'
 import { useAtomValue } from 'jotai'
 import { dataMapAtom } from '../atom/dataAtom'
 import { ChartProvider, ChartContext } from '@echarts-readymade/core'
@@ -159,16 +159,9 @@ export default memo(({ keys }: ChartProps) => {
     return result
   }, [dataMap, keys, valueList])
 
-  const [echartsInstance, setEchartsInstance] = useState<any>(null)
-
   const handleRef = useCallback((node: ElementRef<typeof Line> | null) => {
-    setEchartsInstance(node?.getEchartsInstance() || null)
-  }, [])
-
-  useEffect(() => {
-    if (echartsInstance && !echartsInstance.isDisposed()) {
-      // Optimization: Replace array map in the render loop with a classic for-loop.
-      // ⚡ Bolt Optimization: Avoid pre-allocating 'holey' arrays. Use push() to maintain dense arrays for V8.
+    const instance = node?.getEchartsInstance();
+    if (instance && !instance.isDisposed()) {
       const len = keys.length
       const series: LineSeriesOption[] = []
       for (let i = 0; i < len; i++) {
@@ -177,7 +170,7 @@ export default memo(({ keys }: ChartProps) => {
           connectNulls: false,
         })
       }
-      echartsInstance.setOption(
+      instance.setOption(
         {
           yAxis,
           grid: {
@@ -191,7 +184,7 @@ export default memo(({ keys }: ChartProps) => {
         { replaceMerge: ['series', 'yAxis'] },
       )
     }
-  }, [keys, yAxis, echartsInstance])
+  }, [keys, yAxis])
 
   return (
     <ChartProvider data={chartData} echartsOptions={echartsOptions}>
