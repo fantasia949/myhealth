@@ -1,8 +1,17 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["eslint", "typescript", "unicorn", "react", "react-perf", "oxc"],
+  "plugins": [
+    "eslint",
+    "typescript",
+    "unicorn",
+    "react",
+    "react-perf",
+    "oxc"
+  ],
   "categories": {},
-  "jsPlugins": ["eslint-plugin-react-you-might-not-need-an-effect"],
+  "jsPlugins": [
+    "eslint-plugin-react-you-might-not-need-an-effect"
+  ],
   "rules": {
     "react-you-might-not-need-an-effect/no-derived-state": "warn",
     "react-you-might-not-need-an-effect/no-chain-state-updates": "warn",
@@ -12,7 +21,7 @@
     "react-you-might-not-need-an-effect/no-pass-live-state-to-parent": "warn",
     "react-you-might-not-need-an-effect/no-pass-data-to-parent": "warn",
     "react-you-might-not-need-an-effect/no-external-store-subscription": "warn",
-    "react-you-might-not-need-an-effect/no-initialize-state": "warn"
+    "react-you-might-not-need-an-effect/no-initialize-state": "warn",
   },
   "settings": {
     "jsx-a11y": {
