@@ -11,6 +11,7 @@ const SystemClustering = React.lazy(() => import('./layout/SystemClustering'))
 import { useAtomValue, useAtom } from 'jotai'
 
 const ScatterChart = React.lazy(() => import('./layout/ScatterChart'))
+const CorrelationHeatmap = React.lazy(() => import('./layout/CorrelationHeatmap'))
 const RadarChart = React.lazy(() => import('./layout/RadarChart'))
 const CorrelationChordDiagram = React.lazy(() => import('./layout/CorrelationChordDiagram'))
 import {
@@ -44,6 +45,7 @@ export default function App() {
   const [correlationSupplement, setCorrelationSupplement] = React.useState<string | null>(null)
   const [showAiKey, setShowAiKey] = React.useState(false)
   const [showGistToken, setShowGistToken] = React.useState(false)
+  const [isMatrixViewOpen, setIsMatrixViewOpen] = React.useState(false)
   const [isNetworkViewOpen, setIsNetworkViewOpen] = React.useState(false)
 
   React.useEffect(() => {
@@ -218,9 +220,11 @@ export default function App() {
       onPValue,
       onSupplementCorrelation,
       onOpenClustering: () => setIsClusteringOpen(true),
+      isMatrixViewOpen,
+      onToggleMatrixView: () => setIsMatrixViewOpen((prev) => !prev),
       isNetworkViewOpen,
       onToggleNetworkView: () => setIsNetworkViewOpen((prev) => !prev),
-          }),
+    }),
     [
       selected,
       onSelect,
@@ -237,8 +241,9 @@ export default function App() {
       onPValue,
       onSupplementCorrelation,
       setIsClusteringOpen,
+      isMatrixViewOpen,
       isNetworkViewOpen,
-          ],
+    ],
   )
 
   // Optimization: Pre-filter radar chart data in a memoized hook with a single-pass loop.
@@ -337,7 +342,11 @@ export default function App() {
             </div>
           }
         >
-          {isNetworkViewOpen ? (
+          {isMatrixViewOpen ? (
+            <div className="mb-8 px-4">
+              <CorrelationHeatmap />
+            </div>
+          ) : isNetworkViewOpen ? (
             <div className="mb-8 px-4">
               <CorrelationChordDiagram />
             </div>
@@ -352,7 +361,7 @@ export default function App() {
             </>
           )}
         </React.Suspense>
-        {!isNetworkViewOpen && <Table {...tableProps} />}
+        {!(isNetworkViewOpen || isMatrixViewOpen) && <Table {...tableProps} />}
         <div className="flex flex-wrap justify-center gap-4 mt-4 pb-8">
           <div className="flex flex-col gap-1">
             <label htmlFor="ai-model" className="text-xs text-gray-400 font-medium ml-1">

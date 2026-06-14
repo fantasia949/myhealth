@@ -51,6 +51,8 @@ export default React.memo<NavProps>(
     onPValue,
     onSupplementCorrelation,
     onOpenClustering,
+    isMatrixViewOpen,
+    onToggleMatrixView,
     isNetworkViewOpen,
     onToggleNetworkView,
   }) => {
@@ -462,6 +464,19 @@ export default React.memo<NavProps>(
               )}
               <button
                 type="button"
+                onClick={onToggleMatrixView}
+                title="View Correlation Matrix"
+                disabled={filterTag == null}
+                className={`hidden md:flex ml-4 px-3 py-1 text-xs font-medium text-white rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                  isMatrixViewOpen ? 'bg-blue-700 shadow-inner' : 'bg-blue-600 hover:bg-blue-500'
+                }`}
+                aria-pressed={isMatrixViewOpen}
+              >
+                Correlation Matrix
+              </button>
+
+              <button
+                type="button"
                 onClick={onToggleNetworkView}
                 title="View Biomarker Chord Diagram"
                 className={`hidden md:flex ml-4 px-3 py-1 text-xs font-medium text-white rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors ${
@@ -519,7 +534,10 @@ export default React.memo<NavProps>(
 
               <button
                 type="button"
-                onClick={() => { setIsGistViewerOpen(true); setHasGistViewerMounted(true); }}
+                onClick={() => {
+                  setIsGistViewerOpen(true)
+                  setHasGistViewerMounted(true)
+                }}
                 title="View AI History"
                 className="hidden md:flex ml-4 px-3 py-1 text-xs font-medium bg-gray-700 text-white rounded hover:bg-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 transition-colors"
               >
