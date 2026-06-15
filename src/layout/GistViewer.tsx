@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import {
   XMarkIcon,
@@ -17,15 +17,6 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
   const [selectedFile, setSelectedFile] = useState<GistFile | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (isOpen) {
-      loadFiles()
-    } else {
-      // Reset state when closed
-      setSelectedFile(null)
-    }
-  }, [isOpen])
 
   const getTimestamp = (filename: string): number => {
     const match = filename.match(/^(?:biomarker_)?.*_(\d+)\.md$/)
@@ -88,7 +79,13 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
   }
 
   return (
-    <Transition appear show={isOpen} as={Fragment}>
+    <Transition
+      appear
+      show={isOpen}
+      as={Fragment}
+      beforeEnter={loadFiles}
+      afterLeave={() => setSelectedFile(null)}
+    >
       <Dialog as="div" className="relative z-50" onClose={onClose}>
         <Transition.Child
           as={Fragment}
