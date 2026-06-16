@@ -51,7 +51,7 @@ Uses `rankedDataMapAtom` from `src/atom/dataAtom.ts`, which caches the Spearman 
 It accesses `visibleDataAtom` to get the current list of biomarkers being viewed and retrieves their corresponding rank arrays from `rankedDataMapAtom`. It plots these rank values against each other for all possible pairs in the visible set.
 
 **What it reveals that current charts don't:**
-The existing correlation tools (like the network graph or bump chart) only show the *strength* of the correlation (the coefficient). A scatter matrix of the underlying rank values reveals the *shape* of the relationship (e.g., non-linear patterns, clusters, or outliers) that drive the correlation score, providing deeper statistical context.
+The existing correlation tools (like the network graph or bump chart) only show the _strength_ of the correlation (the coefficient). A scatter matrix of the underlying rank values reveals the _shape_ of the relationship (e.g., non-linear patterns, clusters, or outliers) that drive the correlation score, providing deeper statistical context.
 
 **Where it would live:**
 New `src/layout/RankScatterMatrix.tsx`, rendered inside the existing `Correlation.tsx` view.
@@ -61,8 +61,7 @@ Activated when exactly two or three biomarkers are visible (via search or tag fi
 
 ---
 
-Recommended implementation order: Proposal 3 first (correlation insight), then 1, then 2.
----
+## Recommended implementation order: Proposal 3 first (correlation insight), then 1, then 2.
 
 **Proposal 4 of 8: Predictive Power Scatter Plot**
 
@@ -75,7 +74,7 @@ Uses `correlationMethodAtom` from `src/atom/correlationAtom.ts` and checks `extr
 It uses `nonInferredDataAtom` (measured markers) and cross-references them against inferred markers (where `extra.inferred === true`). It calculates the pairwise correlation (Pearson or Spearman, depending on `correlationMethodAtom`) between each measured marker and inferred markers.
 
 **What it reveals that current charts don't:**
-It visualizes which single measured biomarker (e.g., Glucose) is the strongest predictor of complex inferred metrics (e.g., HOMA-IR or PhenoAge). It helps the user understand *why* an inferred metric is changing by exposing its most correlated raw measurements over time, going beyond simple trendlines.
+It visualizes which single measured biomarker (e.g., Glucose) is the strongest predictor of complex inferred metrics (e.g., HOMA-IR or PhenoAge). It helps the user understand _why_ an inferred metric is changing by exposing its most correlated raw measurements over time, going beyond simple trendlines.
 
 **Where it would live:**
 New `src/layout/PredictivePowerChart.tsx`, accessible from a "Predictive Analysis" view or alongside the Correlation panel.
@@ -156,7 +155,7 @@ Automatically displayed when the `tagAtom` is set to `a-PhenoAge`.
 Directly utilizes the pre-computed `rankedDataMapAtom` from `src/atom/dataAtom.ts`.
 
 **Which existing data it uses:**
-Takes the `Float64Array` rank arrays from `rankedDataMapAtom` for the selected biomarkers (via `visibleDataAtom`). Instead of plotting the raw values, it plots the rank position or the *change* in rank position over time.
+Takes the `Float64Array` rank arrays from `rankedDataMapAtom` for the selected biomarkers (via `visibleDataAtom`). Instead of plotting the raw values, it plots the rank position or the _change_ in rank position over time.
 
 **What it reveals that current charts don't:**
 Visualizes relative performance changes by abstracting away differing units and scales. It clearly shows when a biomarker's value significantly shifted in terms of its historical distribution, ignoring minor absolute fluctuations that don't change its rank, which highlights truly anomalous shifts.
