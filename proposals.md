@@ -252,3 +252,64 @@ Automatically generated when a user clicks on a highly correlated node in the `B
 ---
 
 
+
+**Proposal: Biomarker Volatility vs. Age Area Scatter Plot**
+
+**ECharts type:** `scatter` (Area scatter with size/color variation)
+
+**Codebase citation:**
+Uses `dataAtom` from `src/atom/dataAtom.ts` and date indices inferred from `labels` in `src/data/index.ts`.
+
+**Which existing data it uses:**
+It calculates the variance or standard deviation (volatility) of each valid biomarker in `dataAtom` over its available time points. It plots each biomarker as a bubble, where the X-axis is the total timeline span (e.g., number of years measured), and the Y-axis is the volatility score.
+
+**What it reveals that current charts don't:**
+Identifies which biomarkers fluctuate wildly compared to those that remain stable throughout a patient's measurement history. The current multi-axis line chart shows absolute values but makes it hard to compare normalized stability across different scales simultaneously.
+
+**Where it would live:**
+New `src/layout/VolatilityScatter.tsx`.
+
+**Trigger / entry point:**
+Triggered via a "Volatility Analysis" toggle in the main Dashboard next to the tag filters.
+
+---
+
+**Proposal: Cross-System Correlation Force Graph**
+
+**ECharts type:** `graph` (Force Directed)
+
+**Codebase citation:**
+Uses `correlationAlphaAtom` from `src/atom/correlationAtom.ts` and `extra.tag` from `src/processors/post/tag.ts`.
+
+**Which existing data it uses:**
+It calculates the pairwise correlation between the *aggregated average percent-to-optimal* scores for each tag group (e.g., aggregating all `1-RBC` markers vs all `3-Liver` markers) using the methods in `correlationAtom`.
+
+**What it reveals that current charts don't:**
+The existing correlation tools map individual biomarkers to each other or to supplements. This graph maps *entire physiological systems* against each other to reveal macro-level cascades (e.g., proving that liver stress strongly correlates with lipid metabolism degradation in this specific user's history).
+
+**Where it would live:**
+New `src/layout/SystemCorrelationGraph.tsx` alongside `BiomarkerCorrelationGraph.tsx`.
+
+**Trigger / entry point:**
+Available as a specific "System Level" toggle inside the global Correlation modal.
+
+---
+
+**Proposal: Out-of-Range Duration Gantt Chart**
+
+**ECharts type:** `custom` (Gantt Chart style)
+
+**Codebase citation:**
+Uses `extra.optimality[]` from `src/processors/post/range.ts` matched against `labels` from `src/data/index.ts`.
+
+**Which existing data it uses:**
+It processes `dataAtom` and identifies continuous streaks where `extra.optimality` is `true`. It maps these periods into horizontal duration bars for each biomarker.
+
+**What it reveals that current charts don't:**
+Instead of showing discrete points where a biomarker was out of range, it emphasizes the *continuous duration* of chronic issues. A single bad reading might be noise, but a Gantt chart instantly highlights which biomarker has been out of optimal bounds continuously for the longest period of time.
+
+**Where it would live:**
+New `src/layout/ChronicDurationGantt.tsx`.
+
+**Trigger / entry point:**
+A "Chronic Risk View" button above the main data table that replaces the table view with a horizontal duration chart.
