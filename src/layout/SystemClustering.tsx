@@ -90,8 +90,21 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
   const [xAxisTag, setXAxisTag] = useState<string | null>(null)
   const [yAxisTag, setYAxisTag] = useState<string | null>(null)
 
-  const effectiveXAxisTag = xAxisTag !== null ? xAxisTag : (availableTags.length > 0 ? (availableTags.find((t) => t.includes('2-Metabolic')) || availableTags[0] || '') : '')
-  const effectiveYAxisTag = yAxisTag !== null ? yAxisTag : (availableTags.length > 0 ? (availableTags.find((t) => t.includes('3-Liver') || t.includes('4-Lipid')) || availableTags[1] || availableTags[0] || '') : '')
+  const effectiveXAxisTag =
+    xAxisTag !== null
+      ? xAxisTag
+      : availableTags.length > 0
+        ? availableTags.find((t) => t.includes('2-Metabolic')) || availableTags[0] || ''
+        : ''
+  const effectiveYAxisTag =
+    yAxisTag !== null
+      ? yAxisTag
+      : availableTags.length > 0
+        ? availableTags.find((t) => t.includes('3-Liver') || t.includes('4-Lipid')) ||
+          availableTags[1] ||
+          availableTags[0] ||
+          ''
+        : ''
 
   const options = useMemo(() => {
     if (!data || data.length === 0 || !noteValues || noteValues.length === 0) return echartsOptions
@@ -125,7 +138,10 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
 
     // Fallback: If we don't have enough markers in tags, just use the first half vs second half
     const useTags =
-      effectiveXAxisTag !== '' && effectiveYAxisTag !== '' && m1Indices.length > 0 && m2Indices.length > 0
+      effectiveXAxisTag !== '' &&
+      effectiveYAxisTag !== '' &&
+      m1Indices.length > 0 &&
+      m2Indices.length > 0
     // Bolt Optimization: Hoist fallback array calculations outside the inner loop to
     // eliminate redundant object allocations and garbage collection per timepoint.
     let g1: number[]
@@ -248,12 +264,16 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
       xAxis: {
         ...echartsOptions.xAxis,
         scale: true,
-        name: _useTags ? `${formatTag(effectiveXAxisTag)} Optimality (%)` : 'Group 1 Optimality (%)',
+        name: _useTags
+          ? `${formatTag(effectiveXAxisTag)} Optimality (%)`
+          : 'Group 1 Optimality (%)',
       },
       yAxis: {
         ...echartsOptions.yAxis,
         scale: true,
-        name: _useTags ? `${formatTag(effectiveYAxisTag)} Optimality (%)` : 'Group 2 Optimality (%)',
+        name: _useTags
+          ? `${formatTag(effectiveYAxisTag)} Optimality (%)`
+          : 'Group 2 Optimality (%)',
       },
       series: [
         {

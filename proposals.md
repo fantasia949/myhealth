@@ -1,70 +1,5 @@
-**Proposal 1 of 3: Tag Group Completeness Radar**
 
-**ECharts type:** `radar`
-
-**Codebase citation:**
-Reads `tag` keys dynamically derived from `src/processors/post/tag.ts` via `extra.tag` on `BioMarker[3]` elements of the `dataAtom`.
-
-**Which existing data it uses:**
-It utilizes `dataAtom` from `src/atom/dataAtom.ts` and iterates over each `BioMarker` entry. It extracts the `extra.tag` arrays and counts the occurrences of each tag group (e.g., `1-RBC`, `2-Metabolic`).
-
-**What it reveals that current charts don't:**
-Shows which physiological systems (tag groups) have the most robust data coverage and which are missing measurements. Current scatter and line charts require the user to visually inspect each tag group one by one to infer completeness, whereas a radar chart instantly visualizes the density and completeness of all system clusters in one view.
-
-**Where it would live:**
-New `src/layout/CompletenessRadar.tsx`, rendered conditionally in `App.tsx` or a new summary dashboard panel.
-
-**Trigger / entry point:**
-Could be toggled via a new "Data Coverage" button in the global navigation or sidebar, activating a modal that renders this summary chart.
-
----
-
-**Proposal 2 of 3: Inferred Marker Network Diagram**
-
-**ECharts type:** `graph` (Network)
-
-**Codebase citation:**
-Reads `extra.inferred`, `extra.originValues`, and `extra.hasOrigin` from `BioMarker[3]`, which are defined in `src/types/biomarker.ts` and set during preprocessing.
-
-**Which existing data it uses:**
-It queries `dataAtom` for all biomarkers where `extra.inferred === true` and uses their `extra.originValues` references (or names, if map is updated to link them) to draw connections to the measured biomarkers that generated them.
-
-**What it reveals that current charts don't:**
-Visualizes the dependency tree between actual measured lab results and computed/inferred scores (like eGFR, HOMA-IR, or PhenoAge). This clarifies for the user which raw measurements have the highest "leverage" (i.e., contribute to the most computed metrics), which is impossible to see in isolated time-series plots.
-
-**Where it would live:**
-New `src/layout/InferredNetworkDiagram.tsx`, potentially added as an extra tab in the `BiomarkerCorrelation.tsx` view or as a standalone exploration tool.
-
-**Trigger / entry point:**
-Activated via a "View Dependencies" toggle on inferred biomarkers, or as a global view when no specific tag is selected.
-
----
-
-**Proposal 3 of 3: Correlation Rank Scatter Matrix**
-
-**ECharts type:** `scatter` (SPLOM - Scatter Plot Matrix)
-
-**Codebase citation:**
-Uses `rankedDataMapAtom` from `src/atom/dataAtom.ts`, which caches the Spearman rank array (Float64Array) for each biomarker name.
-
-**Which existing data it uses:**
-It accesses `visibleDataAtom` to get the current list of biomarkers being viewed and retrieves their corresponding rank arrays from `rankedDataMapAtom`. It plots these rank values against each other for all possible pairs in the visible set.
-
-**What it reveals that current charts don't:**
-The existing correlation tools (like the network graph or bump chart) only show the *strength* of the correlation (the coefficient). A scatter matrix of the underlying rank values reveals the *shape* of the relationship (e.g., non-linear patterns, clusters, or outliers) that drive the correlation score, providing deeper statistical context.
-
-**Where it would live:**
-New `src/layout/RankScatterMatrix.tsx`, rendered inside the existing `Correlation.tsx` view.
-
-**Trigger / entry point:**
-Activated when exactly two or three biomarkers are visible (via search or tag filters), rendering below the main `ScatterChart.tsx` to provide immediate correlation context.
-
----
-
-Recommended implementation order: Proposal 3 first (correlation insight), then 1, then 2.
----
-
-**Proposal 4 of 8: Predictive Power Scatter Plot**
+**Proposal: Predictive Power Scatter Plot**
 
 **ECharts type:** `scatter`
 
@@ -85,7 +20,7 @@ Activated when a user focuses on an inferred biomarker, potentially by clicking 
 
 ---
 
-**Proposal 5 of 8: Tag Group Synchrony Heatmap**
+**Proposal: Tag Group Synchrony Heatmap**
 
 **ECharts type:** `heatmap`
 
@@ -106,7 +41,7 @@ Rendered in a main dashboard view or a "System Health Overview" tab to provide a
 
 ---
 
-**Proposal 6 of 8: Measurement Panel Co-Occurrence Matrix**
+**Proposal: Measurement Panel Co-Occurrence Matrix**
 
 **ECharts type:** `heatmap` (Adjacency Matrix)
 
@@ -127,28 +62,7 @@ Available under a "Data Insights" or "Audit" section, independent of the main da
 
 ---
 
-**Proposal 7 of 8: PhenoAge vs Total Out-of-Range Count Dual-Axis Line**
-
-**ECharts type:** `line` (Dual-Axis)
-
-**Codebase citation:**
-Uses the `a-PhenoAge` group and `extra.optimality` from `src/processors/post/range.ts` combined with `dataAtom`.
-
-**Which existing data it uses:**
-Calculates a rolling count of total out-of-range biomarkers (by summing `true` values in `extra.optimality` across all markers at each time point `i`). It then plots this total count on the left Y-axis, and the calculated "Pheno age" (filtered from `dataAtom` where name is "Pheno age") on the right Y-axis.
-
-**What it reveals that current charts don't:**
-Directly correlates the high-level inferred biological age score against the raw volume of physiological anomalies. It allows the user to see if their calculated biological age rises in lockstep with the sheer number of biomarkers falling out of range, validating the score's sensitivity.
-
-**Where it would live:**
-New `src/layout/PhenoAgeComparisonChart.tsx`, specialized for the PhenoAge view.
-
-**Trigger / entry point:**
-Automatically displayed when the `tagAtom` is set to `a-PhenoAge`.
-
----
-
-**Proposal 8 of 8: Spearman Rank Velocity Line Chart**
+**Proposal: Spearman Rank Velocity Line Chart**
 
 **ECharts type:** `line`
 
@@ -169,4 +83,172 @@ A toggle button on `LineChart.tsx` or `ScatterChart.tsx` that switches the Y-axi
 
 ---
 
-Recommended implementation order: Proposal 4 first (correlation insight), then 5 (systemic insight), then 7, then 8, then 6.
+**Proposal: Correlation Significance vs Effect Size Volcano Plot**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+Uses `correlationAlphaAtom` from `src/atom/correlationAtom.ts` and `rankedDataMapAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+It computes both the correlation coefficient (effect size) and the p-value (significance) for pairs of biomarkers derived from `rankedDataMapAtom` arrays. It visually maps the correlation coefficient to the X-axis and the -log10(p-value) to the Y-axis. The threshold line is driven by `correlationAlphaAtom`.
+
+**What it reveals that current charts don't:**
+The existing correlation tools show coefficient strengths but hide the statistical significance until hovered or clicked. A volcano plot immediately separates strong but noisy correlations from highly significant ones, allowing the user to trust the underlying patterns before exploring them in detail.
+
+**Where it would live:**
+New `src/layout/CorrelationVolcanoPlot.tsx`, rendered within the `Correlation.tsx` module.
+
+**Trigger / entry point:**
+Activated via a "Significance View" toggle on the main Correlation chart screen.
+
+---
+
+**Proposal: Biomarker Tag Completion Horizon Chart**
+
+**ECharts type:** `custom` (Horizon Chart) or overlapping `line`
+
+**Codebase citation:**
+Relies on `labels` from `src/data/index.ts` and the `extra.tag` arrays generated in `src/processors/post/tag.ts`.
+
+**Which existing data it uses:**
+It utilizes `dataAtom` to track the count of actual non-null measurements for each tag group at each time point in `labels`. It overlays these density bands to show a compact history of testing completeness.
+
+**What it reveals that current charts don't:**
+Horizon charts are excellent for displaying overlapping density over time in a small vertical space. It allows the user to see at a glance if they've consistently neglected testing a specific tag group (like `6-Kidney` or `9-Mineral`) over the years, without taking up the vertical space of a massive heatmap.
+
+**Where it would live:**
+New `src/layout/TagCompletionHorizon.tsx`.
+
+**Trigger / entry point:**
+Rendered as a sparkline-style overview above the main `Table.tsx` view.
+
+---
+
+**Proposal: System-Wide Optimality Polar Bar Chart**
+
+**ECharts type:** `polar` / `bar` (Nightingale / Polar Bar)
+
+**Codebase citation:**
+Reads `extra.optimality` from `src/processors/post/range.ts` and groups by the `tag` arrays derived from `tag.ts`.
+
+**Which existing data it uses:**
+Aggregates the current or most recent time-point data across `dataAtom`. It calculates the percentage of optimal vs. non-optimal markers within each tag group (e.g., `3-Liver`, `4-Lipid`) and plots them radially.
+
+**What it reveals that current charts don't:**
+Unlike radar charts that show continuous scores, a polar bar chart segmented by tag groups clearly visualizes the exact discrete volume of out-of-range markers per system for the most recent checkup, making it instantly clear which physiological system needs the most attention right now.
+
+**Where it would live:**
+New `src/layout/SystemOptimalityPolar.tsx`.
+
+**Trigger / entry point:**
+Displayed on the home dashboard or alongside the latest lab results summary.
+
+---
+
+**Proposal 9 of 13: Correlation Significance Network Directed Graph**
+
+**ECharts type:** `graph` (Directed Force Layout)
+
+**Codebase citation:**
+Uses `correlationAlphaAtom` from `src/atom/correlationAtom.ts` and `rankedDataMapAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+It calculates the pairwise correlation between all biomarkers in `nonInferredDataAtom`. It filters out correlations that do not meet the significance threshold defined by `correlationAlphaAtom`.
+
+**What it reveals that current charts don't:**
+The existing correlation chord diagram shows all relationships, but a directed graph filtered strictly by the user's chosen alpha threshold reveals the "core" statistically significant network. It allows users to see which biomarkers act as central hubs of significant physiological shifts, rather than just showing raw correlation strength.
+
+**Where it would live:**
+New `src/layout/SignificantCorrelationGraph.tsx`, rendered within the existing global dashboard.
+
+**Trigger / entry point:**
+Activated via a toggle on the existing `CorrelationChordDiagram.tsx` to "Filter by Alpha Significance".
+
+---
+
+**Proposal 10 of 13: Out-of-Range Risk Trajectory Slope Chart**
+
+**ECharts type:** `line` (Slope Chart)
+
+**Codebase citation:**
+Reads the `extra.optimality` boolean arrays pre-computed by `src/processors/post/range.ts` and `dataAtom`.
+
+**Which existing data it uses:**
+It calculates the total count of `true` values in `extra.optimality` for each tag group (e.g., `1-RBC`, `2-Metabolic` from `src/processors/post/tag.ts`) at the first available time point and the most recent time point.
+
+**What it reveals that current charts don't:**
+Highlights which physiological systems are degrading or improving over the entire tracking period. A slope chart provides an immediate visual summary of macro-level health trajectories (e.g., "Metabolic anomalies increased, while Liver anomalies decreased") without getting bogged down in day-to-day noise.
+
+**Where it would live:**
+New `src/layout/RiskTrajectorySlope.tsx`, as a summary visualization on the dashboard.
+
+**Trigger / entry point:**
+Displayed in a "Macro Health Summary" panel or when the user selects a high-level "Compare First vs Last" view.
+
+---
+
+**Proposal 11 of 13: Strict Range Non-Compliance Tree Diagram**
+
+**ECharts type:** `tree`
+
+**Codebase citation:**
+Checks `extra.range` and standard vs. `strictRange` definitions inferred from `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+It uses the `dataAtom` to build a hierarchical tree: Root -> Tag Group -> Biomarker. For each biomarker, it colors the node based on whether the most recent value falls within the standard range or violates a strict override range (if defined).
+
+**What it reveals that current charts don't:**
+Provides a hierarchical, root-cause analysis view of current health status. Users can instantly see which specific systems (branches) are failing strict functional medicine ranges, allowing for targeted interventions, whereas current tables require manual scanning.
+
+**Where it would live:**
+New `src/layout/StrictComplianceTree.tsx`, potentially replacing or augmenting the existing `SystemClustering.tsx` treemap.
+
+**Trigger / entry point:**
+Triggered via a "Current Snapshot" or "Functional Range Analysis" button in the header.
+
+---
+
+**Proposal 12 of 13: Measurement Recency Horizon Chart**
+
+**ECharts type:** `custom` (Horizon/Density Plot) or `heatmap`
+
+**Codebase citation:**
+Examines the index alignment of `BioMarker[1]` (values) against `labels[]` from `src/data/index.ts`.
+
+**Which existing data it uses:**
+Iterates through all `visibleDataAtom` biomarkers. It creates a visual timeline where color intensity or bar height indicates how recently and frequently a specific biomarker has been tested, mapping nulls to gaps.
+
+**What it reveals that current charts don't:**
+Instantly identifies "stale" data. If a user is looking at a correlation or a tag group, this chart highlights which biomarkers haven't been tested in years versus those tested recently, indicating the confidence level of current inferred metrics or correlations.
+
+**Where it would live:**
+New `src/layout/MeasurementRecencyChart.tsx`, acting as a diagnostic overlay for the data table.
+
+**Trigger / entry point:**
+A "Show Data Freshness" toggle in the main data grid or sidebar.
+
+---
+
+**Proposal 13 of 13: Correlated Biomarker Synchrony Normalized Line Chart**
+
+**ECharts type:** `line` (Normalized / Percentage)
+
+**Codebase citation:**
+Uses `nonInferredDataAtom` and `correlationAlternativeAtom` from `src/atom/correlationAtom.ts`.
+
+**Which existing data it uses:**
+When a user selects a target biomarker, it finds the top 3 most correlated biomarkers. It then normalizes their historical values (e.g., using z-scores or percentage change from baseline) and plots them on a single, shared percentage Y-axis.
+
+**What it reveals that current charts don't:**
+The multi-Y-axis `Chart.tsx` makes it hard to compare the relative magnitude of changes across different units. A normalized percentage line chart explicitly proves the correlation visually, showing how perfectly the selected markers move in lockstep relative to their own baselines.
+
+**Where it would live:**
+New `src/layout/NormalizedSynchronyLine.tsx`, within the `BiomarkerCorrelation.tsx` modal.
+
+**Trigger / entry point:**
+Automatically generated when a user clicks on a highly correlated node in the `BiomarkerCorrelationGraph.tsx`.
+
+---
+
+

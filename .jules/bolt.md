@@ -46,14 +46,18 @@
 
 **Learning:** When applying performance optimizations (like fixing 'holey' array allocations) in ECharts layout components, it is critical to strictly preserve the exact object structures. I accidentally added `symbolSize` and `itemStyle` to the scatter chart dataset as a side effect while modifying the loop. This can cause reference errors (if styling objects aren't imported) or visual regressions.
 **Action:** When refactoring loop bodies or object creations for performance, do not introduce new properties or styling configurations that were not in the original code unless explicitly instructed.
+
 ## 2025-05-24 - V8 Array Slicing & Spreading in Hot Paths
+
 **Learning:** Chained array slicing and spreading operations like `[...arr.slice(0, 10), ...arr.slice(-10)]` create multiple intermediate array allocations that must be immediately garbage collected. In component rendering paths, this causes unnecessary memory churn.
 **Action:** Replace spreading and slicing combinations with a single pre-allocated array (or `.push()` into a dense array) and a `for` loop that uses conditional logic to jump indices, gathering only the required elements in one pass.
 
 ## 2026-06-07 - Refactoring 'holey' array allocations
+
 **Learning:** Found several instances where standard JS generic arrays were initialized via `Array<Type>(len)` within `useMemo` hooks (e.g. `src/layout/Table.tsx`, `src/layout/ScatterChart.tsx`). This pre-allocation causes V8 to treat them as 'holey' (sparse) arrays, dropping performance compared to using sequential push operations into dense arrays `[]`.
 **Action:** When replacing array iterations with standard `for` loops in hot render cycles, always initialize standard JS arrays densely (`const arr = []`) and add elements using `.push(val)` or sequential direct assignment (`arr[i] = val` only when strictly sequential without gaps). Reserve pre-allocated sizing exclusively for TypedArrays.
 
 ## 2025-05-18 - Avoid Holey Arrays in React Loops
 **Learning:** Initializing arrays with `Array<Type>(length)` creates sparse (holey) arrays, which de-optimize iterations (like `for`, `map`, etc.) in the V8 engine due to missing memory slots. React render loops containing array manipulation suffer performance degradation.
 **Action:** When working with objects or mixed types in hot loops, do not pre-allocate using `Array(length)`. Instead, initialize an empty dense array (`[]`) and use `.push()`. Only use pre-allocated specific types like TypedArrays (`Float64Array`, `Int32Array`) for strictly numeric operations.
+## 2026-06-07 - Refactoring 'holey' array allocations\n**Learning:** Found several instances where standard JS generic arrays were initialized via `Array<Type>(len)` within `useMemo` hooks (e.g. `src/layout/SystemClustering.tsx`, `src/layout/BoxplotChart.tsx`, `src/layout/BiomarkerCorrelationBumpChart.tsx`). This pre-allocation causes V8 to treat them as 'holey' (sparse) arrays, dropping performance compared to using sequential push operations into dense arrays `[]`.\n**Action:** When replacing array iterations with standard `for` loops in hot render cycles, always initialize standard JS arrays densely (`const arr = []`) and add elements using `.push(val)` or sequential direct assignment. Reserve pre-allocated sizing exclusively for TypedArrays.

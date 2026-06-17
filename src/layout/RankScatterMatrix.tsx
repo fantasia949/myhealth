@@ -2,7 +2,13 @@ import { memo, useMemo } from 'react'
 import { useAtomValue } from 'jotai'
 import { rankedDataMapAtom } from '../atom/dataAtom'
 import ReactECharts from 'echarts-for-react'
-import type { GridComponentOption, XAXisComponentOption, YAXisComponentOption, ScatterSeriesOption, TooltipComponentOption } from 'echarts'
+import type {
+  GridComponentOption,
+  XAXisComponentOption,
+  YAXisComponentOption,
+  ScatterSeriesOption,
+  TooltipComponentOption,
+} from 'echarts'
 import { CHART_PALETTE } from './Chart2'
 import { formattedLabels } from '../data'
 import { RankScatterMatrixProps } from './RankScatterMatrix.types'
@@ -71,10 +77,10 @@ export default memo(({ keys }: RankScatterMatrixProps) => {
 
         // Calculate grid position using percentage
         grids.push({
-          left: `${(j * (cellWidth + gap))}%`,
-          top: `${(i * (cellHeight + gap))}%`,
+          left: `${j * (cellWidth + gap)}%`,
+          top: `${i * (cellHeight + gap)}%`,
           width: `${cellWidth}%`,
-          height: `${cellHeight}%`
+          height: `${cellHeight}%`,
         })
 
         const showXLabel = i === numVars - 1
@@ -90,7 +96,7 @@ export default memo(({ keys }: RankScatterMatrixProps) => {
           splitLine: { show: false },
           axisLabel: { show: showXLabel },
           axisTick: { show: showXLabel },
-          axisLine: { show: true, lineStyle: { color: '#666' } }
+          axisLine: { show: true, lineStyle: { color: '#666' } },
         })
 
         yAxes.push({
@@ -103,25 +109,25 @@ export default memo(({ keys }: RankScatterMatrixProps) => {
           splitLine: { show: false },
           axisLabel: { show: showYLabel },
           axisTick: { show: showYLabel },
-          axisLine: { show: true, lineStyle: { color: '#666' } }
+          axisLine: { show: true, lineStyle: { color: '#666' } },
         })
 
         if (i !== j) {
-            series.push({
-                type: 'scatter',
-                xAxisIndex: gridIndex,
-                yAxisIndex: gridIndex,
-                encode: {
-                    x: j + 1, // +1 because dataset starts with Date
-                    y: i + 1,
-                    tooltip: [0, j + 1, i + 1]
-                },
-                itemStyle: {
-                    color: CHART_PALETTE[gridIndex % CHART_PALETTE.length],
-                    opacity: 0.7
-                },
-                symbolSize: 6
-            })
+          series.push({
+            type: 'scatter',
+            xAxisIndex: gridIndex,
+            yAxisIndex: gridIndex,
+            encode: {
+              x: j + 1, // +1 because dataset starts with Date
+              y: i + 1,
+              tooltip: [0, j + 1, i + 1],
+            },
+            itemStyle: {
+              color: CHART_PALETTE[gridIndex % CHART_PALETTE.length],
+              opacity: 0.7,
+            },
+            symbolSize: 6,
+          })
         }
       }
     }
@@ -134,31 +140,30 @@ export default memo(({ keys }: RankScatterMatrixProps) => {
         backgroundColor: '#111111',
         borderColor: '#3a3a3a80',
         textStyle: {
-            color: '#f0f0f0',
+          color: '#f0f0f0',
         },
         formatter: (params: any) => {
-           if (params.value) {
-                const date = params.value[0]
-                const valX = params.value[params.encode.x[0]]
-                const valY = params.value[params.encode.y[0]]
-                const nameX = keys[params.encode.x[0] - 1]
-                const nameY = keys[params.encode.y[0] - 1]
-                return `<strong>${date}</strong><br/>${params.marker} ${nameX}: <strong>${valX}</strong><br/>${params.marker} ${nameY}: <strong>${valY}</strong>`
-           }
-           return ''
-        }
+          if (params.value) {
+            const date = params.value[0]
+            const valX = params.value[params.encode.x[0]]
+            const valY = params.value[params.encode.y[0]]
+            const nameX = keys[params.encode.x[0] - 1]
+            const nameY = keys[params.encode.y[0] - 1]
+            return `<strong>${date}</strong><br/>${params.marker} ${nameX}: <strong>${valX}</strong><br/>${params.marker} ${nameY}: <strong>${valY}</strong>`
+          }
+          return ''
+        },
       } as TooltipComponentOption,
       dataset: {
-        source: datasetSource
+        source: datasetSource,
       },
       grid: grids,
       xAxis: xAxes,
       yAxis: yAxes,
-      series: series
+      series: series,
     }
 
     return opt
-
   }, [keys, rankedDataMap])
 
   if (!options) return null
@@ -170,10 +175,10 @@ export default memo(({ keys }: RankScatterMatrixProps) => {
       </h3>
       <div className="relative w-full aspect-square max-h-[800px] mx-auto">
         <ReactECharts
-            option={options}
-            style={{ height: '100%', width: '100%' }}
-            theme="dark"
-            notMerge={true}
+          option={options}
+          style={{ height: '100%', width: '100%' }}
+          theme="dark"
+          notMerge={true}
         />
       </div>
     </div>
