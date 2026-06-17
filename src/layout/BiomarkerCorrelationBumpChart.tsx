@@ -105,7 +105,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
       }
 
       const numCorrelations = topCorrelations.length
-      const windowRhos = Array<{ name: string; rho: number }>(numCorrelations)
+      const windowRhos: { name: string; rho: number }[] = []
 
       for (let c = 0; c < numCorrelations; c++) {
         const suppName = topCorrelations[c].name
@@ -125,7 +125,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
         }
 
         if (!hasSuppVariation) {
-          windowRhos[c] = { name: suppName, rho: 0 }
+          windowRhos.push({ name: suppName, rho: 0 })
         } else {
           const result = calculatePearson(
             fullBiomarkerRanks.subarray(startIdxInValid, endIdxInValid),
@@ -135,7 +135,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
               alternative: 'two-sided',
             },
           )
-          windowRhos[c] = { name: suppName, rho: Math.abs(result.pcorr || 0) }
+          windowRhos.push({ name: suppName, rho: Math.abs(result.pcorr || 0) })
         }
       }
 

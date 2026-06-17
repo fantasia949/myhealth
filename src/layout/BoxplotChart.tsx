@@ -150,9 +150,9 @@ export default memo(({ name, values }: BoxplotChartProps) => {
 
     // Optimization: Replace Object.keys().map() chaining with a single classic loop
     const datasetsLen = periods.length
-    const datasets = Array<number[]>(datasetsLen)
+    const datasets: number[][] = []
     for (let i = 0; i < datasetsLen; i++) {
-      datasets[i] = groupedData[periods[i]]
+      datasets.push(groupedData[periods[i]])
     }
 
     if (datasets.length === 0) return { periods: [], data: null }
