@@ -8,6 +8,7 @@ import { CHART_PALETTE } from './Chart2'
 import { ChartProps } from './Chart.types'
 import type { EChartsReactProps } from 'echarts-for-react'
 import type { YAXisComponentOption, LineSeriesOption } from 'echarts'
+import type * as echarts from 'echarts'
 
 const dimension = [
   {
@@ -75,6 +76,36 @@ const echartsOptions: EChartsReactProps = {
       },
     },
   },
+}
+
+const updateChartOption = (
+  chartInstance: echarts.ECharts | null,
+  keys: string[],
+  yAxis: YAXisComponentOption[]
+) => {
+  if (chartInstance && !chartInstance.isDisposed()) {
+    const len = keys.length
+    const series: LineSeriesOption[] = []
+    for (let i = 0; i < len; i++) {
+      series.push({
+        type: 'line',
+        connectNulls: false,
+      })
+    }
+    chartInstance.setOption(
+      {
+        yAxis,
+        grid: {
+          top: 40,
+          bottom: 20,
+          left: Math.ceil(keys.length / 2) * 100,
+          right: Math.max(Math.floor(keys.length / 2) * 100, 40),
+        },
+        series,
+      },
+      { replaceMerge: ['series', 'yAxis'] },
+    )
+  }
 }
 
 export default memo(({ keys }: ChartProps) => {
@@ -166,29 +197,7 @@ export default memo(({ keys }: ChartProps) => {
   }, [])
 
   useEffect(() => {
-    if (chartInstance && !chartInstance.isDisposed()) {
-      const len = keys.length
-      const series: LineSeriesOption[] = []
-      for (let i = 0; i < len; i++) {
-        series.push({
-          type: 'line',
-          connectNulls: false,
-        })
-      }
-      chartInstance.setOption(
-        {
-          yAxis,
-          grid: {
-            top: 40,
-            bottom: 20,
-            left: Math.ceil(keys.length / 2) * 100,
-            right: Math.max(Math.floor(keys.length / 2) * 100, 40),
-          },
-          series,
-        },
-        { replaceMerge: ['series', 'yAxis'] },
-      )
-    }
+    updateChartOption(chartInstance, keys, yAxis)
   }, [keys, yAxis, chartInstance])
 
   return (
