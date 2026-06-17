@@ -160,10 +160,10 @@ export default memo(({ keys }: ChartProps) => {
           mappedData.push([v0, v1, formattedDate, unitX, unitY])
         }
       }
-      return { data: mappedData }
+      return mappedData
     }
 
-    return { data: [] }
+    return []
   }, [dataMap, keys])
 
   const options: any = useMemo(() => {
@@ -175,15 +175,15 @@ export default memo(({ keys }: ChartProps) => {
     const dataset: DatasetComponentOption[] = [
       {
         dimensions: [keys[0], keys[1], 'Date', 'unitX', 'unitY'],
-        source: mappedScatterData.data,
+        source: mappedScatterData,
       },
     ]
 
     let regressionExpression = ''
 
     // Guard against regression transform crash on <2 points
-    if (mappedScatterData.data.length >= 2) {
-      const regRes = (ecStat as any).regression('linear', mappedScatterData.data)
+    if (mappedScatterData.length >= 2) {
+      const regRes = (ecStat as any).regression('linear', mappedScatterData)
       regressionExpression = regRes.expression
 
       dataset.push({
@@ -198,7 +198,7 @@ export default memo(({ keys }: ChartProps) => {
     const nextSeries = [
       series[0],
       // Only include the regression series if dataset contains it
-      ...(mappedScatterData.data.length >= 2
+      ...(mappedScatterData.length >= 2
         ? [
             {
               ...series[1],
@@ -256,6 +256,14 @@ export default memo(({ keys }: ChartProps) => {
   }, [mappedScatterData, keys])
 
   // console.log("ch2", options.series[0].data, options.series[1].data);
+
+  if (mappedScatterData.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-[400px] w-full text-gray-500 italic border border-dashed border-[#3a3a3a80] rounded-lg">
+        Not enough overlapping data points to render correlation.
+      </div>
+    )
+  }
 
   return (
     <div>
