@@ -162,7 +162,7 @@ export default memo(({ keys }: ChartProps) => {
     return []
   }, [dataMap, keys])
 
-  const options: any = useMemo(() => {
+  const options: EChartsOption = useMemo(() => {
     const { series, yAxis, xAxis } = echartsOptions
 
     const nextXAxis = [{ ...xAxis[0], name: keys[0] }, ...xAxis.slice(1)]
