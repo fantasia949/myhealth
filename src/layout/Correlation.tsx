@@ -13,6 +13,7 @@ import { CorrelationProps } from './Correlation.types'
 import { CORRELATION_EXCLUDED_BIOMARKERS } from '../config/correlations'
 
 import FocusedCorrelationChart from './FocusedCorrelationChart'
+import CorrelationVolcanoPlot from './CorrelationVolcanoPlot'
 
 export default React.memo(({ target, onClose }: CorrelationProps) => {
   const data = useAtomValue(nonInferredDataAtom)
@@ -22,7 +23,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
   const [alternative, setAlternative] = useAtom(correlationAlternativeAtom)
   const [method, setMethod] = useAtom(correlationMethodAtom)
   const [isCopied, setIsCopied] = React.useState(false)
-  const [activeTab, setActiveTab] = React.useState<'chart' | 'table'>('chart')
+  const [activeTab, setActiveTab] = React.useState<'chart' | 'significance' | 'table'>('chart')
 
   const entries = React.useMemo(() => {
     if (!Array.isArray(data) || !target) {
@@ -97,9 +98,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
         if (count < 4) continue
 
         const result = calculatePearson(x.subarray(0, count), y.subarray(0, count), options)
-        if (result.pValue <= alpha) {
-          entries.push([item[0], result.statistic, result.pValue, result.pcorr])
-        }
+        entries.push([item[0], result.statistic, result.pValue, result.pcorr])
       }
     } else {
       // Spearman (existing optimization)
@@ -119,9 +118,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
         if (!targetRanks) continue
 
         const result = calculateSpearmanRanked(sourceRanks, targetRanks, options)
-        if (result.pValue <= alpha) {
-          entries.push([item[0], result.statistic, result.pValue, result.pcorr])
-        }
+        entries.push([item[0], result.statistic, result.pValue, result.pcorr])
       }
     }
 
@@ -129,6 +126,10 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
 
     return entries
   }, [data, dataMap, target, alpha, alternative, rankedDataMap, method])
+
+  const significantEntries = React.useMemo(() => {
+    return entries ? entries.filter(e => e[2] <= alpha) : []
+  }, [entries, alpha])
 
   return (
     <Transition appear show={!!target} as={Fragment}>
@@ -165,12 +166,12 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                           Correlation Analysis: <span className="text-blue-400">{target}</span>
                         </Dialog.Title>
                         <div className="ml-3 flex items-center gap-2 shrink-0">
-                          {entries && entries.length > 0 && (
+                          {significantEntries.length > 0 && (
                             <button
                               type="button"
                               onClick={() => {
                                 const header = 'Biomarker\tP-Value\tCoeff\n'
-                                const rows = entries
+                                const rows = significantEntries
                                   .map(
                                     (entry) =>
                                       `${entry[0]}\t${entry[2].toFixed(6)}\t${entry[3].toFixed(4)}`,
@@ -286,6 +287,18 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                         </button>
                         <button
                           type="button"
+                          aria-pressed={activeTab === 'significance'}
+                          className={`w-full rounded-lg py-2.5 text-sm font-medium leading-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors ${
+                            activeTab === 'significance'
+                              ? 'bg-blue-600/80 text-white shadow'
+                              : 'text-gray-400 hover:bg-white/10 hover:text-white'
+                          }`}
+                          onClick={() => setActiveTab('significance')}
+                        >
+                          Significance View
+                        </button>
+                        <button
+                          type="button"
                           aria-pressed={activeTab === 'table'}
                           className={`w-full rounded-lg py-2.5 text-sm font-medium leading-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors ${
                             activeTab === 'table'
@@ -298,9 +311,15 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                         </button>
                       </div>
 
-                      {activeTab === 'chart' && entries && entries.length > 0 && (
+                      {activeTab === 'chart' && significantEntries.length > 0 && (
                         <div className="mb-8">
-                          <FocusedCorrelationChart correlations={entries} alpha={alpha} />
+                          <FocusedCorrelationChart correlations={significantEntries} alpha={alpha} />
+                        </div>
+                      )}
+
+                      {activeTab === 'significance' && entries && entries.length > 0 && (
+                        <div className="mb-8">
+                          <CorrelationVolcanoPlot correlations={entries} alpha={alpha} />
                         </div>
                       )}
 
@@ -329,8 +348,8 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-800">
-                            {entries && entries.length > 0 ? (
-                              entries.map((entry) => (
+                            {significantEntries.length > 0 ? (
+                              significantEntries.map((entry) => (
                                 <tr key={entry[0]} className="hover:bg-white/5 transition-colors">
                                   <td
                                     className="py-2 px-1 text-sm text-gray-200 truncate max-w-[200px]"
