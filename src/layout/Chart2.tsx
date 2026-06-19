@@ -99,12 +99,12 @@ const echartsOptions: EChartsOption = {
       symbolSize: 40,
       legendHoverLink: true,
       large: false,
-      zIndex: 2,
+      z: 2,
     },
     {
       type: 'line',
       symbol: 'circle',
-      zlevel: -1,
+      z: -1,
       showSymbol: false,
       lineStyle: {
         color: '#5470C688',
