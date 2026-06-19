@@ -171,11 +171,18 @@ const CorrelationChordDiagram = React.memo(() => {
     )
 
     // Assign consistent colors by tag group
-    const tagGroups = Array.from(new Set(nodeItems.map((n) => n.sortTag)))
+    // Optimization: Replace chained .map() and Set conversion with a single-pass loop
+    // to eliminate intermediate array creation and reduce garbage collection overhead.
+    const tagGroupsSet = new Set<string>()
+    for (let i = 0; i < nodeItems.length; i++) {
+      tagGroupsSet.add(nodeItems[i].sortTag)
+    }
+    const tagGroups = Array.from(tagGroupsSet)
+
     const tagColors = new Map<string, string>()
-    tagGroups.forEach((tag, i) => {
-      tagColors.set(tag, CHART_PALETTE[i % CHART_PALETTE.length])
-    })
+    for (let i = 0; i < tagGroups.length; i++) {
+      tagColors.set(tagGroups[i], CHART_PALETTE[i % CHART_PALETTE.length])
+    }
 
     nodeItems.forEach((node) => {
       const size = 10 + node.degree * 2
