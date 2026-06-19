@@ -99,12 +99,12 @@ const echartsOptions: EChartsOption = {
       symbolSize: 40,
       legendHoverLink: true,
       large: false,
-      zIndex: 2,
+      z: 2,
     },
     {
       type: 'line',
       symbol: 'circle',
-      zIndex: -1,
+      z: -1,
       showSymbol: false,
       lineStyle: {
         color: '#5470C688',
@@ -113,17 +113,13 @@ const echartsOptions: EChartsOption = {
       legendHoverLink: true,
       markPoint: {
         itemStyle: {
-          normal: {
-            color: 'transparent',
-          },
+          color: 'transparent',
         },
         label: {
-          normal: {
-            show: true,
-            textStyle: {
-              color: '#f0f0f0',
-              fontSize: 14,
-            },
+          show: true,
+          textStyle: {
+            color: '#f0f0f0',
+            fontSize: 14,
           },
         },
       },

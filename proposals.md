@@ -166,3 +166,66 @@ New `src/layout/ChronicDurationGantt.tsx`.
 
 **Trigger / entry point:**
 A "Chronic Risk View" button above the main data table that replaces the table view with a horizontal duration chart.
+
+---
+
+**Proposal: Tag-Level Range Velocity Bar Chart**
+
+**ECharts type:** `bar`
+
+**Codebase citation:**
+Uses `extra.tag` from `src/processors/post/tag.ts` and `extra.range` boundaries applied to `BioMarker[1]` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+Aggregates `BioMarker` values by their associated `extra.tag` strings. For each tag group, it calculates the average normalized rate of change (e.g., slope) from the first to the last available time point (`labels`), using the `extra.range` boundaries to normalize differing units into a common scale.
+
+**What it reveals that current charts don't:**
+Instantly highlights which overall physiological systems (e.g., Kidney, Liver) are improving or degrading the fastest longitudinally, rather than just showing absolute values of individual markers.
+
+**Where it would live:**
+New `src/layout/TagVelocityBarChart.tsx`, embedded within a "System Health Trajectory" summary view.
+
+**Trigger / entry point:**
+A standalone component rendered at the top of the dashboard summarizing longitudinal systemic progression.
+
+---
+
+**Proposal: Optimality Survival Step Chart**
+
+**ECharts type:** `line` (with `step: 'end'`)
+
+**Codebase citation:**
+Relies on `extra.optimality[]` from `src/processors/post/range.ts` aligned with time `labels` from `src/data/index.ts`.
+
+**Which existing data it uses:**
+Iterates through `dataAtom` to track the first date each biomarker transitioned into an out-of-range state (`extra.optimality[i] === true`). It plots a declining step function starting at 100% representing the proportion of biomarkers that have *never* breached their optimal range over time.
+
+**What it reveals that current charts don't:**
+Provides a macroscopic "health span" indicator. Instead of viewing daily fluctuations, it shows the systemic accumulation of clinical abnormalities, indicating whether a user's health is remaining stable or cascading into multiple out-of-range markers simultaneously.
+
+**Where it would live:**
+New `src/layout/OptimalitySurvivalChart.tsx`.
+
+**Trigger / entry point:**
+An "Overall Health Span" dashboard widget that provides a high-level summary before jumping into specific biomarker graphs.
+
+---
+
+**Proposal: Keystones Biomarker Centrality Scatter Plot**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+Uses `correlationMethodAtom` from `src/atom/correlationAtom.ts` and `extra.optimality[]` from `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+For every biomarker in `dataAtom`, it computes its average absolute correlation coefficient with all other biomarkers. It plots each biomarker where the X-axis is this average correlation (centrality) and the Y-axis is the historical out-of-range frequency (derived by counting `true` values in `extra.optimality[]`).
+
+**What it reveals that current charts don't:**
+Identifies "keystone" vulnerabilities—biomarkers that are both highly volatile/abnormal *and* strongly coupled to the rest of the systemic network. Prioritizing interventions on these specific markers could yield the highest cascading health benefits.
+
+**Where it would live:**
+New `src/layout/KeystoneCentralityScatter.tsx` accessed via the correlation tools.
+
+**Trigger / entry point:**
+A "Prioritization View" toggle within the Correlation modal.
