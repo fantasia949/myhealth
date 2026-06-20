@@ -200,6 +200,14 @@ export default memo(({ keys }: ChartProps) => {
     updateChartOption(chartInstance, keys, yAxis)
   }, [keys, yAxis, chartInstance])
 
+  if (!keys || keys.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-[400px] w-full text-gray-500 italic border border-dashed border-[#3a3a3a80] rounded-lg">
+        Please select at least one biomarker to view the chart.
+      </div>
+    )
+  }
+
   return (
     <ChartProvider data={chartData} echartsOptions={echartsOptions}>
       <Line

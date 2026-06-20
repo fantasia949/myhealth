@@ -293,3 +293,66 @@ New `src/layout/QQPlot.tsx` alongside the existing statistical charts like `Boxp
 Available as an advanced statistical view toggle within the table row expansion alongside the Histogram and Boxplot.
 
 
+
+---
+
+**Proposal: Non-Inferred Biomarker Completeness Radar**
+
+**ECharts type:** `radar`
+
+**Codebase citation:**
+Uses `nonInferredDataAtom` from `src/atom/dataAtom.ts` and `extra.tag` from `src/processors/post/tag.ts`.
+
+**Which existing data it uses:**
+Maps all biomarkers in `nonInferredDataAtom` to their respective tag groups (`extra.tag`). For each tag group, it calculates the percentage of possible time points (`labels`) that actually have recorded values (non-nulls in `values`).
+
+**What it reveals that current charts don't:**
+Identifies which physiological systems (e.g. Lipids vs Hormones) are heavily under-tested with measured data, helping the user realize blind spots in their health tracking over time.
+
+**Where it would live:**
+New `src/layout/CompletenessRadar.tsx`.
+
+**Trigger / entry point:**
+A "Data Quality" toggle on the main dashboard.
+
+---
+
+**Proposal: Methodological Out-of-Range Concordance Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.optimality[]` from `src/processors/post/range.ts` and `correlationMethodAtom` from `src/atom/correlationAtom.ts`.
+
+**Which existing data it uses:**
+For every pair of biomarkers in `visibleDataAtom`, instead of correlating raw values, it calculates the concordance of their `extra.optimality` boolean states (how often they are simultaneously out of optimal range) using the selected `correlationMethodAtom` threshold.
+
+**What it reveals that current charts don't:**
+Reveals coupled systemic failures. Rather than just showing if values move together (standard correlation), this shows if *failing* one optimal range historically guarantees failing another, exposing linked physiological vulnerabilities.
+
+**Where it would live:**
+New `src/layout/OptimalityConcordanceHeatmap.tsx`.
+
+**Trigger / entry point:**
+Added as a separate "Risk Concordance" tab next to the standard `BiomarkerCorrelationGraph.tsx`.
+
+---
+
+**Proposal: Tag Group Average Value Polar Line**
+
+**ECharts type:** `line` (with `coordinateSystem: 'polar'`)
+
+**Codebase citation:**
+Uses `extra.tag` and `extra.range` combined with `labels` from `src/data/index.ts`.
+
+**Which existing data it uses:**
+Normalizes all `values` for biomarkers within a specific `tagAtom` group based on their `extra.range`. It maps time (`labels`) to the angle and the normalized average value to the radius.
+
+**What it reveals that current charts don't:**
+Highlights seasonal or cyclical patterns in an entire system (e.g. Hormones or Vitamins dropping consistently in winter). The standard linear time chart makes cyclical trends hard to spot.
+
+**Where it would live:**
+New `src/layout/SystemCyclicalPolarChart.tsx`.
+
+**Trigger / entry point:**
+A "Cyclical Trends" view button that appears when a specific `tagAtom` is selected.
