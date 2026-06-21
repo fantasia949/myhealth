@@ -293,3 +293,66 @@ New `src/layout/QQPlot.tsx` alongside the existing statistical charts like `Boxp
 Available as an advanced statistical view toggle within the table row expansion alongside the Histogram and Boxplot.
 
 
+
+---
+
+**Proposal: Correlation Directionality Polar Scatter**
+
+**ECharts type:** `scatter` (polar coordinate system)
+
+**Codebase citation:**
+Uses `rankedDataMapAtom` from `src/atom/dataAtom.ts` and `correlationMethodAtom` from `src/atom/correlationAtom.ts`.
+
+**Which existing data it uses:**
+Calculates the pairwise correlation between the selected biomarker and all other biomarkers in `dataAtom` using the selected method (e.g., Spearman).
+
+**What it reveals that current charts don't:**
+By mapping the magnitude of the correlation to the radius and the directionality (positive vs. negative) to the angle, it allows users to visually separate biomarkers that move together from those that move inversely, which is difficult to parse in a dense linear scatter plot.
+
+**Where it would live:**
+New `src/layout/CorrelationPolarScatter.tsx`.
+
+**Trigger / entry point:**
+A "Directional View" toggle inside the correlation modal.
+
+---
+
+**Proposal: Optimal Range Boundary Proximity Scatter**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+Uses `extra.range` and `extra.optimality[]` from `src/processors/post/range.ts` aligned with `dataAtom`.
+
+**Which existing data it uses:**
+For each marker in `dataAtom`, it calculates how close the most recent value in `values[]` is to the upper or lower boundary of the `extra.range`, normalizing it as a percentage distance.
+
+**What it reveals that current charts don't:**
+Identifies biomarkers that are *technically* in-range but dangerously close to crossing the boundary, providing early warning signals before they actually trigger the `extra.optimality === true` boolean flag.
+
+**Where it would live:**
+New `src/layout/BoundaryProximityScatter.tsx`.
+
+**Trigger / entry point:**
+A "Boundary Risk" view in the main dashboard or statistical overview.
+
+---
+
+**Proposal: Longitudinal Out-of-Range Burden Stacked Bar Chart**
+
+**ECharts type:** `bar` (stacked)
+
+**Codebase citation:**
+Uses `extra.optimality[]` from `src/processors/post/range.ts` aligned with time `labels` from `src/data/index.ts` and `extra.tag` from `src/processors/post/tag.ts`.
+
+**Which existing data it uses:**
+Iterates through all biomarkers in `dataAtom` for each date in `labels`. Counts the total number of out-of-range markers (`extra.optimality[i] === true`), grouped and stacked by their `extra.tag` (e.g., `3-Liver`, `4-Lipid`).
+
+**What it reveals that current charts don't:**
+Shows the overall physiological burden over time. A spike in the bar indicates a cascading failure across multiple systems on a specific test date, broken down visually by which physiological system contributed most.
+
+**Where it would live:**
+New `src/layout/SystemicBurdenStackedBar.tsx`.
+
+**Trigger / entry point:**
+An "Overall System Burden" widget at the top of the dashboard.
