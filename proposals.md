@@ -124,47 +124,6 @@ New `src/layout/KeystoneCentralityScatter.tsx` accessed via the correlation tool
 **Trigger / entry point:**
 A "Prioritization View" toggle within the Correlation modal.
 
-
-**Proposal: Optimality Recovery Time Distribution Bar**
-
-**ECharts type:** `bar`
-
-**Codebase citation:**
-Uses `extra.optimality[]` from `src/processors/post/range.ts` matched against `labels` from `src/data/index.ts`.
-
-**Which existing data it uses:**
-It processes `dataAtom` to find streaks where a biomarker goes out-of-range (`optimality[i] === true`) and measures the number of days (calculated from `labels`) until it returns to normal (`optimality[i] === false`).
-
-**What it reveals that current charts don't:**
-Highlights how quickly the user's body corrects imbalances. Instead of showing simply if a marker was out of bounds, it visualizes the *recovery speed*, helping identify systems losing their resilience over time (e.g., if recovery time for Glucose spikes is gradually lengthening).
-
-**Where it would live:**
-New `src/layout/RecoveryTimeBar.tsx`.
-
-**Trigger / entry point:**
-A "Resilience Analysis" button inside the individual biomarker view.
-
----
-
-**Proposal: Historical Testing Interval Histogram**
-
-**ECharts type:** `bar` (histogram using `echarts-stat` transform)
-
-**Codebase citation:**
-Analyzes the `values` arrays of `BioMarker` tuples within `dataAtom` alongside the global `labels` array from `src/data/index.ts`.
-
-**Which existing data it uses:**
-For each biomarker, it iterates through `values` and calculates the time gap (in days or months derived from `labels`) between each non-null measurement (`values[i] !== null && values[i] !== undefined`). It then plots a histogram of these intervals.
-
-**What it reveals that current charts don't:**
-Visualizes the user's testing consistency for each biomarker. It can expose erratic testing behaviors, such as measuring Vitamin D frequently in summer but leaving large gaps in winter, which the standard time-series line chart masks due to `connectNulls: false`.
-
-**Where it would live:**
-New `src/layout/TestingIntervalHistogram.tsx`.
-
-**Trigger / entry point:**
-An "Audit Continuity" button within the main dashboard or table view.
-
 ---
 
 **Proposal: Biomarker Normality Q-Q Scatter Plot**
