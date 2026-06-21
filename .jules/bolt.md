@@ -64,3 +64,7 @@
 ## 2026-06-19 - Single-pass Set generation
 **Learning:** Chained operations like `new Set(array.map(x => x.prop))` create unnecessary intermediate arrays which must be immediately garbage collected. In hot render paths, this memory churn degrades performance.
 **Action:** Replace chained `.map()` and `new Set()` with a single-pass `for` loop that instantiates a `Set` and populates it via `.add()`. Use `Array.from()` to convert it back if necessary. This avoids intermediate array allocations.
+## 2026-06-21 - Avoiding Array mapping and filtering before Map creation
+
+**Learning:** When attempting to find intersections or map items from an array of strings against an array of complex tuples, creating intermediate arrays via `.filter()` and `.map()` followed by instantiating a `new Map()` or `new Set()` introduces massive overhead. If the array of targets is tiny (e.g. length 2) relative to the source array (length N), it is faster to skip object/closure creation entirely and use a direct `O(K*N)` nested `for` loop. V8 optimizes dense nested loops far better than it handles intermediate array and object allocations.
+**Action:** When filtering a large dataset for a tiny, strictly bounded number of elements (like 2 selected items), avoid `.filter()`, `Set`, and `Map`. Use a direct nested loop to locate and push the items.

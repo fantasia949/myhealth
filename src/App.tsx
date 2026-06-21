@@ -144,15 +144,22 @@ export default function App() {
   }, [selected])
 
   const onPValue = React.useCallback(() => {
-    // Optimization: Use a Set for O(1) lookups instead of O(N) array.includes inside the filter loop.
-    // This reduces complexity from O(M * N) to O(M + N).
-    const selectedSet = new Set(selected)
-    let sourceTarget: (BioMarker | undefined)[] = data.filter(([name]) => selectedSet.has(name))
+    // ⚡ Bolt Optimization: Replace heavy Set, Map, and intermediate array allocations (.filter, .map)
+    // with a direct O(K*N) lookup loop. Since selected.length is strictly bounded (typically 2),
+    // nested loops are significantly faster in V8 than object allocation and garbage collection overhead.
+    let sourceTarget: (BioMarker | undefined)[] = []
 
-    // Optimization: Use a Map for O(1) lookups instead of O(N) array.find inside the map loop.
-    // This reduces complexity from O(K * N) to O(K + N).
-    const sourceTargetMap = new Map(sourceTarget.map((item) => [item![0], item]))
-    sourceTarget = selected.map((name) => sourceTargetMap.get(name))
+    for (let i = 0; i < selected.length; i++) {
+      const targetName = selected[i]
+      let foundEntry: BioMarker | undefined = undefined
+      for (let j = 0; j < data.length; j++) {
+        if (data[j][0] === targetName) {
+          foundEntry = data[j]
+          break
+        }
+      }
+      sourceTarget.push(foundEntry)
+    }
 
     for (let i = 0; i < sourceTarget.length; i++) {
       if (!sourceTarget[i]) return
