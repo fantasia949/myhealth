@@ -1,8 +1,9 @@
 import { memo, useMemo, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import ReactECharts from 'echarts-for-react'
+import ReactECharts, { EChartsReactProps } from 'echarts-for-react'
 import * as echarts from 'echarts'
+import { EChartsOption } from 'echarts'
 import * as ecStat from 'echarts-stat'
 import { useAtomValue } from 'jotai'
 import { noteValuesAtom, nonInferredDataAtom } from '../atom/dataAtom'
@@ -30,7 +31,7 @@ export const CHART_PALETTE = [
   '#2559B7',
 ]
 
-const echartsOptions: any = {
+const echartsOptions: EChartsOption & Pick<EChartsReactProps, 'style' | 'theme'> = {
   style: { height: 600, width: '100%' },
   theme: 'dark',
   backgroundColor: 'transparent',
