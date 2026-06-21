@@ -146,26 +146,6 @@ A "Chronic Risk View" button above the main data table that replaces the table v
 
 ---
 
-**Proposal: Tag-Level Range Velocity Bar Chart**
-
-**ECharts type:** `bar`
-
-**Codebase citation:**
-Uses `extra.tag` from `src/processors/post/tag.ts` and `extra.range` boundaries applied to `BioMarker[1]` from `src/atom/dataAtom.ts`.
-
-**Which existing data it uses:**
-Aggregates `BioMarker` values by their associated `extra.tag` strings. For each tag group, it calculates the average normalized rate of change (e.g., slope) from the first to the last available time point (`labels`), using the `extra.range` boundaries to normalize differing units into a common scale.
-
-**What it reveals that current charts don't:**
-Instantly highlights which overall physiological systems (e.g., Kidney, Liver) are improving or degrading the fastest longitudinally, rather than just showing absolute values of individual markers.
-
-**Where it would live:**
-New `src/layout/TagVelocityBarChart.tsx`, embedded within a "System Health Trajectory" summary view.
-
-**Trigger / entry point:**
-A standalone component rendered at the top of the dashboard summarizing longitudinal systemic progression.
-
----
 
 **Proposal: Optimality Survival Step Chart**
 
