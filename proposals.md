@@ -168,26 +168,6 @@ New `src/layout/CorrelationPolarScatter.tsx`.
 **Trigger / entry point:**
 A "Directional View" toggle inside the correlation modal.
 
----
-
-**Proposal: Optimal Range Boundary Proximity Scatter**
-
-**ECharts type:** `scatter`
-
-**Codebase citation:**
-Uses `extra.range` and `extra.optimality[]` from `src/processors/post/range.ts` aligned with `dataAtom`.
-
-**Which existing data it uses:**
-For each marker in `dataAtom`, it calculates how close the most recent value in `values[]` is to the upper or lower boundary of the `extra.range`, normalizing it as a percentage distance.
-
-**What it reveals that current charts don't:**
-Identifies biomarkers that are *technically* in-range but dangerously close to crossing the boundary, providing early warning signals before they actually trigger the `extra.optimality === true` boolean flag.
-
-**Where it would live:**
-New `src/layout/BoundaryProximityScatter.tsx`.
-
-**Trigger / entry point:**
-A "Boundary Risk" view in the main dashboard or statistical overview.
 
 ---
 
