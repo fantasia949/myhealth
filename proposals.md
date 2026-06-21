@@ -83,29 +83,6 @@ A toggle button on `LineChart.tsx` or `ScatterChart.tsx` that switches the Y-axi
 
 ---
 
-**Proposal: Correlation Significance vs Effect Size Volcano Plot**
-
-**ECharts type:** `scatter`
-
-**Codebase citation:**
-Uses `correlationAlphaAtom` from `src/atom/correlationAtom.ts` and `rankedDataMapAtom` from `src/atom/dataAtom.ts`.
-
-**Which existing data it uses:**
-It computes both the correlation coefficient (effect size) and the p-value (significance) for pairs of biomarkers derived from `rankedDataMapAtom` arrays. It visually maps the correlation coefficient to the X-axis and the -log10(p-value) to the Y-axis. The threshold line is driven by `correlationAlphaAtom`.
-
-**What it reveals that current charts don't:**
-The existing correlation tools show coefficient strengths but hide the statistical significance until hovered or clicked. A volcano plot immediately separates strong but noisy correlations from highly significant ones, allowing the user to trust the underlying patterns before exploring them in detail.
-
-**Where it would live:**
-New `src/layout/CorrelationVolcanoPlot.tsx`, rendered within the `Correlation.tsx` module.
-
-**Trigger / entry point:**
-Activated via a "Significance View" toggle on the main Correlation chart screen.
-
----
-
-
-
 **Proposal: Biomarker Volatility vs. Age Area Scatter Plot**
 
 **ECharts type:** `scatter` (Area scatter with size/color variation)
