@@ -171,5 +171,13 @@ export default memo(({ keys }: ScatterChartProps) => {
     [yAxes, chartData, keys],
   )
 
+  if (keys.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-[400px] w-full text-gray-500 italic border border-dashed border-[#3a3a3a80] rounded-lg">
+        No biomarkers selected.
+      </div>
+    )
+  }
+
   return <ReactECharts option={options} style={options.style} notMerge={true} theme="dark" />
 })
