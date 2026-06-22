@@ -169,8 +169,15 @@ export default memo(({ keys }: ChartProps) => {
   const options: any = useMemo(() => {
     const { series, yAxis, xAxis } = echartsOptions
 
-    const nextXAxis = [{ ...xAxis[0], name: keys[0] }, ...xAxis.slice(1)]
-    const nextYAxis = [{ ...yAxis[0], name: keys[1] }, ...yAxis.slice(1)]
+    const nextXAxis = []
+    for (let i = 0; i < xAxis.length; i++) {
+      nextXAxis.push(i === 0 ? { ...xAxis[i], name: keys[0] } : xAxis[i])
+    }
+
+    const nextYAxis = []
+    for (let i = 0; i < yAxis.length; i++) {
+      nextYAxis.push(i === 0 ? { ...yAxis[i], name: keys[1] } : yAxis[i])
+    }
 
     const dataset: DatasetComponentOption[] = [
       {
