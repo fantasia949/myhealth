@@ -9,6 +9,7 @@ import { ChartProps } from './Chart.types'
 import type { EChartsReactProps } from 'echarts-for-react'
 import type { YAXisComponentOption, LineSeriesOption } from 'echarts'
 import type * as echarts from 'echarts'
+import type { Field } from '@echarts-readymade/core'
 
 const dimension = [
   {
@@ -116,7 +117,7 @@ export default memo(({ keys }: ChartProps) => {
     // which invalidates the downstream chartData useMemo dependency check.
     // ⚡ Bolt Optimization: Avoid pre-allocating 'holey' arrays. Use push() to maintain dense arrays for V8.
     const len = keys.length
-    const result: any[] = []
+    const result: Field[] = []
     for (let i = 0; i < len; i++) {
       result.push({
         fieldKey: 'v' + i,
