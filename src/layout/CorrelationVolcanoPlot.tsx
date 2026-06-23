@@ -10,7 +10,11 @@ interface CorrelationVolcanoPlotProps {
 
 export default memo(({ correlations, alpha }: CorrelationVolcanoPlotProps) => {
   const options = useMemo<EChartsOption>(() => {
-    const data = correlations.map((c) => {
+    // Optimization: Replace Array.map() with a classic for-loop and dense array push
+    // to avoid closure allocation and function call overhead for each element.
+    const data = []
+    for (let i = 0; i < correlations.length; i++) {
+      const c = correlations[i]
       const name = c[0]
       const pValue = c[2]
       const coeff = c[3]
@@ -26,11 +30,11 @@ export default memo(({ correlations, alpha }: CorrelationVolcanoPlotProps) => {
         }
       }
 
-      return {
+      data.push({
         value: [coeff, logPValue, pValue, name],
         itemStyle: { color }
-      }
-    })
+      })
+    }
 
     const alphaThreshold = -Math.log10(alpha)
 
