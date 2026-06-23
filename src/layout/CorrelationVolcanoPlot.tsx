@@ -28,7 +28,7 @@ export default memo(({ correlations, alpha }: CorrelationVolcanoPlotProps) => {
 
       return {
         value: [coeff, logPValue, pValue, name],
-        itemStyle: { color }
+        itemStyle: { color },
       }
     })
 

@@ -81,7 +81,7 @@ const echartsOptions: EChartsReactProps = {
 const updateChartOption = (
   chartInstance: echarts.ECharts | null,
   keys: string[],
-  yAxis: YAXisComponentOption[]
+  yAxis: YAXisComponentOption[],
 ) => {
   if (chartInstance && !chartInstance.isDisposed()) {
     const len = keys.length
