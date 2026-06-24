@@ -1,9 +1,11 @@
 import { memo, useMemo } from 'react'
 import ReactECharts from 'echarts-for-react'
+import type { EChartsReactProps } from 'echarts-for-react'
+import type { EChartsOption } from 'echarts'
 import { RadarChartProps } from './RadarChart.types'
 
 export default memo(({ data, tag }: RadarChartProps) => {
-  const options = useMemo(() => {
+  const options: EChartsOption & Pick<EChartsReactProps, 'style' | 'theme'> = useMemo(() => {
     const indicators: any[] = []
     const values: number[] = []
 
@@ -141,7 +143,7 @@ export default memo(({ data, tag }: RadarChartProps) => {
 
   return (
     <div className="w-full flex justify-center my-4">
-      <ReactECharts option={options} style={options.style as any} notMerge={true} theme="dark" />
+      <ReactECharts option={options} style={options.style} notMerge={true} theme="dark" />
     </div>
   )
 })
