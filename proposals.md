@@ -189,3 +189,66 @@ New `src/layout/SystemicBurdenStackedBar.tsx`.
 
 **Trigger / entry point:**
 An "Overall System Burden" widget at the top of the dashboard.
+
+---
+
+**Proposal: Rank Velocity Line Chart**
+
+**ECharts type:** `line`
+
+**Codebase citation:**
+Uses `rankedDataMapAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+It utilizes the `Float64Array` rank arrays produced by `rankedDataMapAtom` alongside the shared `labels` from `src/data/index.ts` to plot the progression of a biomarker's rank over time, instead of its raw absolute value.
+
+**What it reveals that current charts don't:**
+The current `LineChart.tsx` shows absolute value trends, which can make it hard to distinguish true systemic degradation from simple volatility within the normal bounds. Showing rank velocity visualizes when a biomarker has truly broken its historical percentiles, filtering out the noise of normal day-to-day variance.
+
+**Where it would live:**
+New `src/layout/RankVelocityChart.tsx`.
+
+**Trigger / entry point:**
+Could be rendered as a toggle state within the existing `Chart.tsx` view or row expansion to switch the Y-axis interpretation from absolute values to rank progression.
+
+---
+
+**Proposal: Correlation Directionality Polar Scatter**
+
+**ECharts type:** `scatter` (polar coordinate system)
+
+**Codebase citation:**
+Utilizes `rankedDataMapAtom` from `src/atom/dataAtom.ts` and `correlationMethodAtom` from `src/atom/correlationAtom.ts`.
+
+**Which existing data it uses:**
+Computes the pairwise correlations between the target biomarker and all other biomarkers, plotting the correlation magnitude (radius) against the sign/direction (angle) in a polar graph.
+
+**What it reveals that current charts don't:**
+While `Chart2.tsx` plots an exact 1:1 regression on Cartesian axes, a polar correlation scatter can simultaneously plot the relationships of *many* markers against a central target. This instantly segregates biomarkers that move symbiotically (positive correlation angles) from those that move antagonistically (negative correlation angles) in a single dense view.
+
+**Where it would live:**
+New `src/layout/PolarCorrelationScatter.tsx`.
+
+**Trigger / entry point:**
+A new "Polar Comparison" tab within the biomarker Correlation Modal.
+
+---
+
+**Proposal: Out-of-Range Duration Gantt Chart**
+
+**ECharts type:** `custom` (styled as Gantt duration bars)
+
+**Codebase citation:**
+Uses `extra.optimality[]` from `src/processors/post/range.ts` combined with `labels` from `src/data/index.ts`.
+
+**Which existing data it uses:**
+Processes `visibleDataAtom` to isolate the specific indices where `extra.optimality[i] === true`. It merges contiguous `true` periods into duration blocks along a shared X-axis timeline.
+
+**What it reveals that current charts don't:**
+Current multi-axis timeline charts (`Chart.tsx`, `ScatterChart.tsx`) show magnitude effectively, but tracking exactly how long a system has been chronically failing requires tracing the line against a boundary. A Gantt duration block specifically emphasizes the *chronicity* of an issue by collapsing magnitude and focusing purely on the duration spent outside optimal bounds.
+
+**Where it would live:**
+New `src/layout/OptimalityDurationGantt.tsx`.
+
+**Trigger / entry point:**
+A "Chronic Risk View" button added to the main Dashboard view options, rendering in place of `ScatterChart.tsx`.
