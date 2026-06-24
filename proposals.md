@@ -184,3 +184,64 @@ New `src/layout/SystemicBurdenStackedBar.tsx`.
 
 **Trigger / entry point:**
 An "Overall System Burden" widget at the top of the dashboard.
+
+**Proposal: Spearman Rank Velocity Line Chart**
+
+**ECharts type:** `line`
+
+**Codebase citation:**
+Directly utilizes the pre-computed `rankedDataMapAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+Takes the `Float64Array` rank arrays from `rankedDataMapAtom` for the selected biomarkers (via `visibleDataAtom`). Instead of plotting the raw values, it plots the rank position or the *change* in rank position over time.
+
+**What it reveals that current charts don't:**
+Visualizes relative performance changes by abstracting away differing units and scales. It clearly shows when a biomarker's value significantly shifted in terms of its historical distribution, ignoring minor absolute fluctuations that don't change its rank, which highlights truly anomalous shifts.
+
+**Where it would live:**
+New `src/layout/RankVelocityChart.tsx`, accessible from individual marker details.
+
+**Trigger / entry point:**
+A toggle button on `LineChart.tsx` or `ScatterChart.tsx` that switches the Y-axis from "Absolute Value" to "Historical Rank Percentile".
+
+---
+
+**Proposal: Biomarker Volatility vs. Age Area Scatter Plot**
+
+**ECharts type:** `scatter` (Area scatter with size/color variation)
+
+**Codebase citation:**
+Uses `dataAtom` from `src/atom/dataAtom.ts` and date indices inferred from `labels` in `src/data/index.ts`.
+
+**Which existing data it uses:**
+It calculates the variance or standard deviation (volatility) of each valid biomarker in `dataAtom` over its available time points. It plots each biomarker as a bubble, where the X-axis is the total timeline span (e.g., number of years measured), and the Y-axis is the volatility score.
+
+**What it reveals that current charts don't:**
+Identifies which biomarkers fluctuate wildly compared to those that remain stable throughout a patient's measurement history. The current multi-axis line chart shows absolute values but makes it hard to compare normalized stability across different scales simultaneously.
+
+**Where it would live:**
+New `src/layout/VolatilityScatter.tsx`.
+
+**Trigger / entry point:**
+Triggered via a "Volatility Analysis" toggle in the main Dashboard next to the tag filters.
+
+---
+
+**Proposal: Cross-System Correlation Force Graph**
+
+**ECharts type:** `graph` (Force Directed)
+
+**Codebase citation:**
+Uses `correlationAlphaAtom` from `src/atom/correlationAtom.ts` and `extra.tag` from `src/processors/post/tag.ts`.
+
+**Which existing data it uses:**
+It calculates the pairwise correlation between the *aggregated average percent-to-optimal* scores for each tag group (e.g., aggregating all `1-RBC` markers vs all `3-Liver` markers) using the methods in `correlationAtom`.
+
+**What it reveals that current charts don't:**
+The existing correlation tools map individual biomarkers to each other or to supplements. This graph maps *entire physiological systems* against each other to reveal macro-level cascades (e.g., proving that liver stress strongly correlates with lipid metabolism degradation in this specific user's history).
+
+**Where it would live:**
+New `src/layout/SystemCorrelationGraph.tsx` alongside `BiomarkerCorrelationGraph.tsx`.
+
+**Trigger / entry point:**
+Available as a specific "System Level" toggle inside the global Correlation modal.

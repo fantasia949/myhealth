@@ -144,6 +144,7 @@ export default memo(({ keys }: ChartProps) => {
         position: isEven ? 'left' : 'right',
         offset: sideOffset,
         nameLocation: 'middle',
+        nameRotate: 90,
         nameGap: 50,
         axisLine: {
           show: true,
