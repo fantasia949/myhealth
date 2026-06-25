@@ -73,6 +73,13 @@
 
 **Learning:** When attempting to find intersections or map items from an array of strings against an array of complex tuples, creating intermediate arrays via `.filter()` and `.map()` followed by instantiating a `new Map()` or `new Set()` introduces massive overhead. If the array of targets is tiny (e.g. length 2) relative to the source array (length N), it is faster to skip object/closure creation entirely and use a direct `O(K*N)` nested `for` loop. V8 optimizes dense nested loops far better than it handles intermediate array and object allocations.
 **Action:** When filtering a large dataset for a tiny, strictly bounded number of elements (like 2 selected items), avoid `.filter()`, `Set`, and `Map`. Use a direct nested loop to locate and push the items.
+
 ## 2026-06-23 - Replaced unshift in hot loop with push and reverse
+
 **Learning:** Using `Array.prototype.unshift()` inside a loop causes V8 to shift all existing elements on every insertion, making it an O(N^2) operation. This scales poorly in data processing pipelines.
 **Action:** Always prefer `.push()` followed by `.reverse()` or building the array backwards by index rather than using `.unshift()` inside a loop.
+
+## 2026-06-25 - Avoid `Array.from({ length })` in hot loops
+
+**Learning:** Allocating `Array.from({ length: len })` inside hot nested loops creates unnecessary array iteration and closure function calls for every element allocation. Instead, utilizing `new Array(len).fill(undefined as any)` is significantly faster since it avoids iteration at allocation time, while the `.fill()` ensures the array is dense for V8.
+**Action:** Replace `Array.from({ length })` with `new Array(len).fill(undefined as any)` when pre-allocating dense standard arrays inside hot loops.
