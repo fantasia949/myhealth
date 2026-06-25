@@ -15,7 +15,10 @@ export default (inputs: Array<RawEntry>): Entry[] => {
       if (matchedEntry) {
         matchedEntry[1][index] = value
       } else {
-        const values = Array.from<string>({ length: len })
+        // ⚡ Bolt Optimization: Replaced `Array.from<string>({ length: len })` with
+        // `new Array<string>(len).fill(undefined as any)` to avoid closure allocation
+        // and iteration overhead during pre-allocation in this hot loop.
+        const values = new Array<string>(len).fill(undefined as any)
         values[index] = value
         matchedEntry = [name, values, unit as string, extra]
         map.set(name, matchedEntry)
