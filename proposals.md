@@ -308,3 +308,66 @@ New `src/layout/SystemCorrelationGraph.tsx` alongside `BiomarkerCorrelationGraph
 
 **Trigger / entry point:**
 Available as a specific "System Level" toggle inside the global Correlation modal.
+
+---
+
+**Proposal: Conditional Anomaly Probability Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.optimality[]` from `src/processors/post/range.ts` aligned with `values` in `dataAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+It computes the conditional probability that a target biomarker is out of range (`extra.optimality` is `true`) given that another condition (e.g. another biomarker being out of range, or belonging to a specific `extra.tag` group) holds true. The heatmap visualizes these calculated probabilities pairwise between biomarkers.
+
+**What it reveals that current charts don't:**
+Unlike the standard correlation charts that map linear relationships across all values, this explicitly highlights cascading anomalous states—answering "If biomarker A is failing, how likely is it that biomarker B is also failing?" This reveals specific, non-linear failure dependencies.
+
+**Where it would live:**
+New `src/layout/ConditionalAnomalyHeatmap.tsx`.
+
+**Trigger / entry point:**
+A "Conditional Probability View" toggle within the correlation and statistical modal.
+
+---
+
+**Proposal: Annual Distribution Ridgeline Plot**
+
+**ECharts type:** `custom` (simulating ridgelines via overlapping offset line/area series)
+
+**Codebase citation:**
+Uses `dataAtom` and standard dates extracted from the YYMMDD `labels` array in `src/data/index.ts`.
+
+**Which existing data it uses:**
+Groups `values` from `dataAtom` for a selected biomarker into discrete years. It generates smoothed density line charts (with area fill) for each year and stacks them vertically on a shared Y-axis (with partial overlap).
+
+**What it reveals that current charts don't:**
+Instead of a continuous time-series (like `LineChart.tsx`) or a single aggregate distribution (like `HistogramChart.tsx`), a ridgeline plot shows how the *shape of the distribution* for a biomarker morphs year over year. This highlights long-term, subtle shifts in variance or modality that a mean-value line completely misses.
+
+**Where it would live:**
+New `src/layout/RidgelineChart.tsx`.
+
+**Trigger / entry point:**
+Available as an advanced historical view on a single biomarker, near the Boxplot and Histogram toggles.
+
+---
+
+**Proposal: Inferred Origin Component Stacked Bar**
+
+**ECharts type:** `bar` (stacked)
+
+**Codebase citation:**
+Uses `inferred` and `originValues` from `BioMarker[3]` and filtered through `nonInferredDataAtom`.
+
+**Which existing data it uses:**
+For biomarkers where `inferred` is `true`, it breaks down their computed value into the relative contributions of their underlying `originValues`.
+
+**What it reveals that current charts don't:**
+Currently, inferred biomarkers are treated as monolithic values. A stacked bar chart dissecting the inferred value shows exactly *which* underlying measured metric is driving the change in the inferred index (e.g., if PhenoAge spiked, did it spike because of Glucose or CRP?).
+
+**Where it would live:**
+New `src/layout/InferredComponentDecomposition.tsx`.
+
+**Trigger / entry point:**
+An "Inspect Origin Components" button when an inferred biomarker is selected in a table row expansion.
