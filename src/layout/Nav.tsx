@@ -261,6 +261,7 @@ export default React.memo<NavProps>(
               aria-label={show ? 'Close menu' : 'Open menu'}
               title={show ? 'Close menu' : 'Open menu'}
               aria-expanded={show}
+              aria-controls="mobile-menu-content"
             >
               {show ? (
                 <XMarkIcon className="h-6 w-6" aria-hidden="true" />
@@ -327,6 +328,7 @@ export default React.memo<NavProps>(
             </div>
 
             <div
+              id="mobile-menu-content"
               className={cn('w-full lg:flex lg:flex-1 lg:items-center lg:gap-4 lg:h-8', {
                 'hidden lg:flex': !show,
                 'grid grid-cols-3 gap-2': show,

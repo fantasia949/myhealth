@@ -82,7 +82,7 @@ const echartsOptions: EChartsReactProps = {
 const updateChartOption = (
   chartInstance: echarts.ECharts | null,
   keys: string[],
-  yAxis: YAXisComponentOption[]
+  yAxis: YAXisComponentOption[],
 ) => {
   if (chartInstance && !chartInstance.isDisposed()) {
     const len = keys.length
@@ -144,6 +144,7 @@ export default memo(({ keys }: ChartProps) => {
         position: isEven ? 'left' : 'right',
         offset: sideOffset,
         nameLocation: 'middle',
+        nameRotate: 90,
         nameGap: 50,
         axisLine: {
           show: true,

@@ -146,7 +146,7 @@ export default memo(({ keys }: ChartProps) => {
       // ⚡ Bolt Optimization: Avoid pre-allocating 'holey' arrays for generic types.
       // Pre-allocating Array<any[]>(len) creates sparse arrays which de-optimize modern V8 engines.
       // Replacing with standard array pushes and eliminating the slice operation improves performance.
-      const mappedData: any[] = []
+      const mappedData: [number, number, string, string, string][] = []
 
       for (let i = 0; i < len; i++) {
         const v0 = values0[i]

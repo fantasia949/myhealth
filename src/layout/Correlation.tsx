@@ -128,7 +128,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
   }, [data, dataMap, target, alpha, alternative, rankedDataMap, method])
 
   const significantEntries = React.useMemo(() => {
-    return entries ? entries.filter(e => e[2] <= alpha) : []
+    return entries ? entries.filter((e) => e[2] <= alpha) : []
   }, [entries, alpha])
 
   return (
@@ -313,7 +313,10 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
 
                       {activeTab === 'chart' && significantEntries.length > 0 && (
                         <div className="mb-8">
-                          <FocusedCorrelationChart correlations={significantEntries} alpha={alpha} />
+                          <FocusedCorrelationChart
+                            correlations={significantEntries}
+                            alpha={alpha}
+                          />
                         </div>
                       )}
 

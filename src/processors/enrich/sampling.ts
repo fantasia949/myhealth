@@ -20,13 +20,17 @@ export default (entries: BioMarker[]): BioMarker[] => {
               actualNum++
             }
           }
-          output.unshift((sum / actualNum).toFixed(2))
+
+          // ⚡ Bolt Optimization: Replace O(N^2) .unshift() with O(1) .push()
+          // Calling .unshift() inside a loop forces V8 to shift all existing elements
+          // in the array on every iteration. Pushing and reversing at the end is O(N).
+          output.push((sum / actualNum).toFixed(2))
 
           if (count && output.length >= count) {
             break
           }
         }
-        return output
+        return output.reverse()
       }
     }
   }
