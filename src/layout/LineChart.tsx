@@ -91,6 +91,10 @@ export default memo(({ name, values, rangeStr }: LineChartProps) => {
         min = parseFloat(rangeStr.slice(2))
       } else if (rangeStr.startsWith('<=')) {
         max = parseFloat(rangeStr.slice(2))
+      } else if (rangeStr.startsWith('>')) {
+        min = parseFloat(rangeStr.slice(1))
+      } else if (rangeStr.startsWith('<')) {
+        max = parseFloat(rangeStr.slice(1))
       }
 
       const validMin = min !== undefined && !Number.isNaN(min)
