@@ -16,10 +16,25 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
     // Only proceed if we have a target biomarker and correlated supplements
     if (!targetBiomarker || !correlations || correlations.length === 0) return {}
 
-    // Take top 5 most highly correlated (by absolute rho)
-    const topCorrelations = [...correlations]
-      .sort((a, b) => Math.abs(b.rho) - Math.abs(a.rho))
-      .slice(0, 5)
+    // ⚡ Bolt Optimization: Replace O(N log N) full array copy and sort with an O(N) insertion
+    // loop for finding the top 5 correlations. This prevents large array allocations and
+    // garbage collection overhead in this heavily recalculated useMemo hook.
+    const topCorrelations: typeof correlations = []
+    for (let i = 0; i < correlations.length; i++) {
+      const c = correlations[i]
+      const val = Math.abs(c.rho)
+      if (topCorrelations.length < 5) {
+        topCorrelations.push(c)
+        topCorrelations.sort((a, b) => Math.abs(b.rho) - Math.abs(a.rho))
+      } else if (val > Math.abs(topCorrelations[4].rho)) {
+        let idx = 4
+        while (idx > 0 && val > Math.abs(topCorrelations[idx - 1].rho)) {
+          topCorrelations[idx] = topCorrelations[idx - 1]
+          idx--
+        }
+        topCorrelations[idx] = c
+      }
+    }
 
     if (topCorrelations.length === 0) return {}
 
