@@ -90,3 +90,6 @@
 ## 2024-05-18 - Replacing Object.keys().map() with standard for-loop
 **Learning:** Using chained array methods (like `.map().sort().slice()`) on large or frequently recreated arrays inside `useMemo` hooks allocates a lot of memory, creating intermediate "holey" arrays that V8 has to manage. This causes noticeable garbage collection overhead on the main thread, leading to UI hitching.
 **Action:** Replace `[...arr].sort().slice(0, K)` with an `O(N)` manual insertion loop tracking only the top `K` items, significantly reducing CPU cycles and avoiding array closure/allocation entirely.
+## 2024-05-19 - Pre-allocate variables outside of loops
+**Learning:** Pre-parsing invariant properties into a flat array outside of nested nested `O(N * M)` operations significantly reduces conditional branching overhead, preventing repetitive evaluations.
+**Action:** Lift invariant conditions outside of loops.
