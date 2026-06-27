@@ -4,18 +4,7 @@ import cn from 'classnames'
 import { labels } from '../data'
 import { visibleDataAtom, notesAtom, filterTextAtom, tagAtom } from '../atom/dataAtom'
 import { useAtomValue } from 'jotai'
-import {
-  useReactTable,
-  getCoreRowModel,
-  getFilteredRowModel,
-  createColumnHelper,
-  flexRender,
-  ColumnDef,
-  getGroupedRowModel,
-  getExpandedRowModel,
-  GroupingState,
-  ExpandedState,
-} from '@tanstack/react-table'
+import { useTable, createCoreRowModel, createFilteredRowModel, createColumnHelper, flexRender, ColumnDef, createGroupedRowModel, createExpandedRowModel, GroupingState, ExpandedState, tableFeatures, filterFns, columnFilteringFeature, rowExpandingFeature, columnGroupingFeature, rowSelectionFeature, columnVisibilityFeature, Row } from '@tanstack/react-table';
 import {
   ChevronRightIcon,
   ChevronDownIcon,
@@ -39,7 +28,19 @@ const LineChart = React.lazy(() => import('./LineChart'))
 const BoxplotChart = React.lazy(() => import('./BoxplotChart'))
 const HistogramChart = React.lazy(() => import('./HistogramChart'))
 
-const columnHelper = createColumnHelper<DisplayedEntry>()
+const features = tableFeatures({
+  columnFilteringFeature,
+  rowExpandingFeature,
+  columnGroupingFeature,
+  rowSelectionFeature,
+  columnVisibilityFeature,
+  filteredRowModel: createFilteredRowModel(),
+  groupedRowModel: createGroupedRowModel(),
+  expandedRowModel: createExpandedRowModel(),
+  filterFns,
+});
+export type TableFeaturesType = typeof features;
+const columnHelper = createColumnHelper<TableFeaturesType, DisplayedEntry>()
 
 function getKeyFromTime(label: string) {
   return label.slice(0, 2) + '/' + label.slice(2, 4)
@@ -343,7 +344,7 @@ const TableRow = React.memo(
   },
 )
 
-const columns: ColumnDef<DisplayedEntry, any>[] = [
+const columns: any[] = [
   columnHelper.display({
     id: 'selection',
     header: ({ table }) => (
@@ -383,7 +384,7 @@ const columns: ColumnDef<DisplayedEntry, any>[] = [
     // Optimization: Replace labels.map() with a classic for-loop and dense array.
     // This avoids closure allocation overhead and V8 'holey' array de-optimization.
     const numLabels = labels.length
-    const result: ColumnDef<DisplayedEntry, any>[] = []
+    const result: any[] = []
     for (let index = 0; index < numLabels; index++) {
       const label = labels[index]
       const dist = numLabels - 1 - index
@@ -633,7 +634,7 @@ export default React.memo(
     const rowSelection = React.useMemo(() => {
       // Optimization: Replace chained Array.map() and Object.fromEntries()
       // with a single loop to reduce object allocation.
-      const state: Record<string, boolean> = {}
+      const state: Record<string, true> = {}
       for (let i = 0; i < selected.length; i++) {
         state[selected[i]] = true
       }
@@ -643,18 +644,16 @@ export default React.memo(
     const [grouping, setGrouping] = React.useState<GroupingState>(['tag'])
     const [expanded, setExpanded] = React.useState<ExpandedState>(true)
 
-    const table = useReactTable({
+    const table = useTable({
+      features,
+
       meta: {
         onOriginValueToggle,
         showOrigColumns,
       },
       data: displayedEntries,
       columns,
-      getCoreRowModel: getCoreRowModel(),
-      getFilteredRowModel: getFilteredRowModel(),
-      getGroupedRowModel: getGroupedRowModel(),
-      getExpandedRowModel: getExpandedRowModel(),
-      enableRowSelection: true,
+                              enableRowSelection: true,
       onGroupingChange: setGrouping,
       onExpandedChange: setExpanded,
       autoResetExpanded: false,
