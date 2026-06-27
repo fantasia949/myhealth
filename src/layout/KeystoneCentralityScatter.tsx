@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import ReactECharts from 'echarts-for-react'
 import { EChartsOption } from 'echarts'
 import { EChartsReactProps } from 'echarts-for-react'
@@ -14,6 +14,7 @@ interface KeystoneCentralityScatterProps {
 }
 
 export default React.memo(function KeystoneCentralityScatter({ target }: KeystoneCentralityScatterProps) {
+  const [showOptimal, setShowOptimal] = useState(false)
   const data = useAtomValue(nonInferredDataAtom)
   const rankedDataMap = useAtomValue(rankedDataMapAtom)
   const method = useAtomValue(correlationMethodAtom)
@@ -61,6 +62,7 @@ export default React.memo(function KeystoneCentralityScatter({ target }: Keyston
       if (totalValidOOR < 4) continue
 
       const oorFrequency = (oorCount / totalValidOOR) * 100
+      if (!showOptimal && oorFrequency === 0) continue
 
       // Compute Centrality
       let sumAbsCorr = 0
@@ -134,7 +136,7 @@ export default React.memo(function KeystoneCentralityScatter({ target }: Keyston
     }
 
     return results
-  }, [data, rankedDataMap, method, target])
+  }, [data, rankedDataMap, method, target, showOptimal])
 
   const option = useMemo<EChartsOption & Pick<EChartsReactProps, 'style' | 'theme'>>(() => {
     if (chartData.length === 0) return {}
@@ -213,11 +215,25 @@ export default React.memo(function KeystoneCentralityScatter({ target }: Keyston
   }
 
   return (
-    <ReactECharts
+    <div className="flex flex-col relative">
+        <div className="absolute top-0 right-4 z-10 flex items-center gap-2">
+           <input
+               type="checkbox"
+               id="showOptimal"
+               checked={showOptimal}
+               onChange={(e) => setShowOptimal(e.target.checked)}
+               className="rounded border-gray-600 bg-dark-bg text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900 cursor-pointer"
+           />
+           <label htmlFor="showOptimal" className="text-xs text-gray-400 cursor-pointer select-none">
+               Show 100% Optimal Biomarkers
+           </label>
+        </div>
+        <ReactECharts
       option={option}
       style={{ height: '400px', width: '100%' }}
       notMerge={true}
       lazyUpdate={true}
     />
+    </div>
   )
 })
