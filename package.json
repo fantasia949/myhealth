@@ -20,7 +20,7 @@
     "@headlessui/react": "^2.2.10",
     "@heroicons/react": "^2.2.0",
     "@stdlib/stats-pcorrtest": "0.2.3",
-    "@tanstack/react-table": "^8.21.3",
+    "@tanstack/react-table": "9.0.0-beta.21",
     "classnames": "2.5.1",
     "echarts": "6.1.0",
     "echarts-for-react": "^3.0.6",
