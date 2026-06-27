@@ -5,10 +5,10 @@ import { dataMapAtom } from '../atom/dataAtom'
 import { labels, formattedLabels } from '../data'
 import ReactECharts from 'echarts-for-react'
 import * as echarts from 'echarts'
-import type { DatasetComponentOption } from 'echarts'
+import type { DatasetComponentOption, SeriesOption, XAXisComponentOption, YAXisComponentOption, EChartsOption } from 'echarts'
 import * as ecStat from 'echarts-stat'
 import { ChartProps } from './Chart.types'
-import type { EChartsOption } from 'echarts-for-react'
+import type { EChartsReactProps } from 'echarts-for-react'
 
 echarts.registerTransform((ecStat as any).transform.regression)
 
@@ -27,7 +27,7 @@ export const CHART_PALETTE = [
   '#2559B7',
 ]
 
-const echartsOptions: EChartsOption = {
+const echartsOptions: EChartsOption & Pick<EChartsReactProps, 'style' | 'theme'> = {
   style: { height: 400, maxWidth: 800 },
   theme: 'dark',
   backgroundColor: 'transparent',
@@ -117,10 +117,8 @@ const echartsOptions: EChartsOption = {
         },
         label: {
           show: true,
-          textStyle: {
-            color: '#f0f0f0',
-            fontSize: 14,
-          },
+          color: '#f0f0f0',
+          fontSize: 14,
         },
       },
     },
@@ -162,17 +160,17 @@ export default memo(({ keys }: ChartProps) => {
     return []
   }, [dataMap, keys])
 
-  const options: EChartsOption = useMemo(() => {
-    const { series, yAxis, xAxis } = echartsOptions
-
+  const options: EChartsOption & Pick<EChartsReactProps, 'style' | 'theme'> = useMemo(() => {
     const nextXAxis = []
-    for (let i = 0; i < xAxis.length; i++) {
-      nextXAxis.push(i === 0 ? { ...xAxis[i], name: keys[0] } : xAxis[i])
+    const xAxisArr = (echartsOptions.xAxis as XAXisComponentOption[]) || []
+    for (let i = 0; i < xAxisArr.length; i++) {
+      nextXAxis.push(i === 0 ? { ...xAxisArr[i], name: keys[0] } : xAxisArr[i])
     }
 
     const nextYAxis = []
-    for (let i = 0; i < yAxis.length; i++) {
-      nextYAxis.push(i === 0 ? { ...yAxis[i], name: keys[1] } : yAxis[i])
+    const yAxisArr = (echartsOptions.yAxis as YAXisComponentOption[]) || []
+    for (let i = 0; i < yAxisArr.length; i++) {
+      nextYAxis.push(i === 0 ? { ...yAxisArr[i], name: keys[1] } : yAxisArr[i])
     }
 
     const dataset: DatasetComponentOption[] = [
@@ -198,13 +196,14 @@ export default memo(({ keys }: ChartProps) => {
       })
     }
 
+    const seriesArr = (echartsOptions.series as SeriesOption[]) || []
     const nextSeries = [
-      series[0],
+      seriesArr[0],
       // Only include the regression series if dataset contains it
       ...(mappedScatterData.length >= 2
         ? [
             {
-              ...series[1],
+              ...seriesArr[1],
               datasetIndex: 1,
               tooltip: {
                 formatter: () => {

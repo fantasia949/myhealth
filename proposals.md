@@ -64,3 +64,43 @@ A "Conditional Probability View" toggle within the correlation and statistical m
 
 ---
 
+
+**Proposal: System-Wide Volatility Sankey Diagram**
+
+**ECharts type:** `sankey`
+
+**Codebase citation:**
+Uses `extra.tag[]` assigned by `src/processors/post/tag.ts` and `extra.optimality[]` from `src/processors/post/range.ts`, aggregated using `dataMapAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+It reads the out-of-range (`extra.optimality` is `true`) occurrences from `dataMapAtom` for each biomarker and flows them into their respective system tags (`extra.tag`). The flow links represent the total non-optimal measurements.
+
+**What it reveals that current charts don't:**
+It provides a high-level macroscopic view of how cumulative health anomalies are distributed across various biological systems over time. Instead of looking at individual markers, users can quickly see which system (e.g., `4-Lipid` vs `3-Liver`) holds the highest out-of-range burden.
+
+**Where it would live:**
+New `src/layout/SystemVolatilitySankey.tsx`, accessible from a System Overview page.
+
+**Trigger / entry point:**
+A "System Load" overview tab in the main navigation.
+
+---
+
+**Proposal: Longitudinal Rank Inversion Parallel Coordinates**
+
+**ECharts type:** `parallel`
+
+**Codebase citation:**
+Uses the pre-computed Spearman rank caches (`rankedDataMapAtom`) from `src/atom/dataAtom.ts` along with the non-inferred markers from `nonInferredDataAtom`.
+
+**Which existing data it uses:**
+It takes the top K (e.g., 10) most volatile measured biomarkers from `nonInferredDataAtom` and plots their relative Spearman rank percentile (`rankedDataMapAtom`) at each historical time point (`labels`).
+
+**What it reveals that current charts don't:**
+It reveals complex structural shifts in a user's health profile. If the ranks of metabolic markers cross over and invert against the ranks of kidney markers over a 2-year period, this chart immediately flags the systemic shift, which is completely hidden in raw value line charts.
+
+**Where it would live:**
+New `src/layout/LongitudinalRankParallel.tsx`, included in the statistical toolset.
+
+**Trigger / entry point:**
+An "Evolution Matrix" toggle in the Data Correlation tools section.
