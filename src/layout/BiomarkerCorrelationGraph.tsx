@@ -26,8 +26,29 @@ const BiomarkerCorrelationGraph = React.memo(({ biomarkerId, correlations }: Gra
 
     const edges: any[] = []
 
-    // Sort and take top 15 to avoid clutter
-    const topCorr = [...correlations].sort((a, b) => Math.abs(b.rho) - Math.abs(a.rho)).slice(0, 15)
+    // ⚡ Bolt Optimization: Replace O(N log N) full sort and slice with an O(N) top-K loop
+    // to eliminate intermediate array allocations and avoid sorting thousands of correlations
+    // when we only need the top 15 to avoid clutter.
+    const topCorr: typeof correlations = []
+    for (let i = 0; i < correlations.length; i++) {
+      const c = correlations[i]
+      const absRho = Math.abs(c.rho)
+
+      let insertIdx = topCorr.length
+      for (let j = 0; j < topCorr.length; j++) {
+        if (absRho > Math.abs(topCorr[j].rho)) {
+          insertIdx = j
+          break
+        }
+      }
+
+      if (insertIdx < 15) {
+        topCorr.splice(insertIdx, 0, c)
+        if (topCorr.length > 15) {
+          topCorr.pop()
+        }
+      }
+    }
 
     topCorr.forEach((corr) => {
       const isPositive = corr.rho > 0

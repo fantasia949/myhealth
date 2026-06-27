@@ -83,3 +83,7 @@
 
 **Learning:** Allocating `Array.from({ length: len })` inside hot nested loops creates unnecessary array iteration and closure function calls for every element allocation. Instead, utilizing `new Array(len).fill(undefined as any)` is significantly faster since it avoids iteration at allocation time, while the `.fill()` ensures the array is dense for V8.
 **Action:** Replace `Array.from({ length })` with `new Array(len).fill(undefined as any)` when pre-allocating dense standard arrays inside hot loops.
+
+## 2024-05-18 - Top K Extraction vs Full Sorts
+**Learning:** Avoid using `[...arr].sort(...).slice(0, K)` when K is small and the array is large (e.g. thousands of correlations). The full sort is an O(N log N) operation, and the object spread creates unnecessary garbage collection overhead.
+**Action:** Replace full sorts with a single-pass `for` loop that maintains a small sorted array of the top K items. This keeps complexity to O(N * K) and avoids intermediate array allocations.
