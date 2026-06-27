@@ -83,3 +83,7 @@
 
 **Learning:** Allocating `Array.from({ length: len })` inside hot nested loops creates unnecessary array iteration and closure function calls for every element allocation. Instead, utilizing `new Array(len).fill(undefined as any)` is significantly faster since it avoids iteration at allocation time, while the `.fill()` ensures the array is dense for V8.
 **Action:** Replace `Array.from({ length })` with `new Array(len).fill(undefined as any)` when pre-allocating dense standard arrays inside hot loops.
+
+## 2024-05-18 - Replacing Object.keys().map() with standard for-loop
+**Learning:** Using chained array methods (like `.map().sort().slice()`) on large or frequently recreated arrays inside `useMemo` hooks allocates a lot of memory, creating intermediate "holey" arrays that V8 has to manage. This causes noticeable garbage collection overhead on the main thread, leading to UI hitching.
+**Action:** Replace `[...arr].sort().slice(0, K)` with an `O(N)` manual insertion loop tracking only the top `K` items, significantly reducing CPU cycles and avoiding array closure/allocation entirely.
