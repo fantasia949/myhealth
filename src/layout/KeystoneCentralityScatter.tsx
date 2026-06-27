@@ -58,7 +58,9 @@ export default React.memo(function KeystoneCentralityScatter({ target }: Keyston
         }
       }
 
-      const oorFrequency = totalValidOOR > 0 ? (oorCount / totalValidOOR) * 100 : 0
+      if (totalValidOOR < 4) continue
+
+      const oorFrequency = (oorCount / totalValidOOR) * 100
 
       // Compute Centrality
       let sumAbsCorr = 0
