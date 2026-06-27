@@ -14,6 +14,7 @@ import { CORRELATION_EXCLUDED_BIOMARKERS } from '../config/correlations'
 
 import FocusedCorrelationChart from './FocusedCorrelationChart'
 import CorrelationVolcanoPlot from './CorrelationVolcanoPlot'
+import KeystoneCentralityScatter from './KeystoneCentralityScatter'
 
 export default React.memo(({ target, onClose }: CorrelationProps) => {
   const data = useAtomValue(nonInferredDataAtom)
@@ -23,7 +24,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
   const [alternative, setAlternative] = useAtom(correlationAlternativeAtom)
   const [method, setMethod] = useAtom(correlationMethodAtom)
   const [isCopied, setIsCopied] = React.useState(false)
-  const [activeTab, setActiveTab] = React.useState<'chart' | 'significance' | 'table'>('chart')
+  const [activeTab, setActiveTab] = React.useState<'chart' | 'significance' | 'table' | 'prioritization'>('chart')
 
   const entries = React.useMemo(() => {
     if (!Array.isArray(data) || !target) {
@@ -309,6 +310,18 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                         >
                           Table View
                         </button>
+                        <button
+                          type="button"
+                          aria-pressed={activeTab === 'prioritization'}
+                          className={`w-full rounded-lg py-2.5 text-sm font-medium leading-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors ${
+                            activeTab === 'prioritization'
+                              ? 'bg-blue-600/80 text-white shadow'
+                              : 'text-gray-400 hover:bg-white/10 hover:text-white'
+                          }`}
+                          onClick={() => setActiveTab('prioritization')}
+                        >
+                          Prioritization View
+                        </button>
                       </div>
 
                       {activeTab === 'chart' && significantEntries.length > 0 && (
@@ -323,6 +336,13 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                       {activeTab === 'significance' && entries && entries.length > 0 && (
                         <div className="mb-8">
                           <CorrelationVolcanoPlot correlations={entries} alpha={alpha} />
+                        </div>
+                      )}
+
+
+                      {activeTab === 'prioritization' && (
+                        <div className="mb-8">
+                          {target && <KeystoneCentralityScatter target={target} />}
                         </div>
                       )}
 
