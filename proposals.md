@@ -1,26 +1,5 @@
 
 
-**Proposal: Keystones Biomarker Centrality Scatter Plot**
-
-**ECharts type:** `scatter`
-
-**Codebase citation:**
-Uses `correlationMethodAtom` from `src/atom/correlationAtom.ts` and `extra.optimality[]` from `src/processors/post/range.ts`.
-
-**Which existing data it uses:**
-For every biomarker in `dataAtom`, it computes its average absolute correlation coefficient with all other biomarkers. It plots each biomarker where the X-axis is this average correlation (centrality) and the Y-axis is the historical out-of-range frequency (derived by counting `true` values in `extra.optimality[]`).
-
-**What it reveals that current charts don't:**
-Identifies "keystone" vulnerabilities—biomarkers that are both highly volatile/abnormal _and_ strongly coupled to the rest of the systemic network. Prioritizing interventions on these specific markers could yield the highest cascading health benefits.
-
-**Where it would live:**
-New `src/layout/KeystoneCentralityScatter.tsx` accessed via the correlation tools.
-
-**Trigger / entry point:**
-A "Prioritization View" toggle within the Correlation modal.
-
----
-
 **Proposal: Biomarker Normality Q-Q Scatter Plot**
 
 **ECharts type:** `scatter` (Q-Q plot format)

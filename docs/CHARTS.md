@@ -18,6 +18,7 @@ This document provides an overview of all implemented charts in the application.
 12. [SupplementCorrelationGraph](#supplementcorrelationgraph)
 13. [SystemClustering](#systemclustering)
 14. [CorrelationHeatmap](#correlationheatmap)
+15. [KeystoneCentralityScatter](#keystonecentralityscatter)
 
 ---
 
@@ -180,3 +181,13 @@ This document provides an overview of all implemented charts in the application.
 ## CorrelationHeatmap
 
 --
+
+## KeystoneCentralityScatter
+
+**Locations in UI:** Correlation Modal (`Correlation.tsx`) via "Prioritization View" toggle
+**Locations in code file:** `src/layout/KeystoneCentralityScatter.tsx`
+**Purpose:** A scatter plot designed to identify "keystone" vulnerabilities—biomarkers that are both highly volatile/abnormal and strongly coupled to the rest of the systemic network. The X-axis represents the biomarker's average absolute correlation (centrality) with all other biomarkers, and the Y-axis is its historical out-of-range frequency. Prioritizing interventions on biomarkers in the top-right quadrant could yield cascading health benefits.
+**Technical info:**
+
+- **Chart Type:** `scatter`
+- **Data/Atom:** Prop: `target: string`. Directly consumes Jotai atoms: `nonInferredDataAtom`, `rankedDataMapAtom`, `correlationMethodAtom`.
