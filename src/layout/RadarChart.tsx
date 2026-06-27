@@ -6,7 +6,15 @@ import { RadarChartProps } from './RadarChart.types'
 
 export default memo(({ data, tag }: RadarChartProps) => {
   const options: EChartsOption & Pick<EChartsReactProps, 'style' | 'theme'> = useMemo(() => {
-    const indicators: any[] = []
+    const indicators: {
+      name: string
+      max: number
+      min: number
+      _actualValue: number
+      _unit: string
+      _range: string
+      _isNotOptimal: boolean
+    }[] = []
     const values: number[] = []
 
     // Optimization: Replace Array.forEach with a traditional for-loop to eliminate closure
