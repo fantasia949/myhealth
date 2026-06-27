@@ -16,23 +16,27 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
     // Only proceed if we have a target biomarker and correlated supplements
     if (!targetBiomarker || !correlations || correlations.length === 0) return {}
 
-    // ⚡ Bolt Optimization: Replace O(N log N) full array copy and sort with an O(N) insertion
-    // loop for finding the top 5 correlations. This prevents large array allocations and
-    // garbage collection overhead in this heavily recalculated useMemo hook.
+    // ⚡ Bolt Optimization: Replace O(N log N) full sort and slice with an O(N) top-K loop
+    // to eliminate intermediate array allocations and avoid sorting thousands of correlations
+    // when we only need the top 5.
     const topCorrelations: typeof correlations = []
     for (let i = 0; i < correlations.length; i++) {
       const c = correlations[i]
-      const val = Math.abs(c.rho)
-      if (topCorrelations.length < 5) {
-        topCorrelations.push(c)
-        topCorrelations.sort((a, b) => Math.abs(b.rho) - Math.abs(a.rho))
-      } else if (val > Math.abs(topCorrelations[4].rho)) {
-        let idx = 4
-        while (idx > 0 && val > Math.abs(topCorrelations[idx - 1].rho)) {
-          topCorrelations[idx] = topCorrelations[idx - 1]
-          idx--
+      const absRho = Math.abs(c.rho)
+
+      let insertIdx = topCorrelations.length
+      for (let j = 0; j < topCorrelations.length; j++) {
+        if (absRho > Math.abs(topCorrelations[j].rho)) {
+          insertIdx = j
+          break
         }
-        topCorrelations[idx] = c
+      }
+
+      if (insertIdx < 5) {
+        topCorrelations.splice(insertIdx, 0, c)
+        if (topCorrelations.length > 5) {
+          topCorrelations.pop()
+        }
       }
     }
 
