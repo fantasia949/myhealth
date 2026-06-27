@@ -24,7 +24,17 @@ const BiomarkerCorrelationGraph = React.memo(({ biomarkerId, correlations }: Gra
       },
     ]
 
-    const edges: any[] = []
+    const edges: {
+      source: string
+      target: string
+      value: number
+      lineStyle: {
+        width: number
+        curveness: number
+        color: string
+        opacity: number
+      }
+    }[] = []
 
     // ⚡ Bolt Optimization: Replace O(N log N) full sort and slice with an O(N) top-K loop
     // to eliminate intermediate array allocations and avoid sorting thousands of correlations
