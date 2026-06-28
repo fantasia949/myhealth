@@ -89,6 +89,7 @@ export default memo(({ keys }: ScatterChartProps) => {
         position: isEven ? 'left' : 'right',
         offset: sideOffset,
         nameLocation: 'middle',
+        nameRotate: isEven ? 90 : -90,
         nameGap: 50,
         axisLine: {
           show: true,
@@ -126,7 +127,7 @@ export default memo(({ keys }: ScatterChartProps) => {
 
       const values = bioMarker[1]
       const unit = bioMarker[2]
-      const validData = []
+      const validData: [string, number, string][] = []
 
       const numLabels = labels.length
       // Assuming labels length matches values length

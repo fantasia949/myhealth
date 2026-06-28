@@ -104,3 +104,45 @@ New `src/layout/LongitudinalRankParallel.tsx`, included in the statistical tools
 
 **Trigger / entry point:**
 An "Evolution Matrix" toggle in the Data Correlation tools section.
+
+---
+
+**Proposal: Measurement Frequency vs. Anomaly Rate Scatter**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+`extra.optimality[]` pre-computed by `src/processors/post/range.ts` and `BioMarker[1]` lengths from `visibleDataAtom`.
+
+**Which existing data it uses:**
+Uses the length of non-null measurements in `BioMarker[1]` to calculate frequency, and counts the `true` values in `extra.optimality[]` to calculate the anomaly rate, reading from `visibleDataAtom`.
+
+**What it reveals that current charts don't:**
+Identifies biomarkers that are rarely tested but frequently abnormal when they are measured, highlighting potential testing blind spots or interventions that are neglected.
+
+**Where it would live:**
+New `src/layout/MeasurementAnomalyScatter.tsx`, rendered in the main dashboard when "Prioritization View" is enabled.
+
+**Trigger / entry point:**
+Triggered via the existing "Prioritization View" toggle in the main dashboard, filtering data based on `tagAtom` if one is active.
+
+---
+
+**Proposal: Tag-Group Measurement Density Calendar**
+
+**ECharts type:** `calendar` + `heatmap`
+
+**Codebase citation:**
+`tagAtom` and `labels[]` from `src/data/index.ts`.
+
+**Which existing data it uses:**
+Reads the currently selected `tagAtom` to filter biomarkers, then maps the non-null data points in `BioMarker[1]` to their corresponding dates in `labels[]` to aggregate daily measurement counts.
+
+**What it reveals that current charts don't:**
+Shows the density of testing for specific physiological systems (e.g. `2-Metabolic`) on a calendar layout, revealing specific months or seasons where testing is clustered or neglected.
+
+**Where it would live:**
+New `src/layout/TagMeasurementCalendar.tsx`, rendered in a new modal or collapsible section on the main dashboard.
+
+**Trigger / entry point:**
+The existing tag filter buttons in `Nav.tsx` already set `tagAtom`; the calendar auto-renders when a single tag is active, showing the measurement density for that specific group.
