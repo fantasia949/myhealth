@@ -93,3 +93,7 @@
 ## 2024-05-19 - Pre-allocate variables outside of loops
 **Learning:** Pre-parsing invariant properties into a flat array outside of nested nested `O(N * M)` operations significantly reduces conditional branching overhead, preventing repetitive evaluations.
 **Action:** Lift invariant conditions outside of loops.
+
+## 2025-06-28 - Optimized Parallel Array Slicing in Hot Loops
+**Learning:** Calling `array.slice(-N)` multiple times on parallel arrays (e.g., values, optimality flags, original values) within a hot React `useMemo` render loop causes significant and repetitive array allocations and garbage collection overhead. Since the parallel arrays share the exact same bounding logic, slicing them independently is highly redundant.
+**Action:** Replace multiple `.slice()` calls on parallel arrays with a unified, single-pass `for` loop that iterates from the target start index (e.g., `Math.max(0, len - N)`) to the end, manually pushing elements into pre-allocated empty arrays synchronously. This eliminates array method chaining and drastically reduces object allocations.

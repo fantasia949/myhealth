@@ -568,20 +568,30 @@ export default React.memo(
           const name = entry[0]
           const unit = entry[2]
 
-          const sliceArg = showRecords ? -showRecords : 0
-          // Use original array if showing all records to avoid copy overhead
-          const visibleValues = showRecords ? values.slice(sliceArg) : values
-          const visibleOptimality = extra.optimality
-            ? showRecords
-              ? extra.optimality.slice(sliceArg)
-              : extra.optimality
-            : null
+          // ⚡ Bolt Optimization: Avoid multiple array .slice() allocations for parallel arrays
+          // inside a hot iteration block by using a unified single-pass loop.
+          let visibleValues = values
+          let visibleOptimality = extra.optimality ?? null
+          let visibleOriginValues = extra.originValues
 
-          const visibleOriginValues = extra.originValues
-            ? showRecords
-              ? extra.originValues.slice(sliceArg)
-              : extra.originValues
-            : extra.originValues
+          if (showRecords && values && values.length > 0) {
+            const valLen = values.length
+            const start = Math.max(0, valLen - showRecords)
+
+            visibleValues = []
+            if (extra.optimality) visibleOptimality = []
+            if (extra.originValues) visibleOriginValues = []
+
+            for (let k = start; k < valLen; k++) {
+              visibleValues.push(values[k])
+              if (extra.optimality && visibleOptimality) {
+                ;(visibleOptimality as boolean[]).push(extra.optimality[k])
+              }
+              if (extra.originValues && visibleOriginValues) {
+                ;(visibleOriginValues as (number | string | null)[]).push(extra.originValues[k])
+              }
+            }
+          }
 
           const processedTags = extra.processedTags!
           const tagsLen = processedTags.length
