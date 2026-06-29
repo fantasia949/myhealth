@@ -4,7 +4,7 @@ import cn from 'classnames'
 import { labels } from '../data'
 import { visibleDataAtom, notesAtom, filterTextAtom, tagAtom } from '../atom/dataAtom'
 import { useAtomValue } from 'jotai'
-import { useTable, createCoreRowModel, createFilteredRowModel, createColumnHelper, flexRender, ColumnDef, createGroupedRowModel, createExpandedRowModel, GroupingState, ExpandedState, tableFeatures, filterFns, columnFilteringFeature, rowExpandingFeature, columnGroupingFeature, rowSelectionFeature, columnVisibilityFeature, Row } from '@tanstack/react-table';
+import { useTable, createFilteredRowModel, createColumnHelper, flexRender, createGroupedRowModel, createExpandedRowModel, GroupingState, ExpandedState, tableFeatures, filterFns, columnFilteringFeature, rowExpandingFeature, columnGroupingFeature, rowSelectionFeature, columnVisibilityFeature } from '@tanstack/react-table';
 import {
   ChevronRightIcon,
   ChevronDownIcon,
