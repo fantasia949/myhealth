@@ -9,21 +9,68 @@ interface FocusedCorrelationChartProps {
 
 export default memo(({ correlations, alpha }: FocusedCorrelationChartProps) => {
   const options = useMemo(() => {
-    // Sort by coefficient (descending) to show strongest positive at top, strongest negative at bottom
-    // Optimization: Replace array slicing, spreading, and chained .map() with a classic
-    // for-loop to eliminate intermediate allocations, holey arrays, and closure overhead.
-    const sorted = [...correlations].sort((a, b) => a[3] - b[3])
-    const len = sorted.length
+    const len = correlations.length
     const isLarge = len > 20
     const displayLen = isLarge ? 20 : len
+
+    // ⚡ Bolt Optimization: Replace O(N log N) full array sort and [...correlations] spread
+    // with an O(N) single-pass loop that maintains bounded top/bottom 10 arrays.
+    // This significantly reduces time complexity and avoids intermediate array allocations.
+    let displayCorrelations: typeof correlations = []
+
+    if (isLarge) {
+      const bottom10: typeof correlations = []
+      const top10: typeof correlations = []
+
+      for (let i = 0; i < len; i++) {
+        const c = correlations[i]
+        const coeff = c[3]
+
+        if (bottom10.length < 10 || coeff < bottom10[bottom10.length - 1][3]) {
+          let insertIdx = bottom10.length
+          for (let j = 0; j < bottom10.length; j++) {
+            if (coeff < bottom10[j][3]) {
+              insertIdx = j
+              break
+            }
+          }
+          bottom10.splice(insertIdx, 0, c)
+          if (bottom10.length > 10) {
+            bottom10.pop()
+          }
+        }
+
+        // Check if it should go into top 10 positive (using >= to match stable sort behavior on ties)
+        if (top10.length < 10 || coeff >= top10[top10.length - 1][3]) {
+          let insertIdx = top10.length
+          for (let j = 0; j < top10.length; j++) {
+            if (coeff >= top10[j][3]) {
+              insertIdx = j
+              break
+            }
+          }
+          top10.splice(insertIdx, 0, c)
+          if (top10.length > 10) {
+            top10.pop()
+          }
+        }
+      }
+
+      for (let i = 0; i < bottom10.length; i++) {
+        displayCorrelations.push(bottom10[i])
+      }
+      for (let i = top10.length - 1; i >= 0; i--) {
+        displayCorrelations.push(top10[i])
+      }
+    } else {
+      displayCorrelations = [...correlations].sort((a, b) => a[3] - b[3])
+    }
 
     const names: string[] = []
     const values: any[] = []
 
     for (let i = 0; i < displayLen; i++) {
-      // If large, take top 10 (indices 0-9) and bottom 10 (indices len-10 to len-1)
-      const idx = isLarge && i >= 10 ? len - 20 + i : i
-      const c = sorted[idx]
+      const c = displayCorrelations[i]
 
       names.push(c[0])
 
