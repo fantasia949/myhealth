@@ -7,8 +7,9 @@ import type {
   XAXisComponentOption,
   YAXisComponentOption,
   ScatterSeriesOption,
-  TooltipComponentOption,
+  TooltipComponentOption
 } from 'echarts'
+import type { CallbackDataParams } from 'echarts/types/dist/shared'
 import { CHART_PALETTE } from './Chart2'
 import { formattedLabels } from '../data'
 import { RankScatterMatrixProps } from './RankScatterMatrix.types'
@@ -20,8 +21,8 @@ export default memo(({ keys }: RankScatterMatrixProps) => {
     const numVars = keys.length
     if (numVars < 2 || numVars > 5) return null
 
-    const datasetSource: any[][] = []
-    const headerRow: any[] = ['Date']
+    const datasetSource: (string | number)[][] = []
+    const headerRow: (string | number)[] = ['Date']
     for (let i = 0; i < numVars; i++) {
       headerRow.push(keys[i])
     }
@@ -41,7 +42,7 @@ export default memo(({ keys }: RankScatterMatrixProps) => {
 
     for (let i = 0; i < maxLen; i++) {
       let isValidRow = true
-      const row: any[] = [formattedLabels[i] || `Point ${i}`]
+      const row: (string | number)[] = [formattedLabels[i] || `Point ${i}`]
       for (let j = 0; j < numVars; j++) {
         const arr = rankArrays[j]
         const val = arr ? arr[i] : NaN
@@ -142,7 +143,8 @@ export default memo(({ keys }: RankScatterMatrixProps) => {
         textStyle: {
           color: '#f0f0f0',
         },
-        formatter: (params: any) => {
+        formatter: (p: CallbackDataParams | CallbackDataParams[]) => {
+          const params = (Array.isArray(p) ? p[0] : p) as CallbackDataParams & { encode: { x: number[], y: number[] }, value: (string | number)[], marker: string };
           if (params.value) {
             const date = params.value[0]
             const valX = params.value[params.encode.x[0]]
