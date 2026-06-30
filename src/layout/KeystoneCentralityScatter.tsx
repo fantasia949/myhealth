@@ -190,17 +190,27 @@ export default React.memo(function KeystoneCentralityScatter({ target }: Keyston
       series: [
         {
           type: 'scatter',
-          data: chartData.map((item) => ({
-            name: item.name,
-            value: [item.centrality, item.oorFrequency],
-            itemStyle: {
-              color: item.isTarget ? '#3b82f6' : CHART_PALETTE[1],
-              opacity: item.isTarget ? 1 : 0.6,
-              borderColor: item.isTarget ? '#60a5fa' : 'transparent',
-              borderWidth: item.isTarget ? 2 : 0,
-            },
-            symbolSize: item.isTarget ? 14 : 10,
-          })),
+          data: (() => {
+            // ⚡ Bolt Optimization: Replace chained .map() with classic for-loop
+            // to avoid closure allocation per render and speed up ECharts data mapping.
+            const dataLen = chartData.length
+            const mappedData = []
+            for (let i = 0; i < dataLen; i++) {
+              const item = chartData[i]
+              mappedData.push({
+                name: item.name,
+                value: [item.centrality, item.oorFrequency],
+                itemStyle: {
+                  color: item.isTarget ? '#3b82f6' : CHART_PALETTE[1],
+                  opacity: item.isTarget ? 1 : 0.6,
+                  borderColor: item.isTarget ? '#60a5fa' : 'transparent',
+                  borderWidth: item.isTarget ? 2 : 0,
+                },
+                symbolSize: item.isTarget ? 14 : 10,
+              })
+            }
+            return mappedData
+          })(),
         },
       ],
     }
