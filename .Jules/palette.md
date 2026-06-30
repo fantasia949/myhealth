@@ -7,3 +7,8 @@
 
 **Learning:** When using `aria-expanded` on toggle buttons (like mobile menus), it is not enough to just announce the expanded state. Screen readers also need to know *what* container is being expanded. Always pair `aria-expanded` with `aria-controls="[container-id]"` and ensure the target container has a matching `id`.
 **Action:** Next time implementing or auditing a toggle button with `aria-expanded`, ensure `aria-controls` is present and correctly linked to the target element's `id`.
+
+## 2024-05-31 - Add aria-controls to aria-expanded toggles
+
+**Learning:** When using `aria-expanded` on toggle buttons (like accordion expanders or table row expanders), it is important for screen readers to know *what* container is being expanded. Always pair `aria-expanded` with `aria-controls="[container-id]"` and ensure the target container has a matching `id`.
+**Action:** Next time implementing or auditing a toggle button with `aria-expanded`, ensure `aria-controls` is present and correctly linked to the target element's `id`.

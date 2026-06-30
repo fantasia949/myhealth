@@ -4,7 +4,7 @@ import cn from 'classnames'
 import { labels } from '../data'
 import { visibleDataAtom, notesAtom, filterTextAtom, tagAtom } from '../atom/dataAtom'
 import { useAtomValue } from 'jotai'
-import { useTable, createCoreRowModel, createFilteredRowModel, createColumnHelper, flexRender, ColumnDef, createGroupedRowModel, createExpandedRowModel, GroupingState, ExpandedState, tableFeatures, filterFns, columnFilteringFeature, rowExpandingFeature, columnGroupingFeature, rowSelectionFeature, columnVisibilityFeature, Row } from '@tanstack/react-table';
+import { useTable, createFilteredRowModel, createColumnHelper, flexRender, createGroupedRowModel, createExpandedRowModel, GroupingState, ExpandedState, tableFeatures, filterFns, columnFilteringFeature, rowExpandingFeature, columnGroupingFeature, rowSelectionFeature, columnVisibilityFeature } from '@tanstack/react-table';
 import {
   ChevronRightIcon,
   ChevronDownIcon,
@@ -204,6 +204,7 @@ const TableRow = React.memo(
                 className="hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1"
                 aria-label={isExpanded ? `Collapse chart for ${name}` : `Expand chart for ${name}`}
                 aria-expanded={isExpanded}
+                aria-controls={`expanded-chart-${safeNameId}`}
               >
                 {isExpanded ? (
                   <MinusIcon className="h-5 w-5" aria-hidden="true" />
@@ -311,7 +312,7 @@ const TableRow = React.memo(
           )}
         </tr>
         {isExpanded && (
-          <tr className="bg-gray-800">
+          <tr id={`expanded-chart-${safeNameId}`} className="bg-gray-800">
             <td colSpan={visibleLeafColumnsCount} className="border border-gray-700">
               <React.Suspense
                 fallback={
