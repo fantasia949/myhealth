@@ -186,3 +186,45 @@ New `src/layout/DirectionalCorrelationScatter.tsx`.
 
 **Trigger / entry point:**
 A "Directional Profile" view option inside the correlation analysis tools modal, automatically activated when the user selects 'less' or 'greater' in the `correlationAlternativeAtom` dropdown.
+
+---
+
+**Proposal: Categorical Data Sample Pictorial Bar**
+
+**ECharts type:** `pictorialBar`
+
+**Codebase citation:**
+Uses the `getSamples: (num: number, count?: number) => string[]` function from `BioMarker[3]` in `src/types/biomarker.ts`.
+
+**Which existing data it uses:**
+It calls `getSamples(5, totalCount)` to extract representative string examples of raw measurements for categorical or semi-quantitative biomarkers that do not have pure numeric `values[]` arrays.
+
+**What it reveals that current charts don't:**
+It visualizes the actual text distribution of non-numeric lab results (e.g., "Trace", "Moderate", "High", "Negative") which are currently discarded or mapped to null by standard time-series numeric charts. This reclaims visibility for qualitative test results.
+
+**Where it would live:**
+New `src/layout/CategoricalSampleBar.tsx`.
+
+**Trigger / entry point:**
+Auto-renders inside the detailed biomarker view for biomarkers where numeric `values[]` are primarily null but `getSamples` returns valid text representations.
+
+---
+
+**Proposal: Tag Cross-Pollination Graph**
+
+**ECharts type:** `graph` (circular layout)
+
+**Codebase citation:**
+Uses the `extra.processedTags` array (`Array<{ tag: string; displayTag: string; sortKey: string }>`) from `BioMarker[3]` in `src/types/biomarker.ts`.
+
+**Which existing data it uses:**
+It maps all biomarkers in `dataAtom` that have multiple assigned tags in their `processedTags` array, drawing links between tags that frequently co-occur on the same biomarkers.
+
+**What it reveals that current charts don't:**
+Highlights physiological overlap—e.g., if many markers are shared between `2-Metabolic` and `3-Liver`, the thick chord between them indicates high diagnostic interdependence between those systems, which linear bar charts or scatter plots cannot represent.
+
+**Where it would live:**
+New `src/layout/TagOverlapGraph.tsx`.
+
+**Trigger / entry point:**
+A "System Overlap View" button located inside the Tags filter panel.
