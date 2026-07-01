@@ -107,3 +107,49 @@ An "Evolution Matrix" toggle in the Data Correlation tools section.
 
 ---
 
+
+**Proposal: Measurement Frequency vs. Anomaly Rate Scatter**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+Uses `values` (for counting valid measurements) from `dataAtom` and `extra.optimality[]` from `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+It calculates the total number of non-null measurements for each biomarker in `dataAtom` (frequency) and maps it against the percentage of those measurements that are marked `true` in `extra.optimality[]` (anomaly rate).
+
+**Axes:**
+- X-axis: Measurement Frequency (Count of non-null values for a biomarker)
+- Y-axis: Anomaly Rate (Percentage of measurements flagged as out-of-range)
+
+**What it reveals that current charts don't:**
+It immediately identifies "under-tested problem areas." If a biomarker is extremely anomalous but rarely tested (high Y, low X), it warrants much more frequent testing. Existing charts show values over time, but do not juxtapose testing cadence against historical failure rates.
+
+**Where it would live:**
+New `src/layout/MeasurementFrequencyScatter.tsx`.
+
+**Trigger / entry point:**
+Available as a "Testing Strategy" diagnostic view in the main sidebar or dashboard overview.
+
+---
+
+**Proposal: Tag-Group Measurement Density Calendar**
+
+**ECharts type:** `calendar` (with custom series mapping)
+
+**Codebase citation:**
+Uses the date array `labels` from `src/data/index.ts`, grouped by `extra.tag[]` from `src/processors/post/tag.ts`.
+
+**Which existing data it uses:**
+For each specific day in `labels`, it counts the total number of biomarkers within a given tag group (e.g. `2-Metabolic`) that have a non-null value. It maps this density to a calendar heatmap.
+
+**What it reveals that current charts don't:**
+It provides a high-level view of testing consistency over the year. Instead of seeing discrete points in a line chart or scatter plot, a user can instantly see the cadence and "completeness" of their testing panels on specific dates (e.g., "I only tested Hormone markers three times last year, but Liver markers every month").
+
+**Where it would live:**
+New `src/layout/MeasurementDensityCalendar.tsx`.
+
+**Trigger / entry point:**
+A "Calendar Overview" toggle or tab in the primary Dashboard view, reacting to the currently selected `tagAtom`.
+
+---
