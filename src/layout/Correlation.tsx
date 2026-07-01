@@ -15,6 +15,7 @@ import { CORRELATION_EXCLUDED_BIOMARKERS } from '../config/correlations'
 import FocusedCorrelationChart from './FocusedCorrelationChart'
 import CorrelationVolcanoPlot from './CorrelationVolcanoPlot'
 import KeystoneCentralityScatter from './KeystoneCentralityScatter'
+import DirectionalCorrelationScatter from './DirectionalCorrelationScatter'
 
 export default React.memo(({ target, onClose }: CorrelationProps) => {
   const data = useAtomValue(nonInferredDataAtom)
@@ -24,7 +25,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
   const [alternative, setAlternative] = useAtom(correlationAlternativeAtom)
   const [method, setMethod] = useAtom(correlationMethodAtom)
   const [isCopied, setIsCopied] = React.useState(false)
-  const [activeTab, setActiveTab] = React.useState<'chart' | 'significance' | 'table' | 'prioritization'>('chart')
+  const [activeTab, setActiveTab] = React.useState<'chart' | 'significance' | 'table' | 'prioritization' | 'directional'>('chart')
 
   const entries = React.useMemo(() => {
     if (!Array.isArray(data) || !target) {
@@ -260,9 +261,15 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                             <select
                               id="corr-alt"
                               value={alternative}
-                              onChange={(e) =>
-                                setAlternative(e.target.value as 'two-sided' | 'less' | 'greater')
-                              }
+                              onChange={(e) => {
+                                const newAlternative = e.target.value as 'two-sided' | 'less' | 'greater';
+                                setAlternative(newAlternative);
+                                if (newAlternative !== 'two-sided' && activeTab === 'chart') {
+                                  setActiveTab('directional');
+                                } else if (newAlternative === 'two-sided' && activeTab === 'directional') {
+                                  setActiveTab('chart');
+                                }
+                              }}
                               className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
                             >
                               <option value="two-sided">Two-sided</option>
@@ -310,6 +317,20 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                         >
                           Table View
                         </button>
+                        {alternative !== 'two-sided' && (
+                          <button
+                            type="button"
+                            aria-pressed={activeTab === 'directional'}
+                            className={`w-full rounded-lg py-2.5 text-sm font-medium leading-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors ${
+                              activeTab === 'directional'
+                                ? 'bg-blue-600/80 text-white shadow'
+                                : 'text-gray-400 hover:bg-white/10 hover:text-white'
+                            }`}
+                            onClick={() => setActiveTab('directional')}
+                          >
+                            Directional Profile
+                          </button>
+                        )}
                         <button
                           type="button"
                           aria-pressed={activeTab === 'prioritization'}
@@ -323,6 +344,17 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                           Prioritization View
                         </button>
                       </div>
+
+
+                      {activeTab === 'directional' && alternative !== 'two-sided' && significantEntries.length > 0 && (
+                        <div className="mb-8">
+                          <DirectionalCorrelationScatter
+                            target={target!}
+                            correlations={significantEntries.map(e => [e[0], e[2], e[3]])}
+                            alternative={alternative}
+                          />
+                        </div>
+                      )}
 
                       {activeTab === 'chart' && significantEntries.length > 0 && (
                         <div className="mb-8">
