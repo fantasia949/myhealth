@@ -67,7 +67,7 @@ export default memo(({ correlations, alpha }: FocusedCorrelationChartProps) => {
     }
 
     const names: string[] = []
-    const values: any[] = []
+    const values: { value: number; itemStyle: { color: string; opacity: number } }[] = []
 
     for (let i = 0; i < displayLen; i++) {
       const c = displayCorrelations[i]
