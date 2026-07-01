@@ -177,7 +177,7 @@ const SupplementCorrelation = React.memo(
                 leaveFrom="translate-x-0"
                 leaveTo="translate-x-full"
               >
-                <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden bg-[#222222] text-dark-text shadow-xl transition-all h-screen ml-auto border-l border-gray-700 flex flex-col">
+                <Dialog.Panel className="w-full lg:w-1/3 transform overflow-hidden bg-[#222222] text-dark-text shadow-xl transition-all h-screen ml-auto border-l border-gray-700 flex flex-col">
                   <div className="p-6 pb-2 border-b border-gray-700 flex justify-between items-center shrink-0">
                     <Dialog.Title className="text-lg font-medium leading-6 truncate pr-2">
                       Correlations: {supplementName}
