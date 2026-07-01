@@ -191,3 +191,18 @@ This document provides an overview of all implemented charts in the application.
 
 - **Chart Type:** `scatter`
 - **Data/Atom:** Prop: `target: string`. Directly consumes Jotai atoms: `nonInferredDataAtom`, `rankedDataMapAtom`, `correlationMethodAtom`.
+
+## DirectionalCorrelationScatter
+
+**ECharts Type:** `scatter` (Profile Scatter Matrix Subset)
+
+**File:** `src/layout/DirectionalCorrelationScatter.tsx`
+
+**Purpose:** Visualizes asymmetric, directional limits and boundary-conditional relationships between a target biomarker and its correlates. It plots raw values of the Target Biomarker (X-axis) against a Selected Correlated Biomarker (Y-axis), allowing users to uncover physiological feedback loops (e.g., "Biomarker A only drags Biomarker B down when it crosses a certain threshold").
+
+**Key Features:**
+- Target and Selected average `markLine` reference lines to divide data into quadrants.
+- Tooltip describing individual observations.
+- Dropdown selector to switch between different top-correlated biomarkers for the given directional alternative hypothesis ('less' or 'greater').
+
+**Dependencies:** Relies on `correlationAlternativeAtom` and correlation scores to determine the active directionality and identify the top correlations.
