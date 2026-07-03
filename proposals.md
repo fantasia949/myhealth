@@ -153,3 +153,51 @@ New `src/layout/MeasurementDensityCalendar.tsx`.
 A "Calendar Overview" toggle or tab in the primary Dashboard view, reacting to the currently selected `tagAtom`.
 
 ---
+
+**Proposal: Biomarker Volatility vs. Baseline Scatter Plot**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+Uses `extra.isNotOptimal` function from `src/types/biomarker.ts` and overall `values` arrays from `dataAtom.ts`.
+
+**Which existing data it uses:**
+It calculates the coefficient of variation (CV) for each biomarker from its `values[]` array and plots it against its baseline deviation (mean difference from the median of its optimal range defined in `extra.range`). It strictly uses measured values from `nonInferredDataAtom`.
+
+**Axes:**
+- X-axis: Baseline Deviation (Normalized mean distance from optimal range center).
+- Y-axis: Coefficient of Variation (Volatility over time).
+
+**What it reveals that current charts don't:**
+Identifies "silent drifters" (low volatility but high baseline deviation) vs "unstable responders" (high volatility, close to baseline). This helps prioritize interventions: stabilize highly volatile markers vs gradually shift structurally displaced markers. Current timeline charts only show raw values, making systemic volatility comparison difficult.
+
+**Where it would live:**
+New `src/layout/VolatilityBaselineScatter.tsx`, rendered in the main Dashboard next to the existing RadarChart.
+
+**Trigger / entry point:**
+A "Volatility vs. Baseline" toggle in the Dashboard view.
+
+---
+
+**Proposal: Tag Group Anomaly Correlation Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.tag[]` from `src/processors/post/tag.ts` and `extra.optimality[]` from `src/processors/post/range.ts` accessed via `dataMapAtom`.
+
+**Which existing data it uses:**
+Instead of correlating individual biomarkers, it correlates entire system tags. For each time point, it calculates the percentage of biomarkers in a tag group (e.g. `3-Liver`) that are out of range (where `extra.optimality` is true). It then computes a pairwise correlation matrix of these tag-group anomaly percentages using `correlationMethodAtom`.
+
+**Axes:**
+- X-axis: Tag Groups (`1-RBC`, `2-Metabolic`, `3-Liver`, etc.)
+- Y-axis: Tag Groups (`1-RBC`, `2-Metabolic`, `3-Liver`, etc.)
+
+**What it reveals that current charts don't:**
+Reveals high-level systemic failures. It answers questions like: "When my Metabolic system goes out of range, does my Kidney system follow?" The existing correlation matrix only works at the granular biomarker level, which is noisy. This provides a holistic, system-to-system stress diagnostic.
+
+**Where it would live:**
+New `src/layout/TagGroupCorrelationHeatmap.tsx`, in the System Overview tab.
+
+**Trigger / entry point:**
+An "Inter-System Correlation" toggle within the existing correlation modal or System Clustering view.

@@ -249,7 +249,10 @@ export default memo(({ keys }: ChartProps) => {
               `${params.marker} ${keys[1]}: <strong>${val2}${u1}</strong>`
             )
           }
-          return `<strong>Regression Trend</strong>${regressionExpression ? `<br/>${regressionExpression}` : ''}`
+          // Scan 2 Fix: Fallback for regression tooltip (regression line is rendered by 'line' series type)
+          // `regressionExpression` is outside the closure. ecStat formulaOn: 'end' stores the expression string in `params.value[2]`.
+          const formula = params.value && typeof params.value[2] === 'string' ? params.value[2] : ''
+          return `<strong>Regression Trend</strong>${formula ? `<br/>${formula}` : ''}`
         },
       },
       dataset,
