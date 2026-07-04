@@ -1,7 +1,7 @@
 import mergeEntries from '../processors/merge'
 import data from './aggregated'
 
-const addLabels = ['251015', '251120', '251228', '260129', '260305', '260411', '260602']
+const addLabels = ['251015', '251120', '251228', '260129', '260305', '260411', '260602', '260703']
 
 // Optimization: Pre-allocate the labels array and use a simple for-loop
 // instead of array spread and array.map to eliminate garbage collection overhead.
