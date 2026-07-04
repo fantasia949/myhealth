@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react'
-import ReactECharts from 'echarts-for-react'
+import ReactECharts, { EChartsReactProps } from 'echarts-for-react'
 import { CHART_PALETTE } from './Chart2'
 import type { EChartsOption } from 'echarts'
 
@@ -9,7 +9,7 @@ interface CorrelationVolcanoPlotProps {
 }
 
 export default memo(({ correlations, alpha }: CorrelationVolcanoPlotProps) => {
-  const options = useMemo<EChartsOption>(() => {
+  const options = useMemo<EChartsOption & Pick<EChartsReactProps, 'style' | 'theme'>>(() => {
     // Optimization: Replace Array.map() with a classic for-loop and dense array push
     // to avoid closure allocation and function call overhead for each element.
     const data = []
@@ -91,7 +91,7 @@ export default memo(({ correlations, alpha }: CorrelationVolcanoPlotProps) => {
           },
         },
       ],
-    } as any // cast because style and theme are passed to ReactECharts, strict EChartsOption doesn't have style
+    }
   }, [correlations, alpha])
 
   if (correlations.length === 0) return null
