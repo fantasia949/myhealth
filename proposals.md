@@ -201,3 +201,52 @@ New `src/layout/TagGroupCorrelationHeatmap.tsx`, in the System Overview tab.
 
 **Trigger / entry point:**
 An "Inter-System Correlation" toggle within the existing correlation modal or System Clustering view.
+
+---
+
+**Proposal: Inferred vs Measured Origin Deviation Parallel Coordinates**
+
+**ECharts type:** `parallel`
+
+**Codebase citation:**
+Uses `extra.originValues[]` and `extra.inferred` from `src/types/biomarker.ts` for biomarkers accessed via `dataAtom`.
+
+**Which existing data it uses:**
+It filters for biomarkers that have both `extra.inferred: true` and a valid underlying `extra.originValues[]` (the measured data before unit conversion or computational derivation). It compares the progression of the normalized inferred `values` against the normalized `extra.originValues` across multiple time steps in `labels`.
+
+**Axes:**
+Each parallel axis represents a time point from `labels`. The lines plot the normalized relative rank or percentile of the `values` vs. the `originValues`.
+
+**What it reveals that current charts don't:**
+It highlights "computational drift." When inferred biomarkers (e.g. calculated LDL or complex scores) deviate significantly from their origin inputs over time, the parallel coordinate paths will criss-cross, exposing a divergence where the computational model might be exaggerating or masking true physiological changes present in the measured origin data.
+
+**Where it would live:**
+New `src/layout/InferredDriftParallel.tsx`.
+
+**Trigger / entry point:**
+A "Computation Audit" mode in the main settings that becomes active when inferred markers are selected via `filterTextAtom` or `tagAtom`.
+
+---
+
+**Proposal: Multi-Tag Synchronized Volatility Brush Timeline**
+
+**ECharts type:** `line` (with `dataZoom` and `brush` capabilities across synchronized multiple grids)
+
+**Codebase citation:**
+Leverages `extra.tag[]` from `src/processors/post/tag.ts` and `rankedDataMapAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+It calculates a moving average volatility score for each major tag group (e.g., `3-Liver`, `4-Lipid`, `2-Metabolic`) using the aggregated `rankedDataMapAtom` scores for the markers inside those tags.
+
+**Axes:**
+- X-axis: Time (from `labels`)
+- Y-axis (multiple stacked grids): Tag Group Volatility (Standard deviation or change rate of Spearman ranks over a rolling window).
+
+**What it reveals that current charts don't:**
+By stacking these tags vertically on synchronized time axes with brush support, users can highlight a specific window where one system (e.g., Liver) became highly volatile, and immediately see if another system (e.g., Metabolic) experienced a delayed cascading volatility spike weeks later, revealing chronological cross-system health dependencies.
+
+**Where it would live:**
+New `src/layout/CrossSystemVolatilityTimeline.tsx`.
+
+**Trigger / entry point:**
+A "System Interplay" view toggle next to the standard line/scatter chart tabs.
