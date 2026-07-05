@@ -23,18 +23,13 @@ export default React.memo(
     // Make sure selectedBiomarker is valid
     const actualSelectedBiomarker = React.useMemo(() => {
       if (sortedCorrelations.length === 0) return null
-      // Optimization: Replace Array.some() with a classic loop for faster O(N) evaluation
-      let isValid = false
+      // ⚡ Bolt Optimization: Replaced O(N) .some() with O(N) for loop but avoided closure allocation
       if (selectedBiomarker) {
         for (let i = 0; i < sortedCorrelations.length; i++) {
           if (sortedCorrelations[i][0] === selectedBiomarker) {
-            isValid = true
-            break
+            return selectedBiomarker
           }
         }
-      }
-      if (selectedBiomarker && isValid) {
-        return selectedBiomarker
       }
       return sortedCorrelations[0][0]
     }, [sortedCorrelations, selectedBiomarker])
@@ -61,8 +56,8 @@ export default React.memo(
         }
       }
 
-      // Optimization: Replace Array.find() with a classic loop for faster O(N) evaluation
-      let currentCorrelation = undefined
+      // ⚡ Bolt Optimization: Replace O(N) Array.find() with O(N) classic for-loop to avoid closure allocation
+      let currentCorrelation
       for (let i = 0; i < sortedCorrelations.length; i++) {
         if (sortedCorrelations[i][0] === actualSelectedBiomarker) {
           currentCorrelation = sortedCorrelations[i]
