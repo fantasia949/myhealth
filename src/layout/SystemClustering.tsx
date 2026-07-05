@@ -92,21 +92,26 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
   const [xAxisTag, setXAxisTag] = useState<string | null>(null)
   const [yAxisTag, setYAxisTag] = useState<string | null>(null)
 
-  const effectiveXAxisTag =
-    xAxisTag !== null
-      ? xAxisTag
-      : availableTags.length > 0
-        ? availableTags.find((t) => t.includes('2-Metabolic')) || availableTags[0] || ''
-        : ''
-  const effectiveYAxisTag =
-    yAxisTag !== null
-      ? yAxisTag
-      : availableTags.length > 0
-        ? availableTags.find((t) => t.includes('3-Liver') || t.includes('4-Lipid')) ||
-          availableTags[1] ||
-          availableTags[0] ||
-          ''
-        : ''
+  const effectiveXAxisTag = useMemo(() => {
+    if (xAxisTag !== null) return xAxisTag
+    if (availableTags.length === 0) return ''
+    // ⚡ Bolt Optimization: Replace O(N) Array.find() with a standard for-loop
+    // to avoid closure allocation overhead.
+    for (let i = 0; i < availableTags.length; i++) {
+      if (availableTags[i].includes('2-Metabolic')) return availableTags[i]
+    }
+    return availableTags[0] || ''
+  }, [xAxisTag, availableTags])
+  const effectiveYAxisTag = useMemo(() => {
+    if (yAxisTag !== null) return yAxisTag
+    if (availableTags.length === 0) return ''
+    // ⚡ Bolt Optimization: Replace O(N) Array.find() with a standard for-loop
+    // to avoid closure allocation overhead.
+    for (let i = 0; i < availableTags.length; i++) {
+      if (availableTags[i].includes('3-Liver') || availableTags[i].includes('4-Lipid')) return availableTags[i]
+    }
+    return availableTags[1] || availableTags[0] || ''
+  }, [yAxisTag, availableTags])
 
   const options = useMemo(() => {
     if (!data || data.length === 0 || !noteValues || noteValues.length === 0) return echartsOptions

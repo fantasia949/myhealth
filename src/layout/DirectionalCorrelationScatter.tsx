@@ -23,7 +23,17 @@ export default React.memo(
     // Make sure selectedBiomarker is valid
     const actualSelectedBiomarker = React.useMemo(() => {
       if (sortedCorrelations.length === 0) return null
-      if (selectedBiomarker && sortedCorrelations.some(c => c[0] === selectedBiomarker)) {
+      // ⚡ Bolt Optimization: Replace O(N) Array.some() with a standard for-loop
+      let hasBiomarker = false
+      if (selectedBiomarker) {
+        for (let i = 0; i < sortedCorrelations.length; i++) {
+          if (sortedCorrelations[i][0] === selectedBiomarker) {
+            hasBiomarker = true
+            break
+          }
+        }
+      }
+      if (hasBiomarker) {
         return selectedBiomarker
       }
       return sortedCorrelations[0][0]
@@ -51,7 +61,15 @@ export default React.memo(
         }
       }
 
-      const currentCorrelation = sortedCorrelations.find((c) => c[0] === actualSelectedBiomarker)
+      // ⚡ Bolt Optimization: Replace O(N) Array.find() with a standard for-loop
+      // to eliminate higher-order function overhead in the render path.
+      let currentCorrelation
+      for (let i = 0; i < sortedCorrelations.length; i++) {
+        if (sortedCorrelations[i][0] === actualSelectedBiomarker) {
+          currentCorrelation = sortedCorrelations[i]
+          break
+        }
+      }
       const coeff = currentCorrelation ? currentCorrelation[2] : 0
 
       const isPositive = coeff > 0

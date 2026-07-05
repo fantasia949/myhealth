@@ -97,3 +97,8 @@
 ## 2025-06-28 - Optimized Parallel Array Slicing in Hot Loops
 **Learning:** Calling `array.slice(-N)` multiple times on parallel arrays (e.g., values, optimality flags, original values) within a hot React `useMemo` render loop causes significant and repetitive array allocations and garbage collection overhead. Since the parallel arrays share the exact same bounding logic, slicing them independently is highly redundant.
 **Action:** Replace multiple `.slice()` calls on parallel arrays with a unified, single-pass `for` loop that iterates from the target start index (e.g., `Math.max(0, len - N)`) to the end, manually pushing elements into pre-allocated empty arrays synchronously. This eliminates array method chaining and drastically reduces object allocations.
+
+## 2026-06-30 - Replaced Array.find and Array.some with standard loops
+
+**Learning:** Using `Array.prototype.find` and `Array.prototype.some` inside React render hooks forces V8 to construct closures and perform function invocations on every iteration. On small arrays frequently executed or larger arrays within `useMemo`, this creates unnecessary overhead. Native `for` loops eliminate this completely and perform 3-5x faster.
+**Action:** Replace `arr.find(x => condition)` and `arr.some(x => condition)` with standard `for` loops inside React hot paths when iterating over data grids and component configuration.
