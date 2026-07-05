@@ -97,3 +97,7 @@
 ## 2025-06-28 - Optimized Parallel Array Slicing in Hot Loops
 **Learning:** Calling `array.slice(-N)` multiple times on parallel arrays (e.g., values, optimality flags, original values) within a hot React `useMemo` render loop causes significant and repetitive array allocations and garbage collection overhead. Since the parallel arrays share the exact same bounding logic, slicing them independently is highly redundant.
 **Action:** Replace multiple `.slice()` calls on parallel arrays with a unified, single-pass `for` loop that iterates from the target start index (e.g., `Math.max(0, len - N)`) to the end, manually pushing elements into pre-allocated empty arrays synchronously. This eliminates array method chaining and drastically reduces object allocations.
+
+## 2024-05-18 - Avoid O(N) Array.find() inside useMemo blocks and render cycles
+**Learning:** React component files often make use of `Array.find()`, `Array.some()`, and other higher-order array methods directly within the component scope or inside `useMemo` hooks. Although this seems trivial, `Array.find()` has an O(N) complexity and creates closure allocations every time it's called. In React, avoiding these function calls where possible and using a standard O(N) `for` loop avoids additional garbage collection overhead.
+**Action:** When working on performance optimization, if I see `Array.find()` inside `useMemo` or directly in the render cycle, I can optimize it by using a standard `for` loop.
