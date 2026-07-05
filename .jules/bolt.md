@@ -101,3 +101,6 @@
 ## 2024-05-18 - Avoid O(N) Array.find() inside useMemo blocks and render cycles
 **Learning:** React component files often make use of `Array.find()`, `Array.some()`, and other higher-order array methods directly within the component scope or inside `useMemo` hooks. Although this seems trivial, `Array.find()` has an O(N) complexity and creates closure allocations every time it's called. In React, avoiding these function calls where possible and using a standard O(N) `for` loop avoids additional garbage collection overhead.
 **Action:** When working on performance optimization, if I see `Array.find()` inside `useMemo` or directly in the render cycle, I can optimize it by using a standard `for` loop.
+## 2023-11-20 - Chart Component Optimizations
+**Learning:** Extracting string templates and variables that are not explicitly captured in closures (like regression expressions from dynamic scopes) should rely on `params.value` references injected by ECharts, instead of out-of-scope lexicals.
+**Action:** When overriding tooltips for ECharts statistical transforms, read the formula directly from `params.value` (e.g., `params.value[2]` for linear regression).
