@@ -250,3 +250,53 @@ New `src/layout/CrossSystemVolatilityTimeline.tsx`.
 
 **Trigger / entry point:**
 A "System Interplay" view toggle next to the standard line/scatter chart tabs.
+
+---
+
+**Proposal: Longitudinal Data Sparsity Matrix**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `labels[]` from `src/data/index.ts` and `values` from `nonInferredDataAtom`.
+
+**Which existing data it uses:**
+Creates a grid mapping every measured biomarker (`nonInferredDataAtom`) on the Y-axis against every time point (`labels[]`) on the X-axis. Cells are colored strictly binary: populated vs `null`.
+
+**Axes:**
+X-axis: `labels[]` (Time)
+Y-axis: Biomarker Names (Sorted by `extra.tag`)
+
+**What it reveals that current charts don't:**
+Exposes the exact structural "holes" in a user's testing history at a glance. It eliminates the guesswork of why certain correlations fail or why specific time periods lack scatter points, instantly visualizing which panels (e.g., Lipids) were skipped during specific historical blood draws.
+
+**Where it would live:**
+New `src/layout/DataSparsityMatrix.tsx`.
+
+**Trigger / entry point:**
+A "Data Completeness" diagnostic tab inside the correlation/statistical modal.
+
+---
+
+**Proposal: Biomarker State Duration Step Line**
+
+**ECharts type:** `line` (with `step: 'middle'` configuration)
+
+**Codebase citation:**
+Uses `values` and `extra.optimality[]` from `src/types/biomarker.ts` accessed via `visibleDataAtom`.
+
+**Which existing data it uses:**
+Plots the time-series `values` for a single biomarker but applies the ECharts `step` property to the line series, overriding the default smooth interpolation.
+
+**Axes:**
+X-axis: `labels[]` (Time)
+Y-axis: Biomarker Values
+
+**What it reveals that current charts don't:**
+Prevents the dangerous assumption of smooth, gradual physiological change between highly separated blood tests. By rendering a step-line, it visually asserts that the physiological state was known at the test date and is assumed persistent until the next measurement, rather than drawing a misleading diagonal line across a 6-month data gap.
+
+**Where it would live:**
+Added as a user-toggled display mode within the existing `src/layout/LineChart.tsx`.
+
+**Trigger / entry point:**
+A "Step-wise Interpolation" checkbox dynamically rendered in the expanded row view of the data table.
