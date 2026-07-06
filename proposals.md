@@ -1,48 +1,5 @@
 
 
-**Proposal: Biomarker Normality Q-Q Scatter Plot**
-
-**ECharts type:** `scatter` (Q-Q plot format)
-
-**Codebase citation:**
-Utilizes `values` from `dataAtom` and standard statistical transformations.
-
-**Which existing data it uses:**
-It takes the valid numeric `values` for a single biomarker from `dataAtom` and calculates their theoretical quantiles against a normal distribution. It plots the empirical quantiles against these theoretical quantiles.
-
-**What it reveals that current charts don't:**
-The existing Boxplot and Histogram charts show basic distribution, but a Q-Q plot specifically highlights whether the data follows a normal distribution or has heavy tails/skewness. This is crucial for biomarkers where deviations from a normal distribution might indicate underlying chronic issues rather than random variation.
-
-**Where it would live:**
-New `src/layout/QQPlot.tsx` alongside the existing statistical charts like `BoxplotChart.tsx`.
-
-**Trigger / entry point:**
-Available as an advanced statistical view toggle within the table row expansion alongside the Histogram and Boxplot.
-
----
-
-**Proposal: Correlation Directionality Polar Scatter**
-
-**ECharts type:** `scatter` (polar coordinate system)
-
-**Codebase citation:**
-Uses `rankedDataMapAtom` from `src/atom/dataAtom.ts` and `correlationMethodAtom` from `src/atom/correlationAtom.ts`.
-
-**Which existing data it uses:**
-Calculates the pairwise correlation between the selected biomarker and all other biomarkers in `dataAtom` using the selected method (e.g., Spearman).
-
-**What it reveals that current charts don't:**
-By mapping the magnitude of the correlation to the radius and the directionality (positive vs. negative) to the angle, it allows users to visually separate biomarkers that move together from those that move inversely, which is difficult to parse in a dense linear scatter plot.
-
-**Where it would live:**
-New `src/layout/CorrelationPolarScatter.tsx`.
-
-**Trigger / entry point:**
-A "Directional View" toggle inside the correlation modal.
-
----
-
-
 **Proposal: Conditional Anomaly Probability Heatmap**
 
 **ECharts type:** `heatmap`
