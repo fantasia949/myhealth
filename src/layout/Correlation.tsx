@@ -133,6 +133,20 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
     return entries ? entries.filter((e) => e[2] <= alpha) : []
   }, [entries, alpha])
 
+  // ⚡ Bolt Optimization: Memoize the directional correlations array to preserve referential equality.
+  // Passing an inline `.map()` directly to the React.memo wrapped `<DirectionalCorrelationScatter>`
+  // causes the expensive ECharts component to re-render on *every* parent render cycle (e.g., when switching tabs),
+  // completely defeating the purpose of React.memo.
+  const directionalCorrelations = React.useMemo(() => {
+    // Optimization: Replace chained .map() with classic for-loop and push to avoid holey arrays
+    const mapped = []
+    for (let i = 0; i < significantEntries.length; i++) {
+      const e = significantEntries[i]
+      mapped.push([e[0], e[2], e[3]] as [string, number, number])
+    }
+    return mapped
+  }, [significantEntries])
+
   return (
     <Transition appear show={!!target} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>
@@ -350,7 +364,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                         <div className="mb-8">
                           <DirectionalCorrelationScatter
                             target={target!}
-                            correlations={significantEntries.map(e => [e[0], e[2], e[3]])}
+                            correlations={directionalCorrelations}
                             alternative={alternative}
                           />
                         </div>
