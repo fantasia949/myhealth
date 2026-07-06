@@ -228,6 +228,9 @@ const CorrelationHeatmap = React.memo(() => {
         <h3 className="text-sm font-medium text-gray-200">Correlation Significance Matrix</h3>
         <div className="flex space-x-1 rounded bg-gray-800 p-1">
           <button
+            type="button"
+            aria-pressed={colorMode === 'rho'}
+            aria-label="View correlation strength"
             onClick={() => setColorMode('rho')}
             className={`px-3 py-1 text-xs rounded transition-colors ${
               colorMode === 'rho' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'
@@ -236,6 +239,9 @@ const CorrelationHeatmap = React.memo(() => {
             Strength (Rho)
           </button>
           <button
+            type="button"
+            aria-pressed={colorMode === 'pvalue'}
+            aria-label="View correlation significance"
             onClick={() => setColorMode('pvalue')}
             className={`px-3 py-1 text-xs rounded transition-colors ${
               colorMode === 'pvalue' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'
