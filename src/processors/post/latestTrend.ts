@@ -1,5 +1,8 @@
 export default (entries: Entry[]): Entry[] => {
-  entries.forEach((entry) => {
+  // ⚡ Bolt Optimization: Replace .forEach() with a standard for-loop to eliminate closure allocation overhead.
+  const len = entries.length
+  for (let i = 0; i < len; i++) {
+    const entry = entries[i]
     const values = entry[1]
     const extra = entry[3]
     const length = values.length
@@ -17,6 +20,6 @@ export default (entries: Entry[]): Entry[] => {
         }
       }
     }
-  })
+  }
   return entries
 }
