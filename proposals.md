@@ -300,3 +300,52 @@ Added as a user-toggled display mode within the existing `src/layout/LineChart.t
 
 **Trigger / entry point:**
 A "Step-wise Interpolation" checkbox dynamically rendered in the expanded row view of the data table.
+
+---
+
+**Proposal: Systemic Recovery Momentum Area Chart**
+
+**ECharts type:** `line` (with `areaStyle`)
+
+**Codebase citation:**
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` and `extra.tag[]` from `src/processors/post/tag.ts` via `dataMapAtom`.
+
+**Which existing data it uses:**
+Calculates the net change in the number of in-range vs out-of-range biomarkers per tag group between consecutive measurements in `labels[]`. For example, it counts the sum of `optimality: false` transitions from one date to the next.
+
+**Axes:**
+- X-axis: Time (`labels[]` from `src/data/index.ts`)
+- Y-axis: Momentum Score (Positive when markers return to range, negative when markers fall out of range).
+
+**What it reveals that current charts don't:**
+Identifies the *velocity* and direction of recovery or decline within physiological systems. It highlights systemic trends (e.g., the metabolic system steadily improving despite occasional out-of-range spikes) rather than just isolated static states, allowing users to see if a lifestyle intervention is currently working system-wide.
+
+**Where it would live:**
+New `src/layout/SystemRecoveryMomentum.tsx`.
+
+**Trigger / entry point:**
+A "Recovery Velocity" toggle in the main Dashboard next to the RadarChart.
+
+---
+
+**Proposal: Inferred Origin Dependency Tree**
+
+**ECharts type:** `tree`
+
+**Codebase citation:**
+Uses `extra.inferred` and `extra.originValues[]` properties from `src/types/biomarker.ts` accessed via `dataAtom`.
+
+**Which existing data it uses:**
+Traces computed biomarkers (`inferred: true`) back to their fundamental physical measurements. It maps relationships using `extra.hasOrigin`, `extra.originValues[]`, and related metadata to form a hierarchical structure of dependency.
+
+**Axes:**
+N/A (Tree layout, hierarchical nodes).
+
+**What it reveals that current charts don't:**
+Exposes the data lineage of complex derived metrics. It clearly shows how an inferred biomarker (like a systemic risk score) is built from measured raw biomarkers (like lipids and glucose). This helps users understand which specific raw measurements are driving the changes in their high-level computed metrics.
+
+**Where it would live:**
+New `src/layout/InferredDependencyTree.tsx`.
+
+**Trigger / entry point:**
+An "Inspect Computation" action button rendered inside the table row expansion (`Table.tsx`) exclusively for biomarkers flagged with `inferred: true`.
