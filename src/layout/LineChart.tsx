@@ -85,6 +85,9 @@ export default memo(({ name, values, rangeStr }: LineChartProps) => {
 
       if (validMin || validMax) {
         markArea = {
+          tooltip: {
+            show: false,
+          },
           itemStyle: {
             color: 'rgba(84, 112, 198, 0.1)',
           },
