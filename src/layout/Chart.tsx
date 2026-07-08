@@ -200,7 +200,7 @@ export default memo(({ keys }: ChartProps) => {
 
   useEffect(() => {
     updateChartOption(chartInstance, keys, yAxis)
-  }, [keys, yAxis, chartInstance])
+  }, [keys, yAxis, chartInstance]) // chartInstance state is reactive. ref.current wasn't used here directly, but the logic relies on chartInstance.
 
   if (keys.length === 0) {
     return (

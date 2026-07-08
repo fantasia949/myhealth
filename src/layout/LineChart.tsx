@@ -91,6 +91,8 @@ export default memo(({ name, values, rangeStr }: LineChartProps) => {
           itemStyle: {
             color: 'rgba(84, 112, 198, 0.1)',
           },
+          // Disable tooltip on markArea to prevent showing "undefined" when hovering the shaded region
+          tooltip: { show: false },
           data: [
             [
               {
