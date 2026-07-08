@@ -135,3 +135,49 @@ New `src/layout/VolatilityBaselineScatter.tsx`, rendered in the main Dashboard n
 A "Volatility vs. Baseline" toggle in the Dashboard view.
 
 ---
+
+**Proposal: Biomarker Optimality Cascade Graph**
+
+**ECharts type:** `graph` (Directed Acyclic Graph layout)
+
+**Codebase citation:**
+Uses `extra.tag[]` from `src/processors/post/tag.ts`, and pre-computed `extra.optimality[]` array from `src/processors/post/range.ts` aligned with time-series `labels`.
+
+**Which existing data it uses:**
+It reads the out-of-range (`extra.optimality` is `true`) occurrences across all tracked biomarkers in `dataAtom.ts`. The visualization clusters nodes by their `extra.tag` system group, weighting node size by historical out-of-range frequency, and linking nodes if they tend to fail at the same timestamps (co-occurrence).
+
+**What it reveals that current charts don't:**
+It shows the "failure cascade" between biological systems (e.g., does a failure in the `3-Liver` system frequently co-occur or precede failures in the `4-Lipid` system?). While the current `BiomarkerCorrelationGraph` shows mathematical value correlation (Spearman), this graph exclusively maps structural range-failures, highlighting systemic vulnerability points rather than pure numerical trends.
+
+**Where it would live:**
+New `src/layout/BiomarkerOptimalityCascadeGraph.tsx`, rendered within the Biomarker Correlation Modal or a dedicated "System Vulnerability" view.
+
+**Trigger / entry point:**
+A "System Vulnerability" toggle near the current correlation charts, feeding all `dataAtom` data directly.
+
+---
+
+**Proposal: PhenoAge Component Volatility Stacked Area**
+
+**ECharts type:** `line` (Stacked Area configuration)
+
+**Codebase citation:**
+Uses the specific member array for the `a-PhenoAge` tag from `src/processors/post/tag.ts` (e.g. `Albumin`, `Glucose`, `Creatinin`, `MCV`, `CRP-hs`, etc.). Uses `rankedDataMapAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+It pulls the normalized ranks (via `rankedDataMapAtom`) specifically for the constituents of the `a-PhenoAge` system group, stacking them temporally (`labels`) into a 100% normalized area chart to show the relative contribution of each component to overall volatility.
+
+**Axes:**
+- X-axis: Time (mapped to `labels`)
+- Y-axis: Normalized Spearman rank proportion (0-100% of total variance for that snapshot)
+
+**What it reveals that current charts don't:**
+The current `RadarChart` shows a snapshot of current values, and line charts show individual trajectories. This stacked area explicitly shows *which specific biomarker is driving the Phenotypic Age score's volatility at any given point in time*. If the CRP-hs band suddenly swells to take up 60% of the area in Q3, it immediately isolates the inflammatory driver of age acceleration.
+
+**Where it would live:**
+New `src/layout/PhenoAgeVolatilityArea.tsx`.
+
+**Trigger / entry point:**
+When a user clicks on or expands the `a-PhenoAge` system group in the sidebar or dashboard summary, this view provides the longitudinal breakdown.
+
+---
