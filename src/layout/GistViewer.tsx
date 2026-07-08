@@ -148,12 +148,17 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
         aria-live="polite"
       >
         <div className="bg-gray-800/50 rounded-full p-4 mb-4">
-          <ClipboardDocumentIcon className="h-8 w-8 text-gray-400" aria-hidden="true" />
+          <ClipboardDocumentIcon
+            className="h-8 w-8 text-gray-400"
+            aria-hidden="true"
+          />
         </div>
-        <h3 className="text-lg font-medium text-gray-300 mb-2">No AI history found</h3>
+        <h3 className="text-lg font-medium text-gray-300 mb-2">
+          No AI history found
+        </h3>
         <p className="text-sm text-gray-400 max-w-sm mb-6">
-          You haven't saved any AI analyses to this Gist yet. Select biomarkers, ask AI, and
-          save the results to see them here.
+          You haven't saved any AI analyses to this Gist yet. Select biomarkers, ask
+          AI, and save the results to see them here.
         </p>
         <button
           type="button"
