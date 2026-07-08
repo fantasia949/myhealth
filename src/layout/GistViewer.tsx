@@ -78,6 +78,94 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
     return { keys: filename, dateStr: '', isParsed: false }
   }
 
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div
+          className="flex items-center justify-center h-32"
+          role="status"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <Spinner /> <span className="ml-2 text-gray-400">Loading history...</span>
+        </div>
+      )
+    }
+
+    if (error) {
+      return (
+        <div className="text-red-400 p-4 bg-red-900/20 rounded">
+          <p>Error: {error}</p>
+          <button
+            type="button"
+            onClick={loadFiles}
+            className="mt-2 text-sm text-blue-400 hover:text-blue-300 underline focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+          >
+            Try again
+          </button>
+        </div>
+      )
+    }
+
+    if (selectedFile) {
+      return (
+        <div className="prose prose-invert max-w-none">
+          <Markdown>{selectedFile.content}</Markdown>
+        </div>
+      )
+    }
+
+    if (files.length > 0) {
+      return (
+        <div className="flex flex-col gap-2">
+          {files.map((file) => {
+            const { keys, dateStr, isParsed } = formatFilename(file.filename)
+            return (
+              <button
+                type="button"
+                key={file.filename}
+                onClick={() => setSelectedFile(file)}
+                className="text-left p-3 rounded bg-[#333333] hover:bg-[#444444] transition-colors border border-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              >
+                <div className="font-medium text-blue-400 mb-1 line-clamp-2">
+                  {keys}
+                </div>
+                <div className="text-xs text-gray-400 flex items-center gap-1">
+                  <ClockIcon className="h-3 w-3" aria-hidden="true" />
+                  {isParsed ? dateStr : file.filename}
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      )
+    }
+
+    return (
+      <div
+        className="flex flex-col items-center justify-center py-12 px-4 text-center"
+        role="status"
+        aria-live="polite"
+      >
+        <div className="bg-gray-800/50 rounded-full p-4 mb-4">
+          <ClipboardDocumentIcon className="h-8 w-8 text-gray-400" aria-hidden="true" />
+        </div>
+        <h3 className="text-lg font-medium text-gray-300 mb-2">No AI history found</h3>
+        <p className="text-sm text-gray-400 max-w-sm mb-6">
+          You haven't saved any AI analyses to this Gist yet. Select biomarkers, ask AI, and
+          save the results to see them here.
+        </p>
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-4 py-2 bg-gray-700 text-white text-sm font-medium rounded hover:bg-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
+        >
+          Return to Dashboard
+        </button>
+      </div>
+    )
+  }
+
   return (
     <Transition
       appear
@@ -141,80 +229,7 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
                 </Dialog.Title>
 
                 <div className="flex-1 overflow-y-auto">
-                  {isLoading ? (
-                    <div
-                      className="flex items-center justify-center h-32"
-                      role="status"
-                      aria-live="polite"
-                      aria-busy="true"
-                    >
-                      <Spinner /> <span className="ml-2 text-gray-400">Loading history...</span>
-                    </div>
-                  ) : error ? (
-                    <div className="text-red-400 p-4 bg-red-900/20 rounded">
-                      <p>Error: {error}</p>
-                      <button
-                        type="button"
-                        onClick={loadFiles}
-                        className="mt-2 text-sm text-blue-400 hover:text-blue-300 underline focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
-                      >
-                        Try again
-                      </button>
-                    </div>
-                  ) : selectedFile ? (
-                    <div className="prose prose-invert max-w-none">
-                      <Markdown>{selectedFile.content}</Markdown>
-                    </div>
-                  ) : files.length > 0 ? (
-                    <div className="flex flex-col gap-2">
-                      {files.map((file) => {
-                        const { keys, dateStr, isParsed } = formatFilename(file.filename)
-                        return (
-                          <button
-                            type="button"
-                            key={file.filename}
-                            onClick={() => setSelectedFile(file)}
-                            className="text-left p-3 rounded bg-[#333333] hover:bg-[#444444] transition-colors border border-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                          >
-                            <div className="font-medium text-blue-400 mb-1 line-clamp-2">
-                              {keys}
-                            </div>
-                            <div className="text-xs text-gray-400 flex items-center gap-1">
-                              <ClockIcon className="h-3 w-3" aria-hidden="true" />
-                              {isParsed ? dateStr : file.filename}
-                            </div>
-                          </button>
-                        )
-                      })}
-                    </div>
-                  ) : (
-                    <div
-                      className="flex flex-col items-center justify-center py-12 px-4 text-center"
-                      role="status"
-                      aria-live="polite"
-                    >
-                      <div className="bg-gray-800/50 rounded-full p-4 mb-4">
-                        <ClipboardDocumentIcon
-                          className="h-8 w-8 text-gray-400"
-                          aria-hidden="true"
-                        />
-                      </div>
-                      <h3 className="text-lg font-medium text-gray-300 mb-2">
-                        No AI history found
-                      </h3>
-                      <p className="text-sm text-gray-400 max-w-sm mb-6">
-                        You haven't saved any AI analyses to this Gist yet. Select biomarkers, ask
-                        AI, and save the results to see them here.
-                      </p>
-                      <button
-                        type="button"
-                        onClick={onClose}
-                        className="px-4 py-2 bg-gray-700 text-white text-sm font-medium rounded hover:bg-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
-                      >
-                        Return to Dashboard
-                      </button>
-                    </div>
-                  )}
+                  {renderContent()}
                 </div>
               </Dialog.Panel>
             </Transition.Child>
