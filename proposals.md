@@ -135,3 +135,52 @@ New `src/layout/VolatilityBaselineScatter.tsx`, rendered in the main Dashboard n
 A "Volatility vs. Baseline" toggle in the Dashboard view.
 
 ---
+
+**Proposal: Inter-Tag Correlation Radar**
+
+**ECharts type:** `radar`
+
+**Codebase citation:**
+Uses `extra.tag[]` assigned by `src/processors/post/tag.ts` and `correlationMethodAtom` from `src/atom/correlationAtom.ts`.
+
+**Which existing data it uses:**
+Aggregates the median correlation score (using the method defined in `correlationMethodAtom`) between the currently selected biomarker (from `visibleDataAtom`) and all other biomarkers grouped by their `extra.tag` groups (e.g., `4-Lipid`, `3-Liver`).
+
+**Axes:**
+- Radar axes represent the different `extra.tag` groups.
+
+**What it reveals that current charts don't:**
+Provides a holistic view of how a single biomarker's fluctuations correlate systemically with entire biological subsystems, revealing systemic coupling rather than just 1-to-1 biomarker relationships.
+
+**Where it would live:**
+New `src/layout/SystemicCorrelationRadar.tsx`.
+
+**Trigger / entry point:**
+A new "Systemic Impact" tab when a single biomarker row is expanded in the main table.
+
+---
+
+**Proposal: Missing Measurement Interpolation Confidence Area**
+
+**ECharts type:** `line` (with `areastyle`)
+
+**Codebase citation:**
+Uses the raw null gaps in `values[]` from `dataAtom.ts` against the non-inferred markers in `nonInferredDataAtom`.
+
+**Which existing data it uses:**
+For any biomarker in `nonInferredDataAtom`, it linearly interpolates missing values across `labels` dates where measurements are missing. It draws a confidence band (`areastyle`) that widens the longer the gap between valid measurements, calculating gap width using `labels` time delta.
+
+**Axes:**
+- X-axis: `labels` (Time).
+- Y-axis: Biomarker Value with interpolation error bounds.
+
+**What it reveals that current charts don't:**
+Visually communicates the uncertainty caused by testing gaps. A wide area clearly signals "we have no idea what this marker did during this 6-month gap", whereas current scatter charts just show a blank space, and connected lines give a false sense of certainty.
+
+**Where it would live:**
+New `src/layout/InterpolationConfidenceArea.tsx`.
+
+**Trigger / entry point:**
+A "Show Uncertainty" toggle above the existing time-series Line/Scatter charts.
+
+---
