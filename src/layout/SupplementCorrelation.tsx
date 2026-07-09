@@ -149,6 +149,38 @@ const SupplementCorrelation = React.memo(
       return results.sort((a, b) => a.pValue - b.pValue)
     }, [supplementName, noteValues, dataMap, alpha])
 
+    const rowElements = React.useMemo(() => {
+      const rows = []
+      for (let i = 0; i < correlations.length; i++) {
+        const item = correlations[i]
+        rows.push(
+          <tr
+            key={item.name}
+            className="hover:bg-gray-800/50 transition-colors"
+          >
+            <td className="py-3 px-4 text-sm font-medium text-gray-200">
+              {item.name}
+            </td>
+            <td className="py-3 px-4 text-sm text-center text-gray-400 font-mono">
+              {item.count}
+            </td>
+            <td
+              className={`py-3 px-4 text-sm text-right font-mono font-bold ${
+                item.pValue <= 0.05 ? 'text-green-500' : 'text-gray-400'
+              }`}
+            >
+              {item.pValue.toFixed(4)}
+            </td>
+            <td className="py-3 px-4 text-sm text-right text-gray-400 font-mono">
+              {item.rho > 0 ? '+' : ''}
+              {item.rho.toFixed(3)}
+            </td>
+          </tr>
+        )
+      }
+      return rows
+    }, [correlations])
+
     if (!supplementName) return null
 
     return (
@@ -271,30 +303,7 @@ const SupplementCorrelation = React.memo(
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-700">
-                              {correlations.map((item) => (
-                                <tr
-                                  key={item.name}
-                                  className="hover:bg-gray-800/50 transition-colors"
-                                >
-                                  <td className="py-3 px-4 text-sm font-medium text-gray-200">
-                                    {item.name}
-                                  </td>
-                                  <td className="py-3 px-4 text-sm text-center text-gray-400 font-mono">
-                                    {item.count}
-                                  </td>
-                                  <td
-                                    className={`py-3 px-4 text-sm text-right font-mono font-bold ${
-                                      item.pValue <= 0.05 ? 'text-green-500' : 'text-gray-400'
-                                    }`}
-                                  >
-                                    {item.pValue.toFixed(4)}
-                                  </td>
-                                  <td className="py-3 px-4 text-sm text-right text-gray-400 font-mono">
-                                    {item.rho > 0 ? '+' : ''}
-                                    {item.rho.toFixed(3)}
-                                  </td>
-                                </tr>
-                              ))}
+                              {rowElements}
                             </tbody>
                           </table>
                         </div>
