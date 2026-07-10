@@ -230,3 +230,47 @@ New `src/layout/InterpolationConfidenceArea.tsx`.
 A "Show Uncertainty" toggle above the existing time-series Line/Scatter charts.
 
 ---
+
+**Proposal: Systemic Risk Gauge**
+
+**ECharts type:** `gauge`
+
+**Codebase citation:**
+Uses `nonInferredDataAtom` to get all measured biomarkers and their `extra.optimality[]` array from `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+It calculates the current overall "Systemic Risk Score" for the most recent timestamp in `labels`. It does this by counting the percentage of all measured biomarkers (from `nonInferredDataAtom`) that are currently out-of-range (i.e. `extra.optimality` is true for that timestamp index).
+
+**What it reveals that current charts don't:**
+It provides a single, high-level, at-a-glance metric of current overall systemic health and stability. The current charts require looking at multiple timelines, scatters, or radar charts to infer this. A single gauge gives a unified "check engine light" for the entire body.
+
+**Where it would live:**
+New `src/layout/SystemicRiskGauge.tsx`.
+
+**Trigger / entry point:**
+Displayed prominently at the top of the main Dashboard.
+
+---
+
+**Proposal: Systemic Imbalance Bar Chart**
+
+**ECharts type:** `bar`
+
+**Codebase citation:**
+Uses `tagAtom` to get the selected tag group and `visibleDataAtom` to get the biomarkers in that group. It uses `extra.optimality[]` from `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+When a specific tag group is selected (e.g. `2-Metabolic`), it calculates the percentage of out-of-range measurements (from `extra.optimality[]`) for each biomarker within that group over the entire timeline. It plots these percentages as a horizontal bar chart.
+
+**Axes:**
+- X-axis: Percentage of out-of-range measurements (0-100%).
+- Y-axis: Biomarker names within the selected tag group.
+
+**What it reveals that current charts don't:**
+It immediately identifies the weakest links within a specific physiological system. For example, if looking at the Lipid panel, this chart would instantly show if Triglycerides are the main driver of imbalance (e.g. out of range 80% of the time) while LDL is relatively stable (e.g. out of range 20% of the time). This level of aggregation is not present in the time-series charts.
+
+**Where it would live:**
+New `src/layout/SystemicImbalanceBar.tsx`.
+
+**Trigger / entry point:**
+Rendered below the main time-series charts whenever `tagAtom` is non-null (i.e., a specific tag is selected in the sidebar).
