@@ -77,7 +77,14 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
 
     // Dynamic number of windows based on actual valid data points to ensure enough data per window
     // Aim for 5 windows, but fallback to fewer if data is sparse. Require at least 2 points per window.
-    const numWindowsDynamic = count >= 30 ? 5 : count >= 10 ? 3 : count >= 4 ? 2 : 1
+    let numWindowsDynamic = 1
+    if (count >= 30) {
+      numWindowsDynamic = 5
+    } else if (count >= 10) {
+      numWindowsDynamic = 3
+    } else if (count >= 4) {
+      numWindowsDynamic = 2
+    }
     const windowLabelsDynamic: string[] = []
 
     const windowedRanksMap = new Map<string, (number | string | null)[]>()
