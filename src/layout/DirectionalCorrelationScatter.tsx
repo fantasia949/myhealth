@@ -34,6 +34,19 @@ export default React.memo(
       return sortedCorrelations[0][0]
     }, [sortedCorrelations, selectedBiomarker])
 
+    const optionElements = useMemo(() => {
+      const options = []
+      for (let i = 0; i < sortedCorrelations.length; i++) {
+        const [name, _p, coeff] = sortedCorrelations[i]
+        options.push(
+          <option key={name} value={name}>
+            {name} (Coeff: {coeff.toFixed(2)})
+          </option>
+        )
+      }
+      return options
+    }, [sortedCorrelations])
+
     const chartOption = useMemo(() => {
       if (!actualSelectedBiomarker || !target) return {}
 
@@ -182,11 +195,7 @@ export default React.memo(
               onChange={(e) => setSelectedBiomarker(e.target.value)}
               className="rounded border border-gray-600 bg-dark-bg px-2 py-1 text-xs text-white focus:border-blue-500 focus:outline-none"
             >
-              {sortedCorrelations.map(([name, _p, coeff]) => (
-                <option key={name} value={name}>
-                  {name} (Coeff: {coeff.toFixed(2)})
-                </option>
-              ))}
+              {optionElements}
             </select>
           </div>
         </div>
