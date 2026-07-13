@@ -230,3 +230,53 @@ New `src/layout/InterpolationConfidenceArea.tsx`.
 A "Show Uncertainty" toggle above the existing time-series Line/Scatter charts.
 
 ---
+
+**Proposal: Longitudinal Statistical Significance Brush**
+
+**ECharts type:** `line` (with `brush`)
+
+**Codebase citation:**
+Uses `correlationAlphaAtom` from `src/atom/correlationAtom.ts` and `rankedDataMapAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+Plots the rank trajectories of two selected biomarkers from `rankedDataMapAtom` over time (`labels`). The user can use the `brush` tool to select a specific time window. The component calculates the local correlation just for that window and highlights the area if the p-value is below `correlationAlphaAtom`.
+
+**Axes:**
+- X-axis: `labels` (Time).
+- Y-axis: Spearman rank value.
+
+**What it reveals that current charts don't:**
+Identifies *temporary* periods of strong correlation. Two markers might not be correlated over a 5-year span, but strongly coupled during a specific 6-month illness window. Current charts only show global correlation.
+
+**Where it would live:**
+New `src/layout/LocalCorrelationBrushLine.tsx`.
+
+**Trigger / entry point:**
+A "Time-Window Analysis" toggle in the Correlation view.
+
+---
+
+**Proposal: Inferred Data Contribution Waterfall**
+
+**ECharts type:** `bar` (Waterfall chart format)
+
+**Codebase citation:**
+Uses `originValues` and `inferred` flags from `BioMarker[3]` (`src/types/biomarker.ts`), specifically for inferred markers like `VLDL` derived in `src/processors/enrich/inferData.ts`.
+
+**Which existing data it uses:**
+For a selected timestamp (`labels` index), it takes an inferred biomarker (e.g. `VLDL` derived from `Triglyceride`) and visualizes the mathematical contribution of its `originValues` to the final `inferred` value using a step-by-step waterfall chart.
+
+**Axes:**
+- X-axis: The mathematical components (e.g., origin biomarkers like Triglyceride).
+- Y-axis: The calculated unit value.
+
+**What it reveals that current charts don't:**
+Demystifies calculated biomarkers by showing exactly how much each base measurement contributed to the final inferred score at a given time point, rather than just plotting the final computed number.
+
+**Where it would live:**
+New `src/layout/InferredWaterfall.tsx`.
+
+**Trigger / entry point:**
+Clicking on any row in the main table that has `inferred: true`.
+
+---
