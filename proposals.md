@@ -231,6 +231,55 @@ A "Show Uncertainty" toggle above the existing time-series Line/Scatter charts.
 
 ---
 
+**Proposal: Systemic Health Deficit Waterfall**
+
+**ECharts type:** `bar` (Waterfall / Stacked Bar)
+
+**Codebase citation:**
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` and overall `dataAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+It calculates the absolute count of `true` values in `extra.optimality[]` across all biomarkers within `dataAtom` for the most recent valid measurement in `labels`.
+
+**Axes:**
+- X-axis: Categorical categories derived from `extra.tag[]` (e.g., Metabolic, Hormone, Liver).
+- Y-axis: Absolute number of out-of-range biomarkers (Deficit Count).
+
+**What it reveals that current charts don't:**
+It provides a cross-sectional "health deficit" score. Instead of looking at individual biomarkers, this chart aggregates failures by system group at a single point in time, showing the cumulative health burden. Users can immediately see if their total systemic stress is driven mainly by lipid imbalances versus inflammatory markers.
+
+**Where it would live:**
+New `src/layout/SystemicDeficitWaterfall.tsx`, rendered on a "Snapshot" tab in the dashboard.
+
+**Trigger / entry point:**
+A "Current Deficit" toggle button next to the primary line charts on the dashboard.
+
+---
+
+**Proposal: Longitudinal Biomarker Stability Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.optimality[]` from `src/processors/post/range.ts` and time-series `labels` from `src/data/index.ts`.
+
+**Which existing data it uses:**
+It takes the `extra.optimality[]` array for each biomarker in `visibleDataAtom` and maps it across the `labels` time series. Each cell represents whether a specific biomarker was in or out of optimal range at a specific time point.
+
+**Axes:**
+- X-axis: Time (mapped to `labels`).
+- Y-axis: Biomarker Names (derived from `visibleDataAtom`).
+
+**What it reveals that current charts don't:**
+It provides a dense, bird's-eye view of historical health stability. While line charts show individual trajectories, this heatmap allows users to scan vertically across a specific date to see cascading failures (e.g., multiple systems failing concurrently), or scan horizontally to track the persistence of a single anomaly over months, all at a single glance.
+
+**Where it would live:**
+New `src/layout/BiomarkerStabilityHeatmap.tsx`, added to the dashboard view.
+
+**Trigger / entry point:**
+Rendered when multiple tags or the entire dataset are selected via `tagAtom` or `filterTextAtom`, replacing the standard scatter chart for dense datasets.
+
+---
 **Proposal: Systemic Risk Gauge**
 
 **ECharts type:** `gauge`
