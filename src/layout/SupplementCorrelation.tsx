@@ -29,18 +29,9 @@ const SupplementCorrelation = React.memo(
 
       for (let i = 0; i < maxLen; i++) {
         const note = noteValues[i]
-        if (note && note.supps) {
-          let hasSupp = false
-          for (let j = 0; j < note.supps.length; j++) {
-            if (note.supps[j] === supplementName) {
-              hasSupp = true
-              break
-            }
-          }
-          if (hasSupp) {
-            suppVector[i] = 1
-            suppFrequency++
-          }
+        if (note?.supps?.includes(supplementName)) {
+          suppVector[i] = 1
+          suppFrequency++
         }
       }
 
