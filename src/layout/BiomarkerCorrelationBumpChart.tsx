@@ -77,7 +77,14 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
 
     // Dynamic number of windows based on actual valid data points to ensure enough data per window
     // Aim for 5 windows, but fallback to fewer if data is sparse. Require at least 2 points per window.
-    const numWindowsDynamic = count >= 30 ? 5 : count >= 10 ? 3 : count >= 4 ? 2 : 1
+    let numWindowsDynamic = 1
+    if (count >= 30) {
+      numWindowsDynamic = 5
+    } else if (count >= 10) {
+      numWindowsDynamic = 3
+    } else if (count >= 4) {
+      numWindowsDynamic = 2
+    }
     const windowLabelsDynamic: string[] = []
 
     const windowedRanksMap = new Map<string, (number | string | null)[]>()
@@ -93,6 +100,10 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
     for (let k = 0; k < count; k++) {
       fullBiomarkerRanks[k] = targetRanks[validIndices[k]]
     }
+
+    // ⚡ Bolt Optimization: Hoist options object outside the loop to avoid recreating it
+    // on every iteration. This reduces memory allocations and garbage collection overhead.
+    const optionsObj = { alpha: 0.05, alternative: 'two-sided' } as const
 
     for (let w = 0; w < numWindowsDynamic; w++) {
       // Use floating point division to distribute elements evenly across windows
@@ -149,10 +160,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
           const result = calculatePearson(
             fullBiomarkerRanks.subarray(startIdxInValid, endIdxInValid),
             suppVector,
-            {
-              alpha: 0.05,
-              alternative: 'two-sided',
-            },
+            optionsObj
           )
           windowRhos.push({ name: suppName, rho: Math.abs(result.pcorr || 0) })
         }

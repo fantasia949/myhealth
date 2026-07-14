@@ -64,53 +64,6 @@ An "Evolution Matrix" toggle in the Data Correlation tools section.
 
 ---
 
-
-**Proposal: Measurement Frequency vs. Anomaly Rate Scatter**
-
-**ECharts type:** `scatter`
-
-**Codebase citation:**
-Uses `values` (for counting valid measurements) from `dataAtom` and `extra.optimality[]` from `src/processors/post/range.ts`.
-
-**Which existing data it uses:**
-It calculates the total number of non-null measurements for each biomarker in `dataAtom` (frequency) and maps it against the percentage of those measurements that are marked `true` in `extra.optimality[]` (anomaly rate).
-
-**Axes:**
-- X-axis: Measurement Frequency (Count of non-null values for a biomarker)
-- Y-axis: Anomaly Rate (Percentage of measurements flagged as out-of-range)
-
-**What it reveals that current charts don't:**
-It immediately identifies "under-tested problem areas." If a biomarker is extremely anomalous but rarely tested (high Y, low X), it warrants much more frequent testing. Existing charts show values over time, but do not juxtapose testing cadence against historical failure rates.
-
-**Where it would live:**
-New `src/layout/MeasurementFrequencyScatter.tsx`.
-
-**Trigger / entry point:**
-Available as a "Testing Strategy" diagnostic view in the main sidebar or dashboard overview.
-
----
-
-**Proposal: Tag-Group Measurement Density Calendar**
-
-**ECharts type:** `calendar` (with custom series mapping)
-
-**Codebase citation:**
-Uses the date array `labels` from `src/data/index.ts`, grouped by `extra.tag[]` from `src/processors/post/tag.ts`.
-
-**Which existing data it uses:**
-For each specific day in `labels`, it counts the total number of biomarkers within a given tag group (e.g. `2-Metabolic`) that have a non-null value. It maps this density to a calendar heatmap.
-
-**What it reveals that current charts don't:**
-It provides a high-level view of testing consistency over the year. Instead of seeing discrete points in a line chart or scatter plot, a user can instantly see the cadence and "completeness" of their testing panels on specific dates (e.g., "I only tested Hormone markers three times last year, but Liver markers every month").
-
-**Where it would live:**
-New `src/layout/MeasurementDensityCalendar.tsx`.
-
-**Trigger / entry point:**
-A "Calendar Overview" toggle or tab in the primary Dashboard view, reacting to the currently selected `tagAtom`.
-
----
-
 **Proposal: Biomarker Volatility vs. Baseline Scatter Plot**
 
 **ECharts type:** `scatter`
@@ -157,31 +110,6 @@ A "System Vulnerability" toggle near the current correlation charts, feeding all
 
 ---
 
-**Proposal: PhenoAge Component Volatility Stacked Area**
-
-**ECharts type:** `line` (Stacked Area configuration)
-
-**Codebase citation:**
-Uses the specific member array for the `a-PhenoAge` tag from `src/processors/post/tag.ts` (e.g. `Albumin`, `Glucose`, `Creatinin`, `MCV`, `CRP-hs`, etc.). Uses `rankedDataMapAtom` from `src/atom/dataAtom.ts`.
-
-**Which existing data it uses:**
-It pulls the normalized ranks (via `rankedDataMapAtom`) specifically for the constituents of the `a-PhenoAge` system group, stacking them temporally (`labels`) into a 100% normalized area chart to show the relative contribution of each component to overall volatility.
-
-**Axes:**
-- X-axis: Time (mapped to `labels`)
-- Y-axis: Normalized Spearman rank proportion (0-100% of total variance for that snapshot)
-
-**What it reveals that current charts don't:**
-The current `RadarChart` shows a snapshot of current values, and line charts show individual trajectories. This stacked area explicitly shows *which specific biomarker is driving the Phenotypic Age score's volatility at any given point in time*. If the CRP-hs band suddenly swells to take up 60% of the area in Q3, it immediately isolates the inflammatory driver of age acceleration.
-
-**Where it would live:**
-New `src/layout/PhenoAgeVolatilityArea.tsx`.
-
-**Trigger / entry point:**
-When a user clicks on or expands the `a-PhenoAge` system group in the sidebar or dashboard summary, this view provides the longitudinal breakdown.
-
-
-
 **Proposal: Inter-Tag Correlation Radar**
 
 **ECharts type:** `radar`
@@ -206,27 +134,53 @@ A new "Systemic Impact" tab when a single biomarker row is expanded in the main 
 
 ---
 
-**Proposal: Missing Measurement Interpolation Confidence Area**
+**Proposal: Longitudinal Statistical Significance Brush**
 
-**ECharts type:** `line` (with `areastyle`)
+**ECharts type:** `line` (with `brush`)
 
 **Codebase citation:**
-Uses the raw null gaps in `values[]` from `dataAtom.ts` against the non-inferred markers in `nonInferredDataAtom`.
+Uses `correlationAlphaAtom` from `src/atom/correlationAtom.ts` and `rankedDataMapAtom` from `src/atom/dataAtom.ts`.
 
 **Which existing data it uses:**
-For any biomarker in `nonInferredDataAtom`, it linearly interpolates missing values across `labels` dates where measurements are missing. It draws a confidence band (`areastyle`) that widens the longer the gap between valid measurements, calculating gap width using `labels` time delta.
+Plots the rank trajectories of two selected biomarkers from `rankedDataMapAtom` over time (`labels`). The user can use the `brush` tool to select a specific time window. The component calculates the local correlation just for that window and highlights the area if the p-value is below `correlationAlphaAtom`.
 
 **Axes:**
 - X-axis: `labels` (Time).
-- Y-axis: Biomarker Value with interpolation error bounds.
+- Y-axis: Spearman rank value.
 
 **What it reveals that current charts don't:**
-Visually communicates the uncertainty caused by testing gaps. A wide area clearly signals "we have no idea what this marker did during this 6-month gap", whereas current scatter charts just show a blank space, and connected lines give a false sense of certainty.
+Identifies *temporary* periods of strong correlation. Two markers might not be correlated over a 5-year span, but strongly coupled during a specific 6-month illness window. Current charts only show global correlation.
 
 **Where it would live:**
-New `src/layout/InterpolationConfidenceArea.tsx`.
+New `src/layout/LocalCorrelationBrushLine.tsx`.
 
 **Trigger / entry point:**
-A "Show Uncertainty" toggle above the existing time-series Line/Scatter charts.
+A "Time-Window Analysis" toggle in the Correlation view.
+
 
 ---
+**Proposal: Biomarker Pairwise Ratio Line Chart**
+
+**ECharts type:** `line`
+
+**Codebase citation:**
+Uses `values[]` array from `dataAtom` and time-series `labels[]`.
+
+**Which existing data it uses:**
+It calculates the ratio between two user-selected biomarkers (e.g., `Testosterone` and `Cortisol` or `AST` and `ALT`) over time, directly utilizing their `values[]` from `dataAtom` aligned via `labels[]`. Null values are handled by skipping the calculation for timestamps where either is missing.
+
+**Axes:**
+- X-axis: Time (mapped to `labels`)
+- Y-axis: Calculated numerical ratio between the two markers
+
+**What it reveals that current charts don't:**
+It allows users to track physiological balance and stress states that are defined by the ratio between markers rather than their absolute levels. Current charts only allow overlaying absolute values on multiple axes (ScatterChart / Chart), which makes relative ratio shifts hard to discern visually.
+
+**Where it would live:**
+New `src/layout/PairwiseRatioChart.tsx`.
+
+**Trigger / entry point:**
+A new "Custom Ratio" toggle above the existing main time-series charts, feeding two selected markers from `visibleDataAtom`.
+
+---
+

@@ -54,8 +54,16 @@ function prepareBoxplotData(data: number[][]) {
   const outliers = []
 
   for (let i = 0; i < data.length; i++) {
-    const series = data[i].slice().sort((a, b) => a - b)
-    if (series.length === 0) continue
+    const rawSeries = data[i]
+    if (rawSeries.length === 0) continue
+
+    // ⚡ Bolt Optimization: Replace arr.slice().sort(...) with a dense array copy
+    // and standard sort to avoid V8 sparse array allocation and chained closure creation.
+    const series = new Float64Array(rawSeries.length)
+    for(let k=0; k < rawSeries.length; k++) {
+        series[k] = rawSeries[k]
+    }
+    series.sort()
 
     const min = series[0]
     const max = series[series.length - 1]

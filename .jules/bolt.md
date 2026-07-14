@@ -110,3 +110,12 @@
 
 **Learning:** Using `Array.prototype.forEach()` inside `useMemo` blocks or render cycles creates an inline closure function that must be allocated and immediately garbage collected on every update. This is particularly noticeable when building large configuration objects for heavy components like ECharts.
 **Action:** Replace `.forEach()` with a standard `for` loop to eliminate closure allocation overhead and reduce garbage collection pressure in data processing pipelines and configuration builders.
+## 2026-07-11 - Avoid arr.slice().sort(...) for TypedArrays
+**Learning:** `arr.slice().sort((a,b) => a-b)` generates intermediate sparse arrays when invoked on standard JavaScript arrays and creates high garbage collection churn during boxplot data prep.
+**Action:** When a sort is required inside a loop for statistical rendering, copy the values into a fresh `Float64Array` and call `.sort()`. V8 optimizes TypedArray sorts drastically better than standard arrays with closure comparators.
+## 2026-06-30 - Replace `.forEach()` with `for` loop
+**Learning:** Using `.forEach()` inside hot rendering paths like `useMemo` for charting components creates unnecessary closure allocations and increases garbage collection overhead. Since these array iterations happen frequently on large data sets to compute chart options (e.g. valid pairs, visible data, node items), reducing closure creation is important.
+**Action:** Replace `Array.prototype.forEach()` loops with standard `for (let i = 0; i < arr.length; i++)` loops in hot charting render paths to eliminate closure allocation overhead and reduce garbage collection pressure.
+## 2024-05-18 - Hoisting Invariant Configuration Objects inside Hot Loops
+**Learning:** Instantiating configuration objects (like `{ alpha: 0.05, alternative: 'two-sided' }`) inside hot, nested loops—such as those traversing arrays and calculating correlation over chunked windows—generates unnecessary garbage collection overhead and memory allocations. Even though these objects are tiny, the cumulative performance penalty in high-iteration scenarios (like calculating correlations per component re-render) is measurable.
+**Action:** When calling statistical or mathematical functions inside nested iterations, explicitly identify invariant arguments (like statistical significance thresholds or formatting objects) and hoist them outside the loop. Use `as const` typing in TypeScript to ensure the type matches the expected literal parameter bounds.
