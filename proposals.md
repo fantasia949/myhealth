@@ -280,3 +280,142 @@ New `src/layout/InferredWaterfall.tsx`.
 Clicking on any row in the main table that has `inferred: true`.
 
 ---
+**Proposal: Biomarker Pairwise Ratio Line Chart**
+
+**ECharts type:** `line`
+
+**Codebase citation:**
+Uses `values[]` array from `dataAtom` and time-series `labels[]`.
+
+**Which existing data it uses:**
+It calculates the ratio between two user-selected biomarkers (e.g., `Testosterone` and `Cortisol` or `AST` and `ALT`) over time, directly utilizing their `values[]` from `dataAtom` aligned via `labels[]`. Null values are handled by skipping the calculation for timestamps where either is missing.
+
+**Axes:**
+- X-axis: Time (mapped to `labels`)
+- Y-axis: Calculated numerical ratio between the two markers
+
+**What it reveals that current charts don't:**
+It allows users to track physiological balance and stress states that are defined by the ratio between markers rather than their absolute levels. Current charts only allow overlaying absolute values on multiple axes (ScatterChart / Chart), which makes relative ratio shifts hard to discern visually.
+
+**Where it would live:**
+New `src/layout/PairwiseRatioChart.tsx`.
+
+**Trigger / entry point:**
+A new "Custom Ratio" toggle above the existing main time-series charts, feeding two selected markers from `visibleDataAtom`.
+
+---
+
+**Proposal: PhenoAge Contribution Waterfall Chart**
+
+**ECharts type:** `bar` (using waterfall/transparent base bar pattern)
+
+**Codebase citation:**
+Uses the `a-PhenoAge` tag group from `src/processors/post/tag.ts` and their `values[]` from `dataAtom.ts`.
+
+**Which existing data it uses:**
+Takes the most recent measurement (latest non-null value) for each constituent of the `a-PhenoAge` system group (e.g., `Albumin`, `Glucose`, `Creatinin`, `CRP-hs`). It calculates their individual +/- effect on the final Phenotypic Age score compared to a normalized baseline, plotting them as a waterfall sequence leading to the final total.
+
+**Axes:**
+- X-axis: Categorical components of the `a-PhenoAge` tag group
+- Y-axis: Incremental contribution (in years) to the total Phenotypic Age
+
+**What it reveals that current charts don't:**
+Reveals exactly which biomarker is adding or subtracting years from the user's biological age *today*. While the RadarChart shows relative values, the waterfall explicitly quantifies the absolute weight and direction of each marker's impact on the final calculated score, highlighting the highest-impact intervention point.
+
+**Where it would live:**
+New `src/layout/PhenoAgeWaterfall.tsx`.
+
+**Trigger / entry point:**
+Accessible from a "Deconstruct Score" button when viewing the PhenoAge system summary.
+**Proposal: Systemic Health Deficit Waterfall**
+
+**ECharts type:** `bar` (Waterfall / Stacked Bar)
+
+**Codebase citation:**
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` and overall `dataAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+It calculates the absolute count of `true` values in `extra.optimality[]` across all biomarkers within `dataAtom` for the most recent valid measurement in `labels`.
+
+**Axes:**
+- X-axis: Categorical categories derived from `extra.tag[]` (e.g., Metabolic, Hormone, Liver).
+- Y-axis: Absolute number of out-of-range biomarkers (Deficit Count).
+
+**What it reveals that current charts don't:**
+It provides a cross-sectional "health deficit" score. Instead of looking at individual biomarkers, this chart aggregates failures by system group at a single point in time, showing the cumulative health burden. Users can immediately see if their total systemic stress is driven mainly by lipid imbalances versus inflammatory markers.
+
+**Where it would live:**
+New `src/layout/SystemicDeficitWaterfall.tsx`, rendered on a "Snapshot" tab in the dashboard.
+
+**Trigger / entry point:**
+A "Current Deficit" toggle button next to the primary line charts on the dashboard.
+
+---
+
+**Proposal: Longitudinal Biomarker Stability Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.optimality[]` from `src/processors/post/range.ts` and time-series `labels` from `src/data/index.ts`.
+
+**Which existing data it uses:**
+It takes the `extra.optimality[]` array for each biomarker in `visibleDataAtom` and maps it across the `labels` time series. Each cell represents whether a specific biomarker was in or out of optimal range at a specific time point.
+
+**Axes:**
+- X-axis: Time (mapped to `labels`).
+- Y-axis: Biomarker Names (derived from `visibleDataAtom`).
+
+**What it reveals that current charts don't:**
+It provides a dense, bird's-eye view of historical health stability. While line charts show individual trajectories, this heatmap allows users to scan vertically across a specific date to see cascading failures (e.g., multiple systems failing concurrently), or scan horizontally to track the persistence of a single anomaly over months, all at a single glance.
+
+**Where it would live:**
+New `src/layout/BiomarkerStabilityHeatmap.tsx`, added to the dashboard view.
+
+**Trigger / entry point:**
+Rendered when multiple tags or the entire dataset are selected via `tagAtom` or `filterTextAtom`, replacing the standard scatter chart for dense datasets.
+
+---
+**Proposal: Systemic Risk Gauge**
+
+**ECharts type:** `gauge`
+
+**Codebase citation:**
+Uses `nonInferredDataAtom` to get all measured biomarkers and their `extra.optimality[]` array from `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+It calculates the current overall "Systemic Risk Score" for the most recent timestamp in `labels`. It does this by counting the percentage of all measured biomarkers (from `nonInferredDataAtom`) that are currently out-of-range (i.e. `extra.optimality` is true for that timestamp index).
+
+**What it reveals that current charts don't:**
+It provides a single, high-level, at-a-glance metric of current overall systemic health and stability. The current charts require looking at multiple timelines, scatters, or radar charts to infer this. A single gauge gives a unified "check engine light" for the entire body.
+
+**Where it would live:**
+New `src/layout/SystemicRiskGauge.tsx`.
+
+**Trigger / entry point:**
+Displayed prominently at the top of the main Dashboard.
+
+---
+
+**Proposal: Systemic Imbalance Bar Chart**
+
+**ECharts type:** `bar`
+
+**Codebase citation:**
+Uses `tagAtom` to get the selected tag group and `visibleDataAtom` to get the biomarkers in that group. It uses `extra.optimality[]` from `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+When a specific tag group is selected (e.g. `2-Metabolic`), it calculates the percentage of out-of-range measurements (from `extra.optimality[]`) for each biomarker within that group over the entire timeline. It plots these percentages as a horizontal bar chart.
+
+**Axes:**
+- X-axis: Percentage of out-of-range measurements (0-100%).
+- Y-axis: Biomarker names within the selected tag group.
+
+**What it reveals that current charts don't:**
+It immediately identifies the weakest links within a specific physiological system. For example, if looking at the Lipid panel, this chart would instantly show if Triglycerides are the main driver of imbalance (e.g. out of range 80% of the time) while LDL is relatively stable (e.g. out of range 20% of the time). This level of aggregation is not present in the time-series charts.
+
+**Where it would live:**
+New `src/layout/SystemicImbalanceBar.tsx`.
+
+**Trigger / entry point:**
+Rendered below the main time-series charts whenever `tagAtom` is non-null (i.e., a specific tag is selected in the sidebar).
