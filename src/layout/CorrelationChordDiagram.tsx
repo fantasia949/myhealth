@@ -128,7 +128,9 @@ const CorrelationChordDiagram = React.memo(() => {
 
     const degreeMap = new Map<string, number>()
 
-    validPairs.forEach((pair) => {
+    // ⚡ Bolt Optimization: Replace validPairs.forEach with a standard for loop
+    for (let i = 0; i < validPairs.length; i++) {
+      const pair = validPairs[i]
       const isPositive = pair.rho > 0
       const absRho = Math.abs(pair.rho)
       // Different styling for Chord diagram edges
@@ -150,11 +152,13 @@ const CorrelationChordDiagram = React.memo(() => {
 
       degreeMap.set(pair.source, (degreeMap.get(pair.source) || 0) + 1)
       degreeMap.set(pair.target, (degreeMap.get(pair.target) || 0) + 1)
-    })
+    }
 
     // Ensure uniqueness of nodeItems in case visibleData has duplicates
     const uniqueNodes = new Map<string, any>()
-    visibleData.forEach((item) => {
+    // ⚡ Bolt Optimization: Replace visibleData.forEach with a standard for loop
+    for (let i = 0; i < visibleData.length; i++) {
+      const item = visibleData[i]
       const name = item[0]
       if (nodesSet.has(name) && !uniqueNodes.has(name)) {
         uniqueNodes.set(name, {
@@ -163,7 +167,7 @@ const CorrelationChordDiagram = React.memo(() => {
           sortTag: item[3]?.sortTag || item[3]?.tag?.[0] || 'ZZZ',
         })
       }
-    })
+    }
 
     // Group and sort nodes by Tag to visually cluster them in the circular layout
     const nodeItems = Array.from(uniqueNodes.values()).sort((a, b) =>
@@ -184,7 +188,9 @@ const CorrelationChordDiagram = React.memo(() => {
       tagColors.set(tagGroups[i], CHART_PALETTE[i % CHART_PALETTE.length])
     }
 
-    nodeItems.forEach((node) => {
+    // ⚡ Bolt Optimization: Replace nodeItems.forEach with a standard for loop
+    for (let i = 0; i < nodeItems.length; i++) {
+      const node = nodeItems[i]
       const size = 10 + node.degree * 2
       nodes.push({
         id: node.name,
@@ -200,7 +206,7 @@ const CorrelationChordDiagram = React.memo(() => {
           formatter: '{b}',
         },
       })
-    })
+    }
 
     return {
       theme: 'dark',
