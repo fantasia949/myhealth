@@ -6,3 +6,7 @@
 
 **Learning:** When using toggle buttons integrated into complex components like ECharts layouts (e.g. `CorrelationHeatmap`), they frequently lack standard interactive accessibility features like `aria-pressed`, `aria-label`, and explicit `type="button"`, causing confusion for keyboard-only and screen reader users about what state the visualization is currently in.
 **Action:** Audit buttons that change state without navigating (e.g., changing visualization modes) to ensure they have `aria-pressed` set correctly and explicit labels.
+## 2024-11-20 - Select Dropdown Focus Visibility
+
+**Learning:** When styling native interactive elements like `<select>` dropdowns (e.g., in `DirectionalCorrelationScatter`), they often receive basic focus outline overrides (`focus:outline-none focus:border-blue-500`) but miss the standard ring indicator classes (`focus-visible:ring-2 focus-visible:ring-blue-500`) used across buttons and inputs, degrading the experience for keyboard-only users who expect a uniform visual focus state.
+**Action:** Audit native HTML input and select elements to verify they all implement the `focus-visible:ring-2` class standard for the application, not just `focus:border-color`.
