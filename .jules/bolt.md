@@ -106,6 +106,9 @@
 **Action:** When overriding tooltips for ECharts statistical transforms, read the formula directly from `params.value` (e.g., `params.value[2]` for linear regression).
 ## 2026-06-29 - Inline Array Mapping Defeats React.memo()\n\n**Learning:** Passing an inline array map (e.g., `correlations={arr.map(...)}`) directly as a prop to a child component wrapped in `React.memo()` completely defeats the memoization. The inline operation creates a new array reference on every parent render cycle, forcing the child (like a heavy ECharts component) to re-render needlessly.\n**Action:** Extract the inline array mapping into a `useMemo` block (and convert to a dense `for` loop for extra speed) to ensure referential equality is preserved across parent render cycles.
 
+## 2026-07-11 - Avoid arr.slice().sort(...) for TypedArrays
+**Learning:** `arr.slice().sort((a,b) => a-b)` generates intermediate sparse arrays when invoked on standard JavaScript arrays and creates high garbage collection churn during boxplot data prep.
+**Action:** When a sort is required inside a loop for statistical rendering, copy the values into a fresh `Float64Array` and call `.sort()`. V8 optimizes TypedArray sorts drastically better than standard arrays with closure comparators.
 ## 2026-06-30 - Replace `.forEach()` with `for` loop
 **Learning:** Using `.forEach()` inside hot rendering paths like `useMemo` for charting components creates unnecessary closure allocations and increases garbage collection overhead. Since these array iterations happen frequently on large data sets to compute chart options (e.g. valid pairs, visible data, node items), reducing closure creation is important.
 **Action:** Replace `Array.prototype.forEach()` loops with standard `for (let i = 0; i < arr.length; i++)` loops in hot charting render paths to eliminate closure allocation overhead and reduce garbage collection pressure.
