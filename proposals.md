@@ -231,6 +231,53 @@ A "Show Uncertainty" toggle above the existing time-series Line/Scatter charts.
 
 ---
 
+**Proposal: Biomarker Pairwise Ratio Line Chart**
+
+**ECharts type:** `line`
+
+**Codebase citation:**
+Uses `values[]` array from `dataAtom` and time-series `labels[]`.
+
+**Which existing data it uses:**
+It calculates the ratio between two user-selected biomarkers (e.g., `Testosterone` and `Cortisol` or `AST` and `ALT`) over time, directly utilizing their `values[]` from `dataAtom` aligned via `labels[]`. Null values are handled by skipping the calculation for timestamps where either is missing.
+
+**Axes:**
+- X-axis: Time (mapped to `labels`)
+- Y-axis: Calculated numerical ratio between the two markers
+
+**What it reveals that current charts don't:**
+It allows users to track physiological balance and stress states that are defined by the ratio between markers rather than their absolute levels. Current charts only allow overlaying absolute values on multiple axes (ScatterChart / Chart), which makes relative ratio shifts hard to discern visually.
+
+**Where it would live:**
+New `src/layout/PairwiseRatioChart.tsx`.
+
+**Trigger / entry point:**
+A new "Custom Ratio" toggle above the existing main time-series charts, feeding two selected markers from `visibleDataAtom`.
+
+---
+
+**Proposal: PhenoAge Contribution Waterfall Chart**
+
+**ECharts type:** `bar` (using waterfall/transparent base bar pattern)
+
+**Codebase citation:**
+Uses the `a-PhenoAge` tag group from `src/processors/post/tag.ts` and their `values[]` from `dataAtom.ts`.
+
+**Which existing data it uses:**
+Takes the most recent measurement (latest non-null value) for each constituent of the `a-PhenoAge` system group (e.g., `Albumin`, `Glucose`, `Creatinin`, `CRP-hs`). It calculates their individual +/- effect on the final Phenotypic Age score compared to a normalized baseline, plotting them as a waterfall sequence leading to the final total.
+
+**Axes:**
+- X-axis: Categorical components of the `a-PhenoAge` tag group
+- Y-axis: Incremental contribution (in years) to the total Phenotypic Age
+
+**What it reveals that current charts don't:**
+Reveals exactly which biomarker is adding or subtracting years from the user's biological age *today*. While the RadarChart shows relative values, the waterfall explicitly quantifies the absolute weight and direction of each marker's impact on the final calculated score, highlighting the highest-impact intervention point.
+
+**Where it would live:**
+New `src/layout/PhenoAgeWaterfall.tsx`.
+
+**Trigger / entry point:**
+Accessible from a "Deconstruct Score" button when viewing the PhenoAge system summary.
 **Proposal: Systemic Health Deficit Waterfall**
 
 **ECharts type:** `bar` (Waterfall / Stacked Bar)
