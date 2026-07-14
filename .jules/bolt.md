@@ -105,3 +105,8 @@
 **Learning:** Extracting string templates and variables that are not explicitly captured in closures (like regression expressions from dynamic scopes) should rely on `params.value` references injected by ECharts, instead of out-of-scope lexicals.
 **Action:** When overriding tooltips for ECharts statistical transforms, read the formula directly from `params.value` (e.g., `params.value[2]` for linear regression).
 ## 2026-06-29 - Inline Array Mapping Defeats React.memo()\n\n**Learning:** Passing an inline array map (e.g., `correlations={arr.map(...)}`) directly as a prop to a child component wrapped in `React.memo()` completely defeats the memoization. The inline operation creates a new array reference on every parent render cycle, forcing the child (like a heavy ECharts component) to re-render needlessly.\n**Action:** Extract the inline array mapping into a `useMemo` block (and convert to a dense `for` loop for extra speed) to ensure referential equality is preserved across parent render cycles.
+
+## 2026-06-30 - Eliminating Array.forEach() in ECharts Render Loops
+
+**Learning:** Using `Array.prototype.forEach()` inside `useMemo` blocks or render cycles creates an inline closure function that must be allocated and immediately garbage collected on every update. This is particularly noticeable when building large configuration objects for heavy components like ECharts.
+**Action:** Replace `.forEach()` with a standard `for` loop to eliminate closure allocation overhead and reduce garbage collection pressure in data processing pipelines and configuration builders.
