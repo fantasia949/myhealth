@@ -105,3 +105,7 @@
 **Learning:** Extracting string templates and variables that are not explicitly captured in closures (like regression expressions from dynamic scopes) should rely on `params.value` references injected by ECharts, instead of out-of-scope lexicals.
 **Action:** When overriding tooltips for ECharts statistical transforms, read the formula directly from `params.value` (e.g., `params.value[2]` for linear regression).
 ## 2026-06-29 - Inline Array Mapping Defeats React.memo()\n\n**Learning:** Passing an inline array map (e.g., `correlations={arr.map(...)}`) directly as a prop to a child component wrapped in `React.memo()` completely defeats the memoization. The inline operation creates a new array reference on every parent render cycle, forcing the child (like a heavy ECharts component) to re-render needlessly.\n**Action:** Extract the inline array mapping into a `useMemo` block (and convert to a dense `for` loop for extra speed) to ensure referential equality is preserved across parent render cycles.
+
+## 2026-07-11 - Avoid arr.slice().sort(...) for TypedArrays
+**Learning:** `arr.slice().sort((a,b) => a-b)` generates intermediate sparse arrays when invoked on standard JavaScript arrays and creates high garbage collection churn during boxplot data prep.
+**Action:** When a sort is required inside a loop for statistical rendering, copy the values into a fresh `Float64Array` and call `.sort()`. V8 optimizes TypedArray sorts drastically better than standard arrays with closure comparators.
