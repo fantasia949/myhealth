@@ -101,6 +101,10 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
       fullBiomarkerRanks[k] = targetRanks[validIndices[k]]
     }
 
+    // ⚡ Bolt Optimization: Hoist options object outside the loop to avoid recreating it
+    // on every iteration. This reduces memory allocations and garbage collection overhead.
+    const optionsObj = { alpha: 0.05, alternative: 'two-sided' } as const
+
     for (let w = 0; w < numWindowsDynamic; w++) {
       // Use floating point division to distribute elements evenly across windows
       const startIdxInValid = Math.floor((w * count) / numWindowsDynamic)
@@ -156,10 +160,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
           const result = calculatePearson(
             fullBiomarkerRanks.subarray(startIdxInValid, endIdxInValid),
             suppVector,
-            {
-              alpha: 0.05,
-              alternative: 'two-sided',
-            },
+            optionsObj
           )
           windowRhos.push({ name: suppName, rho: Math.abs(result.pcorr || 0) })
         }
