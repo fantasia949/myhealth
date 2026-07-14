@@ -229,8 +229,18 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
           const lIdx = validIndices[endIdx - 1] ?? validIndices[startIdx]
           let tooltipStr = `<strong>${formattedLabels[lIdx] || ''}</strong>`
           const pArray = Array.isArray(params) ? params : [params]
-          // Sort tooltip by rank value
-          pArray.sort((a: any, b: any) => a.value - b.value)
+          // ⚡ Bolt Optimization: Replaced O(N log N) Array.sort() with a fast insertion sort
+          // Tooltip formatters are hot paths called repeatedly on mouse movement. For very small
+          // arrays (N <= 5), avoiding the closure allocation and standard sort reduces GC overhead.
+          for (let i = 1; i < pArray.length; i++) {
+            let j = i
+            while (j > 0 && pArray[j - 1].value > pArray[j].value) {
+              const temp = pArray[j]
+              pArray[j] = pArray[j - 1]
+              pArray[j - 1] = temp
+              j--
+            }
+          }
           for (let i = 0; i < pArray.length; i++) {
             const p = pArray[i]
             if (p.value !== undefined && p.value !== null && p.value <= 5) {
