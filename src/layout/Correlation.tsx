@@ -346,7 +346,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                             Directional Profile
                           </button>
                         )}
-                        <button
+<button
                           type="button"
                           aria-pressed={activeTab === 'prioritization'}
                           className={`w-full rounded-lg py-2.5 text-sm font-medium leading-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors ${
@@ -358,6 +358,20 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                         >
                           Prioritization View
                         </button>
+                        {alternative !== 'two-sided' && (
+                          <button
+                            type="button"
+                            aria-pressed={activeTab === 'directional-polar'}
+                            className={`w-full rounded-lg py-2.5 text-sm font-medium leading-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors ${
+                              activeTab === 'directional-polar'
+                                ? 'bg-blue-600/80 text-white shadow'
+                                : 'text-gray-400 hover:bg-white/10 hover:text-white'
+                            }`}
+                            onClick={() => setActiveTab('directional-polar')}
+                          >
+                            Directional Polar View
+                          </button>
+                        )}
                       </div>
 
 
