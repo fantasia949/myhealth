@@ -193,7 +193,7 @@ export default React.memo(
               id="biomarker-select"
               value={actualSelectedBiomarker || ''}
               onChange={(e) => setSelectedBiomarker(e.target.value)}
-              className="rounded border border-gray-600 bg-dark-bg px-2 py-1 text-xs text-white focus:border-blue-500 focus:outline-none"
+              className="rounded border border-gray-600 bg-dark-bg px-2 py-1 text-xs text-white focus:border-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             >
               {optionElements}
             </select>

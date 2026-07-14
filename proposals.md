@@ -231,6 +231,102 @@ A "Show Uncertainty" toggle above the existing time-series Line/Scatter charts.
 
 ---
 
+**Proposal: Longitudinal Statistical Significance Brush**
+
+**ECharts type:** `line` (with `brush`)
+
+**Codebase citation:**
+Uses `correlationAlphaAtom` from `src/atom/correlationAtom.ts` and `rankedDataMapAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+Plots the rank trajectories of two selected biomarkers from `rankedDataMapAtom` over time (`labels`). The user can use the `brush` tool to select a specific time window. The component calculates the local correlation just for that window and highlights the area if the p-value is below `correlationAlphaAtom`.
+
+**Axes:**
+- X-axis: `labels` (Time).
+- Y-axis: Spearman rank value.
+
+**What it reveals that current charts don't:**
+Identifies *temporary* periods of strong correlation. Two markers might not be correlated over a 5-year span, but strongly coupled during a specific 6-month illness window. Current charts only show global correlation.
+
+**Where it would live:**
+New `src/layout/LocalCorrelationBrushLine.tsx`.
+
+**Trigger / entry point:**
+A "Time-Window Analysis" toggle in the Correlation view.
+
+---
+
+**Proposal: Inferred Data Contribution Waterfall**
+
+**ECharts type:** `bar` (Waterfall chart format)
+
+**Codebase citation:**
+Uses `originValues` and `inferred` flags from `BioMarker[3]` (`src/types/biomarker.ts`), specifically for inferred markers like `VLDL` derived in `src/processors/enrich/inferData.ts`.
+
+**Which existing data it uses:**
+For a selected timestamp (`labels` index), it takes an inferred biomarker (e.g. `VLDL` derived from `Triglyceride`) and visualizes the mathematical contribution of its `originValues` to the final `inferred` value using a step-by-step waterfall chart.
+
+**Axes:**
+- X-axis: The mathematical components (e.g., origin biomarkers like Triglyceride).
+- Y-axis: The calculated unit value.
+
+**What it reveals that current charts don't:**
+Demystifies calculated biomarkers by showing exactly how much each base measurement contributed to the final inferred score at a given time point, rather than just plotting the final computed number.
+
+**Where it would live:**
+New `src/layout/InferredWaterfall.tsx`.
+
+**Trigger / entry point:**
+Clicking on any row in the main table that has `inferred: true`.
+
+---
+**Proposal: Biomarker Pairwise Ratio Line Chart**
+
+**ECharts type:** `line`
+
+**Codebase citation:**
+Uses `values[]` array from `dataAtom` and time-series `labels[]`.
+
+**Which existing data it uses:**
+It calculates the ratio between two user-selected biomarkers (e.g., `Testosterone` and `Cortisol` or `AST` and `ALT`) over time, directly utilizing their `values[]` from `dataAtom` aligned via `labels[]`. Null values are handled by skipping the calculation for timestamps where either is missing.
+
+**Axes:**
+- X-axis: Time (mapped to `labels`)
+- Y-axis: Calculated numerical ratio between the two markers
+
+**What it reveals that current charts don't:**
+It allows users to track physiological balance and stress states that are defined by the ratio between markers rather than their absolute levels. Current charts only allow overlaying absolute values on multiple axes (ScatterChart / Chart), which makes relative ratio shifts hard to discern visually.
+
+**Where it would live:**
+New `src/layout/PairwiseRatioChart.tsx`.
+
+**Trigger / entry point:**
+A new "Custom Ratio" toggle above the existing main time-series charts, feeding two selected markers from `visibleDataAtom`.
+
+---
+
+**Proposal: PhenoAge Contribution Waterfall Chart**
+
+**ECharts type:** `bar` (using waterfall/transparent base bar pattern)
+
+**Codebase citation:**
+Uses the `a-PhenoAge` tag group from `src/processors/post/tag.ts` and their `values[]` from `dataAtom.ts`.
+
+**Which existing data it uses:**
+Takes the most recent measurement (latest non-null value) for each constituent of the `a-PhenoAge` system group (e.g., `Albumin`, `Glucose`, `Creatinin`, `CRP-hs`). It calculates their individual +/- effect on the final Phenotypic Age score compared to a normalized baseline, plotting them as a waterfall sequence leading to the final total.
+
+**Axes:**
+- X-axis: Categorical components of the `a-PhenoAge` tag group
+- Y-axis: Incremental contribution (in years) to the total Phenotypic Age
+
+**What it reveals that current charts don't:**
+Reveals exactly which biomarker is adding or subtracting years from the user's biological age *today*. While the RadarChart shows relative values, the waterfall explicitly quantifies the absolute weight and direction of each marker's impact on the final calculated score, highlighting the highest-impact intervention point.
+
+**Where it would live:**
+New `src/layout/PhenoAgeWaterfall.tsx`.
+
+**Trigger / entry point:**
+Accessible from a "Deconstruct Score" button when viewing the PhenoAge system summary.
 **Proposal: Systemic Health Deficit Waterfall**
 
 **ECharts type:** `bar` (Waterfall / Stacked Bar)
