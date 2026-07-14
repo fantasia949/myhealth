@@ -29,7 +29,7 @@ const recipes: Recipe[] = [
   ],
   ['VLDL', ['Triglyceride'], (triglyceride) => (triglyceride / 5).toFixed(0)],
   ['Age', [], (age) => age.toFixed(1)],
-  ['Khả năng gắn sắt toàn phần', ['Khả năng gắn sắt toàn phần', 'TSAT', 'Sắt huyết thanh'], (v0, v1, v2) => v1]
+  ['Khả năng gắn sắt toàn phần', ['Khả năng gắn sắt toàn phần', 'TSAT', 'Sắt huyết thanh'], (_v0, v1, _v2) => String(v1)]
 ]
 
 const getAge = (label: string) => {
