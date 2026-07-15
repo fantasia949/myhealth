@@ -126,3 +126,8 @@
 ## 2026-06-30 - Replace .forEach() with for loop
 **Learning:** Using .forEach() inside hot rendering paths like `useMemo` for charting components creates unnecessary closure allocations and increases garbage collection overhead. Since these array iterations happen frequently on large data sets to compute chart options (e.g. valid pairs, visible data, node items), reducing closure creation is important.
 **Action:** Replace `Array.prototype.forEach()` loops with standard `for (let i = 0; i < arr.length; i++)` loops in hot charting render paths to eliminate closure allocation overhead and reduce garbage collection pressure.
+
+## 2023-10-27 - [Chart Discovery Scans Clean State]
+- During execution, performed a comprehensive audit against discovery scans 1-7 for `ScatterChart.tsx`, `LineChart.tsx`, `Chart.tsx`, and `Chart2.tsx`.
+- Found that previous commits have already fully optimized the charts (e.g. dense array V8 optimizations, `notMerge: true`, custom dense loops replacing map/reduce, removing dual `<Scatter>` rendering, fixing tooltip formatting fallbacks).
+- No new unprompted logic changes were made to avoid manufacturing unmeasurable micro-optimizations. Codebase is clean.

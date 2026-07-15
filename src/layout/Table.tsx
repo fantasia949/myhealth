@@ -173,6 +173,13 @@ const TableRow = React.memo(
       entry
     const safeNameId = String(name).replace(/[^a-zA-Z0-9-_]/g, '-')
 
+    let displayUnit = ''
+    if (typeof unit === 'string') {
+      displayUnit = unit
+    } else if (unit && typeof unit === 'object' && 'url' in unit) {
+      displayUnit = (unit as { url: string }).url
+    }
+
     return (
       <React.Fragment>
         <tr
@@ -299,11 +306,7 @@ const TableRow = React.memo(
             {extra.range}
           </td>
           <td className="p-2 border border-gray-700 hidden sm:table-cell">
-            {typeof unit === 'string'
-              ? unit
-              : unit && typeof unit === 'object' && 'url' in unit
-                ? (unit as { url: string }).url
-                : ''}
+            {displayUnit}
           </td>
           {showOrigColumns && (
             <td className="p-2 border border-gray-700 hidden lg:table-cell">
