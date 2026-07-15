@@ -16,6 +16,7 @@ import FocusedCorrelationChart from './FocusedCorrelationChart'
 import CorrelationVolcanoPlot from './CorrelationVolcanoPlot'
 import KeystoneCentralityScatter from './KeystoneCentralityScatter'
 import DirectionalCorrelationScatter from './DirectionalCorrelationScatter'
+import CorrelationPolarScatter from './CorrelationPolarScatter'
 
 export default React.memo(({ target, onClose }: CorrelationProps) => {
   const data = useAtomValue(nonInferredDataAtom)
@@ -25,7 +26,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
   const [alternative, setAlternative] = useAtom(correlationAlternativeAtom)
   const [method, setMethod] = useAtom(correlationMethodAtom)
   const [isCopied, setIsCopied] = React.useState(false)
-  const [activeTab, setActiveTab] = React.useState<'chart' | 'significance' | 'table' | 'prioritization' | 'directional'>('chart')
+  const [activeTab, setActiveTab] = React.useState<'chart' | 'significance' | 'table' | 'prioritization' | 'directional' | 'directional-polar'>('chart')
 
   const entries = React.useMemo(() => {
     if (!Array.isArray(data) || !target) {
@@ -280,7 +281,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                                 setAlternative(newAlternative);
                                 if (newAlternative !== 'two-sided' && activeTab === 'chart') {
                                   setActiveTab('directional');
-                                } else if (newAlternative === 'two-sided' && activeTab === 'directional') {
+                                } else if (newAlternative === 'two-sided' && (activeTab === 'directional' || activeTab === 'directional-polar')) {
                                   setActiveTab('chart');
                                 }
                               }}
@@ -345,7 +346,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                             Directional Profile
                           </button>
                         )}
-                        <button
+<button
                           type="button"
                           aria-pressed={activeTab === 'prioritization'}
                           className={`w-full rounded-lg py-2.5 text-sm font-medium leading-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors ${
@@ -357,6 +358,20 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                         >
                           Prioritization View
                         </button>
+                        {alternative !== 'two-sided' && (
+                          <button
+                            type="button"
+                            aria-pressed={activeTab === 'directional-polar'}
+                            className={`w-full rounded-lg py-2.5 text-sm font-medium leading-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors ${
+                              activeTab === 'directional-polar'
+                                ? 'bg-blue-600/80 text-white shadow'
+                                : 'text-gray-400 hover:bg-white/10 hover:text-white'
+                            }`}
+                            onClick={() => setActiveTab('directional-polar')}
+                          >
+                            Directional Polar View
+                          </button>
+                        )}
                       </div>
 
 
@@ -366,6 +381,16 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                             target={target!}
                             correlations={directionalCorrelations}
                             alternative={alternative}
+                          />
+                        </div>
+                      )}
+
+                      {activeTab === 'directional-polar' && alternative !== 'two-sided' && significantEntries.length > 0 && (
+                        <div className="mb-8">
+                          <CorrelationPolarScatter
+                            target={target!}
+                            correlations={directionalCorrelations}
+                            alpha={alpha}
                           />
                         </div>
                       )}
