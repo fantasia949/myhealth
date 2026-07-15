@@ -60,7 +60,9 @@ const BiomarkerCorrelationGraph = React.memo(({ biomarkerId, correlations }: Gra
       }
     }
 
-    topCorr.forEach((corr) => {
+    // ⚡ Bolt Optimization: Replace .forEach() with a standard for-loop to eliminate closure allocation overhead.
+    for (let i = 0; i < topCorr.length; i++) {
+      const corr = topCorr[i]
       const isPositive = corr.rho > 0
       const absRho = Math.abs(corr.rho)
       // Exaggerate node size scaling based on absRho (0 to 1) to make differences clearer
@@ -89,7 +91,7 @@ const BiomarkerCorrelationGraph = React.memo(({ biomarkerId, correlations }: Gra
           opacity: 0.6,
         },
       })
-    })
+    }
 
     return {
       theme: 'dark',
