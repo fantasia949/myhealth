@@ -206,3 +206,18 @@ This document provides an overview of all implemented charts in the application.
 - Dropdown selector to switch between different top-correlated biomarkers for the given directional alternative hypothesis ('less' or 'greater').
 
 **Dependencies:** Relies on `correlationAlternativeAtom` and correlation scores to determine the active directionality and identify the top correlations.
+
+## CorrelationPolarScatter
+
+**ECharts Type:** `scatter` (Polar Coordinate System)
+
+**File:** `src/layout/CorrelationPolarScatter.tsx`
+
+**Purpose:** Visualizes correlation directionality and significance by mapping pairwise correlations in a polar space. Separates biomarkers that move together from those that move inversely, providing a comprehensive clustering overview of physiological interactions.
+
+**Key Features:**
+- **Magnitude Mapping:** Radius corresponds to the absolute correlation coefficient.
+- **Directionality/Significance Mapping:** Angle represents the sign of correlation (0-90° for positive, 180-270° for negative) and relative significance (p-value).
+- Custom rich tooltip displaying Coefficient, P-Value, Radius, and Angle.
+
+**Data/Atom:** Prop: `correlations: [string, number, number][]` (derived from significant entries in `Correlation.tsx`), `target: string`, `alpha: number`.
