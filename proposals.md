@@ -184,3 +184,47 @@ A new "Custom Ratio" toggle above the existing main time-series charts, feeding 
 
 ---
 
+
+**Proposal: Conditional Anomaly Probability Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.optimality[]` from `src/processors/post/range.ts` aligned with `values` in `dataAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+It computes the conditional probability that a target biomarker is out of range (`extra.optimality` is `true`) given that another condition (e.g. another biomarker being out of range, or belonging to a specific `extra.tag` group) holds true. The heatmap visualizes these calculated probabilities pairwise between biomarkers.
+
+**What it reveals that current charts don't:**
+Unlike the standard correlation charts that map linear relationships across all values, this explicitly highlights cascading anomalous states—answering "If biomarker A is failing, how likely is it that biomarker B is also failing?" This reveals specific, non-linear failure dependencies.
+
+**Where it would live:**
+New `src/layout/ConditionalAnomalyHeatmap.tsx`.
+
+**Trigger / entry point:**
+A "Conditional Probability View" toggle within the correlation and statistical modal.
+
+---
+
+**Proposal: Longitudinal Statistical Significance Brush**
+
+**ECharts type:** `line` (with `brush`)
+
+**Codebase citation:**
+Uses `correlationAlphaAtom` from `src/atom/correlationAtom.ts` and `rankedDataMapAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+Plots the rank trajectories of two selected biomarkers from `rankedDataMapAtom` over time (`labels`). The user can use the `brush` tool to select a specific time window. The component calculates the local correlation just for that window and highlights the area if the p-value is below `correlationAlphaAtom`.
+
+**Axes:**
+- X-axis: `labels` (Time).
+- Y-axis: Spearman rank value.
+
+**What it reveals that current charts don't:**
+Identifies *temporary* periods of strong correlation. Two markers might not be correlated over a 5-year span, but strongly coupled during a specific 6-month illness window. Current charts only show global correlation.
+
+**Where it would live:**
+New `src/layout/LocalCorrelationBrushLine.tsx`.
+
+**Trigger / entry point:**
+A "Time-Window Analysis" toggle in the Correlation view.

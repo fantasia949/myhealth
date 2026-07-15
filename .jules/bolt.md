@@ -123,3 +123,8 @@
 ## 2024-05-18 - Hoisting Invariant Configuration Objects inside Hot Loops
 **Learning:** Instantiating configuration objects (like `{ alpha: 0.05, alternative: 'two-sided' }`) inside hot, nested loops—such as those traversing arrays and calculating correlation over chunked windows—generates unnecessary garbage collection overhead and memory allocations. Even though these objects are tiny, the cumulative performance penalty in high-iteration scenarios (like calculating correlations per component re-render) is measurable.
 **Action:** When calling statistical or mathematical functions inside nested iterations, explicitly identify invariant arguments (like statistical significance thresholds or formatting objects) and hoist them outside the loop. Use `as const` typing in TypeScript to ensure the type matches the expected literal parameter bounds.
+
+## 2023-10-27 - [Chart Discovery Scans Clean State]
+- During execution, performed a comprehensive audit against discovery scans 1-7 for `ScatterChart.tsx`, `LineChart.tsx`, `Chart.tsx`, and `Chart2.tsx`.
+- Found that previous commits have already fully optimized the charts (e.g. dense array V8 optimizations, `notMerge: true`, custom dense loops replacing map/reduce, removing dual `<Scatter>` rendering, fixing tooltip formatting fallbacks).
+- No new unprompted logic changes were made to avoid manufacturing unmeasurable micro-optimizations. Codebase is clean.
