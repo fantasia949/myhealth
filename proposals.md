@@ -228,3 +228,53 @@ New `src/layout/LocalCorrelationBrushLine.tsx`.
 
 **Trigger / entry point:**
 A "Time-Window Analysis" toggle in the Correlation view.
+
+---
+
+**Proposal: System Health Trajectory Scatter with Regression**
+
+**ECharts type:** `scatter` (with `ecStat:regression` line)
+
+**Codebase citation:**
+Uses `extra.tag[]` from `src/processors/post/tag.ts` and `extra.optimality[]` from `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+Calculates the percentage of biomarkers within a selected system tag (e.g., `2-Metabolic`) that are optimal (`optimality[i] === false`) at each time point (`labels[i]`). Uses `visibleDataAtom` filtered by the active `tagAtom`.
+
+**Axes:**
+- X-axis: `labels` (Time).
+- Y-axis: % Optimal (0-100%).
+
+**What it reveals that current charts don't:**
+Shows whether an entire biological system is gradually improving or degrading over time using a regression trendline, abstracting away individual biomarker noise to reveal systemic trajectory.
+
+**Where it would live:**
+New `src/layout/SystemTrajectoryScatter.tsx`.
+
+**Trigger / entry point:**
+A "System Trajectory" toggle when a tag filter (via `tagAtom`) is active.
+
+---
+
+**Proposal: Biomarker Optimality Streak Bar Chart**
+
+**ECharts type:** `bar` (horizontal)
+
+**Codebase citation:**
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+Iterates through the `extra.optimality` boolean array for all measured markers in `nonInferredDataAtom` to compute the longest consecutive sequence of `false` (in-range) measurements.
+
+**Axes:**
+- X-axis: Consecutive Measurement Count (Longest Streak).
+- Y-axis: Biomarker Name.
+
+**What it reveals that current charts don't:**
+Identifies which markers are the most consistently stable vs those that frequently dip out of range. A marker might be out of range 20% of the time, but if it never maintains a streak longer than 2 measurements, it indicates chronic instability rather than an isolated health event.
+
+**Where it would live:**
+New `src/layout/OptimalityStreakBar.tsx`.
+
+**Trigger / entry point:**
+An "Optimality Streaks" tab in the main dashboard view.
