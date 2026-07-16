@@ -50,7 +50,7 @@ export default {
         ['Estradiol (E2)', '27.60', 'pg/mL'],
         ['Testosterone', '15.42', 'nmol/L'],
         ['Định lượng Cortisol máu', '289.9', 'nmol/L'],
-        ['DHEA.SO4', '4.30', 'µg/m'],
+        ['DHEA.SO4', '4.30', 'µg/mL'],
         ['SHBG', '38.20', 'nmol/L'],
         // not test
         ['Alkaline Phosphatase', '49.92', 'U/L'],
@@ -58,7 +58,16 @@ export default {
         ['Weight', 68.1],
         ['Sleep score', 84],
     ],
-    notes: <UpdateNote[]>['++DHEA', '+bromelain', '+fuicodan', '+cistanche', '+bacopa'],
+    notes: <UpdateNote[]>[
+        '++DHEA',
+        '+bromelain',
+        '-gac-oil',
+        '+bacopa',
+        '-astaxanthin',
+        '-inositol',
+        '-boron',
+        // giam melatonin 200mg
+    ],
     review: ['bun rieu'],
-    plan: [],
+    plan: ['-cacao', '+inulin', '+cistanche', '+fuicodan', '+apigenin', '+gingseng', '+delphidin', '-nac'],
 }

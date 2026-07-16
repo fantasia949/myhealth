@@ -71,9 +71,14 @@ export default {
     '+inositol',
     '+sea-buckthon',
     '+gastrodia-elata',
-    'urolithin',
+    '+urolithin',
     '-tmg',
+    '-benfotiamine',
     '-theanine',
+    '-gingseng',
+    '-taurine',
+    '+artichoke',
+    '-cardio',
     '++vitamin-c', // 2 dose
     '++magnesium', // all form
   ],
@@ -86,5 +91,5 @@ export default {
     'tongkat-ali confirmed not affect testosterone',
     'New: garlic, urolithin, sea-buckthon',
   ],
-  plan: ['++DHEA', '+bromelain', '+fuicodan'],
+  plan: ['++DHEA', '+bromelain'],
 }
