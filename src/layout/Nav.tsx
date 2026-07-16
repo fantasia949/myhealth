@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 import cn from 'classnames'
-import { Dialog, Transition } from '@headlessui/react'
+import { Dialog, Transition, Menu, Popover } from '@headlessui/react'
 import {
   Bars3Icon,
   XMarkIcon,
@@ -8,6 +8,12 @@ import {
   TrashIcon,
   ClipboardDocumentIcon,
   CheckIcon,
+  CalendarIcon,
+  ChartBarIcon,
+  ClockIcon,
+  ChevronDownIcon,
+  BeakerIcon,
+  SparklesIcon,
 } from '@heroicons/react/24/outline'
 import { tags } from '../processors'
 import { askBioMarkers } from '../service/askAI'
@@ -29,6 +35,12 @@ import Markdown from 'react-markdown'
 import { Spinner } from './Spinner'
 import { NavProps } from './Nav.types'
 
+interface NoteValue {
+  date: string;
+  supps: string[];
+  items: string[];
+}
+
 // Optimization: Lazy load the GistViewer modal to reduce the initial JavaScript bundle size.
 // This modal is only needed when a user explicitly clicks "View History", so code-splitting it
 // significantly improves the initial page load speed without sacrificing readability.
@@ -38,8 +50,8 @@ export default React.memo<NavProps>(
   ({
     selected,
     onSelect,
-    chartType,
-    onChartTypeChange,
+    chartType: _chartType,
+    onChartTypeChange: _onChartTypeChange,
     onClearSelection,
     filterText,
     filterTag,
@@ -63,14 +75,14 @@ export default React.memo<NavProps>(
     const data = useAtomValue(visibleDataAtom)
     const fullData = useAtomValue(dataAtom)
     const nonInferredData = useAtomValue(nonInferredDataAtom)
-    const noteValues = useAtomValue(noteValuesAtom)
+    const noteValues = useAtomValue(noteValuesAtom) as any[]
     const rankedDataMap = useAtomValue(rankedDataMapAtom)
 
     // Optimization: Pre-calculate unique supplements for the dropdown
     const uniqueSupplements = React.useMemo(() => {
       const supps = new Set<string>()
       for (let i = 0; i < noteValues.length; i++) {
-        const note = noteValues[i]
+        const note = noteValues[i] as NoteValue
         if (note && note.supps) {
           for (let j = 0; j < note.supps.length; j++) {
             supps.add(note.supps[j])
@@ -80,11 +92,9 @@ export default React.memo<NavProps>(
       return Array.from(supps).sort()
     }, [noteValues])
 
-    const [selectedSupplement, setSelectedSupplement] = React.useState<string>('')
     const [show, setShow] = React.useState(false)
     const [isAsking, setIsAsking] = React.useState(false)
     const [isScrolled, setIsScrolled] = React.useState(false)
-    const [isFocused, setIsFocused] = React.useState(false)
     const [isCopied, setIsCopied] = React.useState(false)
     const searchInputRef = React.useRef<HTMLInputElement>(null)
 
@@ -115,8 +125,6 @@ export default React.memo<NavProps>(
       return () => window.removeEventListener('keydown', handleKeyDown)
     }, [])
 
-    const onToggle = () => setShow((v) => !v)
-
     const onAskAI = React.useCallback(async () => {
       if (selected.length === 0) {
         return
@@ -124,12 +132,7 @@ export default React.memo<NavProps>(
       setIsAsking(true)
 
       try {
-        // Optimization: Use a Set for O(1) lookups instead of O(N) array.includes inside multiple filter loops.
-        // This reduces overall filtering complexity from O(M * N * 4) to O(M + N * 4).
         const selectedSet = new Set(selected)
-
-        // Optimization: Replace chained Array.filter() and Array.map() with a single-pass loop
-        // to avoid allocating redundant intermediate arrays and closure overhead.
         const pairs: string[] = []
         const prevPairs: string[] = []
         for (let i = 0; i < data.length; i++) {
@@ -146,16 +149,12 @@ export default React.memo<NavProps>(
         }
         const relatedContext = (() => {
           if (!fullData || fullData.length === 0) return undefined
-
-          // Optimization: Replace chained Array.filter() with standard for-loops
-          // to eliminate closure creation and array allocation overhead in candidate generation.
           const selectedEntries: typeof fullData = []
           for (let i = 0; i < fullData.length; i++) {
             if (selectedSet.has(fullData[i][0])) {
               selectedEntries.push(fullData[i])
             }
           }
-
           const candidates: typeof nonInferredData = []
           for (let i = 0; i < nonInferredData.length; i++) {
             const d = nonInferredData[i]
@@ -169,49 +168,26 @@ export default React.memo<NavProps>(
             }
           }
           const related = new Map<string, string>()
-
-          // Optimization: Use pre-calculated ranks for all sources and candidates to avoid
-          // redundant sorting (O(V log V)) inside the O(S * N) loop.
-          // This reduces complexity from O(S * N * V log V) to O(S * N * V).
-
-          // ⚡ Bolt Optimization: Hoist options object outside the inner loop to avoid recreating it
-          // on every iteration. This reduces memory allocations and garbage collection overhead.
-          // TODO: should not be hardcoded?
           const options = { alpha: 0.05, alternative: 'two-sided' } as const
 
           for (const source of selectedEntries) {
             const sourceRanks = rankedDataMap.get(source[0])
             if (!sourceRanks) continue
-
             for (const target of candidates) {
               if (related.has(target[0])) continue
-
               const targetRanks = rankedDataMap.get(target[0])
               if (!targetRanks) continue
-
               const res = calculateSpearmanRanked(sourceRanks, targetRanks, options)
-
               if (res.pValue <= 0.05 && Math.abs(res.statistic) >= 0.4) {
                 const val = target[1][target[1].length - 1]
-                if (!val) {
-                  console.log('the test does not include this marker, so skip it', target[0])
-                  continue
-                }
+                if (!val) continue
                 const unit = target[2] || ''
-                related.set(
-                  target[0],
-                  `- ${target[0]}: ${val} ${unit} (Correlation: ${res.statistic.toFixed(
-                    2,
-                  )}, P-Value: ${res.pValue.toFixed(4)})`,
-                )
+                related.set(target[0], `- ${target[0]}: ${val} ${unit} (Correlation: ${res.statistic.toFixed(2)}, P-Value: ${res.pValue.toFixed(4)})`)
               }
             }
           }
           if (related.size === 0) return undefined
-          return (
-            'Related Biomarkers (Significant Correlations):\n' +
-            Array.from(related.values()).join('\n')
-          )
+          return 'Related Biomarkers (Significant Correlations):\n' + Array.from(related.values()).join('\n')
         })()
 
         const text = await askBioMarkers(pairs, key, model, filterTag, prevPairs, relatedContext)
@@ -242,350 +218,364 @@ export default React.memo<NavProps>(
       (e: React.ChangeEvent<HTMLSelectElement>) => setAverageCount(e.target.value),
       [setAverageCount],
     )
-    let askAITitle = 'Ask AI'
-    if (isAsking) {
-      askAITitle = 'Asking AI...'
-    } else if (selected.length === 0) {
-      askAITitle = 'Select biomarkers to ask AI'
-    }
 
     return (
       <>
-        <nav
+        <header
           className={cn(
-            'flex flex-wrap items-center justify-between p-4 sticky top-0 left-0 z-20 gap-3 transition-colors duration-300 ease-in-out',
+            'sticky top-0 left-0 z-20 w-full transition-colors duration-300 ease-in-out border-b border-gray-800 shadow-lg',
             {
-              'bg-dark-accent': !isScrolled,
+              'bg-dark-accent/90 backdrop-blur-md': !isScrolled,
               'bg-dark-accent-solid': isScrolled,
             },
           )}
         >
-          <div className="flex flex-wrap lg:flex-nowrap w-full items-center justify-between px-3 gap-3">
-            <button
-              type="button"
-              className="lg:hidden p-2 text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
-              onClick={onToggle}
-              aria-label={show ? 'Close menu' : 'Open menu'}
-              title={show ? 'Close menu' : 'Open menu'}
-              aria-expanded={show}
-              aria-controls="mobile-menu-content"
-            >
-              {show ? (
-                <XMarkIcon className="h-6 w-6" aria-hidden="true" />
-              ) : (
-                <Bars3Icon className="h-6 w-6" aria-hidden="true" />
-              )}
-            </button>
-            <div className="w-full min-w-40 lg:w-auto flex-1 lg:flex-none">
-              <div className="relative text-gray-400 focus-within:text-gray-200">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <MagnifyingGlassIcon className="h-5 w-5" aria-hidden="true" />
-                </div>
-                <label htmlFor="search-biomarkers" className="sr-only">
-                  Search biomarkers (Press / to focus)
-                </label>
-                <input
-                  id="search-biomarkers"
-                  ref={searchInputRef}
-                  type="search"
-                  value={filterText}
-                  onChange={onTextChange}
-                  onFocus={() => setIsFocused(true)}
-                  onBlur={() => setIsFocused(false)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Escape') {
-                      onTextChange({
-                        target: { value: '' },
-                      } as React.ChangeEvent<HTMLInputElement>)
-                      e.currentTarget.blur()
-                    }
-                  }}
-                  autoFocus
-                  className="w-full pl-10 pr-10 py-2 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 placeholder-gray-500 focus:placeholder-gray-400"
-                  placeholder="Search"
-                  title="Search (Press / to focus)"
-                />
-                {!filterText && !isFocused && (
+          {/* Row 1: Identity + Global Controls */}
+          <div className="flex items-center justify-between px-6 py-2 h-14">
+            <div className="flex items-center gap-8 flex-1">
+              <div className="flex items-center gap-2">
+                <BeakerIcon className="h-6 w-6 text-accent" />
+                <span className="text-lg font-bold tracking-tight text-white">MyHealth</span>
+              </div>
+
+              <div className="max-w-md w-full hidden md:block">
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500 group-focus-within:text-accent transition-colors">
+                    <MagnifyingGlassIcon className="h-4 w-4" aria-hidden="true" />
+                  </div>
+                  <input
+                    id="search-biomarkers"
+                    ref={searchInputRef}
+                    type="search"
+                    value={filterText}
+                    onChange={onTextChange}
+                    placeholder="Search biomarkers..."
+                    className="block w-full bg-gray-900/50 border border-gray-700 rounded-lg py-1.5 pl-9 pr-12 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
+                  />
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <kbd
-                      className="hidden sm:inline-block border border-gray-600 rounded px-1.5 py-0.5 text-xs text-gray-400 font-sans"
-                      aria-hidden="true"
-                    >
+                    <kbd className="hidden sm:inline-flex items-center px-1.5 font-sans text-[10px] font-medium text-gray-500 border border-gray-700 rounded bg-gray-800">
                       /
                     </kbd>
                   </div>
-                )}
-                {filterText && (
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-sm"
-                    onClick={() => {
-                      onTextChange({
-                        target: { value: '' },
-                      } as React.ChangeEvent<HTMLInputElement>)
-                      searchInputRef.current?.focus()
-                    }}
-                    aria-label="Clear search"
-                    title="Clear search"
-                  >
-                    <XMarkIcon className="h-5 w-5" aria-hidden="true" />
-                  </button>
-                )}
+                </div>
               </div>
             </div>
 
-            <div
-              id="mobile-menu-content"
-              className={cn('w-full lg:flex lg:flex-1 lg:items-center lg:gap-4 lg:h-8', {
-                'hidden lg:flex': !show,
-                'grid grid-cols-3 gap-2': show,
-              })}
-            >
-              <ul className="contents lg:flex lg:flex-row xl:gap-1 lg:items-center list-none p-0 m-0">
-                {tags.map((tag: string) => {
-                  const isSelectedTag = filterTag == tag
-                  return (
-                    <li className="nav-item contents lg:block" key={tag}>
-                      <button
-                        type="button"
-                        data-tag={tag}
-                        aria-pressed={isSelectedTag}
-                        className={`px-3 py-2 rounded transition-colors w-full lg:w-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
-                          isSelectedTag
-                            ? 'bg-blue-600 text-white'
-                            : 'text-gray-300 hover:text-white hover:bg-gray-700'
-                        }`}
-                        onClick={onFilterByTag}
-                      >
-                        {tag.slice(2)}
-                      </button>
-                    </li>
-                  )
-                })}
-              </ul>
-
-              <button
-                type="button"
-                className="lg:ml-2 px-4 py-1 text-sm bg-yellow-500 text-black rounded hover:bg-yellow-400 w-full lg:w-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={onFilterByTag}
-                disabled={filterTag == null}
-                title={filterTag == null ? 'Select a tag to filter' : 'Reset tag filter'}
-                aria-label="Reset tag filter"
-              >
-                Reset
-              </button>
-
-              {selected.length > 0 && (
-                <div className="col-span-3 lg:col-span-1 lg:flex lg:flex-1 lg:items-center lg:flex-wrap lg:gap-2 lg:self-baseline bg-dark-table-row border border-gray-700 rounded-md p-1.5 lg:p-1 w-full lg:w-auto mt-2 lg:mt-0 shadow-inner">
-                  <div className="flex flex-wrap items-center gap-1.5 w-full lg:w-auto">
-                    <span className="text-xs text-gray-400 font-medium px-1">Selected:</span>
-                    {selected.map((item) => (
-                      <span
-                        key={item}
-                        className="flex items-center gap-1 px-2 py-0.5 text-xs font-medium bg-blue-900/50 text-blue-200 border border-blue-800/50 rounded-full"
-                      >
-                        {item}
-                        <button
-                          type="button"
-                          onClick={() => onSelect(item)}
-                          className="hover:text-white focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-400 rounded-full"
-                          aria-label={`Remove ${item} from selection`}
-                          title={`Remove ${item} from selection`}
-                        >
-                          <XMarkIcon className="h-3 w-3" aria-hidden="true" />
-                        </button>
-                      </span>
-                    ))}
-                    {selected.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={onClearSelection}
-                        className="p-1 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 transition-colors ml-0.5"
-                        aria-label="Clear all selected items"
-                        title="Clear All"
-                      >
-                        <TrashIcon className="h-4 w-4" aria-hidden="true" />
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="w-full h-px lg:w-px lg:h-5 bg-gray-700 my-1.5 lg:my-0 lg:mx-1 hidden lg:block"></div>
-
-                  <div className="flex flex-wrap items-center gap-2 mt-2 lg:mt-0">
-                    <button
-                      type="button"
-                      onClick={onPValue}
-                      disabled={selected.length !== 2}
-                      title={
-                        selected.length !== 2
-                          ? 'Select exactly 2 items to calculate P-Value'
-                          : 'Calculate P-Value'
-                      }
-                      className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors"
-                    >
-                      P-Value
-                    </button>
-                    <button
-                      type="button"
-                      onClick={onAskAI}
-                      disabled={isAsking || selected.length === 0}
-                      title={askAITitle}
-                      className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors flex items-center justify-center gap-1 min-w-[70px]"
-                      aria-busy={isAsking}
-                      aria-live="polite"
-                    >
-                      {isAsking ? <Spinner /> : null}
-                      {isAsking ? 'Asking...' : 'Ask AI'}
-                    </button>
-                    <div className="w-px h-4 bg-gray-600 mx-0.5 hidden sm:block"></div>
-                    <label htmlFor="chart-type" className="sr-only">
-                      Select chart type
-                    </label>
-                    <select
-                      id="chart-type"
-                      className="px-2 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
-                      value={chartType}
-                      onChange={(e) => onChartTypeChange(e.target.value)}
-                    >
-                      <option value="scatter">Scatter Chart</option>
-                    </select>
-                    <button
-                      type="button"
-                      onClick={onVisualize}
-                      disabled={selected.length === 0}
-                      title={
-                        selected.length === 0
-                          ? 'Select biomarkers to visualize'
-                          : 'Visualize selected biomarkers'
-                      }
-                      className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Visualize
-                    </button>
-                  </div>
-                </div>
-              )}
-              <button
-                type="button"
-                onClick={onToggleMatrixView}
-                title="View Correlation Matrix"
-                disabled={filterTag == null}
-                className={`hidden md:flex ml-4 px-3 py-1 text-xs font-medium text-white rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                  isMatrixViewOpen ? 'bg-blue-700 shadow-inner' : 'bg-blue-600 hover:bg-blue-500'
-                }`}
-                aria-pressed={isMatrixViewOpen}
-              >
-                Correlation Matrix
-              </button>
-
-              <button
-                type="button"
-                onClick={onToggleNetworkView}
-                title="View Biomarker Chord Diagram"
-                className={`hidden md:flex ml-4 px-3 py-1 text-xs font-medium text-white rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors ${
-                  isNetworkViewOpen ? 'bg-blue-700 shadow-inner' : 'bg-blue-600 hover:bg-blue-500'
-                }`}
-                aria-pressed={isNetworkViewOpen}
-              >
-                View Chord Diagram
-              </button>
-
-              {onOpenClustering && (
-                <button
-                  type="button"
-                  onClick={onOpenClustering}
-                  title="Detect Supplement Phases"
-                  className="hidden md:flex ml-4 px-3 py-1 text-xs font-medium bg-purple-600 text-white rounded hover:bg-purple-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 transition-colors"
-                >
-                  Detect Phases
-                </button>
-              )}
-
-              {uniqueSupplements.length > 0 && (
-                <div className="hidden md:flex ml-4 items-center gap-2">
-                  <label htmlFor="nav-supplement" className="sr-only">
-                    Select Supplement
-                  </label>
-                  <select
-                    id="nav-supplement"
-                    className="px-2 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
-                    value={selectedSupplement}
-                    onChange={(e) => setSelectedSupplement(e.target.value)}
-                  >
-                    <option value="">Select supplement...</option>
-                    {uniqueSupplements.map((supp) => (
-                      <option key={supp} value={supp}>
-                        {supp}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    type="button"
-                    onClick={() => onSupplementCorrelation(selectedSupplement)}
-                    disabled={!selectedSupplement}
-                    title={
-                      !selectedSupplement
-                        ? 'Select a supplement to correlate'
-                        : 'Correlate supplement'
-                    }
-                    className="px-3 py-1 text-xs font-medium bg-purple-600 text-white rounded hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 transition-colors"
-                  >
-                    Correlate
-                  </button>
-                </div>
-              )}
-
-              <button
-                type="button"
-                onClick={() => {
-                  setIsGistViewerOpen(true)
-                  setHasGistViewerMounted(true)
-                }}
-                title="View AI History"
-                className="hidden md:flex ml-4 px-3 py-1 text-xs font-medium bg-gray-700 text-white rounded hover:bg-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 transition-colors"
-              >
-                View History
-              </button>
-
-              <div className="hidden contents lg:flex lg:ml-auto lg:flex-row lg:gap-4 lg:items-center">
-                <div className="flex items-center gap-2 w-full lg:w-auto">
-                  <label htmlFor="average-count" className="sr-only">
-                    Select average count
-                  </label>
-                  <select
-                    id="average-count"
-                    className="flex-1 lg:flex-none px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
-                    value={averageCount.toString()}
-                    onChange={onAverageCount}
-                  >
-                    <option value="">No average</option>
-                    <option value="3">Average of last 3 tests</option>
-                    <option value="5">Average of last 5 tests</option>
-                    <option value="10">Average of last 10 tests</option>
-                    <option value="15">Average of last 15 tests</option>
-                  </select>
-                </div>
-                <div className="hidden lg:flex items-center gap-2 lg:w-auto">
-                  <label htmlFor="show-records" className="sr-only">
-                    Select number of records to show
-                  </label>
+            <div className="flex items-center gap-6">
+              {/* View Controls */}
+              <div className="hidden lg:flex items-center gap-4">
+                <div className="flex items-center gap-2 text-gray-400">
+                  <CalendarIcon className="h-4 w-4" />
                   <select
                     id="show-records"
-                    className="flex-1 lg:flex-none px-3 py-1 bg-dark-bg text-dark-text border border-gray-600 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
+                    className="bg-transparent text-xs font-medium focus:outline-none focus:text-white cursor-pointer hover:text-gray-200 transition-colors"
                     value={showRecords.toString()}
                     onChange={onShowRecordsChange}
                   >
-                    <option value="0">All</option>
-                    <option value="3">Last 3 records</option>
-                    <option value="5">Last 5 records</option>
-                    <option value="10">Last 10 records</option>
-                    <option value="15">Last 15 records</option>
+                    <option value="0" className="bg-gray-900">All records</option>
+                    <option value="3" className="bg-gray-900">Last 3</option>
+                    <option value="5" className="bg-gray-900">Last 5</option>
+                    <option value="10" className="bg-gray-900">Last 10</option>
+                    <option value="15" className="bg-gray-900">Last 15</option>
                   </select>
                 </div>
+
+                <div className="flex items-center gap-2 text-gray-400 border-l border-gray-700 pl-4">
+                  <ChartBarIcon className="h-4 w-4" />
+                  <select
+                    id="average-count"
+                    className="bg-transparent text-xs font-medium focus:outline-none focus:text-white cursor-pointer hover:text-gray-200 transition-colors"
+                    value={averageCount.toString()}
+                    onChange={onAverageCount}
+                  >
+                    <option value="" className="bg-gray-900">No average</option>
+                    <option value="3" className="bg-gray-900">Avg of 3</option>
+                    <option value="5" className="bg-gray-900">Avg of 5</option>
+                    <option value="10" className="bg-gray-900">Avg of 10</option>
+                    <option value="15" className="bg-gray-900">Avg of 15</option>
+                  </select>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsGistViewerOpen(true)
+                    setHasGistViewerMounted(true)
+                  }}
+                  className="flex items-center gap-2 text-gray-400 hover:text-white text-xs font-medium border-l border-gray-700 pl-4 transition-colors"
+                >
+                  <ClockIcon className="h-4 w-4" />
+                  History
+                </button>
               </div>
+
+              <button
+                type="button"
+                className="lg:hidden p-2 text-gray-400 hover:text-white focus:outline-none rounded-lg hover:bg-gray-800"
+                onClick={() => setShow(true)}
+                aria-label="Open menu"
+              >
+                <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+              </button>
             </div>
           </div>
-        </nav>
+
+          {/* Row 2: Context (Filters + Actions) */}
+          <div className="flex items-center justify-between px-6 py-2 border-t border-gray-800 h-12 bg-black/20">
+            {/* Category Filters */}
+            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar mask-fade-right">
+              <button
+                type="button"
+                data-tag=""
+                onClick={onFilterByTag}
+                className={cn(
+                  'px-3 py-1 rounded-full text-xs font-medium transition-all whitespace-nowrap',
+                  filterTag === null
+                    ? 'bg-accent text-white shadow-sm shadow-accent/20'
+                    : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50',
+                )}
+              >
+                All
+              </button>
+              {tags.map((tag: string) => {
+                const isSelectedTag = filterTag == tag
+                return (
+                  <button
+                    key={tag}
+                    type="button"
+                    data-tag={tag}
+                    onClick={onFilterByTag}
+                    className={cn(
+                      'px-3 py-1 rounded-full text-xs font-medium transition-all whitespace-nowrap',
+                      isSelectedTag
+                        ? 'bg-accent text-white shadow-sm shadow-accent/20'
+                        : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50',
+                    )}
+                  >
+                    {tag.slice(2)}
+                  </button>
+                )
+              })}
+              {filterTag !== null && (
+                <button
+                  type="button"
+                  data-tag=""
+                  onClick={onFilterByTag}
+                  className="px-3 py-1 text-xs font-medium text-gray-500 hover:text-accent transition-colors"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-3">
+              {selected.length > 0 && (
+                <div className="flex items-center gap-2 pr-3 border-r border-gray-800 mr-1">
+                  <div className="flex -space-x-1 overflow-hidden">
+                    {selected.slice(0, 3).map((item) => (
+                      <div
+                        key={item}
+                        className="h-5 px-1.5 flex items-center bg-gray-800 border border-gray-700 rounded-md text-[10px] text-gray-400"
+                        title={item}
+                      >
+                        {item.length > 8 ? item.slice(0, 8) + '...' : item}
+                        <button
+                          type="button"
+                          onClick={() => onSelect(item)}
+                          className="ml-1 text-gray-500 hover:text-accent transition-colors"
+                        >
+                          <XMarkIcon className="h-2.5 w-2.5" />
+                        </button>
+                      </div>
+                    ))}
+                    {selected.length > 3 && (
+                      <div className="h-5 px-1 flex items-center bg-gray-900 border border-gray-800 rounded-md text-[10px] text-gray-500">
+                        +{selected.length - 3}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={onClearSelection}
+                    className="p-1 text-gray-500 hover:text-red-400 transition-colors"
+                    title="Clear Selection"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
+
+              {/* Analyze Menu */}
+              <Menu as="div" className="relative">
+                <Menu.Button
+                  className={cn(
+                    'flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all',
+                    'bg-accent text-white hover:bg-accent/90 shadow-sm shadow-accent/20',
+                    'disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none',
+                  )}
+                >
+                  Analyze
+                  <ChevronDownIcon className="h-3.5 w-3.5" />
+                </Menu.Button>
+
+                <Transition
+                  as={Fragment}
+                  enter="transition ease-out duration-100"
+                  enterFrom="transform opacity-0 scale-95"
+                  enterTo="transform opacity-100 scale-100"
+                  leave="transition ease-in duration-75"
+                  leaveFrom="transform opacity-100 scale-100"
+                  leaveTo="transform opacity-0 scale-95"
+                >
+                  <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right bg-gray-900 border border-gray-800 rounded-xl shadow-2xl focus:outline-none z-30 p-1.5">
+                    <div className="px-3 py-2 mb-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                      Selected Markers ({selected.length})
+                    </div>
+
+                    <Menu.Item>
+                      {({ active }) => (
+                        <button
+                          onClick={onVisualize}
+                          disabled={selected.length === 0}
+                          className={cn(
+                            'flex w-full items-center gap-2 px-3 py-2 rounded-lg text-xs transition-colors',
+                            active ? 'bg-gray-800 text-white' : 'text-gray-300',
+                            'disabled:opacity-30 disabled:cursor-not-allowed',
+                          )}
+                        >
+                          <ChartBarIcon className="h-4 w-4 text-accent" />
+                          Visualize Selection
+                        </button>
+                      )}
+                    </Menu.Item>
+
+                    <Menu.Item>
+                      {({ active }) => (
+                        <button
+                          onClick={onPValue}
+                          disabled={selected.length !== 2}
+                          className={cn(
+                            'flex w-full items-center gap-2 px-3 py-2 rounded-lg text-xs transition-colors',
+                            active ? 'bg-gray-800 text-white' : 'text-gray-300',
+                            'disabled:opacity-30 disabled:cursor-not-allowed',
+                          )}
+                        >
+                          <BeakerIcon className="h-4 w-4 text-accent" />
+                          Calculate P-Value
+                        </button>
+                      )}
+                    </Menu.Item>
+
+                    <div className="h-px bg-gray-800 my-1.5 mx-2" />
+
+                    <div className="px-3 py-2 mb-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                      Global Analysis
+                    </div>
+
+                    <Menu.Item>
+                      {({ active }) => (
+                        <button
+                          onClick={onToggleMatrixView}
+                          disabled={filterTag == null}
+                          className={cn(
+                            'flex w-full items-center gap-2 px-3 py-2 rounded-lg text-xs transition-colors',
+                            active ? 'bg-gray-800 text-white' : 'text-gray-300',
+                            isMatrixViewOpen ? 'text-accent font-medium' : '',
+                            'disabled:opacity-30 disabled:cursor-not-allowed',
+                          )}
+                        >
+                          <div className={cn('h-1.5 w-1.5 rounded-full bg-accent', isMatrixViewOpen ? 'opacity-100' : 'opacity-0')} />
+                          Correlation Matrix
+                        </button>
+                      )}
+                    </Menu.Item>
+
+                    <Menu.Item>
+                      {({ active }) => (
+                        <button
+                          onClick={onToggleNetworkView}
+                          className={cn(
+                            'flex w-full items-center gap-2 px-3 py-2 rounded-lg text-xs transition-colors',
+                            active ? 'bg-gray-800 text-white' : 'text-gray-300',
+                            isNetworkViewOpen ? 'text-accent font-medium' : '',
+                          )}
+                        >
+                          <div className={cn('h-1.5 w-1.5 rounded-full bg-accent', isNetworkViewOpen ? 'opacity-100' : 'opacity-0')} />
+                          Chord Diagram
+                        </button>
+                      )}
+                    </Menu.Item>
+
+                    {onOpenClustering && (
+                      <Menu.Item>
+                        {({ active }) => (
+                          <button
+                            onClick={onOpenClustering}
+                            className={cn(
+                              'flex w-full items-center gap-2 px-3 py-2 rounded-lg text-xs transition-colors',
+                              active ? 'bg-gray-800 text-white' : 'text-gray-300',
+                            )}
+                          >
+                            <SparklesIcon className="h-4 w-4 text-purple-400" />
+                            Detect Phases
+                          </button>
+                        )}
+                      </Menu.Item>
+                    )}
+
+                    <div className="h-px bg-gray-800 my-1.5 mx-2" />
+
+                    <Popover className="relative">
+                      {({ open }) => (
+                        <>
+                          <Popover.Button
+                            className={cn(
+                              'flex w-full items-center justify-between px-3 py-2 rounded-lg text-xs transition-colors',
+                              open ? 'bg-gray-800 text-white' : 'text-gray-300',
+                            )}
+                          >
+                            <div className="flex items-center gap-2">
+                              <SparklesIcon className="h-4 w-4 text-purple-400" />
+                              Correlate supplement...
+                            </div>
+                            <ChevronDownIcon className={cn('h-3 w-3 transition-transform', open ? 'rotate-180' : '')} />
+                          </Popover.Button>
+
+                          <Popover.Panel className="absolute right-full top-0 mr-2 w-56 bg-gray-900 border border-gray-800 rounded-xl shadow-2xl p-1.5 z-40 max-h-[300px] overflow-y-auto">
+                            {uniqueSupplements.map((supp) => (
+                              <button
+                                key={supp}
+                                onClick={() => onSupplementCorrelation(supp)}
+                                className="flex w-full items-center px-3 py-2 rounded-lg text-xs text-gray-300 hover:bg-gray-800 hover:text-white transition-colors text-left"
+                              >
+                                {supp}
+                              </button>
+                            ))}
+                          </Popover.Panel>
+                        </>
+                      )}
+                    </Popover>
+                  </Menu.Items>
+                </Transition>
+              </Menu>
+
+              <button
+                type="button"
+                onClick={onAskAI}
+                disabled={isAsking || selected.length === 0}
+                className={cn(
+                  'flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all',
+                  'border border-gray-700 text-gray-300 hover:text-white hover:border-gray-500',
+                  'disabled:opacity-30 disabled:cursor-not-allowed',
+                )}
+              >
+                {isAsking ? <Spinner /> : <SparklesIcon className="h-3.5 w-3.5 text-accent" />}
+                Ask AI
+              </button>
+            </div>
+          </div>
+        </header>
 
         <React.Suspense
           fallback={
@@ -639,7 +629,7 @@ export default React.memo<NavProps>(
                       <button
                         type="button"
                         onClick={handleClose}
-                        className="text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+                        className="text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
                         aria-label="Close dialog"
                         title="Close dialog"
                       >
@@ -658,7 +648,7 @@ export default React.memo<NavProps>(
                           setIsCopied(true)
                           setTimeout(() => setIsCopied(false), 2000)
                         }}
-                        className={`px-4 py-2 border rounded flex items-center justify-center gap-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 min-w-[160px] ${
+                        className={`px-4 py-2 border rounded flex items-center justify-center gap-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent min-w-[160px] ${
                           isCopied
                             ? 'border-green-600 text-green-400 bg-green-900/20'
                             : 'border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white'
@@ -679,7 +669,7 @@ export default React.memo<NavProps>(
                       </button>
                       <button
                         type="button"
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                        className="px-4 py-2 bg-accent text-white rounded hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                         disabled={isGistLoading}
                         aria-busy={isGistLoading}
                         title="Save analysis to Gist"
@@ -717,7 +707,7 @@ export default React.memo<NavProps>(
                             href={gistUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blue-400 hover:underline"
+                            className="text-accent hover:underline"
                           >
                             View Gist
                           </a>
@@ -731,6 +721,217 @@ export default React.memo<NavProps>(
             </div>
           </Dialog>
         </Transition>
+
+        <Transition.Root show={show} as={Fragment}>
+          <Dialog as="div" className="relative z-50 lg:hidden" onClose={setShow}>
+            <Transition.Child
+              as={Fragment}
+              enter="ease-in-out duration-500"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in-out duration-500"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
+            </Transition.Child>
+
+            <div className="fixed inset-0 overflow-hidden">
+              <div className="absolute inset-0 overflow-hidden">
+                <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+                  <Transition.Child
+                    as={Fragment}
+                    enter="transform transition ease-in-out duration-500 sm:duration-700"
+                    enterFrom="translate-x-full"
+                    enterTo="translate-x-0"
+                    leave="transform transition ease-in-out duration-500 sm:duration-700"
+                    leaveFrom="translate-x-0"
+                    leaveTo="translate-x-full"
+                  >
+                    <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
+                      <div className="flex h-full flex-col overflow-y-scroll bg-dark-bg shadow-2xl border-l border-gray-800 no-scrollbar">
+                        <div className="px-6 py-6 border-b border-gray-800">
+                          <div className="flex items-center justify-between">
+                            <Dialog.Title className="text-lg font-bold text-white flex items-center gap-2">
+                              <BeakerIcon className="h-5 w-5 text-accent" />
+                              MyHealth
+                            </Dialog.Title>
+                            <button
+                              type="button"
+                              className="rounded-md text-gray-400 hover:text-white focus:outline-none"
+                              onClick={() => setShow(false)}
+                            >
+                              <span className="sr-only">Close panel</span>
+                              <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+                            </button>
+                          </div>
+
+                          <div className="mt-6">
+                            <div className="relative">
+                              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
+                                <MagnifyingGlassIcon className="h-4 w-4" aria-hidden="true" />
+                              </div>
+                              <input
+                                type="search"
+                                value={filterText}
+                                onChange={onTextChange}
+                                placeholder="Search biomarkers..."
+                                className="block w-full bg-gray-900 border border-gray-700 rounded-lg py-2 pl-9 pr-3 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex-1 px-6 py-8 space-y-10">
+                          {/* Filters Section */}
+                          <section>
+                            <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">Categories</h3>
+                            <div className="flex flex-wrap gap-2">
+                              <button
+                                type="button"
+                                data-tag=""
+                                onClick={(e) => { onFilterByTag(e); setShow(false); }}
+                                className={cn(
+                                  'px-4 py-2 rounded-lg text-sm font-medium transition-all',
+                                  filterTag === null
+                                    ? 'bg-accent text-white shadow-lg shadow-accent/20'
+                                    : 'bg-gray-900 text-gray-400 border border-gray-800 hover:bg-gray-800',
+                                )}
+                              >
+                                All
+                              </button>
+                              {tags.map((tag) => (
+                                <button
+                                  key={tag}
+                                  type="button"
+                                  data-tag={tag}
+                                  onClick={(e) => { onFilterByTag(e); setShow(false); }}
+                                  className={cn(
+                                    'px-4 py-2 rounded-lg text-sm font-medium transition-all',
+                                    filterTag === tag
+                                      ? 'bg-accent text-white shadow-lg shadow-accent/20'
+                                      : 'bg-gray-900 text-gray-400 border border-gray-800 hover:bg-gray-800',
+                                  )}
+                                >
+                                  {tag.slice(2)}
+                                </button>
+                              ))}
+                            </div>
+                          </section>
+
+                          {/* Analyze Section */}
+                          <section>
+                            <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">Analyze</h3>
+                            <div className="grid grid-cols-1 gap-3">
+                              <button
+                                onClick={() => { onVisualize(); setShow(false); }}
+                                disabled={selected.length === 0}
+                                className="flex items-center gap-3 px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl text-sm font-medium text-gray-300 hover:bg-gray-800 disabled:opacity-30"
+                              >
+                                <ChartBarIcon className="h-5 w-5 text-accent" />
+                                Visualize Selection ({selected.length})
+                              </button>
+                              <button
+                                onClick={() => { onToggleMatrixView(); setShow(false); }}
+                                disabled={filterTag == null}
+                                className={cn(
+                                  "flex items-center gap-3 px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl text-sm font-medium transition-colors",
+                                  isMatrixViewOpen ? "text-accent border-accent/30 bg-accent/5" : "text-gray-300"
+                                )}
+                              >
+                                <div className={cn("h-2 w-2 rounded-full", isMatrixViewOpen ? "bg-accent" : "bg-gray-700")} />
+                                Correlation Matrix
+                              </button>
+                              <button
+                                onClick={() => { onToggleNetworkView(); setShow(false); }}
+                                className={cn(
+                                  "flex items-center gap-3 px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl text-sm font-medium transition-colors",
+                                  isNetworkViewOpen ? "text-accent border-accent/30 bg-accent/5" : "text-gray-300"
+                                )}
+                              >
+                                <div className={cn("h-2 w-2 rounded-full", isNetworkViewOpen ? "bg-accent" : "bg-gray-700")} />
+                                Chord Diagram
+                              </button>
+                              {onOpenClustering && (
+                                <button
+                                  onClick={() => { onOpenClustering(); setShow(false); }}
+                                  className="flex items-center gap-3 px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl text-sm font-medium text-gray-300"
+                                >
+                                  <SparklesIcon className="h-5 w-5 text-purple-400" />
+                                  Detect Phases
+                                </button>
+                              )}
+                              <button
+                                onClick={() => { onAskAI(); setShow(false); }}
+                                disabled={isAsking || selected.length === 0}
+                                className="flex items-center gap-3 px-4 py-3 bg-accent text-white rounded-xl text-sm font-bold shadow-lg shadow-accent/20 disabled:opacity-50"
+                              >
+                                <SparklesIcon className="h-5 w-5" />
+                                {isAsking ? 'Asking AI...' : 'Ask AI'}
+                              </button>
+                            </div>
+                          </section>
+
+                          {/* View Section */}
+                          <section>
+                            <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">View Settings</h3>
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-between p-4 bg-gray-900 border border-gray-800 rounded-xl">
+                                <div className="flex items-center gap-3 text-gray-400">
+                                  <CalendarIcon className="h-5 w-5" />
+                                  <span className="text-sm font-medium">Record range</span>
+                                </div>
+                                <select
+                                  className="bg-transparent text-sm font-bold text-white focus:outline-none"
+                                  value={showRecords.toString()}
+                                  onChange={onShowRecordsChange}
+                                >
+                                  <option value="0" className="bg-gray-900">All</option>
+                                  <option value="3" className="bg-gray-900">Last 3</option>
+                                  <option value="5" className="bg-gray-900">Last 5</option>
+                                  <option value="10" className="bg-gray-900">Last 10</option>
+                                  <option value="15" className="bg-gray-900">Last 15</option>
+                                </select>
+                              </div>
+                              <div className="flex items-center justify-between p-4 bg-gray-900 border border-gray-800 rounded-xl">
+                                <div className="flex items-center gap-3 text-gray-400">
+                                  <ChartBarIcon className="h-5 w-5" />
+                                  <span className="text-sm font-medium">Average mode</span>
+                                </div>
+                                <select
+                                  className="bg-transparent text-sm font-bold text-white focus:outline-none"
+                                  value={averageCount.toString()}
+                                  onChange={onAverageCount}
+                                >
+                                  <option value="" className="bg-gray-900">None</option>
+                                  <option value="3" className="bg-gray-900">Avg of 3</option>
+                                  <option value="5" className="bg-gray-900">Avg of 5</option>
+                                  <option value="10" className="bg-gray-900">Avg of 10</option>
+                                  <option value="15" className="bg-gray-900">Avg of 15</option>
+                                </select>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  setIsGistViewerOpen(true);
+                                  setHasGistViewerMounted(true);
+                                  setShow(false);
+                                }}
+                                className="flex items-center gap-3 w-full p-4 bg-gray-900 border border-gray-800 rounded-xl text-sm font-medium text-gray-400 hover:text-white"
+                              >
+                                <ClockIcon className="h-5 w-5" />
+                                View History
+                              </button>
+                            </div>
+                          </section>
+                        </div>
+                      </div>
+                    </Dialog.Panel>
+                  </Transition.Child>
+                </div>
+              </div>
+            </div>
+          </Dialog>
+        </Transition.Root>
       </>
     )
   },
