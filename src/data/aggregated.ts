@@ -427,6 +427,7 @@ export default [
       '+milk-thistle',
       '+astragalus',
       '+cardio',
+      '+beta-alanine',
       '+taurine',
     ],
     time: '230714',

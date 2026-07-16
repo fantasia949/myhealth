@@ -72,8 +72,11 @@ export default {
     '+DHEA',
     '+taurine',
     '+tongkat-ali',
+    '-ashwagandha',
+    '-incarin',
     '~leg-day',
     '+oyster',
+    '-pregnenolone'
   ],
   review: [
     'taurine does not lower RDW',

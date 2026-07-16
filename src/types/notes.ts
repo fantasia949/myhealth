@@ -74,5 +74,6 @@ export type Note =
   | 'walk'
   | 'yeast'
   | 'yohourt'
+  | 'delphidin'
 
 export type UpdateNote = `${string}${Note}`
