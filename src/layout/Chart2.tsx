@@ -164,13 +164,13 @@ export default memo(({ keys }: ChartProps) => {
     const nextXAxis = []
     const xAxisArr = (echartsOptions.xAxis as XAXisComponentOption[]) || []
     for (let i = 0; i < xAxisArr.length; i++) {
-      nextXAxis.push(i === 0 ? { ...xAxisArr[i], name: keys[0] } : xAxisArr[i])
+      nextXAxis.push(i === 0 ? { ...xAxisArr[i], name: keys[0], nameLocation: 'middle' as const, nameGap: 30 } : xAxisArr[i])
     }
 
     const nextYAxis = []
     const yAxisArr = (echartsOptions.yAxis as YAXisComponentOption[]) || []
     for (let i = 0; i < yAxisArr.length; i++) {
-      nextYAxis.push(i === 0 ? { ...yAxisArr[i], name: keys[1] } : yAxisArr[i])
+      nextYAxis.push(i === 0 ? { ...yAxisArr[i], name: keys[1], nameLocation: 'middle' as const, nameRotate: 90, nameGap: 50 } : yAxisArr[i])
     }
 
     const dataset: DatasetComponentOption[] = [

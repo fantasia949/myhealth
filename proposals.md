@@ -181,3 +181,6 @@ New `src/layout/PairwiseRatioChart.tsx`.
 
 **Trigger / entry point:**
 A new "Custom Ratio" toggle above the existing main time-series charts, feeding two selected markers from `visibleDataAtom`.
+
+
+
