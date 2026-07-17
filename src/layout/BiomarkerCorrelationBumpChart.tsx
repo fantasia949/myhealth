@@ -217,6 +217,16 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
       xAxisData.push(windowLabelsDynamic[i].toString())
     }
 
+
+    const getWindowLabelIdx = (index: number) => {
+      const endIdx =
+        index === numWindowsDynamic - 1
+          ? count
+          : Math.floor(((index + 1) * count) / numWindowsDynamic)
+      const startIdx = Math.floor((index * count) / numWindowsDynamic)
+      return validIndices[endIdx - 1] ?? validIndices[startIdx]
+    }
+
     return {
       style: { height: 350, width: '100%' },
       theme: 'dark',
@@ -229,12 +239,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
         textStyle: { color: '#f0f0f0' },
         formatter: (params: any) => {
           const index = parseInt(params[0].axisValue, 10)
-          const endIdx =
-            index === numWindowsDynamic - 1
-              ? count
-              : Math.floor(((index + 1) * count) / numWindowsDynamic)
-          const startIdx = Math.floor((index * count) / numWindowsDynamic)
-          const lIdx = validIndices[endIdx - 1] ?? validIndices[startIdx]
+          const lIdx = getWindowLabelIdx(index)
           let tooltipStr = `<strong>${formattedLabels[lIdx] || ''}</strong>`
           const pArray = Array.isArray(params) ? params : [params]
           // ⚡ Bolt Optimization: Replaced O(N log N) Array.sort() with a fast insertion sort
@@ -277,12 +282,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
         splitLine: { show: false },
         axisLabel: {
           formatter: (value: string, index: number) => {
-            const endIdx =
-              index === numWindowsDynamic - 1
-                ? count
-                : Math.floor(((index + 1) * count) / numWindowsDynamic)
-            const startIdx = Math.floor((index * count) / numWindowsDynamic)
-            const lIdx = validIndices[endIdx - 1] ?? validIndices[startIdx]
+            const lIdx = getWindowLabelIdx(index)
             return formattedLabels[lIdx] || ''
           },
         },
