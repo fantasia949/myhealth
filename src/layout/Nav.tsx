@@ -327,7 +327,7 @@ export default React.memo<NavProps>(
           {/* Row 2: Context (Filters + Actions) */}
           <div className="flex items-center justify-between px-6 py-2 border-t border-gray-800 h-12 bg-black/20">
             {/* Category Filters */}
-            <div className="flex items-center gap-3 overflow-x-auto no-scrollbar mask-fade-right">
+            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar mask-fade-right">
               <button
                 type="button"
                 data-tag=""
@@ -376,11 +376,11 @@ export default React.memo<NavProps>(
             <div className="flex items-center gap-3">
               {selected.length > 0 && (
                 <div className="flex items-center gap-2 pr-3 border-r border-gray-800 mr-1">
-                  <div className="flex -space-x-1 overflow-hidden">
+                  <div className="flex gap-1.5">
                     {selected.slice(0, 3).map((item) => (
                       <div
                         key={item}
-                        className="h-5 px-1.5 flex items-center bg-gray-800 border border-gray-700 rounded-md text-[10px] text-gray-400 animate-fade-in"
+                        className="h-5 px-2 flex items-center bg-gray-800 border border-gray-700 rounded-md text-[10px] text-gray-400 animate-fade-in gap-1"
                         title={item}
                       >
                         {item.length > 8 ? item.slice(0, 8) + '...' : item}
