@@ -302,6 +302,37 @@ export default function App() {
   const onCorrelationClose = React.useCallback(() => setCorrelationKey(null), [])
   const onSupplementCorrelationClose = React.useCallback(() => setCorrelationSupplement(null), [])
 
+  const renderContent = () => {
+    if (isMatrixViewOpen) {
+      return (
+        <div className="mb-8 px-4">
+          <CorrelationHeatmap />
+        </div>
+      )
+    } else if (isNetworkViewOpen) {
+      return (
+        <div className="mb-8 px-4">
+          <CorrelationChordDiagram />
+        </div>
+      )
+    } else {
+      return (
+        <>
+          {filterTag && (!chartKeys || chartKeys.length === 0) && (
+            <RadarChart data={radarChartData} tag={filterTag} />
+          )}
+          {chartKeys && chartKeys.length > 0 && chartType === 'scatter' && (
+            <ScatterChart keys={chartKeys} />
+          )}
+          {chartKeys &&
+            chartKeys.length >= 2 &&
+            chartKeys.length <= 5 &&
+            chartType === 'scatter' && <RankScatterMatrix keys={chartKeys} />}
+        </>
+      )
+    }
+  }
+
   return (
     <>
       <a
@@ -351,28 +382,7 @@ export default function App() {
             </div>
           }
         >
-          {isMatrixViewOpen ? (
-            <div className="mb-8 px-4">
-              <CorrelationHeatmap />
-            </div>
-          ) : isNetworkViewOpen ? (
-            <div className="mb-8 px-4">
-              <CorrelationChordDiagram />
-            </div>
-          ) : (
-            <>
-              {filterTag && (!chartKeys || chartKeys.length === 0) && (
-                <RadarChart data={radarChartData} tag={filterTag} />
-              )}
-              {chartKeys && chartKeys.length > 0 && chartType === 'scatter' && (
-                <ScatterChart keys={chartKeys} />
-              )}
-              {chartKeys &&
-                chartKeys.length >= 2 &&
-                chartKeys.length <= 5 &&
-                chartType === 'scatter' && <RankScatterMatrix keys={chartKeys} />}
-            </>
-          )}
+          {renderContent()}
         </React.Suspense>
         {!(isNetworkViewOpen || isMatrixViewOpen) && <Table {...tableProps} />}
         <div className="flex flex-wrap justify-center gap-4 mt-4 pb-8">
