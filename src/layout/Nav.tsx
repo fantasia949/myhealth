@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 import cn from 'classnames'
-import { Dialog, Transition, Menu, Popover } from '@headlessui/react'
+import { Dialog, Transition, Popover } from '@headlessui/react'
 import {
   Bars3Icon,
   XMarkIcon,
@@ -14,6 +14,7 @@ import {
   ChevronDownIcon,
   BeakerIcon,
   SparklesIcon,
+  ArrowLeftIcon,
 } from '@heroicons/react/24/outline'
 import { tags } from '../processors'
 import { askBioMarkers } from '../service/askAI'
@@ -97,6 +98,9 @@ export default React.memo<NavProps>(
     const [isScrolled, setIsScrolled] = React.useState(false)
     const [isCopied, setIsCopied] = React.useState(false)
     const searchInputRef = React.useRef<HTMLInputElement>(null)
+
+    // Submenu state for Analyze Popover
+    const [activeSubMenu, setActiveSubMenu] = React.useState<'main' | 'supplements'>('main')
 
     React.useEffect(() => {
       const handleScroll = () => {
@@ -323,7 +327,7 @@ export default React.memo<NavProps>(
           {/* Row 2: Context (Filters + Actions) */}
           <div className="flex items-center justify-between px-6 py-2 border-t border-gray-800 h-12 bg-black/20">
             {/* Category Filters */}
-            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar mask-fade-right">
+            <div className="flex items-center gap-3 overflow-x-auto no-scrollbar mask-fade-right">
               <button
                 type="button"
                 data-tag=""
@@ -376,7 +380,7 @@ export default React.memo<NavProps>(
                     {selected.slice(0, 3).map((item) => (
                       <div
                         key={item}
-                        className="h-5 px-1.5 flex items-center bg-gray-800 border border-gray-700 rounded-md text-[10px] text-gray-400"
+                        className="h-5 px-1.5 flex items-center bg-gray-800 border border-gray-700 rounded-md text-[10px] text-gray-400 animate-fade-in"
                         title={item}
                       >
                         {item.length > 8 ? item.slice(0, 8) + '...' : item}
@@ -406,159 +410,164 @@ export default React.memo<NavProps>(
                 </div>
               )}
 
-              {/* Analyze Menu */}
-              <Menu as="div" className="relative">
-                <Menu.Button
-                  className={cn(
-                    'flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all',
-                    'bg-accent text-white hover:bg-accent/90 shadow-sm shadow-accent/20',
-                    'disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none',
-                  )}
-                >
-                  Analyze
-                  <ChevronDownIcon className="h-3.5 w-3.5" />
-                </Menu.Button>
-
-                <Transition
-                  as={Fragment}
-                  enter="transition ease-out duration-100"
-                  enterFrom="transform opacity-0 scale-95"
-                  enterTo="transform opacity-100 scale-100"
-                  leave="transition ease-in duration-75"
-                  leaveFrom="transform opacity-100 scale-100"
-                  leaveTo="transform opacity-0 scale-95"
-                >
-                  <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right bg-gray-900 border border-gray-800 rounded-xl shadow-2xl focus:outline-none z-30 p-1.5">
-                    <div className="px-3 py-2 mb-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                      Selected Markers ({selected.length})
-                    </div>
-
-                    <Menu.Item>
-                      {({ active }) => (
-                        <button
-                          onClick={onVisualize}
-                          disabled={selected.length === 0}
-                          className={cn(
-                            'flex w-full items-center gap-2 px-3 py-2 rounded-lg text-xs transition-colors',
-                            active ? 'bg-gray-800 text-white' : 'text-gray-300',
-                            'disabled:opacity-30 disabled:cursor-not-allowed',
-                          )}
-                        >
-                          <ChartBarIcon className="h-4 w-4 text-accent" />
-                          Visualize Selection
-                        </button>
-                      )}
-                    </Menu.Item>
-
-                    <Menu.Item>
-                      {({ active }) => (
-                        <button
-                          onClick={onPValue}
-                          disabled={selected.length !== 2}
-                          className={cn(
-                            'flex w-full items-center gap-2 px-3 py-2 rounded-lg text-xs transition-colors',
-                            active ? 'bg-gray-800 text-white' : 'text-gray-300',
-                            'disabled:opacity-30 disabled:cursor-not-allowed',
-                          )}
-                        >
-                          <BeakerIcon className="h-4 w-4 text-accent" />
-                          Calculate P-Value
-                        </button>
-                      )}
-                    </Menu.Item>
-
-                    <div className="h-px bg-gray-800 my-1.5 mx-2" />
-
-                    <div className="px-3 py-2 mb-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                      Global Analysis
-                    </div>
-
-                    <Menu.Item>
-                      {({ active }) => (
-                        <button
-                          onClick={onToggleMatrixView}
-                          disabled={filterTag == null}
-                          className={cn(
-                            'flex w-full items-center gap-2 px-3 py-2 rounded-lg text-xs transition-colors',
-                            active ? 'bg-gray-800 text-white' : 'text-gray-300',
-                            isMatrixViewOpen ? 'text-accent font-medium' : '',
-                            'disabled:opacity-30 disabled:cursor-not-allowed',
-                          )}
-                        >
-                          <div className={cn('h-1.5 w-1.5 rounded-full bg-accent', isMatrixViewOpen ? 'opacity-100' : 'opacity-0')} />
-                          Correlation Matrix
-                        </button>
-                      )}
-                    </Menu.Item>
-
-                    <Menu.Item>
-                      {({ active }) => (
-                        <button
-                          onClick={onToggleNetworkView}
-                          className={cn(
-                            'flex w-full items-center gap-2 px-3 py-2 rounded-lg text-xs transition-colors',
-                            active ? 'bg-gray-800 text-white' : 'text-gray-300',
-                            isNetworkViewOpen ? 'text-accent font-medium' : '',
-                          )}
-                        >
-                          <div className={cn('h-1.5 w-1.5 rounded-full bg-accent', isNetworkViewOpen ? 'opacity-100' : 'opacity-0')} />
-                          Chord Diagram
-                        </button>
-                      )}
-                    </Menu.Item>
-
-                    {onOpenClustering && (
-                      <Menu.Item>
-                        {({ active }) => (
-                          <button
-                            onClick={onOpenClustering}
-                            className={cn(
-                              'flex w-full items-center gap-2 px-3 py-2 rounded-lg text-xs transition-colors',
-                              active ? 'bg-gray-800 text-white' : 'text-gray-300',
-                            )}
-                          >
-                            <SparklesIcon className="h-4 w-4 text-purple-400" />
-                            Detect Phases
-                          </button>
+              {/* Analyze Popover with 2-Step Submenu Flow */}
+              <Popover className="relative">
+                {({ open, close }) => {
+                  // Reset submenu back to main when popover closes
+                  if (!open && activeSubMenu !== 'main') {
+                    // Execute on next tick to avoid React render updates warning
+                    setTimeout(() => setActiveSubMenu('main'), 100);
+                  }
+                  return (
+                    <>
+                      <Popover.Button
+                        className={cn(
+                          'flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all',
+                          'bg-accent text-white hover:bg-accent/90 shadow-sm shadow-accent/20',
+                          'disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none',
                         )}
-                      </Menu.Item>
-                    )}
+                      >
+                        Analyze
+                        <ChevronDownIcon className={cn('h-3.5 w-3.5 transition-transform', open ? 'rotate-180' : '')} />
+                      </Popover.Button>
 
-                    <div className="h-px bg-gray-800 my-1.5 mx-2" />
+                      <Transition
+                        as={Fragment}
+                        enter="transition ease-out duration-100"
+                        enterFrom="transform opacity-0 scale-95"
+                        enterTo="transform opacity-100 scale-100"
+                        leave="transition ease-in duration-75"
+                        leaveFrom="transform opacity-100 scale-100"
+                        leaveTo="transform opacity-0 scale-95"
+                      >
+                        <Popover.Panel className="absolute right-0 mt-2 w-64 origin-top-right bg-gray-900 border border-gray-800 rounded-xl shadow-2xl focus:outline-none z-30 p-1.5">
+                          {activeSubMenu === 'main' ? (
+                            <div className="space-y-1">
+                              <div className="px-3 py-2 mb-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider border-b border-gray-800/30">
+                                Selected Markers ({selected.length})
+                              </div>
 
-                    <Popover className="relative">
-                      {({ open }) => (
-                        <>
-                          <Popover.Button
-                            className={cn(
-                              'flex w-full items-center justify-between px-3 py-2 rounded-lg text-xs transition-colors',
-                              open ? 'bg-gray-800 text-white' : 'text-gray-300',
-                            )}
-                          >
-                            <div className="flex items-center gap-2">
-                              <SparklesIcon className="h-4 w-4 text-purple-400" />
-                              Correlate supplement...
-                            </div>
-                            <ChevronDownIcon className={cn('h-3 w-3 transition-transform', open ? 'rotate-180' : '')} />
-                          </Popover.Button>
-
-                          <Popover.Panel className="absolute right-full top-0 mr-2 w-56 bg-gray-900 border border-gray-800 rounded-xl shadow-2xl p-1.5 z-40 max-h-[300px] overflow-y-auto">
-                            {uniqueSupplements.map((supp) => (
                               <button
-                                key={supp}
-                                onClick={() => onSupplementCorrelation(supp)}
-                                className="flex w-full items-center px-3 py-2 rounded-lg text-xs text-gray-300 hover:bg-gray-800 hover:text-white transition-colors text-left"
+                                onClick={() => { onVisualize(); close(); }}
+                                disabled={selected.length === 0}
+                                className={cn(
+                                  'flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left',
+                                  'text-gray-300 hover:bg-gray-800/80 hover:text-white',
+                                  'disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-300',
+                                )}
                               >
-                                {supp}
+                                <ChartBarIcon className="h-4 w-4 text-accent" />
+                                Visualize Selection
                               </button>
-                            ))}
-                          </Popover.Panel>
-                        </>
-                      )}
-                    </Popover>
-                  </Menu.Items>
-                </Transition>
-              </Menu>
+
+                              <button
+                                onClick={() => { onPValue(); close(); }}
+                                disabled={selected.length !== 2}
+                                className={cn(
+                                  'flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left',
+                                  'text-gray-300 hover:bg-gray-800/80 hover:text-white',
+                                  'disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-300',
+                                )}
+                              >
+                                <BeakerIcon className="h-4 w-4 text-accent" />
+                                Calculate P-Value
+                              </button>
+
+                              <div className="px-3 py-2 mt-2 mb-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider border-t border-b border-gray-800/30">
+                                Global Analysis
+                              </div>
+
+                              <button
+                                onClick={() => { onToggleMatrixView(); close(); }}
+                                disabled={filterTag == null}
+                                className={cn(
+                                  'flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left',
+                                  'text-gray-300 hover:bg-gray-800/80 hover:text-white',
+                                  isMatrixViewOpen ? 'text-accent font-semibold' : '',
+                                  'disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-300',
+                                )}
+                              >
+                                <div className={cn('h-1.5 w-1.5 rounded-full bg-accent transition-all', isMatrixViewOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0')} />
+                                Correlation Matrix
+                              </button>
+
+                              <button
+                                onClick={() => { onToggleNetworkView(); close(); }}
+                                className={cn(
+                                  'flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left',
+                                  'text-gray-300 hover:bg-gray-800/80 hover:text-white',
+                                  isNetworkViewOpen ? 'text-accent font-semibold' : '',
+                                )}
+                              >
+                                <div className={cn('h-1.5 w-1.5 rounded-full bg-accent transition-all', isNetworkViewOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0')} />
+                                Chord Diagram
+                              </button>
+
+                              {onOpenClustering && (
+                                <button
+                                  onClick={() => { onOpenClustering(); close(); }}
+                                  className={cn(
+                                    'flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left',
+                                    'text-gray-300 hover:bg-gray-800/80 hover:text-white',
+                                  )}
+                                >
+                                  <SparklesIcon className="h-4 w-4 text-purple-400" />
+                                  Detect Phases
+                                </button>
+                              )}
+
+                              <div className="h-px bg-gray-800/40 my-1 mx-2" />
+
+                              <button
+                                onClick={() => setActiveSubMenu('supplements')}
+                                className={cn(
+                                  'flex w-full items-center justify-between px-3 py-2 rounded-lg text-xs transition-colors text-left',
+                                  'text-gray-300 hover:bg-gray-800/80 hover:text-white',
+                                )}
+                              >
+                                <div className="flex items-center gap-2.5">
+                                  <SparklesIcon className="h-4 w-4 text-purple-400" />
+                                  Correlate supplement...
+                                </div>
+                                <ChevronDownIcon className="h-3 w-3 -rotate-90" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="space-y-1">
+                              <button
+                                onClick={() => setActiveSubMenu('main')}
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-gray-400 hover:text-white transition-colors"
+                              >
+                                <ArrowLeftIcon className="h-3 w-3" />
+                                Back
+                              </button>
+
+                              <div className="px-3 py-1 mb-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider border-b border-gray-800/30">
+                                Select Supplement
+                              </div>
+
+                              <div className="max-h-56 overflow-y-auto no-scrollbar space-y-0.5">
+                                {uniqueSupplements.map((supp) => (
+                                  <button
+                                    key={supp}
+                                    onClick={() => {
+                                      onSupplementCorrelation(supp);
+                                      close();
+                                    }}
+                                    className="flex w-full items-center px-3 py-2 rounded-lg text-xs text-gray-300 hover:bg-gray-800 hover:text-white transition-colors text-left"
+                                  >
+                                    {supp}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </Popover.Panel>
+                      </Transition>
+                    </>
+                  )
+                }}
+              </Popover>
 
               <button
                 type="button"
