@@ -419,8 +419,8 @@ export default React.memo<NavProps>(
               )}
             </div>
 
-            {/* Actions */}
-            <div className="flex items-center gap-3">
+            {/* Actions - Anchored to the right using ml-auto */}
+            <div className="flex items-center gap-3 ml-auto shrink-0">
               {selected.length > 0 && (
                 <div className="flex items-center gap-2 pr-3 border-r border-gray-800 mr-1">
                   <div className="flex gap-1.5">
