@@ -235,11 +235,58 @@ export default React.memo<NavProps>(
           )}
         >
           {/* Row 1: Identity + Global Controls */}
-          <div className="flex items-center justify-between px-6 py-2 h-14">
-            <div className="flex items-center gap-8 flex-1">
-              <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between px-6 py-2 h-14 gap-4">
+            <div className="flex items-center gap-8 flex-1 min-w-0">
+              {/* Branding - Hidden below md breakpoint to save space */}
+              <div className="hidden md:flex items-center gap-2 shrink-0">
                 <BeakerIcon className="h-6 w-6 text-accent" />
                 <span className="text-lg font-bold tracking-tight text-white">MyHealth</span>
+              </div>
+
+              {/* Category Filters - Moved to Row 1 on mobile/tablet (< md) */}
+              <div className="flex md:hidden items-center gap-1 overflow-x-auto no-scrollbar mask-fade-right flex-1 min-w-0">
+                <button
+                  type="button"
+                  data-tag=""
+                  onClick={onFilterByTag}
+                  className={cn(
+                    'px-3 py-1 rounded-full text-xs font-medium transition-all whitespace-nowrap',
+                    filterTag === null
+                      ? 'bg-accent text-white shadow-sm shadow-accent/20'
+                      : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50',
+                  )}
+                >
+                  All
+                </button>
+                {tags.map((tag: string) => {
+                  const isSelectedTag = filterTag == tag
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      data-tag={tag}
+                      onClick={onFilterByTag}
+                      className={cn(
+                        'px-3 py-1 rounded-full text-xs font-medium transition-all whitespace-nowrap',
+                        isSelectedTag
+                          ? 'bg-accent text-white shadow-sm shadow-accent/20'
+                          : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50',
+                      )}
+                    >
+                      {tag.slice(2)}
+                    </button>
+                  )
+                })}
+                {filterTag !== null && (
+                  <button
+                    type="button"
+                    data-tag=""
+                    onClick={onFilterByTag}
+                    className="px-3 py-1 text-xs font-medium text-gray-500 hover:text-accent transition-colors"
+                  >
+                    Reset
+                  </button>
+                )}
               </div>
 
               <div className="max-w-md w-full hidden md:block">
@@ -265,7 +312,7 @@ export default React.memo<NavProps>(
               </div>
             </div>
 
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-6 shrink-0">
               {/* View Controls */}
               <div className="hidden lg:flex items-center gap-4">
                 <div className="flex items-center gap-2 text-gray-400">
@@ -325,9 +372,9 @@ export default React.memo<NavProps>(
           </div>
 
           {/* Row 2: Context (Filters + Actions) */}
-          <div className="flex items-center justify-between px-6 py-2 border-t border-gray-800 h-12 bg-black/20">
-            {/* Category Filters */}
-            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar mask-fade-right">
+          <div className="flex items-center justify-between px-6 py-2 border-t border-gray-800 h-12 bg-black/20 gap-4">
+            {/* Category Filters - Displayed in Row 2 only on desktop (>= md) */}
+            <div className="hidden md:flex items-center gap-1 overflow-x-auto no-scrollbar mask-fade-right">
               <button
                 type="button"
                 data-tag=""
@@ -372,8 +419,8 @@ export default React.memo<NavProps>(
               )}
             </div>
 
-            {/* Actions */}
-            <div className="flex items-center gap-3">
+            {/* Actions - Anchored to the right using ml-auto */}
+            <div className="flex items-center gap-3 ml-auto shrink-0">
               {selected.length > 0 && (
                 <div className="flex items-center gap-2 pr-3 border-r border-gray-800 mr-1">
                   <div className="flex gap-1.5">
@@ -569,18 +616,20 @@ export default React.memo<NavProps>(
                 }}
               </Popover>
 
+              {/* Ask AI - Text label hidden below md to save space */}
               <button
                 type="button"
                 onClick={onAskAI}
                 disabled={isAsking || selected.length === 0}
                 className={cn(
-                  'flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all',
+                  'flex items-center justify-center gap-1.5 p-1.5 md:px-4 md:py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0',
                   'border border-gray-700 text-gray-300 hover:text-white hover:border-gray-500',
                   'disabled:opacity-30 disabled:cursor-not-allowed',
                 )}
+                title="Ask AI about selected biomarkers"
               >
                 {isAsking ? <Spinner /> : <SparklesIcon className="h-3.5 w-3.5 text-accent" />}
-                Ask AI
+                <span className="hidden md:inline">Ask AI</span>
               </button>
             </div>
           </div>
