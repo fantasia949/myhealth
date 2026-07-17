@@ -131,3 +131,8 @@
 - During execution, performed a comprehensive audit against discovery scans 1-7 for `ScatterChart.tsx`, `LineChart.tsx`, `Chart.tsx`, and `Chart2.tsx`.
 - Found that previous commits have already fully optimized the charts (e.g. dense array V8 optimizations, `notMerge: true`, custom dense loops replacing map/reduce, removing dual `<Scatter>` rendering, fixing tooltip formatting fallbacks).
 - No new unprompted logic changes were made to avoid manufacturing unmeasurable micro-optimizations. Codebase is clean.
+
+## 2026-07-17 - Avoid Array.sort() inside nested useMemo loops for extremely small arrays
+
+**Learning:** When sorting an extremely small array (e.g., max length 5) inside a nested `for` loop within a `useMemo` block, using `Array.prototype.sort((a,b) => ...)` forces V8 to allocate a closure function repeatedly per loop iteration. This causes unnecessary garbage collection overhead in hot processing paths.
+**Action:** Replace `Array.sort` with a manual inline insertion sort for small, statically bounded arrays (`N <= 5`) within loops to eliminate the closure allocation and standard library overhead, making the hot path faster.

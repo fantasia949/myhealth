@@ -166,8 +166,18 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
         }
       }
 
-      // Sort by absolute rho descending to determine rank
-      windowRhos.sort((a, b) => b.rho - a.rho)
+      // ⚡ Bolt Optimization: Replaced O(N log N) Array.sort() with a fast insertion sort
+      // Since windowRhos length is bounded to 5, a manual sort avoids closure allocation
+      // and standard library overhead inside the window processing loop.
+      for (let i = 1; i < windowRhos.length; i++) {
+        let j = i
+        while (j > 0 && windowRhos[j - 1].rho < windowRhos[j].rho) {
+          const temp = windowRhos[j]
+          windowRhos[j] = windowRhos[j - 1]
+          windowRhos[j - 1] = temp
+          j--
+        }
+      }
 
       // Assign ranks (1 to 5), but handle ties appropriately or use '-' for connectNulls
       let currentRank = 1
