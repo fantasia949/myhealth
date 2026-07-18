@@ -237,3 +237,53 @@ New `src/layout/SystemHealthRacingBar.tsx`, rendered as a standalone dashboard w
 
 **Trigger / entry point:**
 A "Play Timeline" button in the dashboard or system summary view that iterates over the `labels` array and passes the corresponding time index to the chart to drive the animation.
+
+---
+
+**Proposal: Measurement Frequency vs. Anomaly Rate Scatter**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+Uses `extra.optimality[]` from `src/processors/post/range.ts` and `values[]` arrays length/density from `dataAtom` in `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+It calculates the number of valid measurements (non-null in `values[]` from `dataAtom`) versus the percentage of those measurements that are out-of-range (`extra.optimality` is `true`). It specifically targets non-inferred data using `nonInferredDataAtom`.
+
+**Axes**
+- X-axis: Measurement Frequency (Total valid test count).
+- Y-axis: Anomaly Rate (Percentage of tests out of optimal range).
+
+**What it reveals that current charts don't:**
+Identifies testing biases and monitoring priorities. It reveals if a marker is tested frequently because it's known to be problematic, or if a rarely tested marker actually has a high failure rate and should be monitored more closely. Current charts focus on longitudinal time series but do not cross-examine the density of data points against their failure probability.
+
+**Where it would live:**
+New `src/layout/MeasurementAnomalyScatter.tsx`, rendered in the Dashboard or statistical section.
+
+**Trigger / entry point:**
+A "Monitoring Priority" view inside the statistical toolset modal.
+
+---
+
+**Proposal: Biomarker State Duration Step Line**
+
+**ECharts type:** `line` (with `step: 'middle'`)
+
+**Codebase citation:**
+Uses `extra.optimality[]` boolean array pre-computed in `src/processors/post/range.ts` (stored in `BioMarker[3]`).
+
+**Which existing data it uses:**
+Translates `extra.optimality[]` booleans from `visibleDataAtom` into a binary state (1 for optimal/in-range, 0 for sub-optimal/out-of-range) for a specific biomarker and plots it over the chronological `labels[]` as a step line.
+
+**Axes**
+- X-axis: Time (mapped to `labels`).
+- Y-axis: State (Discrete 0 or 1).
+
+**What it reveals that current charts don't:**
+Visually emphasizes the *duration* of time spent in an optimal vs. non-optimal state, abstracting away the noise of absolute magnitude changes. It is perfect for identifying chronic vs acute out-of-range periods, which can be difficult to see in standard line/scatter charts where small fluctuations around the boundary line might look similar to massive deviations.
+
+**Where it would live:**
+New `src/layout/StateDurationStepLine.tsx`.
+
+**Trigger / entry point:**
+A "Time-in-Range" toggle inside the expanded Table Row for a specific biomarker (as an alternative view to the current `LineChart` and `BoxplotChart`).
