@@ -69,5 +69,5 @@ export default {
         // giam melatonin 200mg
     ],
     review: ['bun rieu'],
-    plan: ['-cacao', '+inulin', '+cistanche', '+fuicodan', '+apigenin', '+gingseng', '+delphidin', '-nac'],
+    plan: ['-cacao', '+inulin', '+cistanche', '+fuicodan', '+apigenin', '+gingseng', '+delphidin', '-nac', '+astragalus'],
 }
