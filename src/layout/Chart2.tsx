@@ -149,7 +149,7 @@ export default memo(({ keys }: ChartProps) => {
       for (let i = 0; i < len; i++) {
         const v0 = values0[i]
         const v1 = values1[i]
-        if (v0 !== null && v0 !== undefined && v1 !== null && v1 !== undefined) {
+        if (v0 !== null && v0 !== undefined && v1 !== null && v1 !== undefined && !Number.isNaN(v0 as number) && !Number.isNaN(v1 as number)) {
           const formattedDate = formattedLabels[i]
           mappedData.push([v0, v1, formattedDate, unitX, unitY])
         }

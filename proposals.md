@@ -86,3 +86,50 @@ New `src/layout/BiomarkerOptimalityCascadeGraph.tsx`, rendered within the Biomar
 
 **Trigger / entry point:**
 A "System Vulnerability" toggle near the current correlation charts, feeding all `dataAtom` data directly.
+
+**Proposal: PhenoAge Contribution Radar**
+
+**ECharts type:** `radar`
+
+**Codebase citation:**
+Uses `tag.ts` (`a-PhenoAge` tags group) and `dataMapAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+It pulls the current latest values for all biomarkers belonging to the `a-PhenoAge` tag group (Albumin, Glucose, Creatinin, MCV, RDW-CV, CRP-hs, % Lymphocyte, WBC, ALP, Age, etc.) from `dataMapAtom`.
+
+**Axes:**
+Each axis of the radar represents one of the PhenoAge components, with the min and max scaled based on the population or physiological ranges defined in `range.ts`.
+
+**What it reveals that current charts don't:**
+It provides a multi-dimensional "shape" of biological age. Instead of just seeing the final "Pheno age" number on a line chart, users can instantly see *which specific components* are pulling their biological age up (e.g., high CRP-hs vs low Albumin), revealing the underlying physiological drivers of their aging rate.
+
+**Where it would live:**
+New `src/layout/PhenoAgeContributionRadar.tsx`, potentially displayed in a dedicated Biological Age section or as an alternate view on the dashboard.
+
+**Trigger / entry point:**
+A toggle or dedicated section when the 'a-PhenoAge' category filter is selected.
+
+---
+
+**Proposal: Inferred vs Measured Value Distribution Boxplot**
+
+**ECharts type:** `boxplot`
+
+**Codebase citation:**
+Uses `extra.inferred` flag from `src/types/biomarker.ts` and `nonInferredDataAtom` vs `dataAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+It separates biomarkers into two groups: those that are directly measured (`extra.inferred` is falsy, i.e., `nonInferredDataAtom`) and those that are calculated/inferred (`extra.inferred === true`). It gathers the values of these two distinct populations.
+
+**Axes:**
+- X-axis: Two categories ("Directly Measured" vs "Inferred").
+- Y-axis: Normalized value distribution (e.g., Z-score or coefficient of variation for each marker).
+
+**What it reveals that current charts don't:**
+It highlights the difference in variance and distribution between raw clinical measurements and algorithmically derived metrics. This can show if the inferred models are artificially smoothing out volatility or if they are amplifying noise from the underlying measurements, giving insight into the reliability of inferred health metrics.
+
+**Where it would live:**
+New `src/layout/InferredMeasuredBoxplot.tsx`, accessed via a data quality or statistical diagnostic view.
+
+**Trigger / entry point:**
+A "Data Quality Diagnostics" tab in the statistics or settings modal.

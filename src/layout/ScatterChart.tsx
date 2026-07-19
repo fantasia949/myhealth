@@ -133,7 +133,7 @@ export default memo(({ keys }: ScatterChartProps) => {
       // Assuming labels length matches values length
       for (let i = 0; i < numLabels; i++) {
         const val = values[i]
-        if (val !== null && val !== undefined) {
+        if (val !== null && val !== undefined && !Number.isNaN(val as number)) {
           validData.push([formattedLabels[i], val, unit])
         }
       }
