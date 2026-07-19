@@ -43,27 +43,6 @@ A "System Load" overview tab in the main navigation.
 
 ---
 
-**Proposal: Longitudinal Rank Inversion Parallel Coordinates**
-
-**ECharts type:** `parallel`
-
-**Codebase citation:**
-Uses the pre-computed Spearman rank caches (`rankedDataMapAtom`) from `src/atom/dataAtom.ts` along with the non-inferred markers from `nonInferredDataAtom`.
-
-**Which existing data it uses:**
-It takes the top K (e.g., 10) most volatile measured biomarkers from `nonInferredDataAtom` and plots their relative Spearman rank percentile (`rankedDataMapAtom`) at each historical time point (`labels`).
-
-**What it reveals that current charts don't:**
-It reveals complex structural shifts in a user's health profile. If the ranks of metabolic markers cross over and invert against the ranks of kidney markers over a 2-year period, this chart immediately flags the systemic shift, which is completely hidden in raw value line charts.
-
-**Where it would live:**
-New `src/layout/LongitudinalRankParallel.tsx`, included in the statistical toolset.
-
-**Trigger / entry point:**
-An "Evolution Matrix" toggle in the Data Correlation tools section.
-
----
-
 **Proposal: Biomarker Volatility vs. Baseline Scatter Plot**
 
 **ECharts type:** `scatter`
@@ -107,27 +86,3 @@ New `src/layout/BiomarkerOptimalityCascadeGraph.tsx`, rendered within the Biomar
 
 **Trigger / entry point:**
 A "System Vulnerability" toggle near the current correlation charts, feeding all `dataAtom` data directly.
-
----
-
-**Proposal: Inter-Tag Correlation Radar**
-
-**ECharts type:** `radar`
-
-**Codebase citation:**
-Uses `extra.tag[]` assigned by `src/processors/post/tag.ts` and `correlationMethodAtom` from `src/atom/correlationAtom.ts`.
-
-**Which existing data it uses:**
-Aggregates the median correlation score (using the method defined in `correlationMethodAtom`) between the currently selected biomarker (from `visibleDataAtom`) and all other biomarkers grouped by their `extra.tag` groups (e.g., `4-Lipid`, `3-Liver`).
-
-**Axes:**
-- Radar axes represent the different `extra.tag` groups.
-
-**What it reveals that current charts don't:**
-Provides a holistic view of how a single biomarker's fluctuations correlate systemically with entire biological subsystems, revealing systemic coupling rather than just 1-to-1 biomarker relationships.
-
-**Where it would live:**
-New `src/layout/SystemicCorrelationRadar.tsx`.
-
-**Trigger / entry point:**
-A new "Systemic Impact" tab when a single biomarker row is expanded in the main table.
