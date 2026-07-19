@@ -12,31 +12,49 @@ export class CorrelationResult {
   ) {}
 
   print(): string {
-    return `Pearson correlation: ${this.pcorr.toFixed(4)}\np-value: ${
-      this.pValue === 0 ? '0' : this.pValue.toExponential(4)
-    }\nt-statistic: ${
-      this.statistic === Infinity
-        ? 'Infinity'
-        : this.statistic === -Infinity
-          ? '-Infinity'
-          : this.statistic.toFixed(4)
-    }\nalpha: ${this.alpha}\nalternative: ${
+    let statStr: string;
+    if (this.statistic === Infinity) {
+      statStr = 'Infinity';
+    } else if (this.statistic === -Infinity) {
+      statStr = '-Infinity';
+    } else {
+      statStr = this.statistic.toFixed(4);
+    }
+
+    let pValueStr: string;
+    if (this.pValue === 0) {
+      pValueStr = '0';
+    } else {
+      pValueStr = this.pValue.toExponential(4);
+    }
+
+    return `Pearson correlation: ${this.pcorr.toFixed(4)}\np-value: ${pValueStr}\nt-statistic: ${statStr}\nalpha: ${this.alpha}\nalternative: ${
       this.alternative
-    }\nnull hypothesis rejected: ${this.rejected}\n`
+    }\nnull hypothesis rejected: ${this.rejected}\n`;
   }
 }
 
 export class SpearmanResult extends CorrelationResult {
   print(): string {
-    return `Spearman rank correlation: ${this.pcorr.toFixed(4)}\np-value: ${
-      this.pValue === 0 ? '0' : this.pValue.toExponential(4)
-    }\nt-statistic: ${
-      this.statistic === Infinity || this.statistic === -Infinity
-        ? this.statistic
-        : this.statistic.toFixed(4)
-    }\nalpha: ${this.alpha}\nalternative: ${
+    let statStr: string;
+    if (this.statistic === Infinity) {
+      statStr = 'Infinity';
+    } else if (this.statistic === -Infinity) {
+      statStr = '-Infinity';
+    } else {
+      statStr = this.statistic.toFixed(4);
+    }
+
+    let pValueStr: string;
+    if (this.pValue === 0) {
+      pValueStr = '0';
+    } else {
+      pValueStr = this.pValue.toExponential(4);
+    }
+
+    return `Spearman rank correlation: ${this.pcorr.toFixed(4)}\np-value: ${pValueStr}\nt-statistic: ${statStr}\nalpha: ${this.alpha}\nalternative: ${
       this.alternative
-    }\nnull hypothesis rejected: ${this.rejected}\n`
+    }\nnull hypothesis rejected: ${this.rejected}\n`;
   }
 }
 
