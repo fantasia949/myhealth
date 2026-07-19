@@ -1,0 +1,13 @@
+Code Simplification: Untangle nested ternary in stats.ts
+
+**The Issue:**
+`src/processors/stats.ts` lines 18–22 — a ternary operator used to format `this.statistic` was nested two levels deep (`this.statistic === Infinity ? 'Infinity' : this.statistic === -Infinity ? '-Infinity' : this.statistic.toFixed(4)`), making it unnecessarily complex to read.
+
+**The Discovery Signal:**
+Scan A: `src/processors/stats.ts` lines 18–22 — a ternary nested two levels deep to pick a string representation of Infinity; unnecessarily complex at a glance.
+
+**The Fix:**
+Untangled the nested ternary into explicit `if/else` chains above the return statement. This also eliminates implicit string coercions (like relying on `${Infinity}` to produce `"Infinity"`). The `this.pValue` formatting was similarly unwrapped into an `if/else` chain for consistency and maximum readability.
+
+**The Benefit:**
+A conditional a future reader can now follow linearly without parsing nested branches inline within a template literal, reducing the cognitive load while preserving exact behavioral equivalence.
