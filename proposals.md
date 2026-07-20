@@ -133,3 +133,47 @@ New `src/layout/InferredMeasuredBoxplot.tsx`, accessed via a data quality or sta
 
 **Trigger / entry point:**
 A "Data Quality Diagnostics" tab in the statistics or settings modal.
+
+**Proposal: Correlation Significance Funnel**
+
+**ECharts type:** `funnel`
+
+**Codebase citation:**
+Uses `correlationAlphaAtom` from `src/atom/correlationAtom.ts`.
+
+**Which existing data it uses:**
+Takes all calculated pairwise correlations from `dataMapAtom` and funnels them through p-value significance thresholds (e.g., p < 0.05, p < 0.01, p < 0.001) based on the user's `correlationAlphaAtom` setting.
+
+**What it reveals that current charts don't:**
+Gives a macro sense of how statistically robust the entire dataset's correlations are. A steep funnel means most relationships are weak and potentially spurious; a wide funnel indicates a highly interconnected and confident biological state.
+
+**Where it would live:**
+New `src/layout/CorrelationSignificanceFunnel.tsx`.
+
+**Trigger / entry point:**
+Displayed inside the Correlation statistical summary panel.
+
+---
+
+**Proposal: Optimal Range Proximity vs Volatility Scatter**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+Uses `extra.range` and `extra.optimality` pre-computed by `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+For the most recent timestamp, it plots all biomarkers from `visibleDataAtom`. The X-axis is the absolute distance from the center of their optimal range (normalized to the range width), and the Y-axis is their historical volatility (standard deviation of non-null `values[]`).
+
+**Axes:**
+- X-axis: Optimal Range Deviation (Normalized distance from optimal center)
+- Y-axis: Historical Volatility (Standard Deviation)
+
+**What it reveals that current charts don't:**
+Distinguishes between biomarkers that are consistently on the edge of failing (high distance, low volatility) versus those that swing wildly in and out of range (low distance, high volatility), enabling better triaging of health interventions.
+
+**Where it would live:**
+New `src/layout/OptimalProximityScatter.tsx`.
+
+**Trigger / entry point:**
+A "Triage View" toggle in the main dashboard view alongside the RadarChart.
