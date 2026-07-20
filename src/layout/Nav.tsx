@@ -319,7 +319,8 @@ export default React.memo<NavProps>(
                   <CalendarIcon className="h-4 w-4" />
                   <select
                     id="show-records"
-                    className="bg-transparent text-xs font-medium focus:outline-none focus:text-white cursor-pointer hover:text-gray-200 transition-colors"
+                    aria-label="Record range"
+                    className="bg-transparent text-xs font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded px-1 focus:text-white cursor-pointer hover:text-gray-200 transition-colors"
                     value={showRecords.toString()}
                     onChange={onShowRecordsChange}
                   >
@@ -335,7 +336,8 @@ export default React.memo<NavProps>(
                   <ChartBarIcon className="h-4 w-4" />
                   <select
                     id="average-count"
-                    className="bg-transparent text-xs font-medium focus:outline-none focus:text-white cursor-pointer hover:text-gray-200 transition-colors"
+                    aria-label="Average mode"
+                    className="bg-transparent text-xs font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded px-1 focus:text-white cursor-pointer hover:text-gray-200 transition-colors"
                     value={averageCount.toString()}
                     onChange={onAverageCount}
                   >
@@ -940,7 +942,8 @@ export default React.memo<NavProps>(
                                   <span className="text-sm font-medium">Record range</span>
                                 </div>
                                 <select
-                                  className="bg-transparent text-sm font-bold text-white focus:outline-none"
+                                  aria-label="Record range"
+                                  className="bg-transparent text-sm font-bold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded px-1"
                                   value={showRecords.toString()}
                                   onChange={onShowRecordsChange}
                                 >
@@ -957,7 +960,8 @@ export default React.memo<NavProps>(
                                   <span className="text-sm font-medium">Average mode</span>
                                 </div>
                                 <select
-                                  className="bg-transparent text-sm font-bold text-white focus:outline-none"
+                                  aria-label="Average mode"
+                                  className="bg-transparent text-sm font-bold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded px-1"
                                   value={averageCount.toString()}
                                   onChange={onAverageCount}
                                 >
