@@ -84,7 +84,9 @@ const echartsOptions: EChartsOption & Pick<EChartsReactProps, 'style' | 'theme'>
 
         const dispX = unitX ? `${x} ${unitX}` : x
         const dispY = unitY ? `${y} ${unitY}` : y
-        return `${date}<br/><strong>${params.dimensionNames[0]}:</strong> ${dispX}<br/><strong>${params.dimensionNames[1]}:</strong> ${dispY}`
+        const nameX = params.dimensionNames?.[0] || 'X'
+        const nameY = params.dimensionNames?.[1] || 'Y'
+        return `${date}<br/><strong>${nameX}:</strong> ${dispX}<br/><strong>${nameY}:</strong> ${dispY}`
       }
       return params.name || params.seriesName || ''
     },
