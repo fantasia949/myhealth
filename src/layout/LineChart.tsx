@@ -54,7 +54,7 @@ export default memo(({ name, values, rangeStr }: LineChartProps) => {
     const result: [string, number | string][] = []
     for (let i = 0; i < numLabels; i++) {
       const value = values[i]
-      result.push([formattedLabels[i], value !== null && value !== undefined ? value : '-'])
+      result.push([formattedLabels[i], value !== null && value !== undefined && !Number.isNaN(value as number) ? value : '-'])
     }
     return result
   }, [values])
