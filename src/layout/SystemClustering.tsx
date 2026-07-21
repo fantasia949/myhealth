@@ -179,27 +179,27 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
 
       for (const m of g1) {
         const val = data[m][1][t]
-        if (val !== null && typeof val !== 'undefined' && (val as string | number) !== '') {
-          const num = Number(val)
-          if (!isNaN(num)) {
-            m1Valid++
-            // optimality array is true if optimal
-            if (data[m][3]?.optimality?.[t] === true) {
-              m1Optimal++
-            }
-          }
+        if (val === null || typeof val === 'undefined' || (val as string | number) === '') continue
+
+        const num = Number(val)
+        if (isNaN(num)) continue
+
+        m1Valid++
+        if (data[m][3]?.optimality?.[t] === true) {
+          m1Optimal++
         }
       }
+
       for (const m of g2) {
         const val = data[m][1][t]
-        if (val !== null && typeof val !== 'undefined' && (val as string | number) !== '') {
-          const num = Number(val)
-          if (!isNaN(num)) {
-            m2Valid++
-            if (data[m][3]?.optimality?.[t] === true) {
-              m2Optimal++
-            }
-          }
+        if (val === null || typeof val === 'undefined' || (val as string | number) === '') continue
+
+        const num = Number(val)
+        if (isNaN(num)) continue
+
+        m2Valid++
+        if (data[m][3]?.optimality?.[t] === true) {
+          m2Optimal++
         }
       }
 
