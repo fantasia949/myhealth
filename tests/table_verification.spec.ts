@@ -16,7 +16,7 @@ test('verify table columns based on show records', async ({ page }) => {
 
   // Select "Last 5 records" in the dropdown if not already selected
   // The select is in the nav bar.
-  const recordsSelect = page.getByLabel('Record range')
+  const recordsSelect = page.getByLabel('Select number of records to show')
   await expect(recordsSelect).toBeVisible()
   await expect(recordsSelect).toHaveValue('5')
 
