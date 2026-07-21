@@ -90,7 +90,16 @@ export default React.memo<NavProps>(
           }
         }
       }
-      return Array.from(supps).sort()
+      // ⚡ Bolt Optimization: Replace Array.from(supps).sort() with an explicit dense array loop and fast sort.
+      // Array.from() allocates an iterator, and spread syntax [...supps] creates an intermediate array
+      // before sorting. Extracting the Set values directly into a pre-allocated dense array avoids
+      // iterator and holey array overhead in hot React.useMemo paths.
+      const arr = new Array(supps.size)
+      let idx = 0
+      for (const s of supps) {
+        arr[idx++] = s
+      }
+      return arr.sort()
     }, [noteValues])
 
     const [show, setShow] = React.useState(false)
