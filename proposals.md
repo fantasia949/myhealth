@@ -177,3 +177,47 @@ New `src/layout/OptimalProximityScatter.tsx`.
 
 **Trigger / entry point:**
 A "Triage View" toggle in the main dashboard view alongside the RadarChart.
+
+**Proposal: Optimality Reversion Duration Histogram**
+
+**ECharts type:** `histogram` (via `echarts-stat`)
+
+**Codebase citation:**
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` aligned with time-series `labels` from `src/data/index.ts`.
+
+**Which existing data it uses:**
+It calculates the continuous duration (in days) that a biomarker stays in a non-optimal state before reverting back to the optimal range (i.e. number of consecutive `true` values in `extra.optimality[]` before hitting a `false`, mapped to actual dates in `labels`).
+
+**Axes:**
+- X-axis: Reversion Duration (e.g. days or weeks in failure state)
+- Y-axis: Frequency count (number of times it took that long to recover)
+
+**What it reveals that current charts don't:**
+Shows recovery momentum. Are out-of-range events becoming harder to recover from? A shift in the histogram towards longer durations indicates a loss of physiological resilience that simple timeline charts might obscure in noisy data.
+
+**Where it would live:**
+New `src/layout/ReversionHistogram.tsx`.
+
+**Trigger / entry point:**
+A "Recovery Resilience" toggle on individual biomarker detail views.
+
+---
+
+**Proposal: Multi-System Correlation Chord Diagram**
+
+**ECharts type:** `graph` (with circular layout, mimicking a chord diagram)
+
+**Codebase citation:**
+Uses `extra.tag[]` assigned by `src/processors/post/tag.ts` and `correlationMapAtom` (or recomputed Spearman/Pearson from `values` array).
+
+**Which existing data it uses:**
+It computes the average correlation coefficient (or count of highly correlated edges) between different *system tags* (e.g., aggregating all correlations between `3-Liver` markers and `4-Lipid` markers) using the methods driven by `correlationMethodAtom`.
+
+**What it reveals that current charts don't:**
+Current correlation charts map individual markers, resulting in a dense hairball. This chord diagram provides a high-level view of inter-system dependencies—e.g. clearly showing if the Liver system is more tightly bound to the Metabolic system than to the Hormone system for a given user.
+
+**Where it would live:**
+New `src/layout/SystemCorrelationChord.tsx`.
+
+**Trigger / entry point:**
+A new "System-Level View" tab in the existing Correlation Analysis modal.
