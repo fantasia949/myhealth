@@ -270,3 +270,50 @@ New `src/layout/TagOptimalityRadar.tsx`, displayed prominently on the main Dashb
 
 **Trigger / entry point:**
 Always visible on the top level Dashboard as the primary health snapshot summary.
+**Proposal: Annual Seasonality Radial Bar Chart**
+
+**ECharts type:** `bar` (with polar coordinate system)
+
+**Codebase citation:**
+Extracts month data from `labels[]` (defined in `src/data/index.ts`) and maps against biomarker `values[]` via `dataMapAtom`.
+
+**Which existing data it uses:**
+It parses the YYMMDD `labels[]` to extract the month (MM), and groups the measurements for a given biomarker (from `dataMapAtom`) by month. It then calculates the average (or median) value for each month across all years in the dataset.
+
+**Axes:**
+- Angle Axis (Polar): 12 months (January to December).
+- Radius Axis (Polar): Average value of the biomarker.
+
+**What it reveals that current charts don't:**
+Uncovers seasonal physiological cycles (e.g., Vitamin D crashing in winter months, or lipid profiles shifting during holiday seasons). The current linear time-series charts (LineChart/ScatterChart) make it very difficult to spot recurring annual patterns over multi-year datasets because the timeline stretches horizontally without wrapping by season.
+
+**Where it would live:**
+New `src/layout/SeasonalityRadialBar.tsx`, rendered inside the table row expansion alongside the existing BoxplotChart and LineChart.
+
+**Trigger / entry point:**
+A new "Seasonality" tab/toggle in the expanded row view of the main dashboard table.
+
+---
+
+**Proposal: Correlation Residual Boxplot**
+
+**ECharts type:** `boxplot`
+
+**Codebase citation:**
+Uses `nonInferredDataAtom` and the existing `ecStat.regression` transform logic currently employed in `src/layout/Chart2.tsx`.
+
+**Which existing data it uses:**
+It takes two user-selected biomarkers from `nonInferredDataAtom`. First, it computes the linear regression expected values for Biomarker Y given Biomarker X using the exact same paired datasets passed to `ecStat.regression('linear', mappedScatterData)`. It then calculates the residual (Measured Y - Expected Y) for every data point and plots the distribution of these residuals.
+
+**Axes:**
+- X-axis: Single category ("Regression Residuals").
+- Y-axis: Residual value (difference between actual and predicted).
+
+**What it reveals that current charts don't:**
+While `Chart2.tsx` plots the raw scatter and the regression trendline, it doesn't quantify the distribution of deviations from that trend. This boxplot reveals structural uncoupling—if the residuals are highly skewed or have extreme outliers, it indicates moments in time where the expected physiological relationship between the two markers broke down entirely (e.g., insulin resistance causing a decoupling of glucose and insulin expectations).
+
+**Where it would live:**
+New `src/layout/CorrelationResidualBoxplot.tsx`.
+
+**Trigger / entry point:**
+A "Residual Distribution" sub-tab in the Biomarker Correlation Modal (near the existing scatter chart).
