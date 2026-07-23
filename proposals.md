@@ -221,3 +221,52 @@ New `src/layout/SystemCorrelationChord.tsx`.
 
 **Trigger / entry point:**
 A new "System-Level View" tab in the existing Correlation Analysis modal.
+
+---
+
+**Proposal: Biomarker Volatility Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.tag[]` from `src/processors/post/tag.ts` and overall `values` arrays from `dataAtom.ts`.
+
+**Which existing data it uses:**
+Calculates the historical volatility (e.g., standard deviation or coefficient of variation) for each measured biomarker in `nonInferredDataAtom`. The y-axis represents the individual biomarkers, grouped by their biological system tag (`extra.tag`), while the x-axis represents defined time blocks (e.g., quarterly or annual aggregations based on `labels`).
+
+**Axes:**
+- X-axis: Time (e.g., quarters or years derived from `labels`).
+- Y-axis: Biomarkers, sorted and clustered by their `extra.tag` system.
+
+**What it reveals that current charts don't:**
+Reveals macroscopic trends in system instability over time. Users can quickly see if a specific biological system (e.g., all `4-Lipid` markers) is experiencing a period of high volatility simultaneously, indicating systemic stress, even if individual markers haven't fully crossed into abnormal ranges yet.
+
+**Where it would live:**
+New `src/layout/VolatilityHeatmap.tsx`, accessible from a System Overview or Diagnostics page.
+
+**Trigger / entry point:**
+A "Volatility Trends" toggle in the main Dashboard or a dedicated Diagnostics section.
+
+---
+
+**Proposal: Tag Optimality Radar**
+
+**ECharts type:** `radar`
+
+**Codebase citation:**
+Uses `extra.tag[]` assigned by `src/processors/post/tag.ts` and the `extra.optimality[]` array from `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+Calculates an aggregated "optimality score" for each major system tag (e.g., `1-RBC`, `2-Metabolic`, `3-Liver`, etc.) at the most recent timestamp. The score is based on the percentage of biomarkers within that tag that have an `extra.optimality` value of `false` (i.e., they are within the optimal range).
+
+**Axes:**
+Each axis of the radar chart represents a different biological system tag (e.g., Metabolic, Liver, Hormone, Lipid). The scale ranges from 0% (all markers out of range) to 100% (all markers optimal).
+
+**What it reveals that current charts don't:**
+Provides an instant, holistic snapshot of overall systemic health at a given moment. Instead of scrolling through individual biomarkers or examining mathematically inferred ages, users see exactly which biological systems are currently underperforming or burdened compared to others.
+
+**Where it would live:**
+New `src/layout/TagOptimalityRadar.tsx`, displayed prominently on the main Dashboard.
+
+**Trigger / entry point:**
+Always visible on the top level Dashboard as the primary health snapshot summary.
