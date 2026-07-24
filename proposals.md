@@ -317,3 +317,53 @@ New `src/layout/CorrelationResidualBoxplot.tsx`.
 
 **Trigger / entry point:**
 A "Residual Distribution" sub-tab in the Biomarker Correlation Modal (near the existing scatter chart).
+
+---
+
+**Proposal: Biomarker Recovery Velocity Line Chart**
+
+**ECharts type:** `line`
+
+**Codebase citation:**
+Uses `BioMarker[1]` (values array) and `labels` array from `src/data/index.ts`.
+
+**Which existing data it uses:**
+Reads the values array of a target `BioMarker` from `dataAtom.ts` and calculates the first derivative (the numerical delta between consecutive measurements divided by the time gap between `labels`).
+
+**Axes:**
+X-axis: Time (dates from `labels`).
+Y-axis: Value delta (rate of change, e.g., "mg/dL per day").
+
+**What it reveals that current charts don't:**
+Shows not just the absolute level of a biomarker, but the *velocity* of physiological improvement or deterioration between tests (e.g., whether a rapidly worsening trend is accelerating or slowing down).
+
+**Where it would live:**
+New `src/layout/RecoveryVelocityLineChart.tsx`, embedded within the Table Row Expansion (Data Grid) alongside the existing `LineChart` and `BoxplotChart`.
+
+**Trigger / entry point:**
+A toggle button in the Table Row Expansion UI allowing users to switch between "Absolute Values" (existing LineChart) and "Rate of Change" (Velocity Line Chart).
+
+---
+
+**Proposal: Tag-Level Health Score Trajectory**
+
+**ECharts type:** `line` (stacked area)
+
+**Codebase citation:**
+Uses the `tag` constant (and internally derived `taggedDic`) from `src/processors/post/tag.ts` and `extra.optimality[]` from `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+Reads `visibleDataAtom` and computes a daily aggregate score for each tag group (e.g., `3-Liver`, `6-Kidney`) based on the percentage of biomarkers in that group whose `extra.optimality[]` is `false` (optimal) at that time point.
+
+**Axes:**
+X-axis: Time (dates).
+Y-axis: Percentage (0% to 100%) of optimal biomarkers within the tag group.
+
+**What it reveals that current charts don't:**
+Reveals holistic system health trends over time. While the current RadarChart shows a single snapshot of system health, this trajectory chart lets users track whether their liver or kidney system stability is improving or degrading globally across years.
+
+**Where it would live:**
+New `src/layout/TagHealthTrajectory.tsx`, rendered in the Main View (Dashboard).
+
+**Trigger / entry point:**
+Displayed in the main dashboard when the user clicks a "System View" tab, acting as a longitudinal companion to the current RadarChart snapshot.
