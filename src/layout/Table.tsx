@@ -828,30 +828,40 @@ export default React.memo(
                             )}
                             {row.original.displayTag} ({row.subRows.length})
                           </button>
-                          {hiddenCountPerGroup[row.original.tag] > 0 && (
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                toggleShowHidden(row.original.tag)
-                              }}
-                              className="text-xs font-normal text-gray-400 hover:text-white px-2 py-1 rounded bg-gray-800 hover:bg-gray-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                              aria-label={
-                                showHiddenPerGroup[row.original.tag]
-                                  ? `Hide ${hiddenCountPerGroup[row.original.tag]} inactive biomarkers`
-                                  : `Show ${hiddenCountPerGroup[row.original.tag]} inactive biomarkers`
-                              }
-                              title={
-                                showHiddenPerGroup[row.original.tag]
-                                  ? `Hide inactive biomarkers`
-                                  : `Show inactive biomarkers`
-                              }
-                            >
-                              {showHiddenPerGroup[row.original.tag]
-                                ? 'Hide inactive'
-                                : `Show ${hiddenCountPerGroup[row.original.tag]} inactive`}
-                            </button>
-                          )}
+                          {hiddenCountPerGroup[row.original.tag] > 0 && (() => {
+                            const tag = row.original.tag
+                            const isHiddenShown = showHiddenPerGroup[tag]
+                            const hiddenCount = hiddenCountPerGroup[tag]
+
+                            let ariaLabel = ''
+                            let buttonTitle = ''
+                            let buttonText = ''
+
+                            if (isHiddenShown) {
+                              ariaLabel = `Hide ${hiddenCount} inactive biomarkers`
+                              buttonTitle = 'Hide inactive biomarkers'
+                              buttonText = 'Hide inactive'
+                            } else {
+                              ariaLabel = `Show ${hiddenCount} inactive biomarkers`
+                              buttonTitle = 'Show inactive biomarkers'
+                              buttonText = `Show ${hiddenCount} inactive`
+                            }
+
+                            return (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  toggleShowHidden(tag)
+                                }}
+                                className="text-xs font-normal text-gray-400 hover:text-white px-2 py-1 rounded bg-gray-800 hover:bg-gray-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                                aria-label={ariaLabel}
+                                title={buttonTitle}
+                              >
+                                {buttonText}
+                              </button>
+                            )
+                          })()}
                         </div>
                       </td>
                     </tr>
