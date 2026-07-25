@@ -98,7 +98,7 @@ const echartsOptions: EChartsOption & Pick<EChartsReactProps, 'style' | 'theme'>
   series: [
     {
       type: 'scatter',
-      symbolSize: 40,
+      symbolSize: 8,
       legendHoverLink: true,
       large: false,
       z: 2,
@@ -110,7 +110,7 @@ const echartsOptions: EChartsOption & Pick<EChartsReactProps, 'style' | 'theme'>
       showSymbol: false,
       lineStyle: {
         color: '#5470C688',
-        width: 64,
+        width: 4,
       },
       legendHoverLink: true,
       markPoint: {
