@@ -317,3 +317,53 @@ New `src/layout/CorrelationResidualBoxplot.tsx`.
 
 **Trigger / entry point:**
 A "Residual Distribution" sub-tab in the Biomarker Correlation Modal (near the existing scatter chart).
+
+---
+
+**Proposal: Out-of-Range Duration Area Chart**
+
+**ECharts type:** `line` (with `areaStyle`)
+
+**Codebase citation:**
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` (index-aligned with `BioMarker[1]` values) and timeline `labels[]` from `src/data/index.ts`.
+
+**Which existing data it uses:**
+Takes the `extra.optimality[]` boolean array for each biomarker in `visibleDataAtom`. For each out-of-range event (where `optimality` is `true`), it calculates the accumulated duration (in days) using the corresponding dates in `labels[]`.
+
+**Axes:**
+- X-axis: Timeline (Date).
+- Y-axis: Cumulative Duration (days) out of range.
+
+**What it reveals that current charts don't:**
+Reveals the chronic burden of a suboptimal state over time. Even if a biomarker goes out of range only slightly, being consistently out of range for months or years indicates chronic physiological stress that point-in-time scatters (or single lines) do not emphasize.
+
+**Where it would live:**
+New `src/layout/DurationBurdenArea.tsx`, accessible inside individual biomarker expansions.
+
+**Trigger / entry point:**
+A "Burden Analysis" toggle next to the Line Chart view in the table row expansion.
+
+---
+
+**Proposal: Strict-Range vs Normal-Range Gap Scatter**
+
+**ECharts type:** `scatter` (with `markLine` or layered `markArea`)
+
+**Codebase citation:**
+Uses the `strictRange` dictionary defined in `src/processors/post/range.ts` and standard range boundaries found in `extra.range`.
+
+**Which existing data it uses:**
+Selects biomarkers that have both standard and strict range definitions (e.g., Glucose). It plots the values from `BioMarker[1]` via `dataMapAtom` and overlays two distinct sets of range bands: the normal range and the strict optimal range.
+
+**Axes:**
+- X-axis: Timeline (Date).
+- Y-axis: Biomarker Value.
+
+**What it reveals that current charts don't:**
+Highlights the "gray zone" of health. It quickly reveals periods where a patient was deemed "normal" by standard lab ranges, but was actually failing strict physiological optimization (e.g. Glucose of 5.5, which is <6.4 standard but >4.7 strict), guiding preemptive interventions.
+
+**Where it would live:**
+New `src/layout/StrictGapScatter.tsx`.
+
+**Trigger / entry point:**
+A "Strict Optimization View" toggle switch at the global Dashboard level, replacing the standard line/scatter markAreas with the dual-threshold visualization.
