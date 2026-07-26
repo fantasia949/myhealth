@@ -499,127 +499,133 @@ export default React.memo<NavProps>(
                         leaveTo="transform opacity-0 scale-95"
                       >
                         <Popover.Panel className="absolute right-0 mt-2 w-64 origin-top-right bg-gray-900 border border-gray-800 rounded-xl shadow-2xl focus:outline-none z-30 p-1.5">
-                          {activeSubMenu === 'main' ? (
-                            <div className="space-y-1">
-                              <div className="px-3 py-2 mb-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider border-b border-gray-800/30">
-                                Selected Markers ({selected.length})
-                              </div>
+                          {(() => {
+                            if (activeSubMenu === 'main') {
+                              return (
+                                <div className="space-y-1">
+                                  <div className="px-3 py-2 mb-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider border-b border-gray-800/30">
+                                    Selected Markers ({selected.length})
+                                  </div>
 
-                              <button
-                                onClick={() => { onVisualize(); close(); }}
-                                disabled={selected.length === 0}
-                                className={cn(
-                                  'flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left',
-                                  'text-gray-300 hover:bg-gray-800/80 hover:text-white',
-                                  'disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-300',
-                                )}
-                              >
-                                <ChartBarIcon className="h-4 w-4 text-accent" />
-                                Visualize Selection
-                              </button>
-
-                              <button
-                                onClick={() => { onPValue(); close(); }}
-                                disabled={selected.length !== 2}
-                                className={cn(
-                                  'flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left',
-                                  'text-gray-300 hover:bg-gray-800/80 hover:text-white',
-                                  'disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-300',
-                                )}
-                              >
-                                <BeakerIcon className="h-4 w-4 text-accent" />
-                                Calculate P-Value
-                              </button>
-
-                              <div className="px-3 py-2 mt-2 mb-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider border-t border-b border-gray-800/30">
-                                Global Analysis
-                              </div>
-
-                              <button
-                                onClick={() => { onToggleMatrixView(); close(); }}
-                                disabled={filterTag == null}
-                                className={cn(
-                                  'flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left',
-                                  'text-gray-300 hover:bg-gray-800/80 hover:text-white',
-                                  isMatrixViewOpen ? 'text-accent font-semibold' : '',
-                                  'disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-300',
-                                )}
-                              >
-                                <div className={cn('h-1.5 w-1.5 rounded-full bg-accent transition-all', isMatrixViewOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0')} />
-                                Correlation Matrix
-                              </button>
-
-                              <button
-                                onClick={() => { onToggleNetworkView(); close(); }}
-                                className={cn(
-                                  'flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left',
-                                  'text-gray-300 hover:bg-gray-800/80 hover:text-white',
-                                  isNetworkViewOpen ? 'text-accent font-semibold' : '',
-                                )}
-                              >
-                                <div className={cn('h-1.5 w-1.5 rounded-full bg-accent transition-all', isNetworkViewOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0')} />
-                                Chord Diagram
-                              </button>
-
-                              {onOpenClustering && (
-                                <button
-                                  onClick={() => { onOpenClustering(); close(); }}
-                                  className={cn(
-                                    'flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left',
-                                    'text-gray-300 hover:bg-gray-800/80 hover:text-white',
-                                  )}
-                                >
-                                  <SparklesIcon className="h-4 w-4 text-purple-400" />
-                                  Detect Phases
-                                </button>
-                              )}
-
-                              <div className="h-px bg-gray-800/40 my-1 mx-2" />
-
-                              <button
-                                onClick={() => setActiveSubMenu('supplements')}
-                                className={cn(
-                                  'flex w-full items-center justify-between px-3 py-2 rounded-lg text-xs transition-colors text-left',
-                                  'text-gray-300 hover:bg-gray-800/80 hover:text-white',
-                                )}
-                              >
-                                <div className="flex items-center gap-2.5">
-                                  <SparklesIcon className="h-4 w-4 text-purple-400" />
-                                  Correlate supplement...
-                                </div>
-                                <ChevronDownIcon className="h-3 w-3 -rotate-90" />
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="space-y-1">
-                              <button
-                                onClick={() => setActiveSubMenu('main')}
-                                className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-gray-400 hover:text-white transition-colors"
-                              >
-                                <ArrowLeftIcon className="h-3 w-3" />
-                                Back
-                              </button>
-
-                              <div className="px-3 py-1 mb-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider border-b border-gray-800/30">
-                                Select Supplement
-                              </div>
-
-                              <div className="max-h-56 overflow-y-auto no-scrollbar space-y-0.5">
-                                {uniqueSupplements.map((supp) => (
                                   <button
-                                    key={supp}
-                                    onClick={() => {
-                                      onSupplementCorrelation(supp);
-                                      close();
-                                    }}
-                                    className="flex w-full items-center px-3 py-2 rounded-lg text-xs text-gray-300 hover:bg-gray-800 hover:text-white transition-colors text-left"
+                                    onClick={() => { onVisualize(); close(); }}
+                                    disabled={selected.length === 0}
+                                    className={cn(
+                                      'flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left',
+                                      'text-gray-300 hover:bg-gray-800/80 hover:text-white',
+                                      'disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-300',
+                                    )}
                                   >
-                                    {supp}
+                                    <ChartBarIcon className="h-4 w-4 text-accent" />
+                                    Visualize Selection
                                   </button>
-                                ))}
+
+                                  <button
+                                    onClick={() => { onPValue(); close(); }}
+                                    disabled={selected.length !== 2}
+                                    className={cn(
+                                      'flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left',
+                                      'text-gray-300 hover:bg-gray-800/80 hover:text-white',
+                                      'disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-300',
+                                    )}
+                                  >
+                                    <BeakerIcon className="h-4 w-4 text-accent" />
+                                    Calculate P-Value
+                                  </button>
+
+                                  <div className="px-3 py-2 mt-2 mb-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider border-t border-b border-gray-800/30">
+                                    Global Analysis
+                                  </div>
+
+                                  <button
+                                    onClick={() => { onToggleMatrixView(); close(); }}
+                                    disabled={filterTag == null}
+                                    className={cn(
+                                      'flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left',
+                                      'text-gray-300 hover:bg-gray-800/80 hover:text-white',
+                                      isMatrixViewOpen ? 'text-accent font-semibold' : '',
+                                      'disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-300',
+                                    )}
+                                  >
+                                    <div className={cn('h-1.5 w-1.5 rounded-full bg-accent transition-all', isMatrixViewOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0')} />
+                                    Correlation Matrix
+                                  </button>
+
+                                  <button
+                                    onClick={() => { onToggleNetworkView(); close(); }}
+                                    className={cn(
+                                      'flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left',
+                                      'text-gray-300 hover:bg-gray-800/80 hover:text-white',
+                                      isNetworkViewOpen ? 'text-accent font-semibold' : '',
+                                    )}
+                                  >
+                                    <div className={cn('h-1.5 w-1.5 rounded-full bg-accent transition-all', isNetworkViewOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0')} />
+                                    Chord Diagram
+                                  </button>
+
+                                  {onOpenClustering && (
+                                    <button
+                                      onClick={() => { onOpenClustering(); close(); }}
+                                      className={cn(
+                                        'flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left',
+                                        'text-gray-300 hover:bg-gray-800/80 hover:text-white',
+                                      )}
+                                    >
+                                      <SparklesIcon className="h-4 w-4 text-purple-400" />
+                                      Detect Phases
+                                    </button>
+                                  )}
+
+                                  <div className="h-px bg-gray-800/40 my-1 mx-2" />
+
+                                  <button
+                                    onClick={() => setActiveSubMenu('supplements')}
+                                    className={cn(
+                                      'flex w-full items-center justify-between px-3 py-2 rounded-lg text-xs transition-colors text-left',
+                                      'text-gray-300 hover:bg-gray-800/80 hover:text-white',
+                                    )}
+                                  >
+                                    <div className="flex items-center gap-2.5">
+                                      <SparklesIcon className="h-4 w-4 text-purple-400" />
+                                      Correlate supplement...
+                                    </div>
+                                    <ChevronDownIcon className="h-3 w-3 -rotate-90" />
+                                  </button>
+                                </div>
+                              )
+                            }
+
+                            return (
+                              <div className="space-y-1">
+                                <button
+                                  onClick={() => setActiveSubMenu('main')}
+                                  className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-gray-400 hover:text-white transition-colors"
+                                >
+                                  <ArrowLeftIcon className="h-3 w-3" />
+                                  Back
+                                </button>
+
+                                <div className="px-3 py-1 mb-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider border-b border-gray-800/30">
+                                  Select Supplement
+                                </div>
+
+                                <div className="max-h-56 overflow-y-auto no-scrollbar space-y-0.5">
+                                  {uniqueSupplements.map((supp) => (
+                                    <button
+                                      key={supp}
+                                      onClick={() => {
+                                        onSupplementCorrelation(supp);
+                                        close();
+                                      }}
+                                      className="flex w-full items-center px-3 py-2 rounded-lg text-xs text-gray-300 hover:bg-gray-800 hover:text-white transition-colors text-left"
+                                    >
+                                      {supp}
+                                    </button>
+                                  ))}
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )
+                          })()}
                         </Popover.Panel>
                       </Transition>
                     </>
