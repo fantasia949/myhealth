@@ -102,8 +102,8 @@ const updateChartOption = (
         grid: {
           top: 40,
           bottom: 20,
-          left: Math.ceil(keys.length / 2) * 100,
-          right: Math.max(Math.floor(keys.length / 2) * 100, 40),
+          left: Math.ceil(keys.length / 2) * 100 + 40,
+          right: Math.max(Math.floor(keys.length / 2) * 100, 40) + 40,
         },
         series,
       },
