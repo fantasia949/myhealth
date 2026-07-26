@@ -367,3 +367,55 @@ New `src/layout/TagHealthTrajectory.tsx`, rendered in the Main View (Dashboard).
 
 **Trigger / entry point:**
 Displayed in the main dashboard when the user clicks a "System View" tab, acting as a longitudinal companion to the current RadarChart snapshot.
+
+---
+
+**Proposal: Biomarker Volatility vs. Recovery Velocity Scatter Matrix**
+
+**ECharts type:** `scatter` (with `markLine` for quadrant mapping)
+
+**Codebase citation:**
+Uses the `extra.optimality[]` from `src/processors/post/range.ts` and overall `values[]` arrays loaded into `nonInferredDataAtom`.
+
+**Which existing data it uses:**
+It calculates two new derived metrics for each biomarker in `nonInferredDataAtom`:
+1. **Historical Volatility** (Y-axis): the standard deviation or coefficient of variation of the biomarker's values across all timestamps.
+2. **Average Recovery Velocity** (X-axis): when a biomarker enters an out-of-range state (`extra.optimality[] === true`), the average rate of change (delta per day using `labels[]`) back into the optimal range.
+
+**Axes:**
+- X-axis: Recovery Velocity (Rate of return to optimal, e.g. units/day)
+- Y-axis: Historical Volatility (Coefficient of variation)
+
+**What it reveals that current charts don't:**
+Identifies which biomarkers are highly erratic but quickly corrected (high volatility, high recovery), versus those that drift slowly out of range and resist correction (low volatility, low recovery—often a sign of chronic systemic decline rather than acute stress). The current `KeystoneCentralityScatter` maps centrality vs anomaly frequency, but misses the *velocity of recovery* which is crucial for distinguishing between acute flare-ups and chronic metabolic entrenchment.
+
+**Where it would live:**
+New `src/layout/VolatilityRecoveryScatter.tsx`, accessible from the Diagnostics or Correlation view.
+
+**Trigger / entry point:**
+A "Recovery Dynamics" sub-tab in the Correlation Modal.
+
+---
+
+**Proposal: Tag-Group Correlation Heatmap Matrix**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.tag[]` system classifications from `src/processors/post/tag.ts` and `correlationMethodAtom` (Spearman/Pearson) from `src/atom/correlationAtom.ts`.
+
+**Which existing data it uses:**
+Rather than computing pairwise correlations between individual biomarkers, this aggregates all markers within a specific tag (e.g., `1-RBC`, `4-Lipid`, `3-Liver`) and computes the average inter-tag correlation strength across the entire dataset. It leverages `nonInferredDataAtom` and the existing `calculateSpearman` or `calculatePearson` functions.
+
+**Axes:**
+- X-axis: System Tags (`1-RBC`, `2-Metabolic`, etc.)
+- Y-axis: System Tags (same as X-axis)
+
+**What it reveals that current charts don't:**
+The current `CorrelationChordDiagram` and `CorrelationPolarScatter` map individual markers, often leading to visual overload ("hairballs"). This matrix provides a macro-level view of how major physiological systems interact—for example, instantly showing if a user's Liver system (`3-Liver`) is tightly coupled to their Metabolic system (`2-Metabolic`), which could indicate a specific metabolic phenotype like NAFLD, without getting lost in the noise of 80 individual marker correlations.
+
+**Where it would live:**
+New `src/layout/SystemCorrelationHeatmap.tsx`.
+
+**Trigger / entry point:**
+A "System Interactions" toggle button in the main Correlation Analysis modal.
