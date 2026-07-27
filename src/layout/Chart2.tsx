@@ -199,23 +199,23 @@ export default memo(({ keys }: ChartProps) => {
     }
 
     const seriesArr = (echartsOptions.series as SeriesOption[]) || []
-    const nextSeries = [
-      seriesArr[0],
-      // Only include the regression series if dataset contains it
-      ...(mappedScatterData.length >= 2
-        ? [
-            {
-              ...seriesArr[1],
-              datasetIndex: 1,
-              tooltip: {
-                formatter: () => {
-                  return `<strong>Regression Trend</strong>${regressionExpression ? `<br/>${regressionExpression}` : ''}`
-                },
-              },
-            },
-          ]
-        : []),
-    ]
+    const nextSeries: SeriesOption[] = [seriesArr[0]]
+
+    // Only include the regression series if dataset contains it
+    if (mappedScatterData.length >= 2) {
+      nextSeries.push({
+        ...seriesArr[1],
+        datasetIndex: 1,
+        tooltip: {
+          formatter: () => {
+            if (regressionExpression) {
+              return `<strong>Regression Trend</strong><br/>${regressionExpression}`
+            }
+            return '<strong>Regression Trend</strong>'
+          },
+        },
+      })
+    }
 
     return {
       ...echartsOptions,
@@ -253,7 +253,10 @@ export default memo(({ keys }: ChartProps) => {
           }
           // Scan 2 Fix: Fallback for regression tooltip (regression line is rendered by 'line' series type)
           // `regressionExpression` is outside the closure. ecStat formulaOn: 'end' does not reliably expose the equation at `params.value[2]` for line points during hover.
-          return `<strong>Regression Trend</strong>${regressionExpression ? `<br/>${regressionExpression}` : ''}`
+          if (regressionExpression) {
+            return `<strong>Regression Trend</strong><br/>${regressionExpression}`
+          }
+          return '<strong>Regression Trend</strong>'
         },
       },
       dataset,
