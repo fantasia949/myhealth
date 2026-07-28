@@ -460,8 +460,9 @@ export default React.memo<NavProps>(
                   <button
                     type="button"
                     onClick={onClearSelection}
-                    className="p-1 text-gray-500 hover:text-red-400 transition-colors"
+                    className="p-1 text-gray-500 hover:text-red-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded transition-colors"
                     title="Clear Selection"
+                    aria-label="Clear all selected items"
                   >
                     <TrashIcon className="h-4 w-4" />
                   </button>
