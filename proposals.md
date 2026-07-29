@@ -419,3 +419,55 @@ New `src/layout/SystemCorrelationHeatmap.tsx`.
 
 **Trigger / entry point:**
 A "System Interactions" toggle button in the main Correlation Analysis modal.
+
+---
+
+**Proposal: Longitudinal Origin Reversion Funnel**
+
+**ECharts type:** `funnel`
+
+**Codebase citation:**
+Uses the `inferred` boolean and `originValues` from `BioMarker[3]` as well as values from `nonInferredDataAtom`.
+
+**Which existing data it uses:**
+This chart groups biomarkers based on whether they are directly measured or `inferred` (e.g. calculated ratios). It traces a step-by-step reduction of "out of bounds" inferred metrics back to their root origin biomarkers. For instance, if an inferred marker like LDL/HDL ratio is out of range, it maps down to the underlying `originValues` (LDL and HDL) to show where the deviation stems from.
+
+**Axes:**
+No standard X/Y axes. The stages of the funnel represent:
+- Total Inferred Biomarkers
+- Out-of-Range Inferred Biomarkers
+- Out-of-Range Origin Biomarkers (the root cause)
+
+**What it reveals that current charts don't:**
+It helps identify systemic "root causes." While current charts show if a complex, inferred metric (like Phenotypic Age or an Atherogenic Index) is worsening, this funnel reveals whether the deterioration is driven by a single origin marker going wildly out of range, or a subtle compounding of multiple markers simultaneously shifting.
+
+**Where it would live:**
+New `src/layout/OriginReversionFunnel.tsx`.
+
+**Trigger / entry point:**
+A sub-tab under a "System Diagnostics" modal that analyzes inferred age/risk scores.
+
+---
+
+**Proposal: Tag-Level Stability Area Chart**
+
+**ECharts type:** `line` (stacked area)
+
+**Codebase citation:**
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` and tag groups `1-RBC`, `2-Metabolic` from `src/processors/post/tag.ts`.
+
+**Which existing data it uses:**
+It calculates the percentage of biomarkers within each tag group that are within their optimal range at every timestamp `labels[]`. For example, if there are 10 Metabolic markers and 8 are optimal at time T, the score is 80%. These percentages for all systems are stacked over time.
+
+**Axes:**
+- X-axis: Time (dates from `labels[]`)
+- Y-axis: Aggregated Optimal Percentage (0-100%, stacked or overlaid)
+
+**What it reveals that current charts don't:**
+It provides a longitudinal view of systemic health stability. While the current `RadarChart` gives a point-in-time snapshot of system health, this chart shows how systemic stability drifts over months or years. It makes it obvious if, for example, the Liver system is gradually destabilizing before any single marker crosses a critical clinical threshold.
+
+**Where it would live:**
+New `src/layout/TagStabilityAreaChart.tsx`.
+
+**Trigger / entry point:**
+A "Longitudinal System Health" toggle next to the current `RadarChart` in the Main Dashboard.
