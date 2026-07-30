@@ -165,8 +165,8 @@ export default memo(({ keys }: ScatterChartProps) => {
         data: keys,
       },
       grid: {
-        left: Math.ceil(keys.length / 2) * 100 + 40,
-        right: Math.max(Math.floor(keys.length / 2) * 100, 40) + 40,
+        left: Math.max((Math.ceil(keys.length / 2) - 1) * 100 + 80, 40),
+        right: Math.max((Math.floor(keys.length / 2) - 1) * 100 + 80, 40),
       },
     }),
     [yAxes, chartData, keys],
