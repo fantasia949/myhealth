@@ -471,3 +471,54 @@ New `src/layout/TagStabilityAreaChart.tsx`.
 
 **Trigger / entry point:**
 A "Longitudinal System Health" toggle next to the current `RadarChart` in the Main Dashboard.
+
+---
+
+**Proposal: Correlation Directionality Shift Scatter**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+Uses `correlationMethodAtom` from `src/atom/correlationAtom.ts` and overall `values[]` arrays loaded into `nonInferredDataAtom`.
+
+**Which existing data it uses:**
+Splits the `labels[]` and corresponding `values[]` from `nonInferredDataAtom` into two chronological halves (e.g., Early Timeline vs. Late Timeline). It computes pairwise correlation coefficients (Spearman/Pearson) between all biomarkers for both halves.
+
+**Axes:**
+- X-axis: Early Timeline Correlation Coefficient (e.g., -1.0 to 1.0).
+- Y-axis: Late Timeline Correlation Coefficient (e.g., -1.0 to 1.0).
+
+**What it reveals that current charts don't:**
+Identifies shifting physiological relationships. A point plotted far from the diagonal indicates that two biomarkers have fundamentally changed how they interact (e.g., they were highly correlated early on, but became decoupled later due to an intervention, medication, or aging). This helps track metabolic adaptability.
+
+**Where it would live:**
+New `src/layout/CorrelationShiftScatter.tsx`.
+
+**Trigger / entry point:**
+A "Temporal Shift" toggle button in the main Correlation Analysis modal.
+
+---
+
+**Proposal: Biomarker-to-Tag Outlier Ratio Line Chart**
+
+**ECharts type:** `line`
+
+**Codebase citation:**
+Uses `extra.optimality[]` from `src/processors/post/range.ts` and `extra.tag[]` from `src/processors/post/tag.ts`.
+
+**Which existing data it uses:**
+For a specific user-selected biomarker in `dataAtom.ts`, it retrieves the biomarker's primary tag group (e.g., `2-Metabolic`). It then calculates the average anomaly rate (percentage of `extra.optimality[] === true`) of all *other* biomarkers within that tag group across all timestamps.
+
+**Axes:**
+- X-axis: Time (dates from `labels[]`).
+- Y-axis (Left, Value): Target biomarker absolute measurement value.
+- Y-axis (Right, Percentage): Tag-group average anomaly rate (0% - 100%).
+
+**What it reveals that current charts don't:**
+Provides systemic context for individual biomarker failures. It instantly reveals whether a worsening biomarker is an isolated anomaly (e.g., a one-off bad reading while the rest of the Metabolic system remains healthy) or if it is merely the symptom of a broader, systemic collapse across the entire tag group.
+
+**Where it would live:**
+New `src/layout/TagContextLineChart.tsx`.
+
+**Trigger / entry point:**
+A "System Context Overlay" toggle in the existing Table Row Expansion UI, rendering alongside the standard LineChart.
