@@ -163,16 +163,35 @@ export default memo(({ keys }: ChartProps) => {
   }, [dataMap, keys])
 
   const options: EChartsOption & Pick<EChartsReactProps, 'style' | 'theme'> = useMemo(() => {
-    const nextXAxis = []
     const xAxisArr = (echartsOptions.xAxis as XAXisComponentOption[]) || []
+    const nextXAxis = []
     for (let i = 0; i < xAxisArr.length; i++) {
-      nextXAxis.push(i === 0 ? { ...xAxisArr[i], name: keys[0], nameLocation: 'middle' as const, nameGap: 30 } : xAxisArr[i])
+      if (i === 0) {
+        nextXAxis.push({
+          ...xAxisArr[i],
+          name: keys[0],
+          nameLocation: 'middle' as const,
+          nameGap: 30
+        })
+      } else {
+        nextXAxis.push(xAxisArr[i])
+      }
     }
 
-    const nextYAxis = []
     const yAxisArr = (echartsOptions.yAxis as YAXisComponentOption[]) || []
+    const nextYAxis = []
     for (let i = 0; i < yAxisArr.length; i++) {
-      nextYAxis.push(i === 0 ? { ...yAxisArr[i], name: keys[1], nameLocation: 'middle' as const, nameRotate: 90, nameGap: 50 } : yAxisArr[i])
+      if (i === 0) {
+        nextYAxis.push({
+          ...yAxisArr[i],
+          name: keys[1],
+          nameLocation: 'middle' as const,
+          nameRotate: 90,
+          nameGap: 50
+        })
+      } else {
+        nextYAxis.push(yAxisArr[i])
+      }
     }
 
     const dataset: DatasetComponentOption[] = [
