@@ -180,6 +180,10 @@ const TableRow = React.memo(
       displayUnit = (unit as { url: string }).url
     }
 
+    const useOrigin = showOrigColumns && extra.hasOrigin
+    const valuesToMap = useOrigin ? visibleOriginValues : visibleValues
+    const cellUnit = useOrigin ? extra.originUnit : unit
+
     return (
       <React.Fragment>
         <tr
@@ -269,36 +273,21 @@ const TableRow = React.memo(
               {name}
             </label>
           </th>
-          {!showOrigColumns || !extra.hasOrigin
-            ? visibleValues.map((value: number, index: number) => {
-                const baseClass = cellBaseClasses[index]
-                const isBad = visibleOptimality && visibleOptimality[index]
-                return (
-                  <DataCell
-                    // Optimization: use pre-calculated base classes to avoid repetitive cn() calls in render loop
-                    className={isBad ? `${baseClass} v-bad` : baseClass}
-                    key={index}
-                    rawValue={value != null ? value.toString() : ''}
-                    displayValue={value}
-                    unit={unit}
-                    onCopy={onCellClick}
-                  />
-                )
-              })
-            : visibleOriginValues?.map((value: number | string | null, index: number) => {
-                const baseClass = cellBaseClasses[index]
-                const isBad = visibleOptimality && visibleOptimality[index]
-                return (
-                  <DataCell
-                    className={isBad ? `${baseClass} v-bad` : baseClass}
-                    key={index}
-                    rawValue={value != null ? value.toString() : ''}
-                    displayValue={value}
-                    unit={extra.originUnit}
-                    onCopy={onCellClick}
-                  />
-                )
-              })}
+          {valuesToMap?.map((value: number | string | null, index: number) => {
+            const baseClass = cellBaseClasses[index]
+            const isBad = visibleOptimality && visibleOptimality[index]
+            return (
+              <DataCell
+                // Optimization: use pre-calculated base classes to avoid repetitive cn() calls in render loop
+                className={isBad ? `${baseClass} v-bad` : baseClass}
+                key={index}
+                rawValue={value != null ? value.toString() : ''}
+                displayValue={value}
+                unit={cellUnit}
+                onCopy={onCellClick}
+              />
+            )
+          })}
           <td className="p-2 border border-gray-700 hidden lg:table-cell">
             {averageCountValue ? extra.getSamples(+averageCountValue).join(', ') : null}
           </td>
