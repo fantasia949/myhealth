@@ -422,6 +422,53 @@ A "System Interactions" toggle button in the main Correlation Analysis modal.
 
 ---
 
+**Proposal: Origin Value Conversion Drift Scatter**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+Reads `extra.originValues` and `extra.originUnit` from `src/types/biomarker.ts` for each biomarker returned by `visibleDataAtom`.
+
+**Which existing data it uses:**
+It pairs the standard standardized `values[]` (which power the main charts) with the pre-conversion raw lab numbers found in `extra.originValues[]`, if `extra.hasOrigin` is true.
+
+**Axes:**
+- X-axis: Standardized Value (e.g. standard SI unit)
+- Y-axis: Raw Origin Value (from `extra.originValues`)
+
+**What it reveals that current charts don't:**
+Identifies systematic drift or rounding errors in unit conversions over time. If a user receives lab results from different providers using different raw units, standardizing them can introduce mathematical artifacts. This scatter plot visually verifies the integrity of the conversion pipeline: a perfect conversion should render as a perfectly straight line, whereas clusters off the line indicate potential calculation errors or undocumented lab reference shifts.
+
+**Where it would live:**
+New `src/layout/OriginDriftScatter.tsx`, accessible in the diagnostics or settings area.
+
+**Trigger / entry point:**
+A "Data Integrity" toggle within a specific Biomarker's detail modal.
+
+---
+
+**Proposal: Spearman vs Pearson Correlation Delta Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `correlationMethodAtom` from `src/atom/correlationAtom.ts` and the `calculateSpearman` / `calculatePearson` utilities.
+
+**Which existing data it uses:**
+It computes both the Pearson (linear) and Spearman (monotonic rank) correlation coefficients for all pairwise combinations of biomarkers in `nonInferredDataAtom`. It then calculates the absolute difference between these two coefficients for each pair.
+
+**Axes:**
+- X-axis: Biomarker Name (from `nonInferredDataAtom`)
+- Y-axis: Biomarker Name (from `nonInferredDataAtom`)
+
+**What it reveals that current charts don't:**
+The current `CorrelationChordDiagram` and `Chart2.tsx` only show correlation under a single selected mathematical lens. This heatmap specifically highlights pairs with a *large difference* between Pearson and Spearman scores. A high Spearman but low Pearson score strongly implies a non-linear but consistent physiological relationship (e.g., exponential or logarithmic response), guiding the user to investigate the *shape* of the relationship rather than assuming a straight line.
+
+**Where it would live:**
+New `src/layout/CorrelationDeltaHeatmap.tsx`.
+
+**Trigger / entry point:**
+A "Detect Non-Linearity" button within the existing Correlation Analysis view.
 **Proposal: Longitudinal Origin Reversion Funnel**
 
 **ECharts type:** `funnel`
@@ -522,3 +569,50 @@ New `src/layout/TagContextLineChart.tsx`.
 
 **Trigger / entry point:**
 A "System Context Overlay" toggle in the existing Table Row Expansion UI, rendering alongside the standard LineChart.
+**Proposal: Testing Cadence & Seasonality Scatter**
+
+**ECharts type:** `scatter` (or `calendar` modified for multi-year overlay)
+
+**Codebase citation:**
+Uses `labels[]` from `src/data/index.ts` to plot time against the density/cadence of measurements.
+
+**Which existing data it uses:**
+Reads the length of arrays in `dataAtom` and aligns them with `labels[]` (which contains timestamps in the format `YYMMDD`).
+
+**Axes:**
+- **X-Axis:** Month of the year (Jan - Dec)
+- **Y-Axis:** Year
+
+**What it reveals that current charts don't:**
+The current charts plot biomarker values over time, but they don't explicitly show the user's testing cadence or whether tests are clustered around certain seasons or years. This reveals the habit pattern of the user's health tracking.
+
+**Where it would live:**
+New `src/layout/TestingCadenceChart.tsx`, accessible perhaps on a high-level summary view or dashboard overview.
+
+**Trigger / entry point:**
+Could be added as a top-level widget that renders automatically, requiring no specific UI trigger, to give context on the overall data density.
+
+---
+
+**Proposal: Out-of-Range Tag Density Dot Plot**
+
+**ECharts type:** `scatter` (with varying symbol size)
+
+**Codebase citation:**
+`extra.optimality[]` pre-computed by `src/processors/post/range.ts` and `extra.tag[]` from `src/types/biomarker.ts`.
+
+**Which existing data it uses:**
+Reads the `optimality` boolean array for all biomarkers grouped by their `tag` (e.g., from `dataAtom`).
+
+**Axes:**
+- **X-Axis:** Time (`labels[]`)
+- **Y-Axis:** Tag groups (e.g., '1-RBC', '3-Liver', '5-Hormone')
+
+**What it reveals that current charts don't:**
+By sizing the dots based on the count or percentage of biomarkers *out of range* within a specific tag group at a given timestamp, it immediately visualizes which physiological systems (tags) were struggling the most at any point in time, without having to inspect individual lines or scatters.
+
+**Where it would live:**
+New `src/layout/SystemOptimalityDotPlot.tsx`, rendered in the main view alongside or instead of the multi-line chart when an aggregate view is desired.
+
+**Trigger / entry point:**
+A new "System View" toggle in the main layout that switches from plotting individual biomarkers to aggregate tag performance.
