@@ -518,3 +518,53 @@ New `src/layout/TagStabilityAreaChart.tsx`.
 
 **Trigger / entry point:**
 A "Longitudinal System Health" toggle next to the current `RadarChart` in the Main Dashboard.
+
+---
+
+**Proposal: Testing Cadence & Seasonality Scatter**
+
+**ECharts type:** `scatter` (or `calendar` modified for multi-year overlay)
+
+**Codebase citation:**
+Uses `labels[]` from `src/data/index.ts` to plot time against the density/cadence of measurements.
+
+**Which existing data it uses:**
+Reads the length of arrays in `dataAtom` and aligns them with `labels[]` (which contains timestamps in the format `YYMMDD`).
+
+**Axes:**
+- **X-Axis:** Month of the year (Jan - Dec)
+- **Y-Axis:** Year
+
+**What it reveals that current charts don't:**
+The current charts plot biomarker values over time, but they don't explicitly show the user's testing cadence or whether tests are clustered around certain seasons or years. This reveals the habit pattern of the user's health tracking.
+
+**Where it would live:**
+New `src/layout/TestingCadenceChart.tsx`, accessible perhaps on a high-level summary view or dashboard overview.
+
+**Trigger / entry point:**
+Could be added as a top-level widget that renders automatically, requiring no specific UI trigger, to give context on the overall data density.
+
+---
+
+**Proposal: Out-of-Range Tag Density Dot Plot**
+
+**ECharts type:** `scatter` (with varying symbol size)
+
+**Codebase citation:**
+`extra.optimality[]` pre-computed by `src/processors/post/range.ts` and `extra.tag[]` from `src/types/biomarker.ts`.
+
+**Which existing data it uses:**
+Reads the `optimality` boolean array for all biomarkers grouped by their `tag` (e.g., from `dataAtom`).
+
+**Axes:**
+- **X-Axis:** Time (`labels[]`)
+- **Y-Axis:** Tag groups (e.g., '1-RBC', '3-Liver', '5-Hormone')
+
+**What it reveals that current charts don't:**
+By sizing the dots based on the count or percentage of biomarkers *out of range* within a specific tag group at a given timestamp, it immediately visualizes which physiological systems (tags) were struggling the most at any point in time, without having to inspect individual lines or scatters.
+
+**Where it would live:**
+New `src/layout/SystemOptimalityDotPlot.tsx`, rendered in the main view alongside or instead of the multi-line chart when an aggregate view is desired.
+
+**Trigger / entry point:**
+A new "System View" toggle in the main layout that switches from plotting individual biomarkers to aggregate tag performance.

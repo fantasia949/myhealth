@@ -93,7 +93,9 @@ const echartsOptions: EChartsOption & Pick<EChartsReactProps, 'style' | 'theme'>
   },
   grid: {
     top: 40,
-    bottom: 40,
+    bottom: 60,
+    left: 80,
+    right: 40,
   },
   series: [
     {
