@@ -422,6 +422,53 @@ A "System Interactions" toggle button in the main Correlation Analysis modal.
 
 ---
 
+**Proposal: Origin Value Conversion Drift Scatter**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+Reads `extra.originValues` and `extra.originUnit` from `src/types/biomarker.ts` for each biomarker returned by `visibleDataAtom`.
+
+**Which existing data it uses:**
+It pairs the standard standardized `values[]` (which power the main charts) with the pre-conversion raw lab numbers found in `extra.originValues[]`, if `extra.hasOrigin` is true.
+
+**Axes:**
+- X-axis: Standardized Value (e.g. standard SI unit)
+- Y-axis: Raw Origin Value (from `extra.originValues`)
+
+**What it reveals that current charts don't:**
+Identifies systematic drift or rounding errors in unit conversions over time. If a user receives lab results from different providers using different raw units, standardizing them can introduce mathematical artifacts. This scatter plot visually verifies the integrity of the conversion pipeline: a perfect conversion should render as a perfectly straight line, whereas clusters off the line indicate potential calculation errors or undocumented lab reference shifts.
+
+**Where it would live:**
+New `src/layout/OriginDriftScatter.tsx`, accessible in the diagnostics or settings area.
+
+**Trigger / entry point:**
+A "Data Integrity" toggle within a specific Biomarker's detail modal.
+
+---
+
+**Proposal: Spearman vs Pearson Correlation Delta Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `correlationMethodAtom` from `src/atom/correlationAtom.ts` and the `calculateSpearman` / `calculatePearson` utilities.
+
+**Which existing data it uses:**
+It computes both the Pearson (linear) and Spearman (monotonic rank) correlation coefficients for all pairwise combinations of biomarkers in `nonInferredDataAtom`. It then calculates the absolute difference between these two coefficients for each pair.
+
+**Axes:**
+- X-axis: Biomarker Name (from `nonInferredDataAtom`)
+- Y-axis: Biomarker Name (from `nonInferredDataAtom`)
+
+**What it reveals that current charts don't:**
+The current `CorrelationChordDiagram` and `Chart2.tsx` only show correlation under a single selected mathematical lens. This heatmap specifically highlights pairs with a *large difference* between Pearson and Spearman scores. A high Spearman but low Pearson score strongly implies a non-linear but consistent physiological relationship (e.g., exponential or logarithmic response), guiding the user to investigate the *shape* of the relationship rather than assuming a straight line.
+
+**Where it would live:**
+New `src/layout/CorrelationDeltaHeatmap.tsx`.
+
+**Trigger / entry point:**
+A "Detect Non-Linearity" button within the existing Correlation Analysis view.
 **Proposal: Longitudinal Origin Reversion Funnel**
 
 **ECharts type:** `funnel`

@@ -133,8 +133,8 @@ export default memo(({ keys }: ChartProps) => {
   const mappedScatterData = useMemo(() => {
     // Optimization: Replace O(K*N) chained .map(), .reduce(), and .filter() array allocations
     // with a single-pass O(N) loop to eliminate closure creation and garbage collection overhead.
-    const entry0 = dataMap.get(keys[0])
-    const entry1 = dataMap.get(keys[1])
+    const entry0 = keys.length > 0 ? dataMap.get(keys[0]) : undefined
+    const entry1 = keys.length > 1 ? dataMap.get(keys[1]) : undefined
 
     if (entry0 && entry1) {
       const values0 = entry0[1]
@@ -265,6 +265,14 @@ export default memo(({ keys }: ChartProps) => {
   }, [mappedScatterData, keys])
 
   // console.log("ch2", options.series[0].data, options.series[1].data);
+
+  if (!dataMap.has(keys[0]) || !dataMap.has(keys[1])) {
+    return (
+      <div className="flex items-center justify-center h-[400px] w-full text-gray-500 italic border border-dashed border-[#3a3a3a80] rounded-lg">
+        Selected biomarkers not found in dataset.
+      </div>
+    )
+  }
 
   if (mappedScatterData.length === 0) {
     return (
