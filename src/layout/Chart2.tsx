@@ -50,11 +50,6 @@ const echartsOptions: EChartsOption & Pick<EChartsReactProps, 'style' | 'theme'>
       scale: true,
       splitLine: { lineStyle: { color: '#3a3a3a80', type: 'dashed', width: 1 } },
     },
-    {
-      show: false,
-      type: 'value',
-      name: '',
-    },
   ],
   tooltip: {
     triggerOn: 'mousemove',
