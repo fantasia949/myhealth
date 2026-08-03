@@ -130,8 +130,8 @@ export default memo(({ keys }: ChartProps) => {
   const mappedScatterData = useMemo(() => {
     // Optimization: Replace O(K*N) chained .map(), .reduce(), and .filter() array allocations
     // with a single-pass O(N) loop to eliminate closure creation and garbage collection overhead.
-    const entry0 = keys.length > 0 ? dataMap.get(keys[0]) : undefined
-    const entry1 = keys.length > 1 ? dataMap.get(keys[1]) : undefined
+    const entry0 = dataMap.get(keys[0])
+    const entry1 = dataMap.get(keys[1])
 
     if (entry0 && entry1) {
       const values0 = entry0[1]
@@ -214,6 +214,13 @@ export default memo(({ keys }: ChartProps) => {
       })
     }
 
+    const formatRegressionTooltip = () => {
+      if (regressionExpression) {
+        return `<strong>Regression Trend</strong><br/>${regressionExpression}`
+      }
+      return '<strong>Regression Trend</strong>'
+    }
+
     const seriesArr = (echartsOptions.series as SeriesOption[]) || []
     const nextSeries: SeriesOption[] = [seriesArr[0]]
 
@@ -223,12 +230,7 @@ export default memo(({ keys }: ChartProps) => {
         ...seriesArr[1],
         datasetIndex: 1,
         tooltip: {
-          formatter: () => {
-            if (regressionExpression) {
-              return `<strong>Regression Trend</strong><br/>${regressionExpression}`
-            }
-            return '<strong>Regression Trend</strong>'
-          },
+          formatter: formatRegressionTooltip,
         },
       })
     }
@@ -269,10 +271,7 @@ export default memo(({ keys }: ChartProps) => {
           }
           // Scan 2 Fix: Fallback for regression tooltip (regression line is rendered by 'line' series type)
           // `regressionExpression` is outside the closure. ecStat formulaOn: 'end' does not reliably expose the equation at `params.value[2]` for line points during hover.
-          if (regressionExpression) {
-            return `<strong>Regression Trend</strong><br/>${regressionExpression}`
-          }
-          return '<strong>Regression Trend</strong>'
+          return formatRegressionTooltip()
         },
       },
       dataset,
