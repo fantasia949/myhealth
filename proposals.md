@@ -619,6 +619,53 @@ A new "System View" toggle in the main layout that switches from plotting indivi
 
 ---
 
+**Proposal: Longitudinal Measurement Delta Bar Chart**
+
+**ECharts type:** `bar` (waterfall / up-down colored bars)
+
+**Codebase citation:**
+Uses `values[]` (which contains `number[] | null`) from `BioMarker[1]` in `src/types/biomarker.ts` returned by `dataAtom`.
+
+**Which existing data it uses:**
+It calculates the step-to-step difference (delta) between consecutive valid measurements in `values[]` for a given biomarker.
+
+**Axes:**
+- X-axis: Time (dates from `labels[]`)
+- Y-axis: Measurement Delta (e.g., +15 mg/dL, -5 mg/dL)
+
+**What it reveals that current charts don't:**
+While the line and scatter charts show absolute values, they make it hard to spot rate-of-change volatility. A delta bar chart instantly highlights the magnitude and direction of changes between tests (e.g., "my cholesterol dropped sharply, but then rebounded equally sharply"). This helps evaluate the immediate impact of short-term interventions between specific test dates.
+
+**Where it would live:**
+New `src/layout/DeltaBarChart.tsx`.
+
+**Trigger / entry point:**
+A "Show Change Velocity" toggle inside the expanded Table row next to the existing `LineChart`.
+
+---
+
+**Proposal: Tag Group Outlier Streak Timeline**
+
+**ECharts type:** `custom` (Gantt-style timeline blocks) or `heatmap`
+
+**Codebase citation:**
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` and `extra.tag[]` assigned by `src/processors/post/tag.ts`.
+
+**Which existing data it uses:**
+For each tag group (e.g., `3-Liver`, `5-Hormone`), it evaluates the `optimality[]` array for all member biomarkers across `labels[]` to determine continuous "streaks" where at least one (or a threshold) of the group's markers remains out of optimal range.
+
+**Axes:**
+- X-axis: Time (`labels[]`)
+- Y-axis: Tag Groups (`1-RBC`, `2-Metabolic`, etc.)
+
+**What it reveals that current charts don't:**
+Reveals chronicity of systemic stress. Instead of just showing *if* a marker is out of range, this chart visualizes the *duration* of systemic dysfunction. It clearly differentiates between a tag group that occasionally dips out of range (short, scattered blocks) versus one that has been chronically out of range for years (a long, solid block), providing critical context on cumulative physiological wear and tear.
+
+**Where it would live:**
+New `src/layout/SystemChronicityTimeline.tsx`.
+
+**Trigger / entry point:**
+A new "Chronicity View" tab in the system-level overview or Radar Chart area.
 **Proposal: Unified Z-Score Fluctuation Line Chart**
 
 **ECharts type:** `line`
