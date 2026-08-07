@@ -666,3 +666,97 @@ New `src/layout/SystemChronicityTimeline.tsx`.
 
 **Trigger / entry point:**
 A new "Chronicity View" tab in the system-level overview or Radar Chart area.
+**Proposal: Unified Z-Score Fluctuation Line Chart**
+
+**ECharts type:** `line`
+
+**Codebase citation:**
+Uses `BioMarker[1]` (values array) from `nonInferredDataAtom`.
+
+**Which existing data it uses:**
+Computes the historical mean and standard deviation for each selected biomarker's `values[]`, then transforms each non-null measurement into a Z-score `(value - mean) / stdDev`.
+
+**Axes:**
+- X-axis: Time (dates from `labels[]`)
+- Y-axis: Standard Deviations from Mean (Z-score, typically -3 to +3).
+
+**What it reveals that current charts don't:**
+The current `Chart.tsx` and `ScatterChart.tsx` suffer from visual clutter when plotting 3+ biomarkers because each requires its own independent Y-axis (creating 4+ axes on screen). By normalizing all biomarkers to a unified Z-score, this chart can plot 10+ biomarkers on a single Y-axis, instantly revealing which biomarker experienced the most extreme relative deviation at any point in time, without axis scaling confusion.
+
+**Where it would live:**
+New `src/layout/ZScoreLineChart.tsx`.
+
+**Trigger / entry point:**
+A "Normalize Scales (Z-Score)" toggle switch within the existing multi-selection `Chart.tsx` view.
+
+---
+
+**Proposal: Longitudinal Rank-Percentile Area Chart**
+
+**ECharts type:** `line` (with `areaStyle`)
+
+**Codebase citation:**
+Uses `rankedDataMapAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+Reads the `Float64Array` rank values from `rankedDataMapAtom` for selected biomarkers. It converts the absolute rank into a rank-percentile (0% to 100%) based on the number of non-null measurements for that marker.
+
+**Axes:**
+- X-axis: Time (dates from `labels[]`)
+- Y-axis: Rank Percentile (0 to 100)
+
+**What it reveals that current charts don't:**
+Raw measurements can be noisy or trend linearly due to aging. By plotting the *rank percentile* over time, the user can see if a biomarker is consistently staying in their personal "top quartile" (e.g., historically high) or if a recent reading represents a sudden drop to their personal "bottom quartile", regardless of the absolute unit or normal reference range. This personalizes the baseline comparison.
+
+**Where it would live:**
+New `src/layout/RankPercentileChart.tsx`.
+
+**Trigger / entry point:**
+A "View Personal Rank History" toggle in the single-biomarker detail modal, swapping the raw value `LineChart` for this rank-based view.
+**Proposal: Imminent Out-of-Range Warning Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.optimality[]` and `extra.range` (e.g. `'3.9 - 6.4'`) from `src/processors/post/range.ts` combined with data from `dataAtom`.
+
+**Which existing data it uses:**
+It parses the string in `extra.range` to extract the min/max thresholds. For the most recent values (`labels[]` slice), it computes how close a biomarker value is to its boundary. It uses the `optimality` boolean array to filter out markers that are *already* out of range, focusing only on those that are nominally "in range" but dangerously close to the limit (e.g., > 95% of the distance from the median to the boundary).
+
+**Axes:**
+- X-axis: Time (the most recent 3-5 measurements from `labels[]`).
+- Y-axis: Biomarker Name (from `visibleDataAtom`).
+
+**What it reveals that current charts don't:**
+The current charts show what *has already broken* (values outside the shaded `markArea`). This heatmap acts as a predictive early-warning system. It reveals which physiological markers are rapidly degrading and about to cross into abnormal territory, allowing for preventative intervention *before* a clinical out-of-range flag is triggered.
+
+**Where it would live:**
+New `src/layout/ImminentWarningHeatmap.tsx`.
+
+**Trigger / entry point:**
+A "Predictive Warnings" widget on the main dashboard that appears automatically if any markers meet the >95% boundary proximity threshold.
+
+---
+
+**Proposal: Measurement Lag Timeline (Horizontal Bar Chart)**
+
+**ECharts type:** `bar` (horizontal)
+
+**Codebase citation:**
+Uses `labels[]` from `src/data/index.ts` and the array index null-checking against `values[]` from `dataAtom`.
+
+**Which existing data it uses:**
+For each biomarker in `nonInferredDataAtom` or `visibleDataAtom`, it iterates backward through the values array to find the index of the most recent non-null measurement. It then compares this index's corresponding date in `labels[]` with the most recent global date in `labels[]` (or current date).
+
+**Axes:**
+- X-axis: Days (or Months) since last measurement.
+- Y-axis: Biomarker Name (or grouped by `tag` from `src/processors/post/tag.ts`).
+
+**What it reveals that current charts don't:**
+It visualizes data staleness. When looking at a multi-axis chart or radar, users might assume all data points represent current health. This chart explicitly exposes the "lag" – showing, for instance, that while Lipid markers were tested a week ago, Hormone markers haven't been measured in 18 months, highlighting critical gaps in the user's testing regimen.
+
+**Where it would live:**
+New `src/layout/MeasurementLagTimeline.tsx`.
+
+**Trigger / entry point:**
+A "Data Freshness" toggle or a warning badge near the global date filter that expands into this chart.
