@@ -619,6 +619,53 @@ A new "System View" toggle in the main layout that switches from plotting indivi
 
 ---
 
+**Proposal: Unified Z-Score Fluctuation Line Chart**
+
+**ECharts type:** `line`
+
+**Codebase citation:**
+Uses `BioMarker[1]` (values array) from `nonInferredDataAtom`.
+
+**Which existing data it uses:**
+Computes the historical mean and standard deviation for each selected biomarker's `values[]`, then transforms each non-null measurement into a Z-score `(value - mean) / stdDev`.
+
+**Axes:**
+- X-axis: Time (dates from `labels[]`)
+- Y-axis: Standard Deviations from Mean (Z-score, typically -3 to +3).
+
+**What it reveals that current charts don't:**
+The current `Chart.tsx` and `ScatterChart.tsx` suffer from visual clutter when plotting 3+ biomarkers because each requires its own independent Y-axis (creating 4+ axes on screen). By normalizing all biomarkers to a unified Z-score, this chart can plot 10+ biomarkers on a single Y-axis, instantly revealing which biomarker experienced the most extreme relative deviation at any point in time, without axis scaling confusion.
+
+**Where it would live:**
+New `src/layout/ZScoreLineChart.tsx`.
+
+**Trigger / entry point:**
+A "Normalize Scales (Z-Score)" toggle switch within the existing multi-selection `Chart.tsx` view.
+
+---
+
+**Proposal: Longitudinal Rank-Percentile Area Chart**
+
+**ECharts type:** `line` (with `areaStyle`)
+
+**Codebase citation:**
+Uses `rankedDataMapAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+Reads the `Float64Array` rank values from `rankedDataMapAtom` for selected biomarkers. It converts the absolute rank into a rank-percentile (0% to 100%) based on the number of non-null measurements for that marker.
+
+**Axes:**
+- X-axis: Time (dates from `labels[]`)
+- Y-axis: Rank Percentile (0 to 100)
+
+**What it reveals that current charts don't:**
+Raw measurements can be noisy or trend linearly due to aging. By plotting the *rank percentile* over time, the user can see if a biomarker is consistently staying in their personal "top quartile" (e.g., historically high) or if a recent reading represents a sudden drop to their personal "bottom quartile", regardless of the absolute unit or normal reference range. This personalizes the baseline comparison.
+
+**Where it would live:**
+New `src/layout/RankPercentileChart.tsx`.
+
+**Trigger / entry point:**
+A "View Personal Rank History" toggle in the single-biomarker detail modal, swapping the raw value `LineChart` for this rank-based view.
 **Proposal: Imminent Out-of-Range Warning Heatmap**
 
 **ECharts type:** `heatmap`
