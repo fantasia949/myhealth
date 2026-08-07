@@ -203,7 +203,10 @@ export default memo(({ keys }: ChartProps) => {
     // Guard against regression transform crash on <2 points
     if (mappedScatterData.length >= 2) {
       const regRes = (ecStat as any).regression('linear', mappedScatterData)
+      // Replace x first (global, but before y's key is injected, so no self-corruption) then y.
       regressionExpression = regRes.expression
+        .replace(/x/g, `× ${keys[0]}`)
+        .replace(/^y\s*=/, `${keys[1]} = `)
 
       dataset.push({
         transform: {

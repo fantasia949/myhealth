@@ -616,3 +616,54 @@ New `src/layout/SystemOptimalityDotPlot.tsx`, rendered in the main view alongsid
 
 **Trigger / entry point:**
 A new "System View" toggle in the main layout that switches from plotting individual biomarkers to aggregate tag performance.
+
+---
+
+**Proposal: Target-vs-System Optimality Scatter**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` and tag groups `1-RBC`, `2-Metabolic`, etc. from `src/processors/post/tag.ts`.
+
+**Which existing data it uses:**
+It calculates the percentage of biomarkers within the same tag group (excluding the target marker) that are within their optimal range at every timestamp `labels[]`. For example, if there are 10 Metabolic markers and 8 are optimal at time T, the score is 80%. These percentages are plotted against the raw value of the target biomarker.
+
+**Axes:**
+- X-axis: Target Biomarker Value
+- Y-axis: Aggregated Tag Group Optimal Percentage (0-100%)
+
+**What it reveals that current charts don't:**
+It provides a cross-sectional view of how a single biomarker's performance correlates with the overall stability of its physiological system. While the current `ScatterChart` correlates two specific markers, this visualizes whether a marker going out of range is an isolated event or indicative of a broader systemic failure.
+
+**Where it would live:**
+New `src/layout/SystemOptimalityScatter.tsx`.
+
+**Trigger / entry point:**
+A "Compare with System" button within a specific Biomarker's detail modal.
+
+---
+
+**Proposal: Longitudinal Inferred Component Drift Overlay**
+
+**ECharts type:** `line`
+
+**Codebase citation:**
+Uses the `inferred` boolean and `originValues` from `BioMarker[3]` as well as values from `dataAtom`.
+
+**Which existing data it uses:**
+This chart overlays the time-series values of an inferred biomarker (e.g., a risk score) alongside the standardized values of its root `originValues` (the underlying measured markers).
+
+**Axes:**
+- X-axis: Time (dates from `labels[]`)
+- Y-axis (Left): Inferred Biomarker Value
+- Y-axis (Right): Standardized Origin Biomarker Values
+
+**What it reveals that current charts don't:**
+It helps identify which underlying measurement is driving the change in a calculated metric over time. Current line charts only show the trajectory of the inferred metric; this overlay unpacks the metric, revealing whether a spike is due to one specific origin marker worsening while others remain stable.
+
+**Where it would live:**
+New `src/layout/InferredComponentDriftChart.tsx`.
+
+**Trigger / entry point:**
+An "Unpack Inferred Metric" toggle in the Table Row Expansion UI for inferred biomarkers.
