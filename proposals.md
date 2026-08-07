@@ -619,6 +619,53 @@ A new "System View" toggle in the main layout that switches from plotting indivi
 
 ---
 
+**Proposal: Baseline Deviation Histogram**
+
+**ECharts type:** `histogram` (via `echarts-stat`)
+
+**Codebase citation:**
+Uses `extra.range` parsed values from `src/processors/post/range.ts` and `nonInferredDataAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+It calculates the distance of each measurement in `nonInferredDataAtom` from the exact center (median) of its defined `extra.range`. It aggregates these deviations across all timepoints for a single selected biomarker to show the distribution of deviations from the optimal baseline.
+
+**Axes:**
+- X-axis: Deviation from Optimal Center (e.g. standard units)
+- Y-axis: Frequency count (number of measurements at that deviation)
+
+**What it reveals that current charts don't:**
+Instead of plotting time linearly, this visualizes the structural "skew" of a user's health. A bell curve centered at 0 means the user generally hovers right in the middle of the optimal range. A curve skewed heavily right or left shows a chronic physiological bias that timeline charts often obscure due to visual noise.
+
+**Where it would live:**
+New `src/layout/BaselineDeviationHistogram.tsx`.
+
+**Trigger / entry point:**
+A "Deviation Distribution" sub-tab in the Table Row Expansion UI, alongside the existing BoxplotChart.
+
+---
+
+**Proposal: Multi-Tag Out-of-Range Frequency Bar Chart**
+
+**ECharts type:** `bar`
+
+**Codebase citation:**
+Uses `extra.optimality[]` from `src/processors/post/range.ts` and `extra.tag[]` groupings (e.g., `1-RBC`, `2-Metabolic`) from `src/processors/post/tag.ts`.
+
+**Which existing data it uses:**
+It aggregates the total count of `true` values in the `extra.optimality[]` array for all biomarkers within a given tag over the entire dataset timeline. It produces a sum of total anomaly events per biological system.
+
+**Axes:**
+- X-axis: System Tags (e.g., RBC, Metabolic, Liver)
+- Y-axis: Total Out-of-Range Event Count
+
+**What it reveals that current charts don't:**
+Provides a long-term "health debt" scoreboard. The current Radar Chart shows a single snapshot in time. This bar chart calculates cumulative stress across years, quickly showing whether the user's Metabolic system has generated 50x more historical anomalies than their Lipid system, guiding focus for long-term lifestyle interventions.
+
+**Where it would live:**
+New `src/layout/CumulativeSystemStressBar.tsx`.
+
+**Trigger / entry point:**
+A "Historical System Load" widget on the main dashboard Overview tab.
 **Proposal: Longitudinal Measurement Delta Bar Chart**
 
 **ECharts type:** `bar` (waterfall / up-down colored bars)
