@@ -616,3 +616,53 @@ New `src/layout/SystemOptimalityDotPlot.tsx`, rendered in the main view alongsid
 
 **Trigger / entry point:**
 A new "System View" toggle in the main layout that switches from plotting individual biomarkers to aggregate tag performance.
+
+---
+
+**Proposal: Imminent Out-of-Range Warning Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.optimality[]` and `extra.range` (e.g. `'3.9 - 6.4'`) from `src/processors/post/range.ts` combined with data from `dataAtom`.
+
+**Which existing data it uses:**
+It parses the string in `extra.range` to extract the min/max thresholds. For the most recent values (`labels[]` slice), it computes how close a biomarker value is to its boundary. It uses the `optimality` boolean array to filter out markers that are *already* out of range, focusing only on those that are nominally "in range" but dangerously close to the limit (e.g., > 95% of the distance from the median to the boundary).
+
+**Axes:**
+- X-axis: Time (the most recent 3-5 measurements from `labels[]`).
+- Y-axis: Biomarker Name (from `visibleDataAtom`).
+
+**What it reveals that current charts don't:**
+The current charts show what *has already broken* (values outside the shaded `markArea`). This heatmap acts as a predictive early-warning system. It reveals which physiological markers are rapidly degrading and about to cross into abnormal territory, allowing for preventative intervention *before* a clinical out-of-range flag is triggered.
+
+**Where it would live:**
+New `src/layout/ImminentWarningHeatmap.tsx`.
+
+**Trigger / entry point:**
+A "Predictive Warnings" widget on the main dashboard that appears automatically if any markers meet the >95% boundary proximity threshold.
+
+---
+
+**Proposal: Measurement Lag Timeline (Horizontal Bar Chart)**
+
+**ECharts type:** `bar` (horizontal)
+
+**Codebase citation:**
+Uses `labels[]` from `src/data/index.ts` and the array index null-checking against `values[]` from `dataAtom`.
+
+**Which existing data it uses:**
+For each biomarker in `nonInferredDataAtom` or `visibleDataAtom`, it iterates backward through the values array to find the index of the most recent non-null measurement. It then compares this index's corresponding date in `labels[]` with the most recent global date in `labels[]` (or current date).
+
+**Axes:**
+- X-axis: Days (or Months) since last measurement.
+- Y-axis: Biomarker Name (or grouped by `tag` from `src/processors/post/tag.ts`).
+
+**What it reveals that current charts don't:**
+It visualizes data staleness. When looking at a multi-axis chart or radar, users might assume all data points represent current health. This chart explicitly exposes the "lag" – showing, for instance, that while Lipid markers were tested a week ago, Hormone markers haven't been measured in 18 months, highlighting critical gaps in the user's testing regimen.
+
+**Where it would live:**
+New `src/layout/MeasurementLagTimeline.tsx`.
+
+**Trigger / entry point:**
+A "Data Freshness" toggle or a warning badge near the global date filter that expands into this chart.
