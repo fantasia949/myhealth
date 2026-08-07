@@ -27,6 +27,13 @@ export const CHART_PALETTE = [
   '#2559B7',
 ]
 
+const getRegressionTooltip = (expression: string) => {
+  if (expression) {
+    return `<strong>Regression Trend</strong><br/>${expression}`
+  }
+  return '<strong>Regression Trend</strong>'
+}
+
 const echartsOptions: EChartsOption & Pick<EChartsReactProps, 'style' | 'theme'> = {
   style: { height: 400, maxWidth: 800 },
   theme: 'dark',
@@ -223,12 +230,7 @@ export default memo(({ keys }: ChartProps) => {
         ...seriesArr[1],
         datasetIndex: 1,
         tooltip: {
-          formatter: () => {
-            if (regressionExpression) {
-              return `<strong>Regression Trend</strong><br/>${regressionExpression}`
-            }
-            return '<strong>Regression Trend</strong>'
-          },
+          formatter: () => getRegressionTooltip(regressionExpression),
         },
       })
     }
@@ -269,10 +271,7 @@ export default memo(({ keys }: ChartProps) => {
           }
           // Scan 2 Fix: Fallback for regression tooltip (regression line is rendered by 'line' series type)
           // `regressionExpression` is outside the closure. ecStat formulaOn: 'end' does not reliably expose the equation at `params.value[2]` for line points during hover.
-          if (regressionExpression) {
-            return `<strong>Regression Trend</strong><br/>${regressionExpression}`
-          }
-          return '<strong>Regression Trend</strong>'
+          return getRegressionTooltip(regressionExpression)
         },
       },
       dataset,
