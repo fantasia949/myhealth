@@ -807,3 +807,53 @@ New `src/layout/MeasurementLagTimeline.tsx`.
 
 **Trigger / entry point:**
 A "Data Freshness" toggle or a warning badge near the global date filter that expands into this chart.
+
+---
+
+**Proposal: System-Wide Anomaly Correlation Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.optimality[]` from `src/processors/post/range.ts` and `extra.tag[]` groupings (e.g. `3-Liver`, `2-Metabolic`) from `src/processors/post/tag.ts`, available via `dataAtom`.
+
+**Which existing data it uses:**
+It calculates the pairwise correlation (or co-occurrence probability) of an anomaly in one system tag group (at least one member having `extra.optimality === true`) occurring simultaneously with an anomaly in another system tag group at the same index in `labels[]`.
+
+**Axes:**
+- X-axis: System Tags (e.g., RBC, Metabolic, Liver)
+- Y-axis: System Tags (e.g., RBC, Metabolic, Liver)
+
+**What it reveals that current charts don't:**
+While the current scatter plots show 1-to-1 correlations of absolute values, this heatmap reveals *systemic cascading failures*. It can show, for example, that when the user's Metabolic system is out of range, there is an 85% probability their Liver system is also out of range at the exact same time, highlighting dependent physiological stressors.
+
+**Where it would live:**
+New `src/layout/SystemAnomalyCorrelationHeatmap.tsx`.
+
+**Trigger / entry point:**
+A "System Interdependencies" tab on the main dashboard, alongside the Radar Chart.
+
+---
+
+**Proposal: Tag-Group Reversion-to-Mean Funnel**
+
+**ECharts type:** `funnel`
+
+**Codebase citation:**
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` combined with data from `dataAtom` and `labels[]`.
+
+**Which existing data it uses:**
+For a given tag group (e.g., `5-Hormone`), it counts total measurements across all its biomarkers. It tracks the number of times any marker falls out-of-range (`optimality[] === true`). Crucially, it then checks the *subsequent* valid measurement for that same marker to see if it reverted to optimal (`optimality[] === false`) or remained chronic.
+
+**Axes:**
+- No standard axes for Funnel.
+- Stages: Total Measurements -> Out-of-Range Events -> Recovered on Next Test -> Chronic (Failed to Recover).
+
+**What it reveals that current charts don't:**
+Shows resilience and recovery momentum. A line chart only shows the trajectory; this funnel quantifies the user's biological bounce-back rate for a specific system. If 90% of out-of-range metabolic markers recover by the next test, the system is resilient. If only 10% recover, the system is chronically stuck.
+
+**Where it would live:**
+New `src/layout/SystemResilienceFunnel.tsx`.
+
+**Trigger / entry point:**
+A "View Resilience Metrics" action when hovering over or selecting a specific tag group in the main Tag Navigation bar.
