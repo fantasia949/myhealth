@@ -216,6 +216,7 @@ export default memo(({ keys }: ChartProps) => {
   return (
     <ChartProvider data={chartData} echartsOptions={echartsOptions}>
       <Line
+        // @ts-expect-error - @echarts-readymade/line types require RefObject but callback ref is perfectly valid in React
         ref={handleRef}
         // Note: here you need pass context down
         context={ChartContext}
