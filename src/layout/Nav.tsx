@@ -373,9 +373,10 @@ export default React.memo<NavProps>(
 
               <button
                 type="button"
-                className="lg:hidden p-2 text-gray-400 hover:text-white focus:outline-none rounded-lg hover:bg-gray-800"
+                className="lg:hidden p-2 text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-lg hover:bg-gray-800"
                 onClick={() => setShow(true)}
                 aria-label="Open menu"
+                title="Open menu"
               >
                 <Bars3Icon className="h-6 w-6" aria-hidden="true" />
               </button>
@@ -834,10 +835,11 @@ export default React.memo<NavProps>(
                             </Dialog.Title>
                             <button
                               type="button"
-                              className="rounded-md text-gray-400 hover:text-white focus:outline-none"
+                              className="rounded-md text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                               onClick={() => setShow(false)}
+                              aria-label="Close menu"
+                              title="Close menu"
                             >
-                              <span className="sr-only">Close panel</span>
                               <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                             </button>
                           </div>
