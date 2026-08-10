@@ -1,4 +1,4 @@
-import { memo, useMemo, useCallback, useState, useEffect, ElementRef } from 'react'
+import { memo, useMemo, useRef, useEffect, ElementRef } from 'react'
 import { useAtomValue } from 'jotai'
 import { dataMapAtom } from '../atom/dataAtom'
 import { ChartProvider, ChartContext } from '@echarts-readymade/core'
@@ -195,15 +195,12 @@ export default memo(({ keys }: ChartProps) => {
     return result
   }, [dataMap, keys, valueList])
 
-  const [chartInstance, setChartInstance] = useState<echarts.ECharts | null>(null)
-
-  const handleRef = useCallback((node: ElementRef<typeof Line> | null) => {
-    setChartInstance(node?.getEchartsInstance() || null)
-  }, [])
+  const chartRef = useRef<ElementRef<typeof Line>>(null)
 
   useEffect(() => {
+    const chartInstance = chartRef.current?.getEchartsInstance() || null
     updateChartOption(chartInstance, keys, yAxis)
-  }, [keys, yAxis, chartInstance]) // chartInstance state is reactive. ref.current wasn't used here directly, but the logic relies on chartInstance.
+  }, [keys, yAxis])
 
   if (keys.length === 0) {
     return (
@@ -216,7 +213,7 @@ export default memo(({ keys }: ChartProps) => {
   return (
     <ChartProvider data={chartData} echartsOptions={echartsOptions}>
       <Line
-        ref={handleRef}
+        ref={chartRef}
         // Note: here you need pass context down
         context={ChartContext}
         dimension={dimension}
