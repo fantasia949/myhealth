@@ -87,6 +87,11 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
     }
     const windowLabelsDynamic: string[] = []
 
+    const getWindowEndIdx = (index: number) =>
+      index === numWindowsDynamic - 1
+        ? count
+        : Math.floor(((index + 1) * count) / numWindowsDynamic)
+
     const windowedRanksMap = new Map<string, (number | string | null)[]>()
     // ⚡ Bolt Optimization: Avoid pre-allocating 'holey' arrays for generic types.
     for (let i = 0; i < topCorrelations.length; i++) {
@@ -108,8 +113,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
     for (let w = 0; w < numWindowsDynamic; w++) {
       // Use floating point division to distribute elements evenly across windows
       const startIdxInValid = Math.floor((w * count) / numWindowsDynamic)
-      const endIdxInValid =
-        w === numWindowsDynamic - 1 ? count : Math.floor(((w + 1) * count) / numWindowsDynamic)
+      const endIdxInValid = getWindowEndIdx(w)
 
       const windowValidIndices = validIndices.subarray(startIdxInValid, endIdxInValid)
       const windowCount = windowValidIndices.length
@@ -229,10 +233,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
 
 
     const getWindowLabelIdx = (index: number) => {
-      const endIdx =
-        index === numWindowsDynamic - 1
-          ? count
-          : Math.floor(((index + 1) * count) / numWindowsDynamic)
+      const endIdx = getWindowEndIdx(index)
       const startIdx = Math.floor((index * count) / numWindowsDynamic)
       return validIndices[endIdx - 1] ?? validIndices[startIdx]
     }
