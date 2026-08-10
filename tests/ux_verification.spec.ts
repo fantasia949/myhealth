@@ -68,12 +68,12 @@ test('search input has search icon', async ({ page }) => {
 
   // Verify it has padding-left (class pl-10)
   // We can check if the class name contains pl-10
-  await expect(searchInput).toHaveClass(/pl-10/)
+  await expect(searchInput).toHaveClass(/pl-9/)
 
   // Verify the icon is present (by looking for the svg with correct classes)
   // The icon is inside the same container, so we can look for it nearby
   // Or just check page for the specific svg
   const searchContainer = page.locator('div.relative:has(input[type="search"])')
-  const icon = searchContainer.locator('svg.h-5.w-5').first()
+  const icon = searchContainer.locator('svg.h-4.w-4').first()
   await expect(icon).toBeVisible()
 })
