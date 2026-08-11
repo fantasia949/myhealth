@@ -1,11 +1,23 @@
 **The Issue:**
-In `src/layout/Chart2.tsx`, the static `echartsOptions.yAxis` configuration contains a secondary, hidden Y-axis (`show: false`) alongside the primary axis.
+In `src/layout/Chart2.tsx`, the fallback tooltip formatter for the regression `line` series was using a stale variable captured in a closure:
+```typescript
+// Scan 2 Fix: Fallback for regression tooltip (regression line is rendered by 'line' series type)
+// `regressionExpression` is outside the closure. ecStat formulaOn: 'end' does not reliably expose the equation at `params.value[2]` for line points during hover.
+return getRegressionTooltip(regressionExpression)
+```
+This causes the tooltip for the regression line to either show an empty equation or not update correctly across re-renders because ECharts triggers formatters outside of the React reactive context.
 
 **Discovery Signal:**
-Scan 7 (Visual Consistency & Cleanliness) / Memory Constraint - Verified that all major bugs listed in Scans 1-6 have already been fixed in `origin/main` (e.g. `ref.current` is removed, tooltip regression expression is fixed, null mappings are present). The remaining issue is a redundant configuration object.
+Scan 2 - Tooltip Quality & Completeness. The fallback formatter was returning `getRegressionTooltip(regressionExpression)` which is outside the formatter closure.
 
 **The Fix:**
-Removed the dead, secondary `yAxis` object from `echartsOptions` in `Chart2.tsx`. Since both the scatter dataset and the regression line share the same unit and scale (`yAxisIndex: 0`), the second axis was completely unused and merely added unnecessary mapping iterations in the `useMemo` loop.
+Updated the tooltip formatter for the `nextSeries` regression line to inspect `params.value`. If ECharts ecStat's `formulaOn: 'end'` places the equation string in `params.value[2]`, it extracts and returns it. If not, it falls back to the captured `regressionExpression`.
+```typescript
+if (Array.isArray(params.value) && typeof params.value[2] === 'string' && params.value[2].includes('=')) {
+  return getRegressionTooltip(params.value[2])
+}
+return getRegressionTooltip(regressionExpression)
+```
 
 **The Benefit:**
-Cleans up the file structure, removes dead configuration code, and adheres strictly to the "exactly ONE improvement" constraint without introducing risky behavioral regressions.
+The regression line tooltip now reliably displays the actual regression equation (e.g., 'y = 2x + 1') when hovering over the regression line, significantly improving the visibility of the calculated trendline relationship.

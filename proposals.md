@@ -904,3 +904,53 @@ New `src/layout/RollingCorrelationChart.tsx`.
 
 **Trigger / entry point:**
 A "View Temporal Stability" action button in the Correlation modal when exactly two biomarkers are selected or when inspecting a specific edge in the Chord Diagram.
+
+---
+
+**Proposal: Origin Value Reversion Scatter Plot**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+Uses `extra.originValues` and `extra.originUnit` from `src/processors/enrich/inferData.ts`, available on `BioMarker[3]` via `dataMapAtom`.
+
+**Which existing data it uses:**
+It pairs the pre-unit-conversion `originValues` against the finalized, unit-converted values for inferred markers (where `inferred === true`).
+
+**Axes:**
+- X-axis: Original Lab Value (using `originUnit`)
+- Y-axis: Converted Standard Value (using `BioMarker[2]`)
+
+**What it reveals that current charts don't:**
+It visualizes the effect of the mathematical transformations applied during data processing, allowing advanced users or developers to spot non-linear scaling issues or unit conversion anomalies that might artificially compress or stretch the visual representation of their health data.
+
+**Where it would live:**
+New `src/layout/OriginConversionScatter.tsx`.
+
+**Trigger / entry point:**
+A developer-mode toggle or "View Raw Transformation" action in the single-biomarker detail view for inferred markers.
+
+---
+
+**Proposal: Optimality Array Matrix**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses the pre-computed `extra.optimality[]` boolean array from `src/processors/post/range.ts`, index-aligned with `labels[]` from `src/data/index.ts`.
+
+**Which existing data it uses:**
+It takes the boolean `optimality[]` arrays for all biomarkers in a selected tag group (via `tagAtom`).
+
+**Axes:**
+- X-axis: Time (`labels[]`)
+- Y-axis: Biomarker Name (members of the active `tagAtom`)
+
+**What it reveals that current charts don't:**
+Provides an instant, high-density boolean view (red/green) of an entire biological system over time. Instead of looking at absolute values, it distills the data down to "is it optimal or not?", making it trivial to see if a system is stabilizing (more green over time) or degrading (more red over time) across all its constituent markers simultaneously.
+
+**Where it would live:**
+New `src/layout/SystemOptimalityMatrix.tsx`.
+
+**Trigger / entry point:**
+A "View Matrix" button on the tag group overview panel.

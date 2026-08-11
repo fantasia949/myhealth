@@ -138,7 +138,7 @@ export default (entries: BioMarker[]): BioMarker[] => {
             const arr = entryMap.get(name)
             for (let i = 0; i < periods; i++) {
                 if (values[i] !== null) {
-                    arr[i] = values[i] as any
+                    arr![i] = values[i] as any
                 }
             }
         } else {
