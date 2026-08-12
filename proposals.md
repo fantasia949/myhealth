@@ -904,3 +904,53 @@ New `src/layout/RollingCorrelationChart.tsx`.
 
 **Trigger / entry point:**
 A "View Temporal Stability" action button in the Correlation modal when exactly two biomarkers are selected or when inspecting a specific edge in the Chord Diagram.
+
+---
+
+**Proposal: Cross-Tag Optimality Balance (Dumbbell Plot)**
+
+**ECharts type:** `scatter` (styled as a dumbbell plot with a connecting line)
+
+**Codebase citation:**
+Uses `extra.optimality[]` from `src/processors/post/range.ts` and `extra.tag[]` from `src/processors/post/tag.ts`.
+
+**Which existing data it uses:**
+It calculates the percentage of out-of-range markers (`optimality: true`) per tag group for the most recent reading, and compares it to the historically worst reading for that same tag group over time (derived from `dataAtom` and `labels[]`).
+
+**Axes:**
+- X-axis: Percentage Out of Range (0 to 100)
+- Y-axis: System Tag Name (e.g., `1-RBC`, `2-Metabolic`)
+
+**What it reveals that current charts don't:**
+Shows which physiological system is currently struggling the most, and how far it is from its historical worst, providing context on system recovery versus decline.
+
+**Where it would live:**
+New `src/layout/OptimalityDumbbellChart.tsx`.
+
+**Trigger / entry point:**
+A "System Balance" view on the main Dashboard.
+
+---
+
+**Proposal: Predictive Trend-to-Boundary Line Chart**
+
+**ECharts type:** `line` (with `markArea` and `markLine`)
+
+**Codebase citation:**
+Uses `extra.range` from `src/processors/post/range.ts` and `ecStat.regression` from `echarts-stat`.
+
+**Which existing data it uses:**
+Extracts min/max boundaries from `extra.range`. Plots a single biomarker's historical values and extends a linear regression line into the future (extrapolating the X-axis) to predict when the value will intersect the boundary.
+
+**Axes:**
+- X-axis: Time (including future dates extrapolated from `labels[]`)
+- Y-axis: Biomarker Value
+
+**What it reveals that current charts don't:**
+Provides a predictive timeline of when a degrading biomarker will officially cross into "abnormal" territory, allowing proactive intervention before it hits the critical limit.
+
+**Where it would live:**
+New `src/layout/PredictiveTrendChart.tsx`.
+
+**Trigger / entry point:**
+A "Predictive Trend" toggle on the single-biomarker `LineChart` view (e.g., inside the Table Row Expansion).
