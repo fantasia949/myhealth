@@ -172,6 +172,8 @@ const TableRow = React.memo(
     const { name, values, visibleValues, visibleOptimality, visibleOriginValues, unit, extra } =
       entry
     const safeNameId = String(name).replace(/[^a-zA-Z0-9-_]/g, '-')
+    const isExcludedFromCorr = CORRELATION_EXCLUDED_BIOMARKERS.includes(name)
+    const isExcludedFromSuppCorr = SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS.includes(name)
 
     let displayUnit = ''
     if (typeof unit === 'string') {
@@ -225,16 +227,21 @@ const TableRow = React.memo(
               </button>
               <button
                 type="button"
-                disabled={CORRELATION_EXCLUDED_BIOMARKERS.includes(name)}
+                disabled={isExcludedFromCorr}
                 onClick={() => onCorrelation(name)}
                 title={
-                  CORRELATION_EXCLUDED_BIOMARKERS.includes(name)
+                  isExcludedFromCorr
                     ? `${name} correlation is excluded`
                     : `Correlate ${name} with other biomarkers`
                 }
-                className={`focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1 ${CORRELATION_EXCLUDED_BIOMARKERS.includes(name) ? 'text-gray-600 cursor-not-allowed opacity-50' : 'hover:text-blue-400'}`}
+                className={cn(
+                  'focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1',
+                  isExcludedFromCorr
+                    ? 'text-gray-600 cursor-not-allowed opacity-50'
+                    : 'hover:text-blue-400',
+                )}
                 aria-label={
-                  CORRELATION_EXCLUDED_BIOMARKERS.includes(name)
+                  isExcludedFromCorr
                     ? `${name} correlation is excluded`
                     : `Correlate ${name} with other biomarkers`
                 }
@@ -243,16 +250,21 @@ const TableRow = React.memo(
               </button>
               <button
                 type="button"
-                disabled={SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS.includes(name)}
+                disabled={isExcludedFromSuppCorr}
                 onClick={() => setCorrelationBiomarker(name)}
                 title={
-                  SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS.includes(name)
+                  isExcludedFromSuppCorr
                     ? `${name} correlation is excluded`
                     : `Correlate ${name} with supplements`
                 }
-                className={`focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1 ${SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS.includes(name) ? 'text-gray-600 cursor-not-allowed opacity-50' : 'hover:text-blue-400'}`}
+                className={cn(
+                  'focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1',
+                  isExcludedFromSuppCorr
+                    ? 'text-gray-600 cursor-not-allowed opacity-50'
+                    : 'hover:text-blue-400',
+                )}
                 aria-label={
-                  SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS.includes(name)
+                  isExcludedFromSuppCorr
                     ? `${name} correlation is excluded`
                     : `Correlate ${name} with supplements`
                 }
