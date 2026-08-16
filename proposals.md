@@ -1046,3 +1046,52 @@ New `src/layout/MeasurementCadenceTimeline.tsx`.
 
 **Trigger / entry point:**
 Displayed as a global "Data Density Map" widget in the top-level settings or data overview dashboard.
+
+**Proposal: Biomarker Range Width vs Volatility Scatter**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+Uses `extra.range` from `src/processors/post/range.ts` (which defines strict limits like `"3.9 - 6.4"`) and historical `values[]` from `nonInferredDataAtom`.
+
+**Which existing data it uses:**
+It parses the minimum and maximum boundaries from the `extra.range` string to calculate the "Optimal Range Width". It then computes the historical standard deviation of all non-null `values[]` for that same biomarker.
+
+**Axes:**
+- X-axis: Optimal Range Width (normalized)
+- Y-axis: Historical Standard Deviation (Volatility)
+
+**What it reveals that current charts don't:**
+It identifies "hyper-sensitive" biomarkers (narrow optimal range but high personal volatility) versus "stable" biomarkers. This guides the user on which specific physiological markers are the most erratic relative to their safety boundaries, which standard time-series lines fail to aggregate effectively.
+
+**Where it would live:**
+New `src/layout/RangeVolatilityScatter.tsx`.
+
+**Trigger / entry point:**
+Added to the "Analyze" dropdown menu in `Nav.tsx` as "Range Sensitivity Analysis".
+
+---
+
+**Proposal: Longitudinal PhenoAge Recipe Drift Scatter**
+
+**ECharts type:** `scatter` (with varying symbol size)
+
+**Codebase citation:**
+Uses `inferred: true` and the `PhenoAge1` recipe definition from `src/processors/enrich/inferData.ts`.
+
+**Which existing data it uses:**
+It takes the 9 component biomarkers required for `PhenoAge1` (Albumin, Creatinin, Glucose, CRP-hs, etc.) from `dataMapAtom` and extracts their `values[]` arrays along with the final inferred `PhenoAge1` output values over time.
+
+**Axes:**
+- X-axis: Time (from `labels[]`)
+- Y-axis: Component Biomarker Value (scaled/normalized)
+- Symbol Size/Color: Delta of total PhenoAge from baseline
+
+**What it reveals that current charts don't:**
+By overlaying the normalized values of the 9 specific PhenoAge ingredients over time, with the point size/color mapped to the final biological age, it reveals exactly which underlying biomarker is dragging the user's biological age up or down over long periods, without needing to manually cross-reference 9 separate line charts.
+
+**Where it would live:**
+New `src/layout/PhenoAgeDriftScatter.tsx`.
+
+**Trigger / entry point:**
+Activated by clicking on the `PhenoAge1` line in the main `Chart.tsx` view, acting as an advanced drill-down modal for inferred composite metrics.
