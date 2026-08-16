@@ -137,8 +137,8 @@ export default memo(({ keys }: ChartProps) => {
   const mappedScatterData = useMemo(() => {
     // Optimization: Replace O(K*N) chained .map(), .reduce(), and .filter() array allocations
     // with a single-pass O(N) loop to eliminate closure creation and garbage collection overhead.
-    const entry0 = keys.length > 0 ? dataMap.get(keys[0]) : undefined
-    const entry1 = keys.length > 1 ? dataMap.get(keys[1]) : undefined
+    const entry0 = dataMap.get(keys[0])
+    const entry1 = dataMap.get(keys[1])
 
     if (entry0 && entry1) {
       const values0 = entry0[1]
