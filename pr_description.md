@@ -1,11 +1,11 @@
 **The Issue:**
-`src/layout/Chart2.tsx` line 140–141 contains unnecessary array length checks before accessing `keys[0]` and `keys[1]`. The bounds checks are noisy and redundant because passing `undefined` to `Map.prototype.get()` is perfectly safe and handled natively.
+In `src/layout/Chart2.tsx`, the static `echartsOptions.yAxis` configuration contains a secondary, hidden Y-axis (`show: false`) alongside the primary axis.
 
-**The Discovery Signal:**
-Scan A & C: `src/layout/Chart2.tsx` lines 140-141. The ternary checks `keys.length > 0` before doing `dataMap.get(keys[0])`. This violates the repo's explicitly defined standard: "JavaScript/TypeScript Pattern: Passing `undefined` to `Map.prototype.get()` is inherently safe and simply returns `undefined`. Do not introduce redundant array length checks (e.g., `keys.length > 0`) merely to prevent passing `undefined` to a Map, as this is considered a useless no-op and will fail code review."
+**Discovery Signal:**
+Scan 7 (Visual Consistency & Cleanliness) / Memory Constraint - Verified that all major bugs listed in Scans 1-6 have already been fixed in `origin/main` (e.g. `ref.current` is removed, tooltip regression expression is fixed, null mappings are present). The remaining issue is a redundant configuration object.
 
 **The Fix:**
-I removed the ternary bounds checks (`keys.length > 0 ? ... : undefined`) and simplified the assignments directly to `const entry0 = dataMap.get(keys[0])`.
+Removed the dead, secondary `yAxis` object from `echartsOptions` in `Chart2.tsx`. Since both the scatter dataset and the regression line share the same unit and scale (`yAxisIndex: 0`), the second axis was completely unused and merely added unnecessary mapping iterations in the `useMemo` loop.
 
 **The Benefit:**
-This removes a layer of visual noise and aligns the code with the repository's documented patterns, making the assignments much easier for a maintainer to parse linearly.
+Cleans up the file structure, removes dead configuration code, and adheres strictly to the "exactly ONE improvement" constraint without introducing risky behavioral regressions.
