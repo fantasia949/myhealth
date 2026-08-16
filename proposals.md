@@ -952,3 +952,50 @@ New `src/layout/MeasurementLatencyCalendar.tsx`.
 
 **Trigger / entry point:**
 A "Testing History" modal accessible from the global date filter or user profile menu.
+**Proposal: System Resilience Reversion Funnel**
+
+**ECharts type:** `funnel`
+
+**Codebase citation:**
+Uses `extra.tag[]` assigned by `src/processors/post/tag.ts` and `extra.optimality[]` pre-computed by `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+For a specific user-selected tag group (e.g., `2-Metabolic`), it calculates the conversion rate through four stages using data from `dataAtom`:
+1. Total valid measurements across all biomarkers in the tag group.
+2. Measurements that fell out-of-range (`extra.optimality[] === true`).
+3. Out-of-range measurements that successfully recovered to optimal on the *very next* test date (evaluating the next non-null index in `values[]`).
+4. Out-of-range measurements that remained chronic (did not recover on the next test).
+
+**What it reveals that current charts don't:**
+Quantifies systemic biological resilience. Rather than just showing the static historical number of anomalies (like a bar chart), this funnel visualizes the *recovery bounce-back rate*. A steep funnel indicates a highly resilient system that corrects itself quickly, whereas a wide bottom indicates a system that is struggling to return to homeostasis once disturbed.
+
+**Where it would live:**
+New `src/layout/SystemResilienceFunnel.tsx`.
+
+**Trigger / entry point:**
+A "View System Resilience" sub-tab in the System Overview / Radar Chart dashboard area.
+
+---
+
+**Proposal: Measurement Cadence Overlay Chart**
+
+**ECharts type:** `scatter` (or single-axis timeline)
+
+**Codebase citation:**
+Uses `labels[]` from `src/data/index.ts` and array lengths / null-gaps from `dataAtom`.
+
+**Which existing data it uses:**
+It aligns the non-null `values[]` counts for all biomarkers in `dataAtom` against the global timeline `labels[]` (format `YYMMDD`). The size or density of the scatter point represents the total number of distinct biomarkers tested on that specific date.
+
+**Axes:**
+- X-axis: Time (dates parsed from `labels[]`)
+- Y-axis: Categorical testing intensity or single baseline.
+
+**What it reveals that current charts don't:**
+The existing timeline charts connect points with lines, masking the underlying testing habit. This cadence chart explicitly visualizes the user's testing density over time, exposing long gaps in medical tracking or highlighting clusters of intensive diagnostics (e.g., distinguishing between a user who tests 5 markers monthly vs one who tests 80 markers annually).
+
+**Where it would live:**
+New `src/layout/MeasurementCadenceTimeline.tsx`.
+
+**Trigger / entry point:**
+Displayed as a global "Data Density Map" widget in the top-level settings or data overview dashboard.
