@@ -907,6 +907,51 @@ A "View Temporal Stability" action button in the Correlation modal when exactly 
 
 ---
 
+**Proposal: System Correlation Network Graph**
+
+**ECharts type:** `graph`
+
+**Codebase citation:**
+Uses `tagAtom` from `src/atom/dataAtom.ts` and tag groupings from `src/processors/post/tag.ts`.
+
+**Which existing data it uses:**
+It calculates pair-wise correlation coefficients (e.g. using `rankedDataMapAtom`) between all biomarkers within a selected tag group (e.g., `2-Metabolic`), treating biomarkers as nodes and correlation strengths as edges.
+
+**Axes:**
+- None (Force-directed graph layout)
+
+**What it reveals that current charts don't:**
+Instead of viewing two markers at a time (like in `Chart2.tsx`), the user can see the entire interconnected web of a biological system. It reveals which markers act as central "hubs" (e.g., Insulin driving changes in 5 other markers) versus isolated markers that move independently.
+
+**Where it would live:**
+New `src/layout/SystemNetworkGraph.tsx`.
+
+**Trigger / entry point:**
+A "Network View" button inside the Analyze dropdown menu when a specific tag filter is active in the top navigation.
+
+---
+
+**Proposal: Measurement Latency Calendar Chart**
+
+**ECharts type:** `calendar`
+
+**Codebase citation:**
+Uses `labels[]` from `src/data/index.ts` and `values[]` arrays from `dataMapAtom` entries.
+
+**Which existing data it uses:**
+It maps the `labels[]` (dates) to a calendar layout. For each date, it aggregates the total number of non-null measurements across all biomarkers in `dataMapAtom`. The calendar cells are color-coded based on testing density (e.g., 0 tests = empty, 1-10 tests = light, >20 tests = dark).
+
+**Axes:**
+- Calendar coordinate system mapping the year and day.
+
+**What it reveals that current charts don't:**
+The existing time-series charts (line, scatter) only show values on dates when tests occurred, hiding the vast gaps of missing data between them. The Calendar chart explicitly visualizes the user's testing cadence and consistency, highlighting long periods of diagnostic latency where no data was collected.
+
+**Where it would live:**
+New `src/layout/MeasurementLatencyCalendar.tsx`.
+
+**Trigger / entry point:**
+A "Testing History" modal accessible from the global date filter or user profile menu.
 **Proposal: System Resilience Reversion Funnel**
 
 **ECharts type:** `funnel`

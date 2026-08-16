@@ -271,16 +271,11 @@ export default memo(({ keys }: ChartProps) => {
           }
           // Scan 2 Fix: Fallback for regression tooltip (regression line is rendered by 'line' series type)
           // `regressionExpression` is outside the closure. ecStat formulaOn: 'end' does not reliably expose the equation at `params.value[2]` for line points during hover.
-          let eq = regressionExpression
-          if (
-            params.value &&
-            params.value.length > 2 &&
-            typeof params.value[2] === 'string' &&
-            params.value[2].includes('=')
-          ) {
-            eq = params.value[2]
+          let expr = regressionExpression
+          if (params.value && params.value.length > 2 && typeof params.value[2] === 'string' && params.value[2].includes('=')) {
+            expr = params.value[2]
           }
-          return getRegressionTooltip(eq)
+          return getRegressionTooltip(expr)
         },
       },
       dataset,
