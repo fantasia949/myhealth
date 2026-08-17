@@ -1046,3 +1046,47 @@ New `src/layout/MeasurementCadenceTimeline.tsx`.
 
 **Trigger / entry point:**
 Displayed as a global "Data Density Map" widget in the top-level settings or data overview dashboard.
+
+**Proposal: Biomarker Range Width vs Volatility Scatter**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+Uses `extra.range` pre-computed by `src/processors/post/range.ts` and `values[]` arrays from `dataMapAtom` entries in `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+For each biomarker in `nonInferredDataAtom`, it parses `extra.range` (e.g. "3.9 - 6.4") to calculate the "Range Width" (e.g., 2.5). It then calculates the "Historical Volatility" of the biomarker by computing the standard deviation of its non-null `values[]` across all time points (`labels[]`).
+
+**Axes:**
+- X-axis: Optimal Range Width (Log scale, to handle tight vs wide ranges)
+- Y-axis: Historical Volatility (Standard Deviation)
+
+**What it reveals that current charts don't:**
+Highlights biomarkers whose personal historical volatility exceeds their accepted optimal medical bounds. A biomarker sitting in the top-left quadrant (high volatility, narrow optimal range) is highly erratic and prone to frequent out-of-range warnings, whereas one in the bottom-right is stable within a wide buffer. This helps users differentiate between "noisy" markers and truly concerning shifts.
+
+**Where it would live:**
+New `src/layout/VolatilityMatrixScatter.tsx`.
+
+**Trigger / entry point:**
+A "Volatility vs Range Map" button in the Analyze dropdown menu.
+
+---
+
+**Proposal: Multi-System Correlation Chord Diagram**
+
+**ECharts type:** `graph` (with circular layout, styled as a Chord Diagram)
+
+**Codebase citation:**
+Uses `tagKeys` and mappings from `src/processors/post/tag.ts` and Spearman rank pre-computation from `rankedDataMapAtom` in `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+Instead of correlating individual biomarkers, it aggregates correlation strengths *between entire biological systems* (e.g., `2-Metabolic` vs `5-Hormone`). For each pair of tag groups, it calculates the mean absolute correlation coefficient between all valid biomarker pairs spanning those two groups (using `rankedDataMapAtom` arrays), drawing a weighted chord between the system nodes.
+
+**What it reveals that current charts don't:**
+While the existing scatter plot (`Chart2.tsx`) allows 1-to-1 biomarker comparison, this diagram provides a macro-level view of inter-system coupling. It can reveal holistic health insights, such as whether a user's Metabolic system is highly coupled to their Hormone system (thick chord), but entirely decoupled from their Liver system (thin/no chord), identifying which bodily systems drive cascading changes.
+
+**Where it would live:**
+New `src/layout/SystemChordDiagram.tsx`.
+
+**Trigger / entry point:**
+A "System Interconnectivity" view located in the main dashboard or Analyze menu, serving as an executive summary of systemic health.
