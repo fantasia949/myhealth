@@ -1046,3 +1046,53 @@ New `src/layout/MeasurementCadenceTimeline.tsx`.
 
 **Trigger / entry point:**
 Displayed as a global "Data Density Map" widget in the top-level settings or data overview dashboard.
+
+---
+
+**Proposal: Systemic Recovery Momentum Area Chart**
+
+**ECharts type:** `line` (with `areaStyle`)
+
+**Codebase citation:**
+Uses `labels[]` from `src/data/index.ts`, `extra.tag[]` from `src/processors/post/tag.ts`, and `extra.optimality[]` from `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+It calculates the net change in optimality per time point per tag group. Specifically, it counts how many biomarkers in a system (e.g. `2-Metabolic`) returned to their optimal range minus those that fell out of their optimal range between consecutive `labels[]` dates, using `extra.optimality[]` for the state at each date.
+
+**Axes:**
+- X-axis: Time (`labels[]`)
+- Y-axis: Net Optimality Change (e.g. from -5 to +5)
+
+**What it reveals that current charts don't:**
+Shows the actual direction of health progress or decline at a system level, visualizing biological momentum. Instead of seeing static snapshots of what's out of bounds, you see the "velocity" of healing or deteriorating for an entire biological subsystem.
+
+**Where it would live:**
+New `src/layout/SystemMomentumAreaChart.tsx`.
+
+**Trigger / entry point:**
+A new "Recovery Momentum" widget on the main dashboard, filtering based on `tagAtom`.
+
+---
+
+**Proposal: Imminent Out-of-Range Warning Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.range` and `extra.optimality[]` from `src/processors/post/range.ts` and date indices from `src/data/index.ts`.
+
+**Which existing data it uses:**
+For biomarkers that are currently within optimal bounds (`extra.optimality[] === false`), it calculates the percentage distance to the closest upper/lower boundary parsed from `extra.range`.
+
+**Axes:**
+- X-axis: Time (dates from `labels[]`)
+- Y-axis: Biomarker names (from `dataAtom`)
+
+**What it reveals that current charts don't:**
+The current charts and flags only alert when a marker has already breached the optimal threshold. This heatmap visualizes "near-misses" and degrading trends approaching the limit, colored by intensity (e.g. 95% of the way to the boundary is red, 50% is green). It highlights proactive risks before they become clinical anomalies.
+
+**Where it would live:**
+New `src/layout/ImminentRiskHeatmap.tsx`.
+
+**Trigger / entry point:**
+A "Proactive Risk Warning" view in the top navigation's Analyze menu.
