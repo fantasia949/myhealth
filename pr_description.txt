@@ -1,0 +1,11 @@
+**The Issue:**
+(src/layout/Chart2.tsx lines 205-226) The chart was attempting to use `echarts-stat`'s dataset transform (`type: 'ecStat:regression'`), which is incompatible with ECharts 6 and crashes the `cloneAllDimensionInfo` internal method, preventing the regression line and potentially the entire chart from rendering.
+
+**Discovery Signal:**
+Scan 4/6 (Chart2 Dual-Render Conflict & Edge Cases) & Known Implementation Facts - Memory context explicitly warned that `echarts-stat` dataset transforms cause TypeErrors in ECharts 6, instructing to calculate regressions manually and assign the result directly to the `data` prop.
+
+**The Fix:**
+Removed `echarts.registerTransform` and the `dataset.push({ transform: ... })` block. Instead, manually extracted the calculated regression points using `ecStat.regression('linear', mappedScatterData).points` and assigned them directly to the `data` prop of the existing `line` series.
+
+**The Benefit:**
+Ensures full compatibility with ECharts 6, eliminating the `cloneAllDimensionInfo` TypeError crash when generating the regression trendline in the correlation scatter plot, allowing the chart to render properly.
