@@ -10,8 +10,6 @@ import * as ecStat from 'echarts-stat'
 import { ChartProps } from './Chart.types'
 import type { EChartsReactProps } from 'echarts-for-react'
 
-echarts.registerTransform((ecStat as any).transform.regression)
-
 export const CHART_PALETTE = [
   '#c23531',
   '#ADD4EF',
@@ -206,19 +204,13 @@ export default memo(({ keys }: ChartProps) => {
     ]
 
     let regressionExpression = ''
+    let regressionPoints: number[][] = []
 
     // Guard against regression transform crash on <2 points
     if (mappedScatterData.length >= 2) {
       const regRes = (ecStat as any).regression('linear', mappedScatterData)
       regressionExpression = regRes.expression
-
-      dataset.push({
-        transform: {
-          type: 'ecStat:regression',
-          config: { method: 'linear', formulaOn: 'end' },
-        },
-        fromDatasetIndex: 0,
-      })
+      regressionPoints = regRes.points
     }
 
     const seriesArr = (echartsOptions.series as SeriesOption[]) || []
@@ -228,7 +220,7 @@ export default memo(({ keys }: ChartProps) => {
     if (mappedScatterData.length >= 2) {
       nextSeries.push({
         ...seriesArr[1],
-        datasetIndex: 1,
+        data: regressionPoints as any,
         tooltip: {
           formatter: () => getRegressionTooltip(regressionExpression),
         },
