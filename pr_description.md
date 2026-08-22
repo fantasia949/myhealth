@@ -1,11 +1,11 @@
 **The Issue:**
-In `src/layout/Chart2.tsx`, the static `echartsOptions.yAxis` configuration contains a secondary, hidden Y-axis (`show: false`) alongside the primary axis.
+In `src/layout/Chart2.tsx`, the fallback tooltip formatter for the `ecStat` regression line evaluates the regression equation from `params.value[2]` (or the fallback `regressionExpression`), returning a raw string like `y = 2x + 1` via `getRegressionTooltip()`. This provides a mathematically accurate but poor UX, since `x` and `y` are generic and disconnected from the selected biomarker keys.
 
 **Discovery Signal:**
-Scan 7 (Visual Consistency & Cleanliness) / Memory Constraint - Verified that all major bugs listed in Scans 1-6 have already been fixed in `origin/main` (e.g. `ref.current` is removed, tooltip regression expression is fixed, null mappings are present). The remaining issue is a redundant configuration object.
+Scan 2 (Tooltip Quality & Completeness) highlighted that while `Chart2.tsx` falls back to `return params.value[2] ? ...` correctly to avoid showing a data index, the literal `y = 2x + ...` string was suboptimal. Memory guidelines suggested a regex-based substitution pattern (`/\bx\b/g` and `/^y\s*=/`) to handle string formatting safely.
 
 **The Fix:**
-Removed the dead, secondary `yAxis` object from `echartsOptions` in `Chart2.tsx`. Since both the scatter dataset and the regression line share the same unit and scale (`yAxisIndex: 0`), the second axis was completely unused and merely added unnecessary mapping iterations in the `useMemo` loop.
+Modified `getRegressionTooltip` in `src/layout/Chart2.tsx` to accept the X and Y biomarker keys as arguments. Implemented safe regex replacements to transform `x` to `keyX` and `y = ` to `keyY = ` inside the formatted HTML string. Updated all `getRegressionTooltip` call sites within `options.tooltip` and `series.tooltip` to pass `keys[0]` and `keys[1]`.
 
 **The Benefit:**
-Cleans up the file structure, removes dead configuration code, and adheres strictly to the "exactly ONE improvement" constraint without introducing risky behavioral regressions.
+Massively improves context for the regression line tooltip. Hovering over the regression trend now displays a readable formula tied to the actual selected variables (e.g., `Cholesterol = 2 * Glucose + 1` instead of `y = 2x + 1`), providing immediate clarity.

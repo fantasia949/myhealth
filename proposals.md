@@ -1046,3 +1046,20 @@ New `src/layout/MeasurementCadenceTimeline.tsx`.
 
 **Trigger / entry point:**
 Displayed as a global "Data Density Map" widget in the top-level settings or data overview dashboard.
+
+**Proposal: Inferred Component Dominance Pie Chart**
+**ECharts type:** `pie`
+**Codebase citation:** `BioMarker[3].inferred` property (boolean flag from `src/types/biomarker.ts`).
+**What it uses:** Aggregates the total number of out-of-range events (`extra.optimality`) across all biomarkers, grouped by `inferred: true` vs `inferred: false` (measured).
+**What it reveals that current charts don't:** Shows the user what percentage of their total identified health anomalies are directly measured by lab tests versus synthetically inferred (computed algorithms like PhenoAge), helping them understand their reliance on computed metrics versus raw data.
+**Where it would live:** `src/layout/InferredAnomalyPieChart.tsx`, accessible as a toggle on the Dashboard system view.
+**Trigger / entry point:** A new "Anomaly Source Breakdown" toggle next to the top-level RadarChart on the dashboard that uses `dataAtom` to derive the pie chart.
+
+**Proposal: Biomarker Measurement Frequency Heatmap (Day of Week)**
+**ECharts type:** `heatmap`
+**Codebase citation:** `labels[]` from `src/data/index.ts` which contains `YYMMDD` formatted strings.
+**What it uses:** Parses `labels[]` into actual `Date` objects to extract the Day of the Week, and cross-references with `visibleDataAtom` to count the density of measurements on each weekday.
+**Axes:** X-axis: Day of the Week (Mon-Sun), Y-axis: Biomarker Tags (`tag.ts`).
+**What it reveals that current charts don't:** Reveals systemic bias in testing schedules (e.g., showing that 80% of `2-Metabolic` tests are done on Mondays, potentially skewing fasting glucose averages due to weekend dietary habits).
+**Where it would live:** `src/layout/TestingDayOfWeekHeatmap.tsx`.
+**Trigger / entry point:** Placed inside a new "Testing Quality/Bias" tab in the application layout or triggered by a button in `Nav.tsx` that analyzes the global `dataAtom` and `labels`.
