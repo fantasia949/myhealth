@@ -1046,3 +1046,54 @@ New `src/layout/MeasurementCadenceTimeline.tsx`.
 
 **Trigger / entry point:**
 Displayed as a global "Data Density Map" widget in the top-level settings or data overview dashboard.
+
+---
+
+**Proposal: Correlation Method Sensitivity Scatter**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+Uses `correlationMethodAtom` (from `src/atom/correlationAtom.ts`) and `rankedDataMapAtom` (from `src/atom/dataAtom.ts`).
+
+**Which existing data it uses:**
+It calculates *both* the Pearson and Spearman correlation coefficients for all pairwise combinations of non-inferred biomarkers (via `nonInferredDataAtom`). It plots each pairwise relationship as a data point, using the Pearson coefficient for the X-axis and the Spearman coefficient for the Y-axis.
+
+**Axes:**
+- X-axis: Pearson Correlation Coefficient (-1.0 to 1.0)
+- Y-axis: Spearman Correlation Coefficient (-1.0 to 1.0)
+
+**What it reveals that current charts don't:**
+The existing correlation scatter (`Chart2.tsx`) just plots raw values. This chart reveals the *type* of relationship between biomarkers. Points lying on the `y = x` diagonal indicate perfectly linear relationships. Points that deviate significantly from the diagonal (e.g. high Spearman, low Pearson) indicate strong *non-linear* biological couplings (like exponential or threshold-based physiological responses) that would otherwise be missed if only Pearson correlation was used.
+
+**Where it would live:**
+New `src/layout/CorrelationSensitivityScatter.tsx`.
+
+**Trigger / entry point:**
+A "Method Sensitivity Analysis" toggle located in the main Analyze dropdown menu or within the Correlation modal itself.
+
+---
+
+**Proposal: Data Sparsity Matrix / Missing Value Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `dataAtom` from `src/atom/dataAtom.ts` and `labels[]` from `src/data/index.ts`.
+
+**Which existing data it uses:**
+It maps the full array of `labels[]` (X-axis) against all biomarker names in `visibleDataAtom` (Y-axis). It iterates through the `values[]` array (`BioMarker[1]`) for each biomarker and maps each index to a categorical value: `1` if a value exists and is valid (not `null`, `undefined`, or `'-'`), and `0` if the value is missing/gap.
+
+**Axes:**
+- X-axis: Time (mapped directly to `labels[]`)
+- Y-axis: Biomarker Name
+- VisualMap: Boolean state (0 = missing data [transparent/grey], 1 = valid data [solid color like green/blue]).
+
+**What it reveals that current charts don't:**
+The current time-series charts (Line, Scatter) implicitly hide gaps by either not rendering points or skipping them. A Sparsity Matrix provides a bird's-eye view of measurement consistency over time. It immediately exposes whether certain biomarkers are systematically skipped during specific clinical visits, or if a user’s historical testing habit contains massive blind spots across specific physiological systems.
+
+**Where it would live:**
+New `src/layout/DataSparsityHeatmap.tsx`.
+
+**Trigger / entry point:**
+An "Overview / Data Health" button in the global dashboard view, or accessible when no biomarkers are actively selected.
