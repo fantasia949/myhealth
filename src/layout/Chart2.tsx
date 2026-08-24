@@ -4,13 +4,10 @@ import { dataMapAtom } from '../atom/dataAtom'
 
 import { labels, formattedLabels } from '../data'
 import ReactECharts from 'echarts-for-react'
-import * as echarts from 'echarts'
 import type { DatasetComponentOption, SeriesOption, XAXisComponentOption, YAXisComponentOption, EChartsOption } from 'echarts'
 import * as ecStat from 'echarts-stat'
 import { ChartProps } from './Chart.types'
 import type { EChartsReactProps } from 'echarts-for-react'
-
-echarts.registerTransform((ecStat as any).transform.regression)
 
 export const CHART_PALETTE = [
   '#c23531',
@@ -211,13 +208,21 @@ export default memo(({ keys }: ChartProps) => {
     const nextSeries: SeriesOption[] = [seriesArr[0]]
 
     // Guard against regression transform crash on <2 points
+    let regressionData: any[] = []
     if (mappedScatterData.length >= 2) {
       const regRes = (ecStat as any).regression('linear', mappedScatterData)
       regressionExpression = regRes.expression
+      regressionData = regRes.points
+    }
 
+    const seriesArr = (echartsOptions.series as SeriesOption[]) || []
+    const nextSeries: SeriesOption[] = [seriesArr[0]]
+
+    // Only include the regression series if dataset contains it
+    if (mappedScatterData.length >= 2) {
       nextSeries.push({
         ...seriesArr[1],
-        data: regRes.points,
+        data: regressionData,
         tooltip: {
           formatter: () => getRegressionTooltip(regressionExpression),
         },
@@ -258,13 +263,8 @@ export default memo(({ keys }: ChartProps) => {
               `${params.marker} ${keys[1]}: <strong>${val2}${u1}</strong>`
             )
           }
-          // Scan 2 Fix: Fallback for regression tooltip (regression line is rendered by 'line' series type)
-          // `regressionExpression` is outside the closure. ecStat formulaOn: 'end' does not reliably expose the equation at `params.value[2]` for line points during hover.
-          let expr = regressionExpression
-          if (params.value && params.value.length > 2 && typeof params.value[2] === 'string' && params.value[2].includes('=')) {
-            expr = params.value[2]
-          }
-          return getRegressionTooltip(expr)
+          // `regressionExpression` is outside the closure. Since we use custom `data` instead of dataset, ecStat doesn't attach the equation to params.value[2].
+          return getRegressionTooltip(regressionExpression)
         },
       },
       dataset,
