@@ -207,28 +207,17 @@ export default memo(({ keys }: ChartProps) => {
 
     let regressionExpression = ''
 
+    const seriesArr = (echartsOptions.series as SeriesOption[]) || []
+    const nextSeries: SeriesOption[] = [seriesArr[0]]
+
     // Guard against regression transform crash on <2 points
     if (mappedScatterData.length >= 2) {
       const regRes = (ecStat as any).regression('linear', mappedScatterData)
       regressionExpression = regRes.expression
 
-      dataset.push({
-        transform: {
-          type: 'ecStat:regression',
-          config: { method: 'linear', formulaOn: 'end' },
-        },
-        fromDatasetIndex: 0,
-      })
-    }
-
-    const seriesArr = (echartsOptions.series as SeriesOption[]) || []
-    const nextSeries: SeriesOption[] = [seriesArr[0]]
-
-    // Only include the regression series if dataset contains it
-    if (mappedScatterData.length >= 2) {
       nextSeries.push({
         ...seriesArr[1],
-        datasetIndex: 1,
+        data: regRes.points,
         tooltip: {
           formatter: () => getRegressionTooltip(regressionExpression),
         },
