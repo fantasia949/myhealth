@@ -1047,19 +1047,94 @@ New `src/layout/MeasurementCadenceTimeline.tsx`.
 **Trigger / entry point:**
 Displayed as a global "Data Density Map" widget in the top-level settings or data overview dashboard.
 
-**Proposal: Inferred Component Dominance Pie Chart**
-**ECharts type:** `pie`
-**Codebase citation:** `BioMarker[3].inferred` property (boolean flag from `src/types/biomarker.ts`).
-**What it uses:** Aggregates the total number of out-of-range events (`extra.optimality`) across all biomarkers, grouped by `inferred: true` vs `inferred: false` (measured).
-**What it reveals that current charts don't:** Shows the user what percentage of their total identified health anomalies are directly measured by lab tests versus synthetically inferred (computed algorithms like PhenoAge), helping them understand their reliance on computed metrics versus raw data.
-**Where it would live:** `src/layout/InferredAnomalyPieChart.tsx`, accessible as a toggle on the Dashboard system view.
-**Trigger / entry point:** A new "Anomaly Source Breakdown" toggle next to the top-level RadarChart on the dashboard that uses `dataAtom` to derive the pie chart.
+**Proposal: Biomarker Range Width vs Volatility Scatter**
 
-**Proposal: Biomarker Measurement Frequency Heatmap (Day of Week)**
-**ECharts type:** `heatmap`
-**Codebase citation:** `labels[]` from `src/data/index.ts` which contains `YYMMDD` formatted strings.
-**What it uses:** Parses `labels[]` into actual `Date` objects to extract the Day of the Week, and cross-references with `visibleDataAtom` to count the density of measurements on each weekday.
-**Axes:** X-axis: Day of the Week (Mon-Sun), Y-axis: Biomarker Tags (`tag.ts`).
-**What it reveals that current charts don't:** Reveals systemic bias in testing schedules (e.g., showing that 80% of `2-Metabolic` tests are done on Mondays, potentially skewing fasting glucose averages due to weekend dietary habits).
-**Where it would live:** `src/layout/TestingDayOfWeekHeatmap.tsx`.
-**Trigger / entry point:** Placed inside a new "Testing Quality/Bias" tab in the application layout or triggered by a button in `Nav.tsx` that analyzes the global `dataAtom` and `labels`.
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+Uses `extra.range` pre-computed by `src/processors/post/range.ts` and `values[]` arrays from `dataMapAtom` entries in `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+For each biomarker in `nonInferredDataAtom`, it parses `extra.range` (e.g. "3.9 - 6.4") to calculate the "Range Width" (e.g., 2.5). It then calculates the "Historical Volatility" of the biomarker by computing the standard deviation of its non-null `values[]` across all time points (`labels[]`).
+
+**Axes:**
+- X-axis: Optimal Range Width (Log scale, to handle tight vs wide ranges)
+- Y-axis: Historical Volatility (Standard Deviation)
+
+**What it reveals that current charts don't:**
+Highlights biomarkers whose personal historical volatility exceeds their accepted optimal medical bounds. A biomarker sitting in the top-left quadrant (high volatility, narrow optimal range) is highly erratic and prone to frequent out-of-range warnings, whereas one in the bottom-right is stable within a wide buffer. This helps users differentiate between "noisy" markers and truly concerning shifts.
+
+**Where it would live:**
+New `src/layout/VolatilityMatrixScatter.tsx`.
+
+**Trigger / entry point:**
+A "Volatility vs Range Map" button in the Analyze dropdown menu.
+
+---
+
+**Proposal: Multi-System Correlation Chord Diagram**
+
+**ECharts type:** `graph` (with circular layout, styled as a Chord Diagram)
+
+**Codebase citation:**
+Uses `tagKeys` and mappings from `src/processors/post/tag.ts` and Spearman rank pre-computation from `rankedDataMapAtom` in `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+Instead of correlating individual biomarkers, it aggregates correlation strengths *between entire biological systems* (e.g., `2-Metabolic` vs `5-Hormone`). For each pair of tag groups, it calculates the mean absolute correlation coefficient between all valid biomarker pairs spanning those two groups (using `rankedDataMapAtom` arrays), drawing a weighted chord between the system nodes.
+
+**What it reveals that current charts don't:**
+While the existing scatter plot (`Chart2.tsx`) allows 1-to-1 biomarker comparison, this diagram provides a macro-level view of inter-system coupling. It can reveal holistic health insights, such as whether a user's Metabolic system is highly coupled to their Hormone system (thick chord), but entirely decoupled from their Liver system (thin/no chord), identifying which bodily systems drive cascading changes.
+
+**Where it would live:**
+New `src/layout/SystemChordDiagram.tsx`.
+
+**Trigger / entry point:**
+A "System Interconnectivity" view located in the main dashboard or Analyze menu, serving as an executive summary of systemic health.
+---
+
+**Proposal: Correlation Lag Offset Line Chart**
+
+**ECharts type:** `line`
+
+**Codebase citation:**
+Uses `labels[]` from `src/data/index.ts` and the `values[]` arrays extracted from entries in `dataMapAtom` (from `src/atom/dataAtom.ts`).
+
+**Which existing data it uses:**
+It utilizes the historical time-series arrays (`BioMarker[1]`) for two user-selected biomarkers, along with the `labels[]` array for the timeline. It offsets one biomarker's data series by a user-defined number of index steps (representing chronological measurements) to visually align shifted time horizons.
+
+**Axes:**
+- X-axis: Time (the shared `labels[]` dates)
+- Y-axes: Dual Y-axes (one for each biomarker, properly scaled according to their respective units `BioMarker[2]`)
+
+**What it reveals that current charts don't:**
+The existing correlation scatter plot (`Chart2.tsx`) and standard line chart (`Chart.tsx`) only compare biomarkers at the *exact same point in time*. This lag-offset chart reveals *leading versus lagging* indicators. For example, it can visually demonstrate if a spike in Vitamin D levels today consistently precedes an increase in Calcium levels 30 days from now. Discovering these delayed physiological responses is impossible with statically aligned arrays.
+
+**Where it would live:**
+New `src/layout/CorrelationLagChart.tsx`.
+
+**Trigger / entry point:**
+A "Time-Shift" interactive slider inside the existing Biomarker Correlation modal (`BiomarkerCorrelation.tsx`) that dynamically applies a positive/negative index offset to the target biomarker's data series.
+
+---
+
+**Proposal: Biomarker Volatility Polar Area Chart**
+
+**ECharts type:** `pie` (with `roseType: 'area'`)
+
+**Codebase citation:**
+Uses `values[]` extracted from `nonInferredDataAtom` and `dataMapAtom` (from `src/atom/dataAtom.ts`).
+
+**Which existing data it uses:**
+Calculates the statistical standard deviation or coefficient of variation (volatility) for the raw `values[]` array of every measured biomarker across its entire timeline, excluding null gaps.
+
+**Axes:**
+- None (Polar coordinate system mapping value magnitude to sector radius).
+
+**What it reveals that current charts don't:**
+Rapidly exposes which biomarkers are the most unstable or erratic over time, contrasting them against those that remain tightly regulated by the body (homeostasis). While standard line charts show absolute values, this chart normalizes variance, allowing users to immediately spot unusually volatile markers that might indicate an underlying regulatory failure or extreme response to lifestyle interventions.
+
+**Where it would live:**
+New `src/layout/VolatilityPolarChart.tsx`.
+
+**Trigger / entry point:**
+A "Volatility Overview" button in the global dashboard header or Data Grid table header, complementing the existing system clustering and correlation overviews.

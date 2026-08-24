@@ -4,13 +4,10 @@ import { dataMapAtom } from '../atom/dataAtom'
 
 import { labels, formattedLabels } from '../data'
 import ReactECharts from 'echarts-for-react'
-import * as echarts from 'echarts'
 import type { DatasetComponentOption, SeriesOption, XAXisComponentOption, YAXisComponentOption, EChartsOption } from 'echarts'
 import * as ecStat from 'echarts-stat'
 import { ChartProps } from './Chart.types'
 import type { EChartsReactProps } from 'echarts-for-react'
-
-echarts.registerTransform((ecStat as any).transform.regression)
 
 export const CHART_PALETTE = [
   '#c23531',
@@ -210,18 +207,15 @@ export default memo(({ keys }: ChartProps) => {
 
     let regressionExpression = ''
 
+    const seriesArr = (echartsOptions.series as SeriesOption[]) || []
+    const nextSeries: SeriesOption[] = [seriesArr[0]]
+
     // Guard against regression transform crash on <2 points
+    let regressionData: any[] = []
     if (mappedScatterData.length >= 2) {
       const regRes = (ecStat as any).regression('linear', mappedScatterData)
       regressionExpression = regRes.expression
-
-      dataset.push({
-        transform: {
-          type: 'ecStat:regression',
-          config: { method: 'linear', formulaOn: 'end' },
-        },
-        fromDatasetIndex: 0,
-      })
+      regressionData = regRes.points
     }
 
     const seriesArr = (echartsOptions.series as SeriesOption[]) || []
@@ -231,7 +225,7 @@ export default memo(({ keys }: ChartProps) => {
     if (mappedScatterData.length >= 2) {
       nextSeries.push({
         ...seriesArr[1],
-        datasetIndex: 1,
+        data: regressionData,
         tooltip: {
           formatter: () => getRegressionTooltip(regressionExpression, keys[0], keys[1]),
         },
