@@ -1046,3 +1046,54 @@ New `src/layout/MeasurementCadenceTimeline.tsx`.
 
 **Trigger / entry point:**
 Displayed as a global "Data Density Map" widget in the top-level settings or data overview dashboard.
+
+---
+
+**Proposal: System Optimality Control Chart (SPC Chart)**
+
+**ECharts type:** `line` (with `markLine` and `markArea` for control limits)
+
+**Codebase citation:**
+Uses `tagAtom` from `src/atom/dataAtom.ts` and `extra.optimality[]` pre-computed by `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+It calculates the daily rolling average of the percentage of out-of-range markers (`optimality: true`) across all biomarkers in a specific tag group (e.g., `2-Metabolic`). It plots this as a time-series line, and computes the historical mean and standard deviation to draw upper/lower control limits (`markLine`).
+
+**Axes:**
+- X-axis: Time (dates parsed from `labels[]`)
+- Y-axis: Percentage of biomarkers Out of Range (0 to 100)
+
+**What it reveals that current charts don't:**
+While current charts show absolute biomarker values or static optimality snapshots, an SPC (Statistical Process Control) chart reveals *systemic volatility* over time. It helps users distinguish between normal day-to-day variance in their health (noise) and an acute, statistically significant systemic shock (signal) that breaks outside their historical control limits.
+
+**Where it would live:**
+New `src/layout/SystemOptimalityControlChart.tsx`.
+
+**Trigger / entry point:**
+A "Volatility Tracking" view in the main dashboard when a specific tag filter is active.
+
+---
+
+**Proposal: Cross-Biomarker Phase Space Trajectory Plot**
+
+**ECharts type:** `scatter` (with lines connecting sequential points, or a parameterized `line` chart plotting X vs Y)
+
+**Codebase citation:**
+Uses `nonInferredDataAtom` from `src/atom/dataAtom.ts` and date `labels[]` from `src/data/index.ts`.
+
+**Which existing data it uses:**
+Instead of plotting values over time on the X-axis, it plots the values of Biomarker A (e.g., Glucose) on the X-axis against Biomarker B (e.g., Insulin) on the Y-axis. Unlike a standard scatter plot (`Chart2.tsx`), it uses a connecting line with directional arrows to trace the chronological sequence of these coordinate pairs over time (`labels[]`).
+
+**Axes:**
+- X-axis: Biomarker A Value
+- Y-axis: Biomarker B Value
+- Connecting Line: Time (chronological path)
+
+**What it reveals that current charts don't:**
+The existing correlation scatter plot (`Chart2.tsx`) only shows if a relationship exists, but strips away time. A phase space trajectory plot reveals chronological hysteresis loops and lead/lag dynamics. For example, it can show if Insulin spikes *before* Glucose drops, and whether the system traces a wide, unstable orbit or tightens into a stable equilibrium point over several months.
+
+**Where it would live:**
+New `src/layout/PhaseSpaceTrajectoryChart.tsx`.
+
+**Trigger / entry point:**
+An "Orbit View" toggle inside the Correlation modal (`Correlation.tsx`) when exploring a specific pairwise relationship.

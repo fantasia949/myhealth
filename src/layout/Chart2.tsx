@@ -206,29 +206,26 @@ export default memo(({ keys }: ChartProps) => {
     ]
 
     let regressionExpression = ''
+    let regressionPoints: any[] = []
 
     // Guard against regression transform crash on <2 points
     if (mappedScatterData.length >= 2) {
       const regRes = (ecStat as any).regression('linear', mappedScatterData)
       regressionExpression = regRes.expression
-
-      dataset.push({
-        transform: {
-          type: 'ecStat:regression',
-          config: { method: 'linear', formulaOn: 'end' },
-        },
-        fromDatasetIndex: 0,
-      })
+      // ecStat.regression returns { points, parameter, expression }
+      // ECharts 6 dataset transforms using 'ecStat:regression' are incompatible and cause cloneAllDimensionInfo TypeErrors
+      // Instead we assign the calculated regression points directly to the line series data
+      regressionPoints = regRes.points
     }
 
     const seriesArr = (echartsOptions.series as SeriesOption[]) || []
     const nextSeries: SeriesOption[] = [seriesArr[0]]
 
-    // Only include the regression series if dataset contains it
+    // Only include the regression series if we calculated it
     if (mappedScatterData.length >= 2) {
       nextSeries.push({
         ...seriesArr[1],
-        datasetIndex: 1,
+        data: regressionPoints,
         tooltip: {
           formatter: () => getRegressionTooltip(regressionExpression),
         },
