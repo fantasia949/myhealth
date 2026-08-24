@@ -204,6 +204,9 @@ export default memo(({ keys }: ChartProps) => {
 
     let regressionExpression = ''
 
+    const seriesArr = (echartsOptions.series as SeriesOption[]) || []
+    const nextSeries: SeriesOption[] = [seriesArr[0]]
+
     // Guard against regression transform crash on <2 points
     let regressionData: any[] = []
     if (mappedScatterData.length >= 2) {

@@ -1090,3 +1090,51 @@ New `src/layout/SystemChordDiagram.tsx`.
 
 **Trigger / entry point:**
 A "System Interconnectivity" view located in the main dashboard or Analyze menu, serving as an executive summary of systemic health.
+---
+
+**Proposal: Correlation Lag Offset Line Chart**
+
+**ECharts type:** `line`
+
+**Codebase citation:**
+Uses `labels[]` from `src/data/index.ts` and the `values[]` arrays extracted from entries in `dataMapAtom` (from `src/atom/dataAtom.ts`).
+
+**Which existing data it uses:**
+It utilizes the historical time-series arrays (`BioMarker[1]`) for two user-selected biomarkers, along with the `labels[]` array for the timeline. It offsets one biomarker's data series by a user-defined number of index steps (representing chronological measurements) to visually align shifted time horizons.
+
+**Axes:**
+- X-axis: Time (the shared `labels[]` dates)
+- Y-axes: Dual Y-axes (one for each biomarker, properly scaled according to their respective units `BioMarker[2]`)
+
+**What it reveals that current charts don't:**
+The existing correlation scatter plot (`Chart2.tsx`) and standard line chart (`Chart.tsx`) only compare biomarkers at the *exact same point in time*. This lag-offset chart reveals *leading versus lagging* indicators. For example, it can visually demonstrate if a spike in Vitamin D levels today consistently precedes an increase in Calcium levels 30 days from now. Discovering these delayed physiological responses is impossible with statically aligned arrays.
+
+**Where it would live:**
+New `src/layout/CorrelationLagChart.tsx`.
+
+**Trigger / entry point:**
+A "Time-Shift" interactive slider inside the existing Biomarker Correlation modal (`BiomarkerCorrelation.tsx`) that dynamically applies a positive/negative index offset to the target biomarker's data series.
+
+---
+
+**Proposal: Biomarker Volatility Polar Area Chart**
+
+**ECharts type:** `pie` (with `roseType: 'area'`)
+
+**Codebase citation:**
+Uses `values[]` extracted from `nonInferredDataAtom` and `dataMapAtom` (from `src/atom/dataAtom.ts`).
+
+**Which existing data it uses:**
+Calculates the statistical standard deviation or coefficient of variation (volatility) for the raw `values[]` array of every measured biomarker across its entire timeline, excluding null gaps.
+
+**Axes:**
+- None (Polar coordinate system mapping value magnitude to sector radius).
+
+**What it reveals that current charts don't:**
+Rapidly exposes which biomarkers are the most unstable or erratic over time, contrasting them against those that remain tightly regulated by the body (homeostasis). While standard line charts show absolute values, this chart normalizes variance, allowing users to immediately spot unusually volatile markers that might indicate an underlying regulatory failure or extreme response to lifestyle interventions.
+
+**Where it would live:**
+New `src/layout/VolatilityPolarChart.tsx`.
+
+**Trigger / entry point:**
+A "Volatility Overview" button in the global dashboard header or Data Grid table header, complementing the existing system clustering and correlation overviews.
