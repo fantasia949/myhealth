@@ -24,9 +24,12 @@ export const CHART_PALETTE = [
   '#2559B7',
 ]
 
-const getRegressionTooltip = (expression: string) => {
+const getRegressionTooltip = (expression: string, keyX: string, keyY: string) => {
   if (expression) {
-    return `<strong>Regression Trend</strong><br/>${expression}`
+    const formattedExpr = expression
+      .replace(/\bx\b/g, keyX)
+      .replace(/^y\s*=/, `${keyY} = `)
+    return `<strong>Regression Trend</strong><br/>${formattedExpr}`
   }
   return '<strong>Regression Trend</strong>'
 }
@@ -224,7 +227,7 @@ export default memo(({ keys }: ChartProps) => {
         ...seriesArr[1],
         data: regressionData,
         tooltip: {
-          formatter: () => getRegressionTooltip(regressionExpression),
+          formatter: () => getRegressionTooltip(regressionExpression, keys[0], keys[1]),
         },
       })
     }
@@ -263,8 +266,13 @@ export default memo(({ keys }: ChartProps) => {
               `${params.marker} ${keys[1]}: <strong>${val2}${u1}</strong>`
             )
           }
-          // `regressionExpression` is outside the closure. Since we use custom `data` instead of dataset, ecStat doesn't attach the equation to params.value[2].
-          return getRegressionTooltip(regressionExpression)
+          // Scan 2 Fix: Fallback for regression tooltip (regression line is rendered by 'line' series type)
+          // `regressionExpression` is outside the closure. ecStat formulaOn: 'end' does not reliably expose the equation at `params.value[2]` for line points during hover.
+          let expr = regressionExpression
+          if (params.value && params.value.length > 2 && typeof params.value[2] === 'string' && params.value[2].includes('=')) {
+            expr = params.value[2]
+          }
+          return getRegressionTooltip(expr, keys[0], keys[1])
         },
       },
       dataset,
