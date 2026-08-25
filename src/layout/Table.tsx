@@ -172,6 +172,8 @@ const TableRow = React.memo(
     const { name, values, visibleValues, visibleOptimality, visibleOriginValues, unit, extra } =
       entry
     const safeNameId = String(name).replace(/[^a-zA-Z0-9-_]/g, '-')
+    const isExcludedFromCorr = CORRELATION_EXCLUDED_BIOMARKERS.includes(name)
+    const isExcludedFromSuppCorr = SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS.includes(name)
 
     let displayUnit = ''
     if (typeof unit === 'string') {
@@ -251,11 +253,11 @@ const TableRow = React.memo(
               </button>
               <button
                 type="button"
-                disabled={isSuppCorrelationExcluded}
+                disabled={isExcludedFromSuppCorr}
                 onClick={() => setCorrelationBiomarker(name)}
-                title={suppCorrelationTitle}
-                className={`focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1 ${suppCorrelationClass}`}
-                aria-label={suppCorrelationTitle}
+                title={correlationTitle}
+                className={`focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1 ${correlationClass}`}
+                aria-label={correlationTitle}
               >
                 <CalculatorIcon className="h-5 w-5" aria-hidden="true" />
               </button>
