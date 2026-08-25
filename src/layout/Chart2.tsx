@@ -218,8 +218,6 @@ export default memo(({ keys }: ChartProps) => {
       regressionData = regRes.points
     }
 
-    const seriesArr = (echartsOptions.series as SeriesOption[]) || []
-    const nextSeries: SeriesOption[] = [seriesArr[0]]
 
     // Only include the regression series if dataset contains it
     if (mappedScatterData.length >= 2) {
