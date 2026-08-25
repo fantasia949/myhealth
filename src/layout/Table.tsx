@@ -186,6 +186,22 @@ const TableRow = React.memo(
     const valuesToMap = useOrigin ? visibleOriginValues : visibleValues
     const cellUnit = useOrigin ? extra.originUnit : unit
 
+    const isCorrelationExcluded = CORRELATION_EXCLUDED_BIOMARKERS.includes(name)
+    const correlationTitle = isCorrelationExcluded
+      ? `${name} correlation is excluded`
+      : `Correlate ${name} with other biomarkers`
+    const correlationClass = isCorrelationExcluded
+      ? 'text-gray-600 cursor-not-allowed opacity-50'
+      : 'hover:text-blue-400'
+
+    const isSuppCorrelationExcluded = SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS.includes(name)
+    const suppCorrelationTitle = isSuppCorrelationExcluded
+      ? `${name} correlation is excluded`
+      : `Correlate ${name} with supplements`
+    const suppCorrelationClass = isSuppCorrelationExcluded
+      ? 'text-gray-600 cursor-not-allowed opacity-50'
+      : 'hover:text-blue-400'
+
     return (
       <React.Fragment>
         <tr
@@ -227,24 +243,11 @@ const TableRow = React.memo(
               </button>
               <button
                 type="button"
-                disabled={isExcludedFromCorr}
+                disabled={isCorrelationExcluded}
                 onClick={() => onCorrelation(name)}
-                title={
-                  isExcludedFromCorr
-                    ? `${name} correlation is excluded`
-                    : `Correlate ${name} with other biomarkers`
-                }
-                className={cn(
-                  'focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1',
-                  isExcludedFromCorr
-                    ? 'text-gray-600 cursor-not-allowed opacity-50'
-                    : 'hover:text-blue-400',
-                )}
-                aria-label={
-                  isExcludedFromCorr
-                    ? `${name} correlation is excluded`
-                    : `Correlate ${name} with other biomarkers`
-                }
+                title={correlationTitle}
+                className={`focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1 ${correlationClass}`}
+                aria-label={correlationTitle}
               >
                 <ArrowsRightLeftIcon className="h-5 w-5" aria-hidden="true" />
               </button>
@@ -252,22 +255,9 @@ const TableRow = React.memo(
                 type="button"
                 disabled={isExcludedFromSuppCorr}
                 onClick={() => setCorrelationBiomarker(name)}
-                title={
-                  isExcludedFromSuppCorr
-                    ? `${name} correlation is excluded`
-                    : `Correlate ${name} with supplements`
-                }
-                className={cn(
-                  'focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1',
-                  isExcludedFromSuppCorr
-                    ? 'text-gray-600 cursor-not-allowed opacity-50'
-                    : 'hover:text-blue-400',
-                )}
-                aria-label={
-                  isExcludedFromSuppCorr
-                    ? `${name} correlation is excluded`
-                    : `Correlate ${name} with supplements`
-                }
+                title={correlationTitle}
+                className={`focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded p-1 ${correlationClass}`}
+                aria-label={correlationTitle}
               >
                 <CalculatorIcon className="h-5 w-5" aria-hidden="true" />
               </button>
