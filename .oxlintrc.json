@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["eslint", "typescript", "unicorn", "react", "react-perf", "oxc"],
-  "categories": {},
+  "categories": { "correctness": "error" },
   "jsPlugins": ["eslint-plugin-react-you-might-not-need-an-effect"],
   "rules": {
     "react-you-might-not-need-an-effect/no-derived-state": "warn",
