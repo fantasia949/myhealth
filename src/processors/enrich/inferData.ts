@@ -136,9 +136,11 @@ export default (entries: BioMarker[]): BioMarker[] => {
         extra.inferred = true
         if (entryMap.has(name)) {
             const arr = entryMap.get(name)
-            for (let i = 0; i < periods; i++) {
-                if (values[i] !== null) {
-                    arr[i] = values[i] as any
+            if (arr) {
+                for (let i = 0; i < periods; i++) {
+                    if (values[i] !== null) {
+                        arr[i] = values[i] as any
+                    }
                 }
             }
         } else {

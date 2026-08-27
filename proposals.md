@@ -1138,3 +1138,51 @@ New `src/layout/VolatilityPolarChart.tsx`.
 
 **Trigger / entry point:**
 A "Volatility Overview" button in the global dashboard header or Data Grid table header, complementing the existing system clustering and correlation overviews.
+---
+
+**Proposal: System Correlation Network Graph**
+
+**ECharts type:** `graph` (force-directed)
+
+**Codebase citation:**
+Uses `tagKeys` (tag group definitions) from `src/processors/post/tag.ts` and `rankedDataMapAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+It calculates the pairwise Spearman correlation (using `rankedDataMapAtom`) between the median values of all available tag groups (e.g., `2-Metabolic` vs. `5-Hormone`). Nodes represent the system/tag groups (sized by the total number of biomarkers they contain), and edge thickness represents the magnitude of the correlation coefficient between the systems.
+
+**Axes:**
+- None (Force-directed network layout)
+
+**What it reveals that current charts don't:**
+Provides a macro-level systems biology perspective. Instead of correlating individual biomarkers, it shows how entire physiological systems influence one another, helping users understand complex, cascading systemic health changes.
+
+**Where it would live:**
+New `src/layout/SystemCorrelationGraph.tsx`.
+
+**Trigger / entry point:**
+A "System Interactions" view in the Analysis menu or as a toggle in the System Clustering dashboard.
+
+---
+
+**Proposal: Measurement Cadence Timeline**
+
+**ECharts type:** `scatter` (configured as a single-axis strip plot)
+
+**Codebase citation:**
+Uses `labels[]` from `src/data/index.ts` and array lengths/null-checks from `dataAtom` in `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+Plots the total count of non-null measurements across all biomarkers in `dataAtom` for each date in `labels[]`. The size of the scatter point represents the number of tests performed on that specific day.
+
+**Axes:**
+- X-axis: Time (dates from `labels[]`)
+- Y-axis: Categorical fixed axis (or omitted for a 1D strip)
+
+**What it reveals that current charts don't:**
+Exposes diagnostic blind spots. Line charts interpolate across gaps, but this chart reveals the user's actual testing frequency, highlighting periods of intense testing vs. long chronological gaps where the data may be stale or unreliable.
+
+**Where it would live:**
+New `src/layout/MeasurementCadenceTimeline.tsx`.
+
+**Trigger / entry point:**
+Displayed as a global "Data Density" sparkline above the main dashboard date filters.
