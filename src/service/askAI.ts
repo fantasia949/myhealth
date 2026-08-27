@@ -92,9 +92,9 @@ ${PROMPT.CONSTRAINS}`
             ],
           },
         ],
-        // generationConfig: {
-        //   thinkingConfig: { thinkingLevel: "HIGH" },
-        // },
+        generationConfig: {
+          thinkingConfig: { thinkingLevel: "HIGH" },
+        },
         tools: [{ googleSearch: {} }],
       }),
     },
