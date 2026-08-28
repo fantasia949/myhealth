@@ -1186,3 +1186,53 @@ New `src/layout/MeasurementCadenceTimeline.tsx`.
 
 **Trigger / entry point:**
 Displayed as a global "Data Density" sparkline above the main dashboard date filters.
+
+**Proposal: Out-of-Range Anomaly Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.optimality[]` from `src/processors/post/range.ts` aligned with time `labels` from `src/data/index.ts`.
+
+**Which existing data it uses:**
+It pulls the pre-computed `extra.optimality` boolean array for each biomarker from `dataAtom`.
+
+**Axes:**
+- X-axis: Time (from `labels` or `formattedLabels`).
+- Y-axis: Biomarker Name.
+
+**What it reveals that current charts don't:**
+Unlike line or scatter charts that plot raw numerical values, this binary heatmap strictly visualizes when markers fall out of their optimal range. It instantly highlights clusters of failures (e.g., multiple biomarkers failing simultaneously on a specific date) or chronic persistent failures over time across the entire tracked panel.
+
+**Where it would live:**
+New `src/layout/AnomalyHeatmap.tsx`, rendered as a high-level overview in the main dashboard.
+
+**Trigger / entry point:**
+A "System Anomaly Overview" tab or button on the dashboard view.
+
+---
+
+**Proposal: System Anomaly Waterfall Chart**
+
+**ECharts type:** `bar` (with transparent bottom series to create a waterfall effect)
+
+**Codebase citation:**
+Uses `extra.tag[]` from `src/processors/post/tag.ts` and `extra.optimality[]` from `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+It calculates the net change in out-of-range markers (newly failing vs. newly recovered) between sequential test dates for all biomarkers within a specific `extra.tag` group (e.g., `3-Liver`).
+
+**Axes:**
+- X-axis: Sequential test dates (`labels`).
+- Y-axis: Cumulative number of out-of-range biomarkers for the selected system tag.
+
+**What it reveals that current charts don't:**
+It shows the cumulative momentum of a biological system's degradation or recovery. Rather than looking at individual markers, users can see whether a system is cascading into broader failure (positive red bars) or steadily recovering (negative green bars) over time.
+
+**Where it would live:**
+New `src/layout/SystemAnomalyWaterfall.tsx`.
+
+**Trigger / entry point:**
+Clicking on a specific system tag filter in the navigation (`tagAtom`) could reveal this chart as a system-level summary.
+
+---

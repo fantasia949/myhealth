@@ -1,4 +1,4 @@
-import { memo, useMemo, useRef, useEffect, ElementRef } from 'react'
+import { memo, useMemo, useRef, useEffect, useState, ElementRef } from 'react'
 import { useAtomValue } from 'jotai'
 import { dataMapAtom } from '../atom/dataAtom'
 import { ChartProvider, ChartContext } from '@echarts-readymade/core'
@@ -196,11 +196,16 @@ export default memo(({ keys }: ChartProps) => {
   }, [dataMap, keys, valueList])
 
   const chartRef = useRef<ElementRef<typeof Line>>(null)
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   useEffect(() => {
     const chartInstance = chartRef.current?.getEchartsInstance() || null
     updateChartOption(chartInstance, keys, yAxis)
-  }, [keys, yAxis])
+  }, [keys, yAxis, isMounted])
 
   if (keys.length === 0) {
     return (

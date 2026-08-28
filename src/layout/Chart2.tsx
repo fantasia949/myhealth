@@ -224,9 +224,6 @@ export default memo(({ keys }: ChartProps) => {
       nextSeries.push({
         ...seriesArr[1],
         data: regressionData,
-        tooltip: {
-          formatter: () => getRegressionTooltip(regressionExpression, keys[0], keys[1]),
-        },
       })
     }
 
@@ -258,10 +255,12 @@ export default memo(({ keys }: ChartProps) => {
             const dateStr = params.value[2]
             const u0 = params.value[3] ? ` ${params.value[3]}` : ''
             const u1 = params.value[4] ? ` ${params.value[4]}` : ''
+            const nameX = params.dimensionNames?.[0] || keys[0]
+            const nameY = params.dimensionNames?.[1] || keys[1]
             return (
               `<strong>${dateStr}</strong><br/>` +
-              `${params.marker} ${keys[0]}: <strong>${val1}${u0}</strong><br/>` +
-              `${params.marker} ${keys[1]}: <strong>${val2}${u1}</strong>`
+              `${params.marker} ${nameX}: <strong>${val1}${u0}</strong><br/>` +
+              `${params.marker} ${nameY}: <strong>${val2}${u1}</strong>`
             )
           }
           // Scan 2 Fix: Fallback for regression tooltip (regression line is rendered by 'line' series type)
