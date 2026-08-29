@@ -170,9 +170,14 @@ const CorrelationChordDiagram = React.memo(() => {
     }
 
     // Group and sort nodes by Tag to visually cluster them in the circular layout
-    const nodeItems = Array.from(uniqueNodes.values()).sort((a, b) =>
-      a.sortTag.localeCompare(b.sortTag),
-    )
+    // ⚡ Bolt Optimization: Replace Array.from(set).sort() with a pre-allocated dense array
+    // and explicitly push elements to optimize memory layout for V8 before calling .sort().
+    const nodeItems = new Array(uniqueNodes.size)
+    let idx = 0
+    for (const node of uniqueNodes.values()) {
+      nodeItems[idx++] = node
+    }
+    nodeItems.sort((a, b) => a.sortTag.localeCompare(b.sortTag))
 
     // Assign consistent colors by tag group
     // Optimization: Replace chained .map() and Set conversion with a single-pass loop
@@ -181,7 +186,11 @@ const CorrelationChordDiagram = React.memo(() => {
     for (let i = 0; i < nodeItems.length; i++) {
       tagGroupsSet.add(nodeItems[i].sortTag)
     }
-    const tagGroups = Array.from(tagGroupsSet)
+    const tagGroups = new Array(tagGroupsSet.size)
+    let tgIdx = 0
+    for (const tg of tagGroupsSet) {
+      tagGroups[tgIdx++] = tg
+    }
 
     const tagColors = new Map<string, string>()
     for (let i = 0; i < tagGroups.length; i++) {

@@ -86,7 +86,14 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
         }
       }
     }
-    return Array.from(tags).sort()
+    // ⚡ Bolt Optimization: Replace Array.from(set).sort() with a pre-allocated dense array
+    // and explicitly push elements to optimize memory layout for V8 before calling .sort().
+    const arr = new Array(tags.size)
+    let idx = 0
+    for (const tag of tags) {
+      arr[idx++] = tag
+    }
+    return arr.sort()
   }, [data])
 
   const [xAxisTag, setXAxisTag] = useState<string | null>(null)
