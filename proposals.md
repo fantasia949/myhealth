@@ -1186,3 +1186,53 @@ New `src/layout/MeasurementCadenceTimeline.tsx`.
 
 **Trigger / entry point:**
 Displayed as a global "Data Density" sparkline above the main dashboard date filters.
+
+---
+
+**Proposal: Tag Group Optimality Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Reads `extra.optimality[]` array pre-computed by `src/processors/post/range.ts` and `labels[]` from `src/data/index.ts`. Also uses `visibleDataAtom` from `src/atom/dataAtom.ts` for filtering context.
+
+**Which existing data it uses:**
+It reads the `extra.optimality[]` boolean array for each biomarker present in `visibleDataAtom`. The true/false states are mapped to heatmap data points.
+
+**Axes**
+- X-Axis: Time/Date (derived from `labels[]` representing the timeline of measurements)
+- Y-Axis: Biomarkers (filtered by the currently active tag group via `tagAtom`, e.g., all markers in `8-WBC`)
+
+**What it reveals that current charts don't:**
+Shows whether multiple members of a specific tag group (e.g., all Lipid panel markers) are simultaneously out-of-range at a single time point. The current line/scatter charts require scanning each biomarker's row individually to deduce group-wide states, whereas the heatmap instantly highlights clustered anomalies across the system.
+
+**Where it would live:**
+New `src/layout/TagOptimalityHeatmap.tsx`. It would be a collapsible section or rendered as an alternate view mode within `src/App.tsx` when a specific tag is active (`tagAtom !== null`).
+
+**Trigger / entry point:**
+The existing category tag filter buttons in `Nav.tsx` already populate `tagAtom`. When a tag is selected, a new toggle switch in the UI could activate this group-wide heatmap view instead of the standard table rows.
+
+---
+
+**Proposal: Non-Inferred Biomarker Missingness Matrix**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Relies on `nonInferredDataAtom` defined in `src/atom/dataAtom.ts` which provides the measured (non-inferred) biomarkers.
+
+**Which existing data it uses:**
+It uses the raw time-series arrays `values[]` (index 1 of the `BioMarker` tuple) from all biomarkers in `nonInferredDataAtom`. It specifically checks for `null`, `undefined`, or `NaN` vs valid numeric measurements.
+
+**Axes**
+- X-Axis: Time/Date (derived from `labels[]`)
+- Y-Axis: All non-inferred Biomarkers
+
+**What it reveals that current charts don't:**
+Reveals the exact sampling cadence and data sparsity across all tests. It exposes gaps where certain panels were skipped during a test date (e.g., discovering that Hormone tests are only done annually while Metabolic tests are done quarterly). This systemic view of missing data is completely invisible in the current individual line/scatter charts which silently drop or skip nulls.
+
+**Where it would live:**
+New `src/layout/DataSparsityMatrix.tsx`, likely placed in a dedicated "Data Quality" or "Sampling Overview" section of the dashboard.
+
+**Trigger / entry point:**
+A new "View Sampling Cadence" link or icon in the `Nav.tsx` or alongside the global controls that expands a full-screen or modal view of the matrix.

@@ -224,9 +224,6 @@ export default memo(({ keys }: ChartProps) => {
       nextSeries.push({
         ...seriesArr[1],
         data: regressionData,
-        tooltip: {
-          formatter: () => getRegressionTooltip(regressionExpression, keys[0], keys[1]),
-        },
       })
     }
 

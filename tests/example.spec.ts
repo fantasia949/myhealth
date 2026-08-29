@@ -10,7 +10,7 @@ test('Chart renders correctly', async ({ page }) => {
   await page.check('input[name="Glucose"]')
 
   // Click the "Visualize" button
-  await page.click('button:has-text("Visualize")')
+  await page.click('button:has-text("Visualize Selection")')
 
   await page.waitForTimeout(2000)
   await page.screenshot({ path: 'chart_debug.png' })
