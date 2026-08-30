@@ -700,3 +700,51 @@ New `src/layout/VolatilityPolarChart.tsx`.
 **Trigger / entry point:**
 A "Volatility Overview" button in the global dashboard header or Data Grid table header, complementing the existing system clustering and correlation overviews.
 ---
+
+**Proposal: Missing Data Interpolation Confidence Area Chart**
+
+**ECharts type:** `line` (with `areaStyle`)
+
+**Codebase citation:**
+Uses `dataAtom` from `src/atom/dataAtom.ts` and aligns `values[]` containing nulls against `labels[]`.
+
+**Which existing data it uses:**
+It utilizes the historical time-series array `values[]` (which contains `null` gaps for missing measurements) from `dataAtom` alongside the standard `labels[]` timeline.
+
+**Axes:**
+- X-axis: Time (dates parsed from `labels[]`)
+- Y-axis: Biomarker Value
+
+**What it reveals that current charts don't:**
+In the standard `Chart.tsx` line charts, missing data is either left as gaps (default `connectNulls: false`) or visually omitted, making long spans of untested time look either broken or falsely linear. This chart uses a solid line for actual data points and a heavily faded/dashed line with an underlying semi-transparent "uncertainty" area for periods spanning null values. This visually warns the user when a trend is merely an interpolation spanning months of untested time, preventing false confidence in a historical trajectory.
+
+**Where it would live:**
+New `src/layout/InterpolationConfidenceChart.tsx`.
+
+**Trigger / entry point:**
+A "Show Interpolation Confidence" toggle built directly into the existing `LineChart.tsx` component used in the table row expansion view.
+
+---
+
+**Proposal: Alpha-Threshold Sensitivity Bar Chart**
+
+**ECharts type:** `bar`
+
+**Codebase citation:**
+Uses `correlationAlphaAtom` from `src/atom/correlationAtom.ts` and global pairwise combinations from `dataMapAtom`.
+
+**Which existing data it uses:**
+Iterates through all possible pairwise biomarker correlations derived from `dataMapAtom` (excluding inferred data). It counts the total number of statistically significant correlations (edges) across three standard significance thresholds (Alpha = 0.10, 0.05, 0.01) rather than just a single active threshold.
+
+**Axes:**
+- X-axis: Significance Level (Alpha 0.10, 0.05, 0.01)
+- Y-axis: Count of Significant Correlations
+
+**What it reveals that current charts don't:**
+The existing correlation tools (`Correlation.tsx` and Chord Diagram) only show results for the single globally selected `correlationAlphaAtom`. This bar chart provides a meta-analysis of the system's overall robustness. If the total number of significant correlations drops precipitously from Alpha 0.05 to Alpha 0.01, it reveals that most of the user's biomarker couplings are weak or borderline (potentially driven by noise), whereas a stable bar height across thresholds indicates deep, highly robust physiological linkage.
+
+**Where it would live:**
+New `src/layout/AlphaSensitivityBar.tsx`.
+
+**Trigger / entry point:**
+Displayed as a "Robustness Summary" widget above the main controls in the Correlation modal (`Correlation.tsx`).
