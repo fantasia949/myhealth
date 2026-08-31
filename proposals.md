@@ -21,6 +21,52 @@ A "Conditional Probability View" toggle within the correlation and statistical m
 
 ---
 
+**Proposal: PhenoAge Dependency Network Chart**
+
+**ECharts type:** `graph`
+
+**Codebase citation:**
+Uses `a-PhenoAge` tags grouped by `src/processors/post/tag.ts` and the `inferred` flag from `src/types/biomarker.ts`, fed by `dataAtom`.
+
+**Which existing data it uses:**
+It pulls all biomarkers under the `a-PhenoAge` tag group. It maps out the `inferred: true` biomarker (PhenoAge itself) as the central node and connects it to the measured underlying `originValues` (like Albumin, CRP-hs, Glucose, WBC). It sizes the individual nodes based on the relative frequency of their out-of-range failures (`extra.optimality[]` from `src/processors/post/range.ts`).
+
+**What it reveals that current charts don't:**
+While the standard LineChart can show a user's biological age (PhenoAge) increasing, it cannot explain *why*. This graph immediately highlights the root cause—by sizing the measured nodes by failure frequency, a user can instantly see if their elevated PhenoAge is driven by chronic inflammation (large CRP-hs node) versus poor glucose control (large Glucose node).
+
+**Where it would live:**
+New `src/layout/PhenoAgeDependencyGraph.tsx`.
+
+**Trigger / entry point:**
+A "Deconstruct Score" button next to any calculated/inferred biomarker that expands this dependency graph.
+
+---
+
+**Proposal: Sub-Clinical Biomarker Creep Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.range` and standard deviation calculations over `values[]` (from `BioMarker` within `src/types/biomarker.ts`), aligned with `labels[]` from `src/data/index.ts`.
+
+**Which existing data it uses:**
+For all biomarkers in `visibleDataAtom`, it extracts the median (center) of their healthy `extra.range`. Instead of a boolean pass/fail based on the range edge (like `extra.optimality[]`), it calculates the continuous standardized distance (deviation) of every historical measurement from that perfect median, mapping this numerical drift into a heatmap over the `labels[]` timeline.
+
+**Axes:**
+- X-axis: Time (dates from `labels[]`)
+- Y-axis: Biomarker names (from `visibleDataAtom`)
+
+**What it reveals that current charts don't:**
+Current charts only alert users when they officially cross an out-of-range boundary, and line charts are too chaotic when viewing 10+ metrics simultaneously. This heatmap acts as a unified sub-clinical radar, visualizing slow deterioration (creep) *before* a failure occurs. A user can see a system slowly turning from cool blue to warm yellow over years, allowing intervention long before the line crosses into clinical red.
+
+**Where it would live:**
+New `src/layout/SubClinicalCreepHeatmap.tsx`.
+
+**Trigger / entry point:**
+An "Early Warning Matrix" toggle in the main Dashboard, acting as an alternative to the RadarChart.
+
+---
+
 
 **Proposal: System-Wide Volatility Sankey Diagram**
 

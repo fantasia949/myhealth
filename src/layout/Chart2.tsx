@@ -27,7 +27,7 @@ export const CHART_PALETTE = [
 const getRegressionTooltip = (expression: string, keyX: string, keyY: string) => {
   if (expression) {
     const formattedExpr = expression
-      .replace(/\bx\b/g, keyX)
+      .replace(/x/g, keyX)
       .replace(/^y\s*=/, `${keyY} = `)
     return `<strong>Regression Trend</strong><br/>${formattedExpr}`
   }
