@@ -700,3 +700,52 @@ New `src/layout/VolatilityPolarChart.tsx`.
 **Trigger / entry point:**
 A "Volatility Overview" button in the global dashboard header or Data Grid table header, complementing the existing system clustering and correlation overviews.
 ---
+
+**Proposal: Simultaneous Anomaly Burst Scatter**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` aligned with time-series `labels` from `src/data/index.ts`.
+
+**Which existing data it uses:**
+It scans across all tracked biomarkers in `dataAtom.ts` and sums the total number of `true` values in `extra.optimality[]` for each specific date index in `labels[]`.
+
+**Axes:**
+- X-axis: Time (dates from `labels[]`)
+- Y-axis: Total simultaneous anomalies (Count of out-of-range markers)
+
+**What it reveals that current charts don't:**
+While individual timeline charts show when a single marker fails, this chart reveals systemic "bursts" of physiological stress. A sudden spike indicates a catastrophic health event (e.g., severe acute infection or metabolic crash) where dozens of systems failed simultaneously, allowing the user to correlate these systemic shocks with lifestyle or clinical events.
+
+**Where it would live:**
+New `src/layout/SimultaneousAnomalyBurstScatter.tsx`.
+
+**Trigger / entry point:**
+A "Systemic Stress Timeline" toggle in the main dashboard view, replacing the individual multi-line `Chart.tsx`.
+
+---
+
+**Proposal: Tag-Group Anomaly Velocity Line Chart**
+
+**ECharts type:** `line`
+
+**Codebase citation:**
+Uses `extra.tag[]` from `src/processors/post/tag.ts` and `extra.optimality[]` from `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+For each tag group (e.g., `4-Lipid`), it calculates the total count of out-of-range biomarkers (`extra.optimality[] === true`) per timestamp. It then calculates the first derivative (the step-to-step delta in the anomaly count).
+
+**Axes:**
+- X-axis: Time (dates from `labels[]`)
+- Y-axis: Anomaly Velocity (Rate of change in failing markers per system)
+
+**What it reveals that current charts don't:**
+Reveals which biological systems are *currently destabilizing the fastest*. A tag group might have a high absolute number of anomalies, but if its velocity is zero, it's stable. Conversely, a group with few anomalies but a high positive velocity is actively degrading and requires immediate attention.
+
+**Where it would live:**
+New `src/layout/TagAnomalyVelocityChart.tsx`.
+
+**Trigger / entry point:**
+A "System Destabilization Rate" button in the global dashboard header, rendering alongside the System Radar Chart.
+---
