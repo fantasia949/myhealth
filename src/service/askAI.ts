@@ -93,7 +93,7 @@ ${PROMPT.CONSTRAINS}`
           },
         ],
         generationConfig: {
-          thinkingConfig: { thinkingLevel: "HIGH" },
+          thinkingConfig: { thinkingLevel: 'HIGH' },
         },
         tools: [{ googleSearch: {} }],
       }),
