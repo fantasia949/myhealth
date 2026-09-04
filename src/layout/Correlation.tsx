@@ -26,7 +26,9 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
   const [alternative, setAlternative] = useAtom(correlationAlternativeAtom)
   const [method, setMethod] = useAtom(correlationMethodAtom)
   const [isCopied, setIsCopied] = React.useState(false)
-  const [activeTab, setActiveTab] = React.useState<'chart' | 'significance' | 'table' | 'prioritization' | 'directional' | 'directional-polar'>('chart')
+  const [activeTab, setActiveTab] = React.useState<
+    'chart' | 'significance' | 'table' | 'prioritization' | 'directional' | 'directional-polar'
+  >('chart')
 
   const entries = React.useMemo(() => {
     if (!Array.isArray(data) || !target) {
@@ -278,12 +280,18 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                               id="corr-alt"
                               value={alternative}
                               onChange={(e) => {
-                                const newAlternative = e.target.value as 'two-sided' | 'less' | 'greater';
-                                setAlternative(newAlternative);
+                                const newAlternative = e.target.value as
+                                  | 'two-sided'
+                                  | 'less'
+                                  | 'greater'
+                                setAlternative(newAlternative)
                                 if (newAlternative !== 'two-sided' && activeTab === 'chart') {
-                                  setActiveTab('directional');
-                                } else if (newAlternative === 'two-sided' && (activeTab === 'directional' || activeTab === 'directional-polar')) {
-                                  setActiveTab('chart');
+                                  setActiveTab('directional')
+                                } else if (
+                                  newAlternative === 'two-sided' &&
+                                  (activeTab === 'directional' || activeTab === 'directional-polar')
+                                ) {
+                                  setActiveTab('chart')
                                 }
                               }}
                               className="w-24 px-2 py-1 bg-dark-bg border border-gray-600 rounded text-xs focus:border-blue-500 outline-none transition-colors text-white focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
@@ -347,7 +355,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                             Directional Profile
                           </button>
                         )}
-<button
+                        <button
                           type="button"
                           aria-pressed={activeTab === 'prioritization'}
                           className={`w-full rounded-lg py-2.5 text-sm font-medium leading-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors ${
@@ -375,26 +383,29 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                         )}
                       </div>
 
+                      {activeTab === 'directional' &&
+                        alternative !== 'two-sided' &&
+                        significantEntries.length > 0 && (
+                          <div className="mb-8">
+                            <DirectionalCorrelationScatter
+                              target={target!}
+                              correlations={directionalCorrelations}
+                              alternative={alternative}
+                            />
+                          </div>
+                        )}
 
-                      {activeTab === 'directional' && alternative !== 'two-sided' && significantEntries.length > 0 && (
-                        <div className="mb-8">
-                          <DirectionalCorrelationScatter
-                            target={target!}
-                            correlations={directionalCorrelations}
-                            alternative={alternative}
-                          />
-                        </div>
-                      )}
-
-                      {activeTab === 'directional-polar' && alternative !== 'two-sided' && significantEntries.length > 0 && (
-                        <div className="mb-8">
-                          <CorrelationPolarScatter
-                            target={target!}
-                            correlations={directionalCorrelations}
-                            alpha={alpha}
-                          />
-                        </div>
-                      )}
+                      {activeTab === 'directional-polar' &&
+                        alternative !== 'two-sided' &&
+                        significantEntries.length > 0 && (
+                          <div className="mb-8">
+                            <CorrelationPolarScatter
+                              target={target!}
+                              correlations={directionalCorrelations}
+                              alpha={alpha}
+                            />
+                          </div>
+                        )}
 
                       {activeTab === 'chart' && significantEntries.length > 0 && (
                         <div className="mb-8">
@@ -410,7 +421,6 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                           <CorrelationVolcanoPlot correlations={entries} alpha={alpha} />
                         </div>
                       )}
-
 
                       {activeTab === 'prioritization' && (
                         <div className="mb-8">

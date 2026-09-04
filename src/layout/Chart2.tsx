@@ -4,7 +4,13 @@ import { dataMapAtom } from '../atom/dataAtom'
 
 import { labels, formattedLabels } from '../data'
 import ReactECharts from 'echarts-for-react'
-import type { DatasetComponentOption, SeriesOption, XAXisComponentOption, YAXisComponentOption, EChartsOption } from 'echarts'
+import type {
+  DatasetComponentOption,
+  SeriesOption,
+  XAXisComponentOption,
+  YAXisComponentOption,
+  EChartsOption,
+} from 'echarts'
 import * as ecStat from 'echarts-stat'
 import { ChartProps } from './Chart.types'
 import type { EChartsReactProps } from 'echarts-for-react'
@@ -26,9 +32,7 @@ export const CHART_PALETTE = [
 
 const getRegressionTooltip = (expression: string, keyX: string, keyY: string) => {
   if (expression) {
-    const formattedExpr = expression
-      .replace(/x/g, keyX)
-      .replace(/^y\s*=/, `${keyY} = `)
+    const formattedExpr = expression.replace(/x/g, keyX).replace(/^y\s*=/, `${keyY} = `)
     return `<strong>Regression Trend</strong><br/>${formattedExpr}`
   }
   return '<strong>Regression Trend</strong>'
@@ -155,7 +159,14 @@ export default memo(({ keys }: ChartProps) => {
       for (let i = 0; i < len; i++) {
         const v0 = values0[i]
         const v1 = values1[i]
-        if (v0 !== null && v0 !== undefined && v1 !== null && v1 !== undefined && !Number.isNaN(v0 as number) && !Number.isNaN(v1 as number)) {
+        if (
+          v0 !== null &&
+          v0 !== undefined &&
+          v1 !== null &&
+          v1 !== undefined &&
+          !Number.isNaN(v0 as number) &&
+          !Number.isNaN(v1 as number)
+        ) {
           const formattedDate = formattedLabels[i]
           mappedData.push([v0, v1, formattedDate, unitX, unitY])
         }
@@ -175,7 +186,7 @@ export default memo(({ keys }: ChartProps) => {
           ...xAxisArr[i],
           name: keys[0],
           nameLocation: 'middle' as const,
-          nameGap: 30
+          nameGap: 30,
         })
       } else {
         nextXAxis.push(xAxisArr[i])
@@ -191,7 +202,7 @@ export default memo(({ keys }: ChartProps) => {
           name: keys[1],
           nameLocation: 'middle' as const,
           nameRotate: 90,
-          nameGap: 50
+          nameGap: 50,
         })
       } else {
         nextYAxis.push(yAxisArr[i])
@@ -217,7 +228,6 @@ export default memo(({ keys }: ChartProps) => {
       regressionExpression = regRes.expression
       regressionData = regRes.points
     }
-
 
     // Only include the regression series if dataset contains it
     if (mappedScatterData.length >= 2) {
@@ -266,7 +276,12 @@ export default memo(({ keys }: ChartProps) => {
           // Scan 2 Fix: Fallback for regression tooltip (regression line is rendered by 'line' series type)
           // `regressionExpression` is outside the closure. ecStat formulaOn: 'end' does not reliably expose the equation at `params.value[2]` for line points during hover.
           let expr = regressionExpression
-          if (params.value && params.value.length > 2 && typeof params.value[2] === 'string' && params.value[2].includes('=')) {
+          if (
+            params.value &&
+            params.value.length > 2 &&
+            typeof params.value[2] === 'string' &&
+            params.value[2].includes('=')
+          ) {
             expr = params.value[2]
           }
           return getRegressionTooltip(expr, keys[0], keys[1])

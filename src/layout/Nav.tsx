@@ -15,6 +15,7 @@ import {
   BeakerIcon,
   SparklesIcon,
   ArrowLeftIcon,
+  DocumentTextIcon,
 } from '@heroicons/react/24/outline'
 import { tags } from '../processors'
 import { askBioMarkers } from '../service/askAI'
@@ -37,15 +38,14 @@ import { Spinner } from './Spinner'
 import { NavProps } from './Nav.types'
 
 interface NoteValue {
-  date: string;
-  supps: string[];
-  items: string[];
+  date: string
+  supps: string[]
+  items: string[]
 }
 
-// Optimization: Lazy load the GistViewer modal to reduce the initial JavaScript bundle size.
-// This modal is only needed when a user explicitly clicks "View History", so code-splitting it
-// significantly improves the initial page load speed without sacrificing readability.
+// Optimization: Lazy load the GistViewer modal and NoteEditor to reduce initial JavaScript bundle size.
 const GistViewer = React.lazy(() => import('./GistViewer'))
+const NoteEditor = React.lazy(() => import('./NoteEditor'))
 
 export default React.memo<NavProps>(
   ({
@@ -90,10 +90,6 @@ export default React.memo<NavProps>(
           }
         }
       }
-      // ⚡ Bolt Optimization: Replace Array.from(supps).sort() with an explicit dense array loop and fast sort.
-      // Array.from() allocates an iterator, and spread syntax [...supps] creates an intermediate array
-      // before sorting. Extracting the Set values directly into a pre-allocated dense array avoids
-      // iterator and holey array overhead in hot React.useMemo paths.
       const arr = new Array(supps.size)
       let idx = 0
       for (const s of supps) {
@@ -195,12 +191,18 @@ export default React.memo<NavProps>(
                 const val = target[1][target[1].length - 1]
                 if (!val) continue
                 const unit = target[2] || ''
-                related.set(target[0], `- ${target[0]}: ${val} ${unit} (Correlation: ${res.statistic.toFixed(2)}, P-Value: ${res.pValue.toFixed(4)})`)
+                related.set(
+                  target[0],
+                  `- ${target[0]}: ${val} ${unit} (Correlation: ${res.statistic.toFixed(2)}, P-Value: ${res.pValue.toFixed(4)})`,
+                )
               }
             }
           }
           if (related.size === 0) return undefined
-          return 'Related Biomarkers (Significant Correlations):\n' + Array.from(related.values()).join('\n')
+          return (
+            'Related Biomarkers (Significant Correlations):\n' +
+            Array.from(related.values()).join('\n')
+          )
         })()
 
         const text = await askBioMarkers(pairs, key, model, filterTag, prevPairs, relatedContext)
@@ -219,6 +221,9 @@ export default React.memo<NavProps>(
     const [isGistLoading, setIsGistLoading] = React.useState(false)
     const [isGistViewerOpen, setIsGistViewerOpen] = React.useState(false)
     const [hasGistViewerMounted, setHasGistViewerMounted] = React.useState(false)
+
+    const [isNoteEditorOpen, setIsNoteEditorOpen] = React.useState(false)
+    const [hasNoteEditorMounted, setHasNoteEditorMounted] = React.useState(false)
 
     const handleClose = React.useCallback(() => {
       setCanvasText(null)
@@ -333,11 +338,21 @@ export default React.memo<NavProps>(
                     value={showRecords.toString()}
                     onChange={onShowRecordsChange}
                   >
-                    <option value="0" className="bg-gray-900">All records</option>
-                    <option value="3" className="bg-gray-900">Last 3</option>
-                    <option value="5" className="bg-gray-900">Last 5</option>
-                    <option value="10" className="bg-gray-900">Last 10</option>
-                    <option value="15" className="bg-gray-900">Last 15</option>
+                    <option value="0" className="bg-gray-900">
+                      All records
+                    </option>
+                    <option value="3" className="bg-gray-900">
+                      Last 3
+                    </option>
+                    <option value="5" className="bg-gray-900">
+                      Last 5
+                    </option>
+                    <option value="10" className="bg-gray-900">
+                      Last 10
+                    </option>
+                    <option value="15" className="bg-gray-900">
+                      Last 15
+                    </option>
                   </select>
                 </div>
 
@@ -350,11 +365,21 @@ export default React.memo<NavProps>(
                     value={averageCount.toString()}
                     onChange={onAverageCount}
                   >
-                    <option value="" className="bg-gray-900">No average</option>
-                    <option value="3" className="bg-gray-900">Avg of 3</option>
-                    <option value="5" className="bg-gray-900">Avg of 5</option>
-                    <option value="10" className="bg-gray-900">Avg of 10</option>
-                    <option value="15" className="bg-gray-900">Avg of 15</option>
+                    <option value="" className="bg-gray-900">
+                      No average
+                    </option>
+                    <option value="3" className="bg-gray-900">
+                      Avg of 3
+                    </option>
+                    <option value="5" className="bg-gray-900">
+                      Avg of 5
+                    </option>
+                    <option value="10" className="bg-gray-900">
+                      Avg of 10
+                    </option>
+                    <option value="15" className="bg-gray-900">
+                      Avg of 15
+                    </option>
                   </select>
                 </div>
 
@@ -473,10 +498,8 @@ export default React.memo<NavProps>(
               {/* Analyze Popover with 2-Step Submenu Flow */}
               <Popover className="relative">
                 {({ open, close }) => {
-                  // Reset submenu back to main when popover closes
                   if (!open && activeSubMenu !== 'main') {
-                    // Execute on next tick to avoid React render updates warning
-                    setTimeout(() => setActiveSubMenu('main'), 100);
+                    setTimeout(() => setActiveSubMenu('main'), 100)
                   }
                   return (
                     <>
@@ -488,7 +511,12 @@ export default React.memo<NavProps>(
                         )}
                       >
                         Analyze
-                        <ChevronDownIcon className={cn('h-3.5 w-3.5 transition-transform', open ? 'rotate-180' : '')} />
+                        <ChevronDownIcon
+                          className={cn(
+                            'h-3.5 w-3.5 transition-transform',
+                            open ? 'rotate-180' : '',
+                          )}
+                        />
                       </Popover.Button>
 
                       <Transition
@@ -510,7 +538,10 @@ export default React.memo<NavProps>(
                                   </div>
 
                                   <button
-                                    onClick={() => { onVisualize(); close(); }}
+                                    onClick={() => {
+                                      onVisualize()
+                                      close()
+                                    }}
                                     disabled={selected.length === 0}
                                     className={cn(
                                       'flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left',
@@ -523,7 +554,10 @@ export default React.memo<NavProps>(
                                   </button>
 
                                   <button
-                                    onClick={() => { onPValue(); close(); }}
+                                    onClick={() => {
+                                      onPValue()
+                                      close()
+                                    }}
                                     disabled={selected.length !== 2}
                                     className={cn(
                                       'flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left',
@@ -540,7 +574,10 @@ export default React.memo<NavProps>(
                                   </div>
 
                                   <button
-                                    onClick={() => { onToggleMatrixView(); close(); }}
+                                    onClick={() => {
+                                      onToggleMatrixView()
+                                      close()
+                                    }}
                                     disabled={filterTag == null}
                                     className={cn(
                                       'flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left',
@@ -549,25 +586,45 @@ export default React.memo<NavProps>(
                                       'disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-300',
                                     )}
                                   >
-                                    <div className={cn('h-1.5 w-1.5 rounded-full bg-accent transition-all', isMatrixViewOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0')} />
+                                    <div
+                                      className={cn(
+                                        'h-1.5 w-1.5 rounded-full bg-accent transition-all',
+                                        isMatrixViewOpen
+                                          ? 'scale-100 opacity-100'
+                                          : 'scale-0 opacity-0',
+                                      )}
+                                    />
                                     Correlation Matrix
                                   </button>
 
                                   <button
-                                    onClick={() => { onToggleNetworkView(); close(); }}
+                                    onClick={() => {
+                                      onToggleNetworkView()
+                                      close()
+                                    }}
                                     className={cn(
                                       'flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left',
                                       'text-gray-300 hover:bg-gray-800/80 hover:text-white',
                                       isNetworkViewOpen ? 'text-accent font-semibold' : '',
                                     )}
                                   >
-                                    <div className={cn('h-1.5 w-1.5 rounded-full bg-accent transition-all', isNetworkViewOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0')} />
+                                    <div
+                                      className={cn(
+                                        'h-1.5 w-1.5 rounded-full bg-accent transition-all',
+                                        isNetworkViewOpen
+                                          ? 'scale-100 opacity-100'
+                                          : 'scale-0 opacity-0',
+                                      )}
+                                    />
                                     Chord Diagram
                                   </button>
 
                                   {onOpenClustering && (
                                     <button
-                                      onClick={() => { onOpenClustering(); close(); }}
+                                      onClick={() => {
+                                        onOpenClustering()
+                                        close()
+                                      }}
                                       className={cn(
                                         'flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left',
                                         'text-gray-300 hover:bg-gray-800/80 hover:text-white',
@@ -616,8 +673,8 @@ export default React.memo<NavProps>(
                                     <button
                                       key={supp}
                                       onClick={() => {
-                                        onSupplementCorrelation(supp);
-                                        close();
+                                        onSupplementCorrelation(supp)
+                                        close()
                                       }}
                                       className="flex w-full items-center px-3 py-2 rounded-lg text-xs text-gray-300 hover:bg-gray-800 hover:text-white transition-colors text-left"
                                     >
@@ -650,6 +707,24 @@ export default React.memo<NavProps>(
                 {isAsking ? <Spinner /> : <SparklesIcon className="h-3.5 w-3.5 text-accent" />}
                 <span className="hidden md:inline">Ask AI</span>
               </button>
+
+              {/* Quick Notes - Positioned immediately on the right side of Ask AI */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsNoteEditorOpen(true)
+                  setHasNoteEditorMounted(true)
+                }}
+                className={cn(
+                  'flex items-center justify-center gap-1.5 p-1.5 md:px-4 md:py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0',
+                  'border border-gray-700 text-gray-300 hover:text-white hover:border-gray-500',
+                )}
+                title="Quick Notes"
+                aria-label="Quick Notes"
+              >
+                <DocumentTextIcon className="h-3.5 w-3.5 text-accent" />
+                <span className="hidden md:inline">Notes</span>
+              </button>
             </div>
           </div>
         </header>
@@ -669,6 +744,9 @@ export default React.memo<NavProps>(
         >
           {hasGistViewerMounted && (
             <GistViewer isOpen={isGistViewerOpen} onClose={() => setIsGistViewerOpen(false)} />
+          )}
+          {hasNoteEditorMounted && (
+            <NoteEditor isOpen={isNoteEditorOpen} onClose={() => setIsNoteEditorOpen(false)} />
           )}
         </React.Suspense>
 
@@ -863,12 +941,17 @@ export default React.memo<NavProps>(
                         <div className="flex-1 px-6 py-8 space-y-10">
                           {/* Filters Section */}
                           <section>
-                            <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">Categories</h3>
+                            <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">
+                              Categories
+                            </h3>
                             <div className="flex flex-wrap gap-2">
                               <button
                                 type="button"
                                 data-tag=""
-                                onClick={(e) => { onFilterByTag(e); setShow(false); }}
+                                onClick={(e) => {
+                                  onFilterByTag(e)
+                                  setShow(false)
+                                }}
                                 className={cn(
                                   'px-4 py-2 rounded-lg text-sm font-medium transition-all',
                                   filterTag === null
@@ -883,7 +966,10 @@ export default React.memo<NavProps>(
                                   key={tag}
                                   type="button"
                                   data-tag={tag}
-                                  onClick={(e) => { onFilterByTag(e); setShow(false); }}
+                                  onClick={(e) => {
+                                    onFilterByTag(e)
+                                    setShow(false)
+                                  }}
                                   className={cn(
                                     'px-4 py-2 rounded-lg text-sm font-medium transition-all',
                                     filterTag === tag
@@ -899,10 +985,15 @@ export default React.memo<NavProps>(
 
                           {/* Analyze Section */}
                           <section>
-                            <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">Analyze</h3>
+                            <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">
+                              Analyze
+                            </h3>
                             <div className="grid grid-cols-1 gap-3">
                               <button
-                                onClick={() => { onVisualize(); setShow(false); }}
+                                onClick={() => {
+                                  onVisualize()
+                                  setShow(false)
+                                }}
                                 disabled={selected.length === 0}
                                 className="flex items-center gap-3 px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl text-sm font-medium text-gray-300 hover:bg-gray-800 disabled:opacity-30"
                               >
@@ -910,29 +1001,52 @@ export default React.memo<NavProps>(
                                 Visualize Selection ({selected.length})
                               </button>
                               <button
-                                onClick={() => { onToggleMatrixView(); setShow(false); }}
+                                onClick={() => {
+                                  onToggleMatrixView()
+                                  setShow(false)
+                                }}
                                 disabled={filterTag == null}
                                 className={cn(
-                                  "flex items-center gap-3 px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl text-sm font-medium transition-colors",
-                                  isMatrixViewOpen ? "text-accent border-accent/30 bg-accent/5" : "text-gray-300"
+                                  'flex items-center gap-3 px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl text-sm font-medium transition-colors',
+                                  isMatrixViewOpen
+                                    ? 'text-accent border-accent/30 bg-accent/5'
+                                    : 'text-gray-300',
                                 )}
                               >
-                                <div className={cn("h-2 w-2 rounded-full", isMatrixViewOpen ? "bg-accent" : "bg-gray-700")} />
+                                <div
+                                  className={cn(
+                                    'h-2 w-2 rounded-full',
+                                    isMatrixViewOpen ? 'bg-accent' : 'bg-gray-700',
+                                  )}
+                                />
                                 Correlation Matrix
                               </button>
                               <button
-                                onClick={() => { onToggleNetworkView(); setShow(false); }}
+                                onClick={() => {
+                                  onToggleNetworkView()
+                                  setShow(false)
+                                }}
                                 className={cn(
-                                  "flex items-center gap-3 px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl text-sm font-medium transition-colors",
-                                  isNetworkViewOpen ? "text-accent border-accent/30 bg-accent/5" : "text-gray-300"
+                                  'flex items-center gap-3 px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl text-sm font-medium transition-colors',
+                                  isNetworkViewOpen
+                                    ? 'text-accent border-accent/30 bg-accent/5'
+                                    : 'text-gray-300',
                                 )}
                               >
-                                <div className={cn("h-2 w-2 rounded-full", isNetworkViewOpen ? "bg-accent" : "bg-gray-700")} />
+                                <div
+                                  className={cn(
+                                    'h-2 w-2 rounded-full',
+                                    isNetworkViewOpen ? 'bg-accent' : 'bg-gray-700',
+                                  )}
+                                />
                                 Chord Diagram
                               </button>
                               {onOpenClustering && (
                                 <button
-                                  onClick={() => { onOpenClustering(); setShow(false); }}
+                                  onClick={() => {
+                                    onOpenClustering()
+                                    setShow(false)
+                                  }}
                                   className="flex items-center gap-3 px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl text-sm font-medium text-gray-300"
                                 >
                                   <SparklesIcon className="h-5 w-5 text-purple-400" />
@@ -940,19 +1054,36 @@ export default React.memo<NavProps>(
                                 </button>
                               )}
                               <button
-                                onClick={() => { onAskAI(); setShow(false); }}
+                                onClick={() => {
+                                  onAskAI()
+                                  setShow(false)
+                                }}
                                 disabled={isAsking || selected.length === 0}
                                 className="flex items-center gap-3 px-4 py-3 bg-accent text-white rounded-xl text-sm font-bold shadow-lg shadow-accent/20 disabled:opacity-50"
                               >
                                 <SparklesIcon className="h-5 w-5" />
                                 {isAsking ? 'Asking AI...' : 'Ask AI'}
                               </button>
+
+                              <button
+                                onClick={() => {
+                                  setIsNoteEditorOpen(true)
+                                  setHasNoteEditorMounted(true)
+                                  setShow(false)
+                                }}
+                                className="flex items-center gap-3 px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl text-sm font-medium text-gray-300 hover:bg-gray-800"
+                              >
+                                <DocumentTextIcon className="h-5 w-5 text-accent" />
+                                Quick Notes
+                              </button>
                             </div>
                           </section>
 
                           {/* View Section */}
                           <section>
-                            <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">View Settings</h3>
+                            <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">
+                              View Settings
+                            </h3>
                             <div className="space-y-4">
                               <div className="flex items-center justify-between p-4 bg-gray-900 border border-gray-800 rounded-xl">
                                 <div className="flex items-center gap-3 text-gray-400">
@@ -965,11 +1096,21 @@ export default React.memo<NavProps>(
                                   value={showRecords.toString()}
                                   onChange={onShowRecordsChange}
                                 >
-                                  <option value="0" className="bg-gray-900">All</option>
-                                  <option value="3" className="bg-gray-900">Last 3</option>
-                                  <option value="5" className="bg-gray-900">Last 5</option>
-                                  <option value="10" className="bg-gray-900">Last 10</option>
-                                  <option value="15" className="bg-gray-900">Last 15</option>
+                                  <option value="0" className="bg-gray-900">
+                                    All
+                                  </option>
+                                  <option value="3" className="bg-gray-900">
+                                    Last 3
+                                  </option>
+                                  <option value="5" className="bg-gray-900">
+                                    Last 5
+                                  </option>
+                                  <option value="10" className="bg-gray-900">
+                                    Last 10
+                                  </option>
+                                  <option value="15" className="bg-gray-900">
+                                    Last 15
+                                  </option>
                                 </select>
                               </div>
                               <div className="flex items-center justify-between p-4 bg-gray-900 border border-gray-800 rounded-xl">
@@ -983,18 +1124,28 @@ export default React.memo<NavProps>(
                                   value={averageCount.toString()}
                                   onChange={onAverageCount}
                                 >
-                                  <option value="" className="bg-gray-900">None</option>
-                                  <option value="3" className="bg-gray-900">Avg of 3</option>
-                                  <option value="5" className="bg-gray-900">Avg of 5</option>
-                                  <option value="10" className="bg-gray-900">Avg of 10</option>
-                                  <option value="15" className="bg-gray-900">Avg of 15</option>
+                                  <option value="" className="bg-gray-900">
+                                    None
+                                  </option>
+                                  <option value="3" className="bg-gray-900">
+                                    Avg of 3
+                                  </option>
+                                  <option value="5" className="bg-gray-900">
+                                    Avg of 5
+                                  </option>
+                                  <option value="10" className="bg-gray-900">
+                                    Avg of 10
+                                  </option>
+                                  <option value="15" className="bg-gray-900">
+                                    Avg of 15
+                                  </option>
                                 </select>
                               </div>
                               <button
                                 onClick={() => {
-                                  setIsGistViewerOpen(true);
-                                  setHasGistViewerMounted(true);
-                                  setShow(false);
+                                  setIsGistViewerOpen(true)
+                                  setHasGistViewerMounted(true)
+                                  setShow(false)
                                 }}
                                 className="flex items-center gap-3 w-full p-4 bg-gray-900 border border-gray-800 rounded-xl text-sm font-medium text-gray-400 hover:text-white"
                               >

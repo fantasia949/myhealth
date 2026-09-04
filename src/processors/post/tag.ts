@@ -110,7 +110,7 @@ const tag: Record<string, string[]> = {
     'Đồng',
     'Kẽm',
     'TIBC',
-    'TSAT'
+    'TSAT',
   ],
   'a-PhenoAge': [
     'Albumin',

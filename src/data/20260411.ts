@@ -76,7 +76,7 @@ export default {
     '-incarin',
     '~leg-day',
     '+oyster',
-    '-pregnenolone'
+    '-pregnenolone',
   ],
   review: [
     'taurine does not lower RDW',
