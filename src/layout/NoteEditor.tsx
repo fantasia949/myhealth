@@ -5,20 +5,18 @@ import {
   DocumentTextIcon,
   CheckIcon,
   ArrowTopRightOnSquareIcon,
-  KeyIcon,
 } from '@heroicons/react/24/outline'
-import { useAtom } from 'jotai'
+import { useAtomValue } from 'jotai'
 import { gistTokenAtom } from '../atom/dataAtom'
 import { fetchQuickNote, saveQuickNote } from '../service/gist'
 import { Spinner } from './Spinner'
-import { PasswordInput } from './PasswordInput'
 import { NoteEditorProps } from './NoteEditor.types'
 
 const GIST_NOTE_URL =
   'https://gist.github.com/fantasia949/7853cbe1c3e9bd514e89ac06bf74b54b#file-notes-txt'
 
 export default function NoteEditor({ isOpen, onClose }: NoteEditorProps) {
-  const [gistToken, setGistToken] = useAtom(gistTokenAtom)
+  const gistToken = useAtomValue(gistTokenAtom)
   const [noteContent, setNoteContent] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isSaving, setIsSaving] = useState<boolean>(false)
@@ -26,9 +24,6 @@ export default function NoteEditor({ isOpen, onClose }: NoteEditorProps) {
     type: 'success' | 'error' | 'info'
     message: string
   } | null>(null)
-  const [showTokenInput, setShowTokenInput] = useState<boolean>(false)
-  const [showPassword, setShowPassword] = useState<boolean>(false)
-  const [tempToken, setTempToken] = useState<string>('')
 
   const loadNote = useCallback(async () => {
     setIsLoading(true)
@@ -48,25 +43,20 @@ export default function NoteEditor({ isOpen, onClose }: NoteEditorProps) {
   }, [gistToken])
 
   const handleSave = async () => {
-    const tokenToUse = gistToken || tempToken
-    if (!tokenToUse) {
+    if (!gistToken) {
       setStatus({
         type: 'error',
-        message: 'Gist token is required to save notes.',
+        message:
+          'Gist Token is missing. Please enter your Gist Token in the input field at the bottom of the page.',
       })
-      setShowTokenInput(true)
       return
-    }
-
-    if (tempToken && tempToken !== gistToken) {
-      setGistToken(tempToken)
     }
 
     setIsSaving(true)
     setStatus(null)
 
     try {
-      await saveQuickNote(noteContent, tokenToUse)
+      await saveQuickNote(noteContent, gistToken)
       setStatus({
         type: 'success',
         message: 'Note saved to Gist successfully!',
@@ -142,54 +132,6 @@ export default function NoteEditor({ isOpen, onClose }: NoteEditorProps) {
                       </button>
                     </div>
                   </Dialog.Title>
-
-                  {/* Token Configuration Section */}
-                  {(!gistToken || showTokenInput) && (
-                    <div className="mt-3 p-3 bg-gray-900 border border-gray-700 rounded-lg space-y-2">
-                      <div className="flex items-center justify-between text-xs font-medium text-gray-300">
-                        <span className="flex items-center gap-1.5">
-                          <KeyIcon className="h-4 w-4 text-accent" />
-                          Gist Access Token
-                        </span>
-                        {gistToken && (
-                          <button
-                            type="button"
-                            onClick={() => setShowTokenInput(false)}
-                            className="text-gray-400 hover:text-white text-xs underline"
-                          >
-                            Hide
-                          </button>
-                        )}
-                      </div>
-                      <PasswordInput
-                        show={showPassword}
-                        setShow={setShowPassword}
-                        value={tempToken || gistToken || ''}
-                        onChange={(e) => setTempToken(e.target.value)}
-                        placeholder="Enter GitHub Personal Access Token..."
-                      />
-                      <p className="text-[11px] text-gray-400">
-                        Token requires <code className="text-accent">gist</code> scope to save
-                        notes.
-                      </p>
-                    </div>
-                  )}
-
-                  {!showTokenInput && gistToken && (
-                    <div className="mt-2 flex items-center justify-between text-xs text-gray-400">
-                      <span>Token configured</span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setTempToken(gistToken)
-                          setShowTokenInput(true)
-                        }}
-                        className="text-accent hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
-                      >
-                        Change Token
-                      </button>
-                    </div>
-                  )}
 
                   {/* Status Banner */}
                   {status && (
