@@ -194,19 +194,25 @@ export default function NoteEditor({ isOpen, onClose }: NoteEditorProps) {
                       className="px-4 py-2 bg-accent text-white rounded-lg text-xs font-semibold hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all shadow-sm shadow-accent/20"
                       title="Save note to Gist"
                     >
-                      {isSaving ? (
-                        <>
-                          <Spinner />
-                          <span>Saving...</span>
-                        </>
-                      ) : status?.type === 'success' ? (
-                        <>
-                          <CheckIcon className="h-4 w-4" aria-hidden="true" />
-                          <span>Saved</span>
-                        </>
-                      ) : (
-                        <span>Save</span>
-                      )}
+                      {(() => {
+                        if (isSaving) {
+                          return (
+                            <>
+                              <Spinner />
+                              <span>Saving...</span>
+                            </>
+                          )
+                        }
+                        if (status?.type === 'success') {
+                          return (
+                            <>
+                              <CheckIcon className="h-4 w-4" aria-hidden="true" />
+                              <span>Saved</span>
+                            </>
+                          )
+                        }
+                        return <span>Save</span>
+                      })()}
                     </button>
                   </div>
                 </Dialog.Panel>
