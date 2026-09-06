@@ -52,7 +52,7 @@ const SupplementCorrelationGraph = React.memo(({ supplementName, correlations }:
 
     // ⚡ Bolt Optimization: Replace .forEach() with a standard for-loop to eliminate closure allocation overhead.
     for (let i = 0; i < topCorr.length; i++) {
-      const c = topCorr[i];
+      const c = topCorr[i]
       nodes.push({
         id: c.name,
         name: c.name,

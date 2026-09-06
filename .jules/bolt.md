@@ -85,26 +85,37 @@
 **Action:** Replace `Array.from({ length })` with `new Array(len).fill(undefined as any)` when pre-allocating dense standard arrays inside hot loops.
 
 ## 2024-05-18 - Top K Extraction vs Full Sorts
+
 **Learning:** Avoid using `[...arr].sort(...).slice(0, K)` when K is small and the array is large (e.g. thousands of correlations). The full sort is an O(N log N) operation, and the object spread creates unnecessary garbage collection overhead.
 **Action:** Replace full sorts with a single-pass `for` loop that maintains a small sorted array of the top K items. This keeps complexity to O(N * K) and avoids intermediate array allocations.
+
 ## 2024-05-18 - Replacing Object.keys().map() with standard for-loop
+
 **Learning:** Using chained array methods (like `.map().sort().slice()`) on large or frequently recreated arrays inside `useMemo` hooks allocates a lot of memory, creating intermediate "holey" arrays that V8 has to manage. This causes noticeable garbage collection overhead on the main thread, leading to UI hitching.
 **Action:** Replace `[...arr].sort().slice(0, K)` with an `O(N)` manual insertion loop tracking only the top `K` items, significantly reducing CPU cycles and avoiding array closure/allocation entirely.
+
 ## 2024-05-19 - Pre-allocate variables outside of loops
+
 **Learning:** Pre-parsing invariant properties into a flat array outside of nested nested `O(N * M)` operations significantly reduces conditional branching overhead, preventing repetitive evaluations.
 **Action:** Lift invariant conditions outside of loops.
 
 ## 2025-06-28 - Optimized Parallel Array Slicing in Hot Loops
+
 **Learning:** Calling `array.slice(-N)` multiple times on parallel arrays (e.g., values, optimality flags, original values) within a hot React `useMemo` render loop causes significant and repetitive array allocations and garbage collection overhead. Since the parallel arrays share the exact same bounding logic, slicing them independently is highly redundant.
 **Action:** Replace multiple `.slice()` calls on parallel arrays with a unified, single-pass `for` loop that iterates from the target start index (e.g., `Math.max(0, len - N)`) to the end, manually pushing elements into pre-allocated empty arrays synchronously. This eliminates array method chaining and drastically reduces object allocations.
 
 ## 2024-05-18 - Avoid O(N) Array.find() inside useMemo blocks and render cycles
+
 **Learning:** React component files often make use of `Array.find()`, `Array.some()`, and other higher-order array methods directly within the component scope or inside `useMemo` hooks. Although this seems trivial, `Array.find()` has an O(N) complexity and creates closure allocations every time it's called. In React, avoiding these function calls where possible and using a standard O(N) `for` loop avoids additional garbage collection overhead.
 **Action:** When working on performance optimization, if I see `Array.find()` inside `useMemo` or directly in the render cycle, I can optimize it by using a standard `for` loop.
+
 ## 2023-11-20 - Chart Component Optimizations
+
 **Learning:** Extracting string templates and variables that are not explicitly captured in closures (like regression expressions from dynamic scopes) should rely on `params.value` references injected by ECharts, instead of out-of-scope lexicals.
 **Action:** When overriding tooltips for ECharts statistical transforms, read the formula directly from `params.value` (e.g., `params.value[2]` for linear regression).
+
 ## 2026-06-29 - Inline Array Mapping Defeats React.memo()\n\n**Learning:** Passing an inline array map (e.g., `correlations={arr.map(...)}`) directly as a prop to a child component wrapped in `React.memo()` completely defeats the memoization. The inline operation creates a new array reference on every parent render cycle, forcing the child (like a heavy ECharts component) to re-render needlessly.\n**Action:** Extract the inline array mapping into a `useMemo` block (and convert to a dense `for` loop for extra speed) to ensure referential equality is preserved across parent render cycles.
+
 ## 2026-06-30 - ECharts Tooltip Formatter Array Sorting
 
 **Learning:** Calling `Array.prototype.sort()` inside an ECharts `tooltip.formatter` callback forces V8 to allocate closure memory and standard library sorting logic continuously as the user hovers over the chart. If the array being sorted is very small (e.g., `N <= 5`), the `O(N log N)` standard sort is overkill and causes unnecessary garbage collection overhead in a high-frequency event.
@@ -114,20 +125,29 @@
 
 **Learning:** Using `Array.prototype.forEach()` inside `useMemo` blocks or render cycles creates an inline closure function that must be allocated and immediately garbage collected on every update. This is particularly noticeable when building large configuration objects for heavy components like ECharts.
 **Action:** Replace `.forEach()` with a standard `for` loop to eliminate closure allocation overhead and reduce garbage collection pressure in data processing pipelines and configuration builders.
+
 ## 2026-07-11 - Avoid arr.slice().sort(...) for TypedArrays
+
 **Learning:** `arr.slice().sort((a,b) => a-b)` generates intermediate sparse arrays when invoked on standard JavaScript arrays and creates high garbage collection churn during boxplot data prep.
 **Action:** When a sort is required inside a loop for statistical rendering, copy the values into a fresh `Float64Array` and call `.sort()`. V8 optimizes TypedArray sorts drastically better than standard arrays with closure comparators.
+
 ## 2026-06-30 - Replace `.forEach()` with `for` loop
+
 **Learning:** Using `.forEach()` inside hot rendering paths like `useMemo` for charting components creates unnecessary closure allocations and increases garbage collection overhead. Since these array iterations happen frequently on large data sets to compute chart options (e.g. valid pairs, visible data, node items), reducing closure creation is important.
 **Action:** Replace `Array.prototype.forEach()` loops with standard `for (let i = 0; i < arr.length; i++)` loops in hot charting render paths to eliminate closure allocation overhead and reduce garbage collection pressure.
+
 ## 2024-05-18 - Hoisting Invariant Configuration Objects inside Hot Loops
+
 **Learning:** Instantiating configuration objects (like `{ alpha: 0.05, alternative: 'two-sided' }`) inside hot, nested loops—such as those traversing arrays and calculating correlation over chunked windows—generates unnecessary garbage collection overhead and memory allocations. Even though these objects are tiny, the cumulative performance penalty in high-iteration scenarios (like calculating correlations per component re-render) is measurable.
 **Action:** When calling statistical or mathematical functions inside nested iterations, explicitly identify invariant arguments (like statistical significance thresholds or formatting objects) and hoist them outside the loop. Use `as const` typing in TypeScript to ensure the type matches the expected literal parameter bounds.
+
 ## 2026-06-30 - Replace .forEach() with for loop
+
 **Learning:** Using .forEach() inside hot rendering paths like `useMemo` for charting components creates unnecessary closure allocations and increases garbage collection overhead. Since these array iterations happen frequently on large data sets to compute chart options (e.g. valid pairs, visible data, node items), reducing closure creation is important.
 **Action:** Replace `Array.prototype.forEach()` loops with standard `for (let i = 0; i < arr.length; i++)` loops in hot charting render paths to eliminate closure allocation overhead and reduce garbage collection pressure.
 
 ## 2023-10-27 - [Chart Discovery Scans Clean State]
+
 - During execution, performed a comprehensive audit against discovery scans 1-7 for `ScatterChart.tsx`, `LineChart.tsx`, `Chart.tsx`, and `Chart2.tsx`.
 - Found that previous commits have already fully optimized the charts (e.g. dense array V8 optimizations, `notMerge: true`, custom dense loops replacing map/reduce, removing dual `<Scatter>` rendering, fixing tooltip formatting fallbacks).
 - No new unprompted logic changes were made to avoid manufacturing unmeasurable micro-optimizations. Codebase is clean.
@@ -136,4 +156,5 @@
 
 **Learning:** When sorting an extremely small array (e.g., max length 5) inside a nested `for` loop within a `useMemo` block, using `Array.prototype.sort((a,b) => ...)` forces V8 to allocate a closure function repeatedly per loop iteration. This causes unnecessary garbage collection overhead in hot processing paths.
 **Action:** Replace `Array.sort` with a manual inline insertion sort for small, statically bounded arrays (`N <= 5`) within loops to eliminate the closure allocation and standard library overhead, making the hot path faster.
+
 ## 2026-07-21 - Avoid Array.from().sort() with Set to Array conversions\n\n**Learning:** When creating a unique array from a `Set`, using `Array.from(set).sort()` or `[...set].sort()` introduces intermediate iterator allocations and potentially creates holey arrays. Since this often happens in data formatting pipelines or React `useMemo` blocks, it adds unnecessary garbage collection overhead.\n**Action:** Replace `Array.from(set).sort()` with a pre-allocated dense array `const arr = new Array(set.size)` and explicitly push elements via a `for (const s of set)` loop to optimize memory layout for V8 before calling `.sort()`.

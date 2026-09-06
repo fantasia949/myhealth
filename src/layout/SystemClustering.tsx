@@ -86,7 +86,14 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
         }
       }
     }
-    return Array.from(tags).sort()
+    // ⚡ Bolt Optimization: Replace Array.from(set).sort() with a pre-allocated dense array
+    // and explicitly push elements to optimize memory layout for V8 before calling .sort().
+    const arr = new Array(tags.size)
+    let idx = 0
+    for (const tag of tags) {
+      arr[idx++] = tag
+    }
+    return arr.sort()
   }, [data])
 
   const [xAxisTag, setXAxisTag] = useState<string | null>(null)
@@ -106,7 +113,8 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
     if (availableTags.length === 0) return ''
     // ⚡ Bolt Optimization: Replace O(N) Array.find() with O(N) classic for-loop to avoid closure allocation
     for (let i = 0; i < availableTags.length; i++) {
-      if (availableTags[i].includes('3-Liver') || availableTags[i].includes('4-Lipid')) return availableTags[i]
+      if (availableTags[i].includes('3-Liver') || availableTags[i].includes('4-Lipid'))
+        return availableTags[i]
     }
     return availableTags[1] || availableTags[0] || ''
   }, [yAxisTag, availableTags])

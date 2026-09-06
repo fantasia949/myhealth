@@ -17,7 +17,7 @@ export default React.memo(
 
     // Select the top correlated biomarker by default
     const [selectedBiomarker, setSelectedBiomarker] = useState<string | null>(
-      sortedCorrelations.length > 0 ? sortedCorrelations[0][0] : null
+      sortedCorrelations.length > 0 ? sortedCorrelations[0][0] : null,
     )
 
     // Make sure selectedBiomarker is valid
@@ -41,7 +41,7 @@ export default React.memo(
         options.push(
           <option key={name} value={name}>
             {name} (Coeff: {coeff.toFixed(2)})
-          </option>
+          </option>,
         )
       }
       return options
@@ -106,7 +106,7 @@ export default React.memo(
               ${target}: ${data[0].toFixed(2)}<br/>
               ${actualSelectedBiomarker}: ${data[1].toFixed(2)}
             `
-          }
+          },
         },
         xAxis: {
           type: 'value',
@@ -118,7 +118,7 @@ export default React.memo(
             lineStyle: { color: '#333', type: 'dashed' },
           },
           axisLabel: { color: '#999' },
-          nameTextStyle: { color: '#ccc', fontWeight: 'bold' }
+          nameTextStyle: { color: '#ccc', fontWeight: 'bold' },
         },
         yAxis: {
           type: 'value',
@@ -130,7 +130,7 @@ export default React.memo(
             lineStyle: { color: '#333', type: 'dashed' },
           },
           axisLabel: { color: '#999' },
-          nameTextStyle: { color: '#ccc', fontWeight: 'bold' }
+          nameTextStyle: { color: '#ccc', fontWeight: 'bold' },
         },
         series: [
           {
@@ -149,14 +149,14 @@ export default React.memo(
               },
               data: [
                 { type: 'average', valueIndex: 0, name: 'Target Avg' },
-                { type: 'average', valueIndex: 1, name: 'Selected Avg' }
+                { type: 'average', valueIndex: 1, name: 'Selected Avg' },
               ],
               label: {
-                formatter: '{b}'
-              }
-            }
-          }
-        ]
+                formatter: '{b}',
+              },
+            },
+          },
+        ],
       }
     }, [actualSelectedBiomarker, target, dataMap, sortedCorrelations])
 
@@ -180,9 +180,13 @@ export default React.memo(
             </h3>
             <InformationCircleIcon className="h-4 w-4 text-gray-400 cursor-help hover:text-gray-200 transition-colors" />
             <div className="absolute left-0 top-6 z-10 w-72 rounded-md bg-gray-800 p-3 text-xs text-gray-300 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-gray-700 pointer-events-none">
-              This chart visualizes asymmetric and boundary-conditional relationships. The X-axis represents the Target Biomarker and the Y-axis is the Selected Correlated Biomarker.
-              <br/><br/>
-              Average reference lines divide the data into quadrants, helping identify if a biomarker only affects another when crossing a specific threshold (e.g. only when above average).
+              This chart visualizes asymmetric and boundary-conditional relationships. The X-axis
+              represents the Target Biomarker and the Y-axis is the Selected Correlated Biomarker.
+              <br />
+              <br />
+              Average reference lines divide the data into quadrants, helping identify if a
+              biomarker only affects another when crossing a specific threshold (e.g. only when
+              above average).
             </div>
           </div>
           <div className="flex items-center space-x-2">
@@ -212,5 +216,5 @@ export default React.memo(
         </div>
       </div>
     )
-  }
+  },
 )
