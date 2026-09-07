@@ -102,8 +102,8 @@ const updateChartOption = (
         grid: {
           top: 40,
           bottom: 20,
-          left: Math.max((Math.ceil(keys.length / 2) - 1) * 100 + 120, 40),
-          right: Math.max((Math.floor(keys.length / 2) - 1) * 100 + 120, 40),
+          left: Math.max((Math.ceil(keys.length / 2) - 1) * 100 + 120, 60),
+          right: Math.max((Math.floor(keys.length / 2) - 1) * 100 + 120, 60),
         },
         series,
       },
@@ -148,7 +148,7 @@ export default memo(({ keys }: ChartProps) => {
         offset: sideOffset,
         nameLocation: 'middle',
         nameRotate: isEven ? 90 : -90,
-        nameGap: 50,
+        nameGap: 60,
         axisLine: {
           show: true,
           lineStyle: {
