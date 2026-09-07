@@ -211,6 +211,7 @@ const BiomarkerCorrelation = React.memo(({ biomarkerId, onClose }: BiomarkerCorr
                             : 'border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white'
                         }`}
                         title="Copy analysis to clipboard"
+                        aria-label="Copy analysis to clipboard"
                         aria-live="polite"
                       >
                         {isCopied ? (

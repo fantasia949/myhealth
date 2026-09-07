@@ -11,7 +11,12 @@ export default React.memo(({ target, correlations, alpha }: CorrelationPolarScat
     if (!correlations || correlations.length === 0) return {}
 
     // Process data into polar coordinates
-    const polarData: { name: string; value: [number, number, number, number]; pValue: number; coeff: number }[] = []
+    const polarData: {
+      name: string
+      value: [number, number, number, number]
+      pValue: number
+      coeff: number
+    }[] = []
 
     for (let i = 0; i < correlations.length; i++) {
       const [name, pValue, coeff] = correlations[i]
@@ -27,7 +32,7 @@ export default React.memo(({ target, correlations, alpha }: CorrelationPolarScat
       if (coeff >= 0) {
         angle = sigRatio * 90
       } else {
-        angle = 180 + (sigRatio * 90)
+        angle = 180 + sigRatio * 90
       }
 
       // value: [radius, angle, coeff, pValue]
@@ -35,7 +40,7 @@ export default React.memo(({ target, correlations, alpha }: CorrelationPolarScat
         name,
         value: [radius, angle, coeff, pValue],
         pValue,
-        coeff
+        coeff,
       })
     }
 
@@ -68,11 +73,11 @@ export default React.memo(({ target, correlations, alpha }: CorrelationPolarScat
               Radius: ${radius.toFixed(2)} | Angle: ${angle.toFixed(1)}°
             </div>
           `
-        }
+        },
       },
       polar: {
         center: ['50%', '50%'],
-        radius: '75%'
+        radius: '75%',
       },
       angleAxis: {
         type: 'value',
@@ -80,7 +85,7 @@ export default React.memo(({ target, correlations, alpha }: CorrelationPolarScat
         max: 360,
         startAngle: 90, // ECharts startAngle is mathematically standard, 90 is top. Let's leave as 90.
         splitLine: {
-          lineStyle: { color: '#333', type: 'dashed' }
+          lineStyle: { color: '#333', type: 'dashed' },
         },
         axisLabel: {
           color: '#999',
@@ -90,17 +95,17 @@ export default React.memo(({ target, correlations, alpha }: CorrelationPolarScat
             if (value === 180) return '-180° (Highly Neg)'
             if (value === 270) return '-270° (Weakly Neg)'
             return `${value}°`
-          }
-        }
+          },
+        },
       },
       radiusAxis: {
         type: 'value',
         min: 0,
         max: 1, // Correlation magnitude max is 1
         splitLine: {
-          lineStyle: { color: '#333', type: 'dashed' }
+          lineStyle: { color: '#333', type: 'dashed' },
         },
-        axisLabel: { color: '#999' }
+        axisLabel: { color: '#999' },
       },
       series: [
         {
@@ -109,17 +114,17 @@ export default React.memo(({ target, correlations, alpha }: CorrelationPolarScat
           data: polarData,
           symbolSize: (val: number[]) => {
             // Make higher correlation slightly larger
-            return 8 + (val[0] * 10)
+            return 8 + val[0] * 10
           },
           itemStyle: {
             color: (params: any) => {
               const data = params.data as { value: [number, number, number, number] }
               return data.value[2] >= 0 ? CHART_PALETTE[7] : CHART_PALETTE[0]
             },
-            opacity: 0.8
-          }
-        }
-      ]
+            opacity: 0.8,
+          },
+        },
+      ],
     }
   }, [target, correlations, alpha])
 
@@ -139,11 +144,17 @@ export default React.memo(({ target, correlations, alpha }: CorrelationPolarScat
         </h3>
         <InformationCircleIcon className="h-4 w-4 text-gray-400 cursor-help hover:text-gray-200 transition-colors" />
         <div className="absolute left-0 top-6 z-10 w-80 rounded-md bg-gray-800 p-3 text-xs text-gray-300 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-gray-700 pointer-events-none">
-          This polar scatter plot groups correlated biomarkers by their directionality and significance.
-          <br/><br/>
-          <strong>Radius:</strong> The distance from center indicates the magnitude of correlation (larger magnitude = further out).
-          <br/><br/>
-          <strong>Angle:</strong> The angular position represents directionality (0°-90° for Positive, 180°-270° for Negative) and significance (closer to 0°/180° means lower p-value / higher significance).
+          This polar scatter plot groups correlated biomarkers by their directionality and
+          significance.
+          <br />
+          <br />
+          <strong>Radius:</strong> The distance from center indicates the magnitude of correlation
+          (larger magnitude = further out).
+          <br />
+          <br />
+          <strong>Angle:</strong> The angular position represents directionality (0°-90° for
+          Positive, 180°-270° for Negative) and significance (closer to 0°/180° means lower p-value
+          / higher significance).
         </div>
       </div>
 

@@ -164,7 +164,7 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
           const result = calculatePearson(
             fullBiomarkerRanks.subarray(startIdxInValid, endIdxInValid),
             suppVector,
-            optionsObj
+            optionsObj,
           )
           windowRhos.push({ name: suppName, rho: Math.abs(result.pcorr || 0) })
         }
@@ -230,7 +230,6 @@ export default memo(({ targetBiomarker, correlations, noteValues }: BumpChartPro
     for (let i = 0; i < windowLabelsDynamic.length; i++) {
       xAxisData.push(windowLabelsDynamic[i].toString())
     }
-
 
     const getWindowLabelIdx = (index: number) => {
       const endIdx = getWindowEndIdx(index)
