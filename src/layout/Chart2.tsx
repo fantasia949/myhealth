@@ -100,7 +100,7 @@ const echartsOptions: EChartsOption & Pick<EChartsReactProps, 'style' | 'theme'>
   grid: {
     top: 40,
     bottom: 60,
-    left: 80,
+    left: 120,
     right: 40,
   },
   series: [

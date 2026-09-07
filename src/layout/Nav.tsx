@@ -491,9 +491,11 @@ export default React.memo<NavProps>(
                         <button
                           type="button"
                           onClick={() => onSelect(item)}
-                          className="ml-1 text-gray-500 hover:text-accent transition-colors"
+                          className="ml-1 text-gray-500 hover:text-accent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm"
+                          aria-label={`Remove ${item}`}
+                          title={`Remove ${item}`}
                         >
-                          <XMarkIcon className="h-2.5 w-2.5" />
+                          <XMarkIcon className="h-2.5 w-2.5" aria-hidden="true" />
                         </button>
                       </div>
                     ))}
