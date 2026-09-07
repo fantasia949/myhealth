@@ -867,6 +867,55 @@ New `src/layout/TagAnomalyVelocityChart.tsx`.
 A "System Destabilization Rate" button in the global dashboard header, rendering alongside the System Radar Chart.
 ---
 
+**Proposal: Biomarker Range Exceedance Radar**
+
+**ECharts type:** `radar`
+
+**Codebase citation:**
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` and `tag` grouping from `src/processors/post/tag.ts`, index-aligned with the time-series values in `dataAtom.ts`.
+
+**Which existing data it uses:**
+Iterates through all non-inferred biomarkers, grouping them by their assigned tag groups (e.g., `1-RBC`, `4-Lipid`). For each group, it calculates the historical percentage of values that were out-of-range (`extra.optimality[] === true`) compared to the total number of non-null measurements for those tags.
+
+**Axes:**
+- Each axis of the radar represents a Tag Group (e.g., RBC, Metabolic, Liver).
+- The radius value represents the overall "Exceedance Percentage" (0% to 100%) for that entire system across the user's logged history.
+
+**What it reveals that current charts don't:**
+While individual timeline charts show a specific marker failing on a given day, this radar chart aggregates historical failures by physiological system. A large spike on the "4-Lipid" axis immediately tells the user that their lipid system is historically their weakest link, even if individual markers fluctuate in and out of range, providing a high-level systemic vulnerability overview.
+
+**Where it would live:**
+New `src/layout/SystemVulnerabilityRadar.tsx`.
+
+**Trigger / entry point:**
+Displayed alongside the correlation heatmaps or as a primary visualization in a top-level "Health Summary" or "System Overview" view.
+
+---
+
+**Proposal: Measurement Gap vs Optimality Scatter**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+Uses the global time scale `labels[]` from `src/data/index.ts` and `extra.optimality[]` from `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+For each non-inferred biomarker (from `nonInferredDataAtom`), it analyzes the time-series data to calculate two metrics:
+1. The average duration between non-null measurements (derived by mapping non-null indices to `labels[]`).
+2. The overall failure rate (`extra.optimality[] === true` vs total measurements).
+
+**Axes:**
+- X-axis: Average Measurement Gap (Days/Months) - derived from `labels[]`
+- Y-axis: Historical Failure Rate (%) - derived from `extra.optimality[]`
+
+**What it reveals that current charts don't:**
+Reveals psychological avoidance behavior in medical testing. Biomarkers that have high failure rates but large measurement gaps (top right quadrant) indicate a user who knows a marker is problematic but avoids testing it regularly. Conversely, markers tested frequently despite being perfectly optimal (bottom left) reveal over-testing of stable systems. This meta-insight goes beyond raw data to reflect the user's relationship with their health tracking.
+
+**Where it would live:**
+New `src/layout/TestingBehaviorScatter.tsx`.
+
+**Trigger / entry point:**
+A new "Testing Habits" or "Protocol Meta-Analysis" subsection in the dashboard, complementing the data grid.
 ---
 
 **Proposal: Phenotypic Age Delta Area Chart**

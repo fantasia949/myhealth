@@ -68,7 +68,7 @@ const echartsOptions = {
   },
   grid: {
     right: 40,
-    left: 80,
+    left: 120,
   },
 }
 
