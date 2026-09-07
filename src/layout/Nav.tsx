@@ -104,6 +104,72 @@ export default React.memo<NavProps>(
     const [isCopied, setIsCopied] = React.useState(false)
     const searchInputRef = React.useRef<HTMLInputElement>(null)
 
+    // Optimization: Memoize tag buttons to prevent re-rendering on every keystroke
+    const tagElements = React.useMemo(() => {
+      // Optimization: Replace chained .map() with classic for-loop and push to avoid holey arrays
+      const elements: React.JSX.Element[] = []
+      for (let i = 0; i < tags.length; i++) {
+        const tag = tags[i]
+        const isSelectedTag = filterTag == tag
+        elements.push(
+          <button
+            key={tag}
+            type="button"
+            data-tag={tag}
+            onClick={onFilterByTag}
+            className={cn(
+              'px-3 py-1 rounded-full text-xs font-medium transition-all whitespace-nowrap',
+              isSelectedTag
+                ? 'bg-accent text-white shadow-sm shadow-accent/20'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50',
+            )}
+          >
+            {tag.slice(2)}
+          </button>,
+        )
+      }
+      return elements
+    }, [filterTag, onFilterByTag])
+
+    // Optimization: Memoize popup tag buttons to prevent re-rendering
+    const popupTagElements = React.useMemo(() => {
+      // Optimization: Replace chained .map() with classic for-loop and push to avoid holey arrays
+      const elements: React.JSX.Element[] = []
+      for (let i = 0; i < tags.length; i++) {
+        const tag = tags[i]
+        const isSelectedTag = filterTag == tag
+        elements.push(
+          <button
+            key={tag}
+            type="button"
+            data-tag={tag}
+            onClick={(e) => {
+              onFilterByTag(e)
+              setShow(false)
+            }}
+            className={cn(
+              'px-4 py-2 rounded-lg text-sm font-medium transition-all',
+              isSelectedTag
+                ? 'bg-accent text-white shadow-lg shadow-accent/20'
+                : 'bg-gray-900 text-gray-400 border border-gray-800 hover:bg-gray-800',
+            )}
+          >
+            {tag.slice(2)}
+          </button>,
+        )
+      }
+      return elements
+    }, [filterTag, onFilterByTag, setShow])
+
+    // Pre-calculate filterTag checks outside JSX
+    const isFilterTagNull = filterTag === null
+    const filterTagAllClasses = cn(
+      'px-3 py-1 rounded-full text-xs font-medium transition-all whitespace-nowrap',
+      isFilterTagNull
+        ? 'bg-accent text-white shadow-sm shadow-accent/20'
+        : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50',
+    )
+
     // Submenu state for Analyze Popover
     const [activeSubMenu, setActiveSubMenu] = React.useState<'main' | 'supplements'>('main')
 
@@ -263,34 +329,11 @@ export default React.memo<NavProps>(
                   type="button"
                   data-tag=""
                   onClick={onFilterByTag}
-                  className={cn(
-                    'px-3 py-1 rounded-full text-xs font-medium transition-all whitespace-nowrap',
-                    filterTag === null
-                      ? 'bg-accent text-white shadow-sm shadow-accent/20'
-                      : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50',
-                  )}
+                  className={filterTagAllClasses}
                 >
                   All
                 </button>
-                {tags.map((tag: string) => {
-                  const isSelectedTag = filterTag == tag
-                  return (
-                    <button
-                      key={tag}
-                      type="button"
-                      data-tag={tag}
-                      onClick={onFilterByTag}
-                      className={cn(
-                        'px-3 py-1 rounded-full text-xs font-medium transition-all whitespace-nowrap',
-                        isSelectedTag
-                          ? 'bg-accent text-white shadow-sm shadow-accent/20'
-                          : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50',
-                      )}
-                    >
-                      {tag.slice(2)}
-                    </button>
-                  )
-                })}
+                {tagElements}
                 {filterTag !== null && (
                   <button
                     type="button"
@@ -416,34 +459,11 @@ export default React.memo<NavProps>(
                 type="button"
                 data-tag=""
                 onClick={onFilterByTag}
-                className={cn(
-                  'px-3 py-1 rounded-full text-xs font-medium transition-all whitespace-nowrap',
-                  filterTag === null
-                    ? 'bg-accent text-white shadow-sm shadow-accent/20'
-                    : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50',
-                )}
+                className={filterTagAllClasses}
               >
                 All
               </button>
-              {tags.map((tag: string) => {
-                const isSelectedTag = filterTag == tag
-                return (
-                  <button
-                    key={tag}
-                    type="button"
-                    data-tag={tag}
-                    onClick={onFilterByTag}
-                    className={cn(
-                      'px-3 py-1 rounded-full text-xs font-medium transition-all whitespace-nowrap',
-                      isSelectedTag
-                        ? 'bg-accent text-white shadow-sm shadow-accent/20'
-                        : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50',
-                    )}
-                  >
-                    {tag.slice(2)}
-                  </button>
-                )
-              })}
+              {tagElements}
               {filterTag !== null && (
                 <button
                   type="button"
@@ -956,32 +976,14 @@ export default React.memo<NavProps>(
                                 }}
                                 className={cn(
                                   'px-4 py-2 rounded-lg text-sm font-medium transition-all',
-                                  filterTag === null
+                                  isFilterTagNull
                                     ? 'bg-accent text-white shadow-lg shadow-accent/20'
                                     : 'bg-gray-900 text-gray-400 border border-gray-800 hover:bg-gray-800',
                                 )}
                               >
                                 All
                               </button>
-                              {tags.map((tag) => (
-                                <button
-                                  key={tag}
-                                  type="button"
-                                  data-tag={tag}
-                                  onClick={(e) => {
-                                    onFilterByTag(e)
-                                    setShow(false)
-                                  }}
-                                  className={cn(
-                                    'px-4 py-2 rounded-lg text-sm font-medium transition-all',
-                                    filterTag === tag
-                                      ? 'bg-accent text-white shadow-lg shadow-accent/20'
-                                      : 'bg-gray-900 text-gray-400 border border-gray-800 hover:bg-gray-800',
-                                  )}
-                                >
-                                  {tag.slice(2)}
-                                </button>
-                              ))}
+                              {popupTagElements}
                             </div>
                           </section>
 

@@ -780,6 +780,7 @@ Uses `dataAtom` from `src/atom/dataAtom.ts` and aligns `values[]` containing nul
 It utilizes the historical time-series array `values[]` (which contains `null` gaps for missing measurements) from `dataAtom` alongside the standard `labels[]` timeline.
 
 **Axes:**
+
 - X-axis: Time (dates parsed from `labels[]`)
 - Y-axis: Biomarker Value
 
@@ -805,6 +806,7 @@ Uses `correlationAlphaAtom` from `src/atom/correlationAtom.ts` and global pairwi
 Iterates through all possible pairwise biomarker correlations derived from `dataMapAtom` (excluding inferred data). It counts the total number of statistically significant correlations (edges) across three standard significance thresholds (Alpha = 0.10, 0.05, 0.01) rather than just a single active threshold.
 
 **Axes:**
+
 - X-axis: Significance Level (Alpha 0.10, 0.05, 0.01)
 - Y-axis: Count of Significant Correlations
 
