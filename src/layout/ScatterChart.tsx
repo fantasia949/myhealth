@@ -68,7 +68,7 @@ const echartsOptions = {
   },
   grid: {
     right: 40,
-    left: 80,
+    left: 120,
   },
 }
 
@@ -165,8 +165,8 @@ export default memo(({ keys }: ScatterChartProps) => {
         data: keys,
       },
       grid: {
-        left: Math.max((Math.ceil(keys.length / 2) - 1) * 100 + 80, 40),
-        right: Math.max((Math.floor(keys.length / 2) - 1) * 100 + 80, 40),
+        left: Math.max((Math.ceil(keys.length / 2) - 1) * 100 + 120, 40),
+        right: Math.max((Math.floor(keys.length / 2) - 1) * 100 + 120, 40),
       },
     }),
     [yAxes, chartData, keys],
