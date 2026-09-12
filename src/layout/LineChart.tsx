@@ -95,12 +95,8 @@ export default memo(({ name, values, rangeStr }: LineChartProps) => {
           tooltip: { show: false },
           data: [
             [
-              {
-                ...(validMin ? { yAxis: min } : {}),
-              },
-              {
-                ...(validMax ? { yAxis: max } : {}),
-              },
+              (validMin ? { yAxis: min } : {}),
+              (validMax ? { yAxis: max } : {}),
             ],
           ],
         }
