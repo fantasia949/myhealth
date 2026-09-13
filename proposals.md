@@ -965,3 +965,52 @@ New `src/layout/CorrelationResidualScatter.tsx`, rendered inside the Correlation
 
 **Trigger / entry point:**
 A new "View Residuals Timeline" toggle button inside `Chart2.tsx` that appears when a regression model is successfully fitted.
+
+---
+
+**Proposal: Biomarker Cross-Correlation Network Diagram**
+
+**ECharts type:** `graph`
+
+**Codebase citation:**
+Uses `nonInferredDataAtom` and `correlationAlphaAtom` from `src/atom/correlationAtom.ts`.
+
+**Which existing data it uses:**
+It computes all pairwise correlations using `nonInferredDataAtom`. Nodes represent individual biomarkers (sized by their average correlation magnitude or centrality), and edges represent correlations passing the threshold set by `correlationAlphaAtom`.
+
+**Axes:**
+N/A (Force-directed or circular layout).
+
+**What it reveals that current charts don't:**
+The current scatter and polar charts show the relationship of one target biomarker to many others. A full network diagram reveals the global "modules" or clusters of heavily interconnected biomarkers across all physiological systems simultaneously, highlighting whether a user's health profile has a single highly-coupled vulnerability or multiple independent ones.
+
+**Where it would live:**
+New `src/layout/CrossCorrelationNetwork.tsx`.
+
+**Trigger / entry point:**
+A "Global Correlation Network" toggle in the main dashboard view, providing an alternative to the Correlation Chord Diagram.
+
+---
+
+**Proposal: Longitudinal Out-of-Range Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` aligned with time-series `labels` from `src/data/index.ts`.
+
+**Which existing data it uses:**
+It maps all non-inferred biomarkers (from `nonInferredDataAtom`) on the Y-axis and all dates from `labels[]` on the X-axis. The heatmap cell color corresponds to the value of `extra.optimality[]` (e.g., green for false/optimal, red for true/out-of-range).
+
+**Axes:**
+- X-axis: Time (dates from `labels[]`)
+- Y-axis: Biomarker Names
+
+**What it reveals that current charts don't:**
+While line charts show the trajectory of individual biomarkers, this heatmap provides a dense, systemic view of the user's entire health history. It instantly reveals temporal patterns, such as a specific cluster of biomarkers going out of range simultaneously during a specific month (e.g., due to illness or diet change), which is impossible to see when looking at individual scatter or line charts.
+
+**Where it would live:**
+New `src/layout/LongitudinalAnomalyHeatmap.tsx`.
+
+**Trigger / entry point:**
+A "System History Heatmap" button in the global dashboard header, serving as a top-level summary view.
