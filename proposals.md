@@ -968,6 +968,33 @@ A new "View Residuals Timeline" toggle button inside `Chart2.tsx` that appears w
 
 ---
 
+**Proposal: Origin-Value Conversion Discrepancy Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.originValues` and `extra.hasOrigin` from `BioMarker` in `src/types/biomarker.ts`.
+
+**Which existing data it uses:**
+Scans all biomarkers in `dataAtom.ts` where `hasOrigin` is true. For each timestamp in `labels[]`, it compares the magnitude of the normalized value (`values[]`) against the raw source value (`originValues[]`), accounting for the conversion ratio defined by `unit` and `originUnit`.
+
+**Axes**
+- X-axis: Time (dates from `labels[]`)
+- Y-axis: Biomarker Name
+- Color/Value: Variance % (Deviation between normalized value and expected converted origin value)
+
+**What it reveals that current charts don't:**
+Reveals hidden data integrity and lab calibration errors. If a user switches labs and the new lab uses a different assay methodology for a marker (e.g. Testosterone ng/dL vs nmol/L), standardizing the unit might mask underlying calibration drift. This heatmap instantly flags timestamps where the raw source value diverges suspiciously from historical norms despite post-conversion normalization, warning the user of potential assay incomparability.
+
+**Where it would live:**
+New `src/layout/DataIntegrityHeatmap.tsx`.
+
+**Trigger / entry point:**
+A "Data QA / Integrity View" toggle in the Data Grid header, allowing users to verify the trustworthiness of their compiled record before analyzing correlations.
+
+---
+
+
 **Proposal: Biomarker Cross-Correlation Network Diagram**
 
 **ECharts type:** `graph`
@@ -992,25 +1019,27 @@ A "Global Correlation Network" toggle in the main dashboard view, providing an a
 
 ---
 
-**Proposal: Longitudinal Out-of-Range Heatmap**
+
+**Proposal: Tag-Group Correlation Heatmap Network**
 
 **ECharts type:** `heatmap`
 
 **Codebase citation:**
-Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` aligned with time-series `labels` from `src/data/index.ts`.
+Uses `processedTags` and `extra.tag` groups from `src/processors/post/tag.ts` mapped against the outputs stored in `correlationMethodAtom`.
 
 **Which existing data it uses:**
-It maps all non-inferred biomarkers (from `nonInferredDataAtom`) on the Y-axis and all dates from `labels[]` on the X-axis. The heatmap cell color corresponds to the value of `extra.optimality[]` (e.g., green for false/optimal, red for true/out-of-range).
+Instead of calculating pairwise biomarker correlations (e.g. Glucose vs LDL), this aggregates the pairwise scores from `correlationAtom.ts` and averages them across their parent `tag` groups (e.g. `2-Metabolic` vs `4-Lipid`).
 
-**Axes:**
-- X-axis: Time (dates from `labels[]`)
-- Y-axis: Biomarker Names
+**Axes**
+- X-axis: System Tag Groups (e.g., `1-RBC`, `2-Metabolic`, `3-Liver`)
+- Y-axis: System Tag Groups (e.g., `1-RBC`, `2-Metabolic`, `3-Liver`)
+- Color/Value: Aggregate Correlation Coefficient (Spearman/Pearson depending on `correlationMethodAtom`)
 
 **What it reveals that current charts don't:**
-While line charts show the trajectory of individual biomarkers, this heatmap provides a dense, systemic view of the user's entire health history. It instantly reveals temporal patterns, such as a specific cluster of biomarkers going out of range simultaneously during a specific month (e.g., due to illness or diet change), which is impossible to see when looking at individual scatter or line charts.
+The existing `CorrelationChordDiagram` and `CorrelationPolarScatter` can become visually overwhelming "hairballs" of 80+ nodes. This meta-heatmap abstracts the data up one level to answer: "Is my Liver system heavily coupled to my Metabolic system?". It reveals macro-physiological dependencies, showing which entire organ systems track together or fail together, providing a much cleaner systemic overview.
 
 **Where it would live:**
-New `src/layout/LongitudinalAnomalyHeatmap.tsx`.
+New `src/layout/SystemicCorrelationHeatmap.tsx`.
 
 **Trigger / entry point:**
-A "System History Heatmap" button in the global dashboard header, serving as a top-level summary view.
+A "System View" mode toggle inside the existing Correlation Modal (`Correlation.tsx`), replacing the granular biomarker list with the macro tag-group matrix.
