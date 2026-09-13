@@ -1,4 +1,4 @@
-import { memo, useMemo, useRef, useEffect, ElementRef } from 'react'
+import { memo, useMemo } from 'react'
 import { useAtomValue } from 'jotai'
 import { dataMapAtom } from '../atom/dataAtom'
 import { ChartProvider, ChartContext } from '@echarts-readymade/core'
@@ -7,8 +7,7 @@ import { labels, formattedLabels } from '../data'
 import { CHART_PALETTE } from './Chart2'
 import { ChartProps } from './Chart.types'
 import type { EChartsReactProps } from 'echarts-for-react'
-import type { YAXisComponentOption, LineSeriesOption } from 'echarts'
-import type * as echarts from 'echarts'
+import type { YAXisComponentOption } from 'echarts'
 import type { Field } from '@echarts-readymade/core'
 
 const dimension = [
@@ -82,35 +81,7 @@ const echartsOptions: EChartsReactProps = {
   },
 }
 
-const updateChartOption = (
-  chartInstance: echarts.ECharts | null,
-  keys: string[],
-  yAxis: YAXisComponentOption[],
-) => {
-  if (chartInstance && !chartInstance.isDisposed()) {
-    const len = keys.length
-    const series: LineSeriesOption[] = []
-    for (let i = 0; i < len; i++) {
-      series.push({
-        type: 'line',
-        connectNulls: false,
-      })
-    }
-    chartInstance.setOption(
-      {
-        yAxis,
-        grid: {
-          top: 40,
-          bottom: 20,
-          left: Math.max((Math.ceil(keys.length / 2) - 1) * 100 + 120, 60),
-          right: Math.max((Math.floor(keys.length / 2) - 1) * 100 + 120, 60),
-        },
-        series,
-      },
-      { replaceMerge: ['series', 'yAxis'] },
-    )
-  }
-}
+
 
 export default memo(({ keys }: ChartProps) => {
   const dataMap = useAtomValue(dataMapAtom)
@@ -196,11 +167,20 @@ export default memo(({ keys }: ChartProps) => {
     return result
   }, [dataMap, keys, valueList])
 
-  const chartRef = useRef<ElementRef<typeof Line>>(null)
-
-  useEffect(() => {
-    const chartInstance = chartRef.current?.getEchartsInstance() || null
-    updateChartOption(chartInstance, keys, yAxis)
+    const mergedOptions = useMemo(() => {
+    return {
+      ...echartsOptions,
+      option: {
+        ...echartsOptions.option,
+        yAxis,
+        grid: {
+          top: 40,
+          bottom: 20,
+          left: Math.max((Math.ceil(keys.length / 2) - 1) * 100 + 120, 60),
+          right: Math.max((Math.floor(keys.length / 2) - 1) * 100 + 120, 60),
+        },
+      }
+    }
   }, [keys, yAxis])
 
   if (keys.length === 0) {
@@ -212,9 +192,9 @@ export default memo(({ keys }: ChartProps) => {
   }
 
   return (
-    <ChartProvider data={chartData} echartsOptions={echartsOptions}>
+    <ChartProvider data={chartData} echartsOptions={mergedOptions}>
       <Line
-        ref={chartRef}
+
         // Note: here you need pass context down
         context={ChartContext}
         dimension={dimension}
