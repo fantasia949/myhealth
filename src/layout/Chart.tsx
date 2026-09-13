@@ -199,9 +199,17 @@ export default memo(({ keys }: ChartProps) => {
   const chartRef = useRef<ElementRef<typeof Line>>(null)
 
   useEffect(() => {
+    // Optimization: chartRef.current is intentionally omitted from the dependency array
+    // to avoid triggering an infinite loop or unnecessary re-renders. We only want to
+    // apply the updated options when `keys` or `yAxis` explicitly change.
+    // The `onChartReady` callback handles the initial mount case.
     const chartInstance = chartRef.current?.getEchartsInstance() || null
     updateChartOption(chartInstance, keys, yAxis)
   }, [keys, yAxis])
+
+  const onChartReady = (chartInstance: echarts.ECharts) => {
+    updateChartOption(chartInstance, keys, yAxis)
+  }
 
   if (keys.length === 0) {
     return (
@@ -219,6 +227,7 @@ export default memo(({ keys }: ChartProps) => {
         context={ChartContext}
         dimension={dimension}
         valueList={valueList}
+        onChartReady={onChartReady}
       />
     </ChartProvider>
   )

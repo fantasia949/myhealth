@@ -994,6 +994,32 @@ A "Data QA / Integrity View" toggle in the Data Grid header, allowing users to v
 
 ---
 
+
+**Proposal: Biomarker Cross-Correlation Network Diagram**
+
+**ECharts type:** `graph`
+
+**Codebase citation:**
+Uses `nonInferredDataAtom` and `correlationAlphaAtom` from `src/atom/correlationAtom.ts`.
+
+**Which existing data it uses:**
+It computes all pairwise correlations using `nonInferredDataAtom`. Nodes represent individual biomarkers (sized by their average correlation magnitude or centrality), and edges represent correlations passing the threshold set by `correlationAlphaAtom`.
+
+**Axes:**
+N/A (Force-directed or circular layout).
+
+**What it reveals that current charts don't:**
+The current scatter and polar charts show the relationship of one target biomarker to many others. A full network diagram reveals the global "modules" or clusters of heavily interconnected biomarkers across all physiological systems simultaneously, highlighting whether a user's health profile has a single highly-coupled vulnerability or multiple independent ones.
+
+**Where it would live:**
+New `src/layout/CrossCorrelationNetwork.tsx`.
+
+**Trigger / entry point:**
+A "Global Correlation Network" toggle in the main dashboard view, providing an alternative to the Correlation Chord Diagram.
+
+---
+
+
 **Proposal: Tag-Group Correlation Heatmap Network**
 
 **ECharts type:** `heatmap`
