@@ -1043,3 +1043,54 @@ New `src/layout/SystemicCorrelationHeatmap.tsx`.
 
 **Trigger / entry point:**
 A "System View" mode toggle inside the existing Correlation Modal (`Correlation.tsx`), replacing the granular biomarker list with the macro tag-group matrix.
+
+---
+
+**Proposal: Tag System Outlier Horizon Chart**
+
+**ECharts type:** `custom` (or `line` with split `markArea`)
+
+**Codebase citation:**
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` and groups biomarkers using `tag` strings from `src/processors/post/tag.ts` linked to `labels[]` from `src/data/index.ts`.
+
+**Which existing data it uses:**
+It filters `visibleDataAtom` by tag group. For each timestamp in `labels[]`, it calculates a unified "Severity Index" for the group by accumulating the normalized deviations of its constituent biomarkers (using their `extra.range` boundaries). The horizon logic splits extreme deviation spikes into stacked colored bands to save vertical space.
+
+**Axes**
+- X-axis: Time (dates from `labels[]`)
+- Y-axis: Normalized Severity Index Deviation (layered bands)
+
+**What it reveals that current charts don't:**
+The existing multi-axis line chart forces you to parse each biomarker's exact value. A horizon chart collapses an entire tag group (e.g., `4-Lipid` or `3-Liver`) into a single, high-density row, using color intensity to denote when the *entire system* drifted significantly out of bounds. This allows users to stack 10 different tag groups horizontally and instantly identify exactly which system failed first during a period of poor health without drowning in overlapping lines.
+
+**Where it would live:**
+New `src/layout/SystemHorizonChart.tsx`.
+
+**Trigger / entry point:**
+A "System Drift Overview" toggle inside the main dashboard view, replacing the standard scatter plot for a high-density chronological system view.
+
+---
+
+**Proposal: Biomarker Measurement Missingness Matrix**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses the raw index-aligned `number[]` measurement arrays from `BioMarker[1]` in `src/types/biomarker.ts` paired with `labels[]` from `src/data/index.ts`.
+
+**Which existing data it uses:**
+Scans all biomarkers in `dataAtom`. Maps a binary value (1 if `BioMarker[1][i]` is non-null, 0 if null or NaN) across all `labels[]` time indices.
+
+**Axes**
+- X-axis: Time (dates from `labels[]`)
+- Y-axis: Biomarker Name (or Tag Group)
+- Color/Value: Boolean (Measured vs Missing)
+
+**What it reveals that current charts don't:**
+While individual charts implicitly show missing points via gaps or missing dots, this global matrix explicitly visualizes the user's testing cadence and assay omissions over time. It instantly reveals if certain labs routinely omit specific markers (e.g., stopping the measurement of `ApoB` in 2023), allowing the user to spot "dark data" areas in their protocol history that might compromise longitudinal correlation reliability.
+
+**Where it would live:**
+New `src/layout/MissingnessMatrix.tsx`.
+
+**Trigger / entry point:**
+A "Data Completeness" button inside the Data Grid or Settings, useful for auditing data before heavy statistical analysis.
