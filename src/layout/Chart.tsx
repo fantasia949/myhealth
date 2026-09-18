@@ -94,6 +94,7 @@ const updateChartOption = (
       series.push({
         type: 'line',
         connectNulls: false,
+        yAxisIndex: i,
       })
     }
     chartInstance.setOption(

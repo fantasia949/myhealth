@@ -1043,3 +1043,54 @@ New `src/layout/SystemicCorrelationHeatmap.tsx`.
 
 **Trigger / entry point:**
 A "System View" mode toggle inside the existing Correlation Modal (`Correlation.tsx`), replacing the granular biomarker list with the macro tag-group matrix.
+
+---
+
+**Proposal: Biomarker Deviation Margin Bar Chart**
+
+**ECharts type:** `bar`
+
+**Codebase citation:**
+Uses `extra.range` (the string representing optimal boundaries) and `extra.optimality[]` pre-computed by `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+Calculates the absolute numerical margin between a biomarker's actual value (from `BioMarker[1]`) and its nearest optimal range boundary (parsed dynamically from `extra.range`). Plots this margin across all `formattedLabels`.
+
+**Axes:**
+- X-axis: Time (`formattedLabels` from `src/data/index.ts`)
+- Y-axis: Deviation Magnitude (absolute value distance from optimal range boundary)
+
+**What it reveals that current charts don't:**
+The current `LineChart` only uses a colored `markArea` band to show if a value is in or out of range. This bar chart isolates the *magnitude of the failure*, allowing users to immediately see if their out-of-range values are barely missing the target (small bars) or severely deviating from the target over time (large bars), highlighting progression of severity.
+
+**Where it would live:**
+New `src/layout/DeviationMarginBarChart.tsx`.
+
+**Trigger / entry point:**
+A "View Deviation Margin" toggle inside the expanded row section of `Table.tsx`, rendering alongside or replacing the standard `LineChart`.
+
+---
+
+**Proposal: Correlation Hypothesis Significance Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `correlationAlternativeAtom` (`'less'` vs `'greater'`) from `src/atom/correlationAtom.ts`.
+
+**Which existing data it uses:**
+Computes the P-value matrix using `nonInferredDataAtom`, but specifically calculates and maps the *delta* in significance (P-value difference) when toggling the `correlationAlternativeAtom` from 'less' to 'greater'.
+
+**Axes:**
+- X-axis: Target Biomarkers
+- Y-axis: Source Biomarkers
+- Color/Value: Delta in P-value Significance between 'less' and 'greater' alternative hypotheses
+
+**What it reveals that current charts don't:**
+Identifies strictly asymmetric, directional relationships (e.g., when Biomarker A goes up, Biomarker B strictly goes down, but not vice versa), revealing directional dependencies rather than standard two-sided correlations. The existing heatmaps show general coupling, whereas this reveals potential leading vs lagging indicators.
+
+**Where it would live:**
+New `src/layout/HypothesisDeltaHeatmap.tsx`.
+
+**Trigger / entry point:**
+A "View Asymmetry" toggle in the Correlation Modal header (inside `Correlation.tsx`), visually emphasizing directional relationship shifts.
