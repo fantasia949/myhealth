@@ -1,4 +1,4 @@
-import { memo, useMemo, useRef, useEffect, ElementRef } from 'react'
+import { memo, useMemo } from 'react'
 import { useAtomValue } from 'jotai'
 import { dataMapAtom } from '../atom/dataAtom'
 import { ChartProvider, ChartContext } from '@echarts-readymade/core'
@@ -80,37 +80,6 @@ const echartsOptions: EChartsReactProps = {
       },
     },
   },
-}
-
-const updateChartOption = (
-  chartInstance: echarts.ECharts | null,
-  keys: string[],
-  yAxis: YAXisComponentOption[],
-) => {
-  if (chartInstance && !chartInstance.isDisposed()) {
-    const len = keys.length
-    const series: LineSeriesOption[] = []
-    for (let i = 0; i < len; i++) {
-      series.push({
-        type: 'line',
-        connectNulls: false,
-        yAxisIndex: i,
-      })
-    }
-    chartInstance.setOption(
-      {
-        yAxis,
-        grid: {
-          top: 40,
-          bottom: 20,
-          left: Math.max((Math.ceil(keys.length / 2) - 1) * 100 + 120, 60),
-          right: Math.max((Math.floor(keys.length / 2) - 1) * 100 + 120, 60),
-        },
-        series,
-      },
-      { replaceMerge: ['series', 'yAxis'] },
-    )
-  }
 }
 
 export default memo(({ keys }: ChartProps) => {
@@ -197,20 +166,32 @@ export default memo(({ keys }: ChartProps) => {
     return result
   }, [dataMap, keys, valueList])
 
-  const chartRef = useRef<ElementRef<typeof Line>>(null)
+  const dynamicOptions = useMemo(() => {
+    const series: LineSeriesOption[] = []
+    for (let i = 0; i < keys.length; i++) {
+      series.push({
+        type: 'line',
+        connectNulls: false,
+        yAxisIndex: i,
+      })
+    }
 
-  useEffect(() => {
-    // Optimization: chartRef.current is intentionally omitted from the dependency array
-    // to avoid triggering an infinite loop or unnecessary re-renders. We only want to
-    // apply the updated options when `keys` or `yAxis` explicitly change.
-    // The `onChartReady` callback handles the initial mount case.
-    const chartInstance = chartRef.current?.getEchartsInstance() || null
-    updateChartOption(chartInstance, keys, yAxis)
-  }, [keys, yAxis])
-
-  const onChartReady = (chartInstance: echarts.ECharts) => {
-    updateChartOption(chartInstance, keys, yAxis)
-  }
+    return {
+      ...echartsOptions,
+      opts: { replaceMerge: ['series', 'yAxis'] },
+      option: {
+        ...echartsOptions.option,
+        yAxis,
+        series,
+        grid: {
+          top: 40,
+          bottom: 20,
+          left: Math.max((Math.ceil(keys.length / 2) - 1) * 100 + 120, 60),
+          right: Math.max((Math.floor(keys.length / 2) - 1) * 100 + 120, 60),
+        },
+      }
+    } as EChartsReactProps
+  }, [yAxis, keys.length, echartsOptions])
 
   if (keys.length === 0) {
     return (
@@ -221,14 +202,12 @@ export default memo(({ keys }: ChartProps) => {
   }
 
   return (
-    <ChartProvider data={chartData} echartsOptions={echartsOptions}>
+    <ChartProvider data={chartData} echartsOptions={dynamicOptions}>
       <Line
-        ref={chartRef}
         // Note: here you need pass context down
         context={ChartContext}
         dimension={dimension}
         valueList={valueList}
-        onChartReady={onChartReady}
       />
     </ChartProvider>
   )
