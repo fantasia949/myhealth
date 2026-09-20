@@ -1094,3 +1094,54 @@ New `src/layout/HypothesisDeltaHeatmap.tsx`.
 
 **Trigger / entry point:**
 A "View Asymmetry" toggle in the Correlation Modal header (inside `Correlation.tsx`), visually emphasizing directional relationship shifts.
+
+---
+
+**Proposal: Systemic Anomaly Scatter Matrix**
+
+**ECharts type:** `scatter` (Scatter Plot Matrix / SPLOM)
+
+**Codebase citation:**
+Uses `extra.optimality[]` from `src/processors/post/range.ts` combined with `1-RBC` to `9-Mineral` from `src/processors/post/tag.ts`.
+
+**Which existing data it uses:**
+It maps out out-of-range rates for all biological systems simultaneously by aggregating the boolean out-of-range arrays (`extra.optimality[]`) within each tag group returned by `visibleDataAtom`.
+
+**Axes**
+- X-axis: Time (`formattedLabels`)
+- Y-axis: Biomarker count currently out of range.
+- Grid: Multiple scatter plots in a grid format, one for each tag group (e.g., Liver, Kidney).
+
+**What it reveals that current charts don't:**
+The existing dashboard provides correlation heatmaps between single biomarkers. This matrix aggregates the anomalies per physiological system to reveal which systems are failing simultaneously or sequentially, identifying cascading health deteriorations (e.g., Metabolic strain preceding Liver strain) over time that a 1-to-1 correlation chart cannot capture.
+
+**Where it would live:**
+New `src/layout/SystemicAnomalyScatterMatrix.tsx`.
+
+**Trigger / entry point:**
+A new "Systemic Health Map" button within the main control nav header.
+
+---
+
+**Proposal: Tag-Group Deviation Step Line Chart**
+
+**ECharts type:** `line` (with `step: 'middle'`)
+
+**Codebase citation:**
+Uses `extra.tag` groups (e.g. `3-Liver`, `6-Kidney`) from `src/processors/post/tag.ts` and their member biomarkers.
+
+**Which existing data it uses:**
+It calculates the sum or percentage of non-optimal markers across the entire tag group at any given time point using the `optimality: boolean[]` arrays generated in `src/processors/post/range.ts`.
+
+**Axes:**
+- X-axis: Time (`formattedLabels`)
+- Y-axis: Deviation severity score (calculated as % of markers out of range for a given tag group)
+
+**What it reveals that current charts don't:**
+Provides a discrete, stepped visualization of when specific physiological systems (e.g., Kidney, Hormone) crossed critical deviation thresholds, making it easier to track sudden state changes in health profiles compared to smooth continuous lines which can blur sudden anomalies in health snapshots.
+
+**Where it would live:**
+New `src/layout/TagGroupDeviationStepLine.tsx`.
+
+**Trigger / entry point:**
+A new toggle view on the data grid header for viewing system-level macro states instead of micro biomarker charts.
