@@ -74,7 +74,9 @@ export default {
         '+apigenin',
         '+gingseng',
         '-nac',
+        '+magnolia',
+        '+polygonatum' // hoang tinh
     ],
-    review: ['work-leg', 'mien'],
-    plan: ['+delphidin', '+cacao', '+incarin', '+hmb'],
+    review: ['work-leg', 'mien', '+khoai lang', 'preload-glucose', ''],
+    plan: ['+delphidin', '+cacao', '+incarin', '+hmb', '-fucoidan'],
 }
