@@ -11,24 +11,16 @@ export const getBioMarkersAtom = atom((get) =>
   get(sourceAtom).then(([data]) => processBiomarkers(data)),
 )
 
-export const notesAtom = atom((get) => get(sourceAtom).then(([_, notes]) => processTime(notes)))
+export const notesAtom = atom((get) => get(sourceAtom).then(([, notes]) => processTime(notes)))
 
 export const noteValuesAtom = atom(async (get) => {
   const notes = await get(notesAtom)
   return Object.values(notes)
 })
 
-import { loadable } from 'jotai/utils'
+import { unwrap } from 'jotai/utils'
 
-const loadableBioMarkersAtom = loadable(getBioMarkersAtom)
-
-export const dataAtom = atom<BioMarker[]>((get) => {
-  const loadableBioMarkers = get(loadableBioMarkersAtom)
-  if (loadableBioMarkers.state === 'hasData') {
-    return loadableBioMarkers.data
-  }
-  return []
-})
+export const dataAtom = unwrap(getBioMarkersAtom, () => [] as BioMarker[])
 
 export const dataMapAtom = atom((get) => {
   const data = get(dataAtom)
