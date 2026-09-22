@@ -60,8 +60,8 @@ function prepareBoxplotData(data: number[][]) {
     // ⚡ Bolt Optimization: Replace arr.slice().sort(...) with a dense array copy
     // and standard sort to avoid V8 sparse array allocation and chained closure creation.
     const series = new Float64Array(rawSeries.length)
-    for(let k=0; k < rawSeries.length; k++) {
-        series[k] = rawSeries[k]
+    for (let k = 0; k < rawSeries.length; k++) {
+      series[k] = rawSeries[k]
     }
     series.sort()
 

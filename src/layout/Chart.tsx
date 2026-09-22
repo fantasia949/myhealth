@@ -1,4 +1,4 @@
-import { memo, useMemo, useRef, useEffect, useState, ElementRef } from 'react'
+import { memo, useMemo } from 'react'
 import { useAtomValue } from 'jotai'
 import { dataMapAtom } from '../atom/dataAtom'
 import { ChartProvider, ChartContext } from '@echarts-readymade/core'
@@ -82,36 +82,6 @@ const echartsOptions: EChartsReactProps = {
   },
 }
 
-const updateChartOption = (
-  chartInstance: echarts.ECharts | null,
-  keys: string[],
-  yAxis: YAXisComponentOption[],
-) => {
-  if (chartInstance && !chartInstance.isDisposed()) {
-    const len = keys.length
-    const series: LineSeriesOption[] = []
-    for (let i = 0; i < len; i++) {
-      series.push({
-        type: 'line',
-        connectNulls: false,
-      })
-    }
-    chartInstance.setOption(
-      {
-        yAxis,
-        grid: {
-          top: 40,
-          bottom: 20,
-          left: Math.max((Math.ceil(keys.length / 2) - 1) * 100 + 80, 40),
-          right: Math.max((Math.floor(keys.length / 2) - 1) * 100 + 80, 40),
-        },
-        series,
-      },
-      { replaceMerge: ['series', 'yAxis'] },
-    )
-  }
-}
-
 export default memo(({ keys }: ChartProps) => {
   const dataMap = useAtomValue(dataMapAtom)
 
@@ -148,7 +118,7 @@ export default memo(({ keys }: ChartProps) => {
         offset: sideOffset,
         nameLocation: 'middle',
         nameRotate: isEven ? 90 : -90,
-        nameGap: 50,
+        nameGap: 60,
         axisLine: {
           show: true,
           lineStyle: {
@@ -186,7 +156,8 @@ export default memo(({ keys }: ChartProps) => {
       for (let j = 0; j < validSeries.length; j++) {
         const series = validSeries[j]
         const v = series.values[i]
-        item[series.fieldKey] = v !== null && v !== undefined && !Number.isNaN(v as number) ? v : '-'
+        item[series.fieldKey] =
+          v !== null && v !== undefined && !Number.isNaN(v as number) ? v : '-'
         item[`${series.fieldKey}_unit`] = series.unit || ''
       }
       result.push(item)
@@ -195,17 +166,32 @@ export default memo(({ keys }: ChartProps) => {
     return result
   }, [dataMap, keys, valueList])
 
-  const chartRef = useRef<ElementRef<typeof Line>>(null)
-  const [isMounted, setIsMounted] = useState(false)
+  const dynamicOptions = useMemo(() => {
+    const series: LineSeriesOption[] = []
+    for (let i = 0; i < keys.length; i++) {
+      series.push({
+        type: 'line',
+        connectNulls: false,
+        yAxisIndex: i,
+      })
+    }
 
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
-
-  useEffect(() => {
-    const chartInstance = chartRef.current?.getEchartsInstance() || null
-    updateChartOption(chartInstance, keys, yAxis)
-  }, [keys, yAxis, isMounted])
+    return {
+      ...echartsOptions,
+      opts: { replaceMerge: ['series', 'yAxis'] },
+      option: {
+        ...echartsOptions.option,
+        yAxis,
+        series,
+        grid: {
+          top: 40,
+          bottom: 20,
+          left: Math.max((Math.ceil(keys.length / 2) - 1) * 100 + 120, 60),
+          right: Math.max((Math.floor(keys.length / 2) - 1) * 100 + 120, 60),
+        },
+      }
+    } as EChartsReactProps
+  }, [yAxis, keys.length, echartsOptions])
 
   if (keys.length === 0) {
     return (
@@ -216,9 +202,8 @@ export default memo(({ keys }: ChartProps) => {
   }
 
   return (
-    <ChartProvider data={chartData} echartsOptions={echartsOptions}>
+    <ChartProvider data={chartData} echartsOptions={dynamicOptions}>
       <Line
-        ref={chartRef}
         // Note: here you need pass context down
         context={ChartContext}
         dimension={dimension}

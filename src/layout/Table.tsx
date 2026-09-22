@@ -4,7 +4,23 @@ import cn from 'classnames'
 import { labels } from '../data'
 import { visibleDataAtom, notesAtom, filterTextAtom, tagAtom } from '../atom/dataAtom'
 import { useAtomValue } from 'jotai'
-import { useTable, createFilteredRowModel, createColumnHelper, flexRender, createGroupedRowModel, createExpandedRowModel, GroupingState, ExpandedState, tableFeatures, filterFns, columnFilteringFeature, rowExpandingFeature, columnGroupingFeature, rowSelectionFeature, columnVisibilityFeature } from '@tanstack/react-table';
+import {
+  useTable,
+  createFilteredRowModel,
+  createColumnHelper,
+  flexRender,
+  createGroupedRowModel,
+  createExpandedRowModel,
+  GroupingState,
+  ExpandedState,
+  tableFeatures,
+  filterFns,
+  columnFilteringFeature,
+  rowExpandingFeature,
+  columnGroupingFeature,
+  rowSelectionFeature,
+  columnVisibilityFeature,
+} from '@tanstack/react-table'
 import {
   ChevronRightIcon,
   ChevronDownIcon,
@@ -38,8 +54,8 @@ const features = tableFeatures({
   groupedRowModel: createGroupedRowModel(),
   expandedRowModel: createExpandedRowModel(),
   filterFns,
-});
-export type TableFeaturesType = typeof features;
+})
+export type TableFeaturesType = typeof features
 const columnHelper = createColumnHelper<TableFeaturesType, DisplayedEntry>()
 
 function getKeyFromTime(label: string) {
@@ -296,9 +312,7 @@ const TableRow = React.memo(
           <td className="p-2 border border-gray-700 whitespace-nowrap text-center hidden md:table-cell">
             {extra.range}
           </td>
-          <td className="p-2 border border-gray-700 hidden sm:table-cell">
-            {displayUnit}
-          </td>
+          <td className="p-2 border border-gray-700 hidden sm:table-cell">{displayUnit}</td>
           {showOrigColumns && (
             <td className="p-2 border border-gray-700 hidden lg:table-cell">
               {extra.hasOrigin ? extra.originUnit : ''}
@@ -660,7 +674,7 @@ export default React.memo(
       },
       data: displayedEntries,
       columns,
-                              enableRowSelection: true,
+      enableRowSelection: true,
       onGroupingChange: setGrouping,
       onExpandedChange: setExpanded,
       autoResetExpanded: false,
@@ -819,40 +833,41 @@ export default React.memo(
                             )}
                             {row.original.displayTag} ({row.subRows.length})
                           </button>
-                          {hiddenCountPerGroup[row.original.tag] > 0 && (() => {
-                            const tag = row.original.tag
-                            const isHiddenShown = showHiddenPerGroup[tag]
-                            const hiddenCount = hiddenCountPerGroup[tag]
+                          {hiddenCountPerGroup[row.original.tag] > 0 &&
+                            (() => {
+                              const tag = row.original.tag
+                              const isHiddenShown = showHiddenPerGroup[tag]
+                              const hiddenCount = hiddenCountPerGroup[tag]
 
-                            let ariaLabel = ''
-                            let buttonTitle = ''
-                            let buttonText = ''
+                              let ariaLabel = ''
+                              let buttonTitle = ''
+                              let buttonText = ''
 
-                            if (isHiddenShown) {
-                              ariaLabel = `Hide ${hiddenCount} inactive biomarkers`
-                              buttonTitle = 'Hide inactive biomarkers'
-                              buttonText = 'Hide inactive'
-                            } else {
-                              ariaLabel = `Show ${hiddenCount} inactive biomarkers`
-                              buttonTitle = 'Show inactive biomarkers'
-                              buttonText = `Show ${hiddenCount} inactive`
-                            }
+                              if (isHiddenShown) {
+                                ariaLabel = `Hide ${hiddenCount} inactive biomarkers`
+                                buttonTitle = 'Hide inactive biomarkers'
+                                buttonText = 'Hide inactive'
+                              } else {
+                                ariaLabel = `Show ${hiddenCount} inactive biomarkers`
+                                buttonTitle = 'Show inactive biomarkers'
+                                buttonText = `Show ${hiddenCount} inactive`
+                              }
 
-                            return (
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  toggleShowHidden(tag)
-                                }}
-                                className="text-xs font-normal text-gray-400 hover:text-white px-2 py-1 rounded bg-gray-800 hover:bg-gray-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                                aria-label={ariaLabel}
-                                title={buttonTitle}
-                              >
-                                {buttonText}
-                              </button>
-                            )
-                          })()}
+                              return (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    toggleShowHidden(tag)
+                                  }}
+                                  className="text-xs font-normal text-gray-400 hover:text-white px-2 py-1 rounded bg-gray-800 hover:bg-gray-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                                  aria-label={ariaLabel}
+                                  title={buttonTitle}
+                                >
+                                  {buttonText}
+                                </button>
+                              )
+                            })()}
                         </div>
                       </td>
                     </tr>

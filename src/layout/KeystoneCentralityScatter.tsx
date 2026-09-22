@@ -13,7 +13,9 @@ interface KeystoneCentralityScatterProps {
   target: string
 }
 
-export default React.memo(function KeystoneCentralityScatter({ target }: KeystoneCentralityScatterProps) {
+export default React.memo(function KeystoneCentralityScatter({
+  target,
+}: KeystoneCentralityScatterProps) {
   const [showOptimal, setShowOptimal] = useState(false)
   const data = useAtomValue(nonInferredDataAtom)
   const rankedDataMap = useAtomValue(rankedDataMapAtom)
@@ -30,7 +32,8 @@ export default React.memo(function KeystoneCentralityScatter({ target }: Keyston
     // 1. Calculate OOR Frequency for each valid biomarker
     // 2. Calculate average absolute correlation for each valid biomarker
 
-    const results: { name: string; centrality: number; oorFrequency: number; isTarget: boolean }[] = []
+    const results: { name: string; centrality: number; oorFrequency: number; isTarget: boolean }[] =
+      []
 
     const maxLen = data.length > 0 ? data[0][1].length : 0
     const xPearson = new Float64Array(maxLen)
@@ -50,12 +53,16 @@ export default React.memo(function KeystoneCentralityScatter({ target }: Keyston
       if (optimality && optimality.length > 0) {
         // Find how many valid data points there are (not null/undefined)
         for (let k = 0; k < sourceValues.length; k++) {
-            if (sourceValues[k] !== null && sourceValues[k] !== undefined && (sourceValues[k] as any) !== '') {
-               totalValidOOR++
-               if (optimality[k]) {
-                   oorCount++
-               }
+          if (
+            sourceValues[k] !== null &&
+            sourceValues[k] !== undefined &&
+            (sourceValues[k] as any) !== ''
+          ) {
+            totalValidOOR++
+            if (optimality[k]) {
+              oorCount++
             }
+          }
         }
       }
 
@@ -73,12 +80,12 @@ export default React.memo(function KeystoneCentralityScatter({ target }: Keyston
       // Pre-parse the source values and record valid indices for Pearson
       const validSourceIndices: number[] = []
       if (method === 'pearson') {
-          for (let k = 0; k < sourceValues.length; k++) {
-            const v = sourceValues[k]
-            if (v !== null && v !== undefined && (v as any) !== '') {
-              validSourceIndices.push(k)
-            }
+        for (let k = 0; k < sourceValues.length; k++) {
+          const v = sourceValues[k]
+          if (v !== null && v !== undefined && (v as any) !== '') {
+            validSourceIndices.push(k)
           }
+        }
       }
 
       for (let j = 0; j < n; j++) {
@@ -104,22 +111,29 @@ export default React.memo(function KeystoneCentralityScatter({ target }: Keyston
           }
 
           if (count >= 4) {
-            const result = calculatePearson(xPearson.subarray(0, count), yPearson.subarray(0, count), { alpha: 0.05, alternative: 'two-sided' })
+            const result = calculatePearson(
+              xPearson.subarray(0, count),
+              yPearson.subarray(0, count),
+              { alpha: 0.05, alternative: 'two-sided' },
+            )
             absCorr = Math.abs(result.statistic)
             if (!isNaN(absCorr)) {
-                sumAbsCorr += absCorr
-                validCorrelations++
+              sumAbsCorr += absCorr
+              validCorrelations++
             }
           }
         } else {
           // Spearman
           const targetRanks = rankedDataMap.get(targetName)
           if (sourceRanks && targetRanks) {
-            const result = calculateSpearmanRanked(sourceRanks, targetRanks, { alpha: 0.05, alternative: 'two-sided' })
+            const result = calculateSpearmanRanked(sourceRanks, targetRanks, {
+              alpha: 0.05,
+              alternative: 'two-sided',
+            })
             absCorr = Math.abs(result.statistic)
-             if (!isNaN(absCorr)) {
-                sumAbsCorr += absCorr
-                validCorrelations++
+            if (!isNaN(absCorr)) {
+              sumAbsCorr += absCorr
+              validCorrelations++
             }
           }
         }
@@ -131,7 +145,7 @@ export default React.memo(function KeystoneCentralityScatter({ target }: Keyston
         name: sourceName,
         centrality,
         oorFrequency,
-        isTarget: sourceName === target
+        isTarget: sourceName === target,
       })
     }
 
@@ -217,33 +231,33 @@ export default React.memo(function KeystoneCentralityScatter({ target }: Keyston
   }, [chartData])
 
   if (chartData.length === 0) {
-      return (
-        <div className="flex items-center justify-center h-[400px] text-gray-500 text-sm">
-            Not enough data to compute centrality.
-        </div>
-      )
+    return (
+      <div className="flex items-center justify-center h-[400px] text-gray-500 text-sm">
+        Not enough data to compute centrality.
+      </div>
+    )
   }
 
   return (
     <div className="flex flex-col relative">
-        <div className="absolute top-0 right-4 z-10 flex items-center gap-2">
-           <input
-               type="checkbox"
-               id="showOptimal"
-               checked={showOptimal}
-               onChange={(e) => setShowOptimal(e.target.checked)}
-               className="rounded border-gray-600 bg-dark-bg text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900 cursor-pointer"
-           />
-           <label htmlFor="showOptimal" className="text-xs text-gray-400 cursor-pointer select-none">
-               Show 100% Optimal Biomarkers
-           </label>
-        </div>
-        <ReactECharts
-      option={option}
-      style={{ height: '400px', width: '100%' }}
-      notMerge={true}
-      lazyUpdate={true}
-    />
+      <div className="absolute top-0 right-4 z-10 flex items-center gap-2">
+        <input
+          type="checkbox"
+          id="showOptimal"
+          checked={showOptimal}
+          onChange={(e) => setShowOptimal(e.target.checked)}
+          className="rounded border-gray-600 bg-dark-bg text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900 cursor-pointer"
+        />
+        <label htmlFor="showOptimal" className="text-xs text-gray-400 cursor-pointer select-none">
+          Show 100% Optimal Biomarkers
+        </label>
+      </div>
+      <ReactECharts
+        option={option}
+        style={{ height: '400px', width: '100%' }}
+        notMerge={true}
+        lazyUpdate={true}
+      />
     </div>
   )
 })

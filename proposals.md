@@ -1,5 +1,3 @@
-
-
 **Proposal: Conditional Anomaly Probability Heatmap**
 
 **ECharts type:** `heatmap`
@@ -21,6 +19,52 @@ A "Conditional Probability View" toggle within the correlation and statistical m
 
 ---
 
+**Proposal: PhenoAge Dependency Network Chart**
+
+**ECharts type:** `graph`
+
+**Codebase citation:**
+Uses `a-PhenoAge` tags grouped by `src/processors/post/tag.ts` and the `inferred` flag from `src/types/biomarker.ts`, fed by `dataAtom`.
+
+**Which existing data it uses:**
+It pulls all biomarkers under the `a-PhenoAge` tag group. It maps out the `inferred: true` biomarker (PhenoAge itself) as the central node and connects it to the measured underlying `originValues` (like Albumin, CRP-hs, Glucose, WBC). It sizes the individual nodes based on the relative frequency of their out-of-range failures (`extra.optimality[]` from `src/processors/post/range.ts`).
+
+**What it reveals that current charts don't:**
+While the standard LineChart can show a user's biological age (PhenoAge) increasing, it cannot explain _why_. This graph immediately highlights the root cause—by sizing the measured nodes by failure frequency, a user can instantly see if their elevated PhenoAge is driven by chronic inflammation (large CRP-hs node) versus poor glucose control (large Glucose node).
+
+**Where it would live:**
+New `src/layout/PhenoAgeDependencyGraph.tsx`.
+
+**Trigger / entry point:**
+A "Deconstruct Score" button next to any calculated/inferred biomarker that expands this dependency graph.
+
+---
+
+**Proposal: Sub-Clinical Biomarker Creep Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.range` and standard deviation calculations over `values[]` (from `BioMarker` within `src/types/biomarker.ts`), aligned with `labels[]` from `src/data/index.ts`.
+
+**Which existing data it uses:**
+For all biomarkers in `visibleDataAtom`, it extracts the median (center) of their healthy `extra.range`. Instead of a boolean pass/fail based on the range edge (like `extra.optimality[]`), it calculates the continuous standardized distance (deviation) of every historical measurement from that perfect median, mapping this numerical drift into a heatmap over the `labels[]` timeline.
+
+**Axes:**
+
+- X-axis: Time (dates from `labels[]`)
+- Y-axis: Biomarker names (from `visibleDataAtom`)
+
+**What it reveals that current charts don't:**
+Current charts only alert users when they officially cross an out-of-range boundary, and line charts are too chaotic when viewing 10+ metrics simultaneously. This heatmap acts as a unified sub-clinical radar, visualizing slow deterioration (creep) _before_ a failure occurs. A user can see a system slowly turning from cool blue to warm yellow over years, allowing intervention long before the line crosses into clinical red.
+
+**Where it would live:**
+New `src/layout/SubClinicalCreepHeatmap.tsx`.
+
+**Trigger / entry point:**
+An "Early Warning Matrix" toggle in the main Dashboard, acting as an alternative to the RadarChart.
+
+---
 
 **Proposal: System-Wide Volatility Sankey Diagram**
 
@@ -96,6 +140,7 @@ Uses `extra.range` and `extra.optimality` pre-computed by `src/processors/post/r
 For the most recent timestamp, it plots all biomarkers from `visibleDataAtom`. The X-axis is the absolute distance from the center of their optimal range (normalized to the range width), and the Y-axis is their historical volatility (standard deviation of non-null `values[]`).
 
 **Axes:**
+
 - X-axis: Optimal Range Deviation (Normalized distance from optimal center)
 - Y-axis: Historical Volatility (Standard Deviation)
 
@@ -119,6 +164,7 @@ Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` aligned
 It calculates the continuous duration (in days) that a biomarker stays in a non-optimal state before reverting back to the optimal range (i.e. number of consecutive `true` values in `extra.optimality[]` before hitting a `false`, mapped to actual dates in `labels`).
 
 **Axes:**
+
 - X-axis: Reversion Duration (e.g. days or weeks in failure state)
 - Y-axis: Frequency count (number of times it took that long to recover)
 
@@ -144,6 +190,7 @@ Uses `nonInferredDataAtom` and the existing `ecStat.regression` transform logic 
 It takes two user-selected biomarkers from `nonInferredDataAtom`. First, it computes the linear regression expected values for Biomarker Y given Biomarker X using the exact same paired datasets passed to `ecStat.regression('linear', mappedScatterData)`. It then calculates the residual (Measured Y - Expected Y) for every data point and plots the distribution of these residuals.
 
 **Axes:**
+
 - X-axis: Single category ("Regression Residuals").
 - Y-axis: Residual value (difference between actual and predicted).
 
@@ -173,7 +220,7 @@ X-axis: Time (dates from `labels`).
 Y-axis: Value delta (rate of change, e.g., "mg/dL per day").
 
 **What it reveals that current charts don't:**
-Shows not just the absolute level of a biomarker, but the *velocity* of physiological improvement or deterioration between tests (e.g., whether a rapidly worsening trend is accelerating or slowing down).
+Shows not just the absolute level of a biomarker, but the _velocity_ of physiological improvement or deterioration between tests (e.g., whether a rapidly worsening trend is accelerating or slowing down).
 
 **Where it would live:**
 New `src/layout/RecoveryVelocityLineChart.tsx`, embedded within the Table Row Expansion (Data Grid) alongside the existing `LineChart` and `BoxplotChart`.
@@ -194,6 +241,7 @@ Uses `extra.tag[]` system classifications from `src/processors/post/tag.ts` and 
 Rather than computing pairwise correlations between individual biomarkers, this aggregates all markers within a specific tag (e.g., `1-RBC`, `4-Lipid`, `3-Liver`) and computes the average inter-tag correlation strength across the entire dataset. It leverages `nonInferredDataAtom` and the existing `calculateSpearman` or `calculatePearson` functions.
 
 **Axes:**
+
 - X-axis: System Tags (`1-RBC`, `2-Metabolic`, etc.)
 - Y-axis: System Tags (same as X-axis)
 
@@ -219,6 +267,7 @@ Reads `extra.originValues` and `extra.originUnit` from `src/types/biomarker.ts` 
 It pairs the standard standardized `values[]` (which power the main charts) with the pre-conversion raw lab numbers found in `extra.originValues[]`, if `extra.hasOrigin` is true.
 
 **Axes:**
+
 - X-axis: Standardized Value (e.g. standard SI unit)
 - Y-axis: Raw Origin Value (from `extra.originValues`)
 
@@ -244,11 +293,12 @@ Uses `correlationMethodAtom` from `src/atom/correlationAtom.ts` and the `calcula
 It computes both the Pearson (linear) and Spearman (monotonic rank) correlation coefficients for all pairwise combinations of biomarkers in `nonInferredDataAtom`. It then calculates the absolute difference between these two coefficients for each pair.
 
 **Axes:**
+
 - X-axis: Biomarker Name (from `nonInferredDataAtom`)
 - Y-axis: Biomarker Name (from `nonInferredDataAtom`)
 
 **What it reveals that current charts don't:**
-The current `CorrelationChordDiagram` and `Chart2.tsx` only show correlation under a single selected mathematical lens. This heatmap specifically highlights pairs with a *large difference* between Pearson and Spearman scores. A high Spearman but low Pearson score strongly implies a non-linear but consistent physiological relationship (e.g., exponential or logarithmic response), guiding the user to investigate the *shape* of the relationship rather than assuming a straight line.
+The current `CorrelationChordDiagram` and `Chart2.tsx` only show correlation under a single selected mathematical lens. This heatmap specifically highlights pairs with a _large difference_ between Pearson and Spearman scores. A high Spearman but low Pearson score strongly implies a non-linear but consistent physiological relationship (e.g., exponential or logarithmic response), guiding the user to investigate the _shape_ of the relationship rather than assuming a straight line.
 
 **Where it would live:**
 New `src/layout/CorrelationDeltaHeatmap.tsx`.
@@ -267,6 +317,7 @@ This chart groups biomarkers based on whether they are directly measured or `inf
 
 **Axes:**
 No standard X/Y axes. The stages of the funnel represent:
+
 - Total Inferred Biomarkers
 - Out-of-Range Inferred Biomarkers
 - Out-of-Range Origin Biomarkers (the root cause)
@@ -293,6 +344,7 @@ Uses `correlationMethodAtom` from `src/atom/correlationAtom.ts` and overall `val
 Splits the `labels[]` and corresponding `values[]` from `nonInferredDataAtom` into two chronological halves (e.g., Early Timeline vs. Late Timeline). It computes pairwise correlation coefficients (Spearman/Pearson) between all biomarkers for both halves.
 
 **Axes:**
+
 - X-axis: Early Timeline Correlation Coefficient (e.g., -1.0 to 1.0).
 - Y-axis: Late Timeline Correlation Coefficient (e.g., -1.0 to 1.0).
 
@@ -315,9 +367,10 @@ A "Temporal Shift" toggle button in the main Correlation Analysis modal.
 Uses `extra.optimality[]` from `src/processors/post/range.ts` and `extra.tag[]` from `src/processors/post/tag.ts`.
 
 **Which existing data it uses:**
-For a specific user-selected biomarker in `dataAtom.ts`, it retrieves the biomarker's primary tag group (e.g., `2-Metabolic`). It then calculates the average anomaly rate (percentage of `extra.optimality[] === true`) of all *other* biomarkers within that tag group across all timestamps.
+For a specific user-selected biomarker in `dataAtom.ts`, it retrieves the biomarker's primary tag group (e.g., `2-Metabolic`). It then calculates the average anomaly rate (percentage of `extra.optimality[] === true`) of all _other_ biomarkers within that tag group across all timestamps.
 
 **Axes:**
+
 - X-axis: Time (dates from `labels[]`).
 - Y-axis (Left, Value): Target biomarker absolute measurement value.
 - Y-axis (Right, Percentage): Tag-group average anomaly rate (0% - 100%).
@@ -344,11 +397,12 @@ A "System Context Overlay" toggle in the existing Table Row Expansion UI, render
 Reads the `optimality` boolean array for all biomarkers grouped by their `tag` (e.g., from `dataAtom`).
 
 **Axes:**
+
 - **X-Axis:** Time (`labels[]`)
 - **Y-Axis:** Tag groups (e.g., '1-RBC', '3-Liver', '5-Hormone')
 
 **What it reveals that current charts don't:**
-By sizing the dots based on the count or percentage of biomarkers *out of range* within a specific tag group at a given timestamp, it immediately visualizes which physiological systems (tags) were struggling the most at any point in time, without having to inspect individual lines or scatters.
+By sizing the dots based on the count or percentage of biomarkers _out of range_ within a specific tag group at a given timestamp, it immediately visualizes which physiological systems (tags) were struggling the most at any point in time, without having to inspect individual lines or scatters.
 
 **Where it would live:**
 New `src/layout/SystemOptimalityDotPlot.tsx`, rendered in the main view alongside or instead of the multi-line chart when an aggregate view is desired.
@@ -369,6 +423,7 @@ Uses `extra.range` parsed values from `src/processors/post/range.ts` and `nonInf
 It calculates the distance of each measurement in `nonInferredDataAtom` from the exact center (median) of its defined `extra.range`. It aggregates these deviations across all timepoints for a single selected biomarker to show the distribution of deviations from the optimal baseline.
 
 **Axes:**
+
 - X-axis: Deviation from Optimal Center (e.g. standard units)
 - Y-axis: Frequency count (number of measurements at that deviation)
 
@@ -394,6 +449,7 @@ Uses `values[]` (which contains `number[] | null`) from `BioMarker[1]` in `src/t
 It calculates the step-to-step difference (delta) between consecutive valid measurements in `values[]` for a given biomarker.
 
 **Axes:**
+
 - X-axis: Time (dates from `labels[]`)
 - Y-axis: Measurement Delta (e.g., +15 mg/dL, -5 mg/dL)
 
@@ -419,6 +475,7 @@ Uses `BioMarker[1]` (values array) from `nonInferredDataAtom`.
 Computes the historical mean and standard deviation for each selected biomarker's `values[]`, then transforms each non-null measurement into a Z-score `(value - mean) / stdDev`.
 
 **Axes:**
+
 - X-axis: Time (dates from `labels[]`)
 - Y-axis: Standard Deviations from Mean (Z-score, typically -3 to +3).
 
@@ -444,11 +501,12 @@ Uses `rankedDataMapAtom` from `src/atom/dataAtom.ts`.
 Reads the `Float64Array` rank values from `rankedDataMapAtom` for selected biomarkers. It converts the absolute rank into a rank-percentile (0% to 100%) based on the number of non-null measurements for that marker.
 
 **Axes:**
+
 - X-axis: Time (dates from `labels[]`)
 - Y-axis: Rank Percentile (0 to 100)
 
 **What it reveals that current charts don't:**
-Raw measurements can be noisy or trend linearly due to aging. By plotting the *rank percentile* over time, the user can see if a biomarker is consistently staying in their personal "top quartile" (e.g., historically high) or if a recent reading represents a sudden drop to their personal "bottom quartile", regardless of the absolute unit or normal reference range. This personalizes the baseline comparison.
+Raw measurements can be noisy or trend linearly due to aging. By plotting the _rank percentile_ over time, the user can see if a biomarker is consistently staying in their personal "top quartile" (e.g., historically high) or if a recent reading represents a sudden drop to their personal "bottom quartile", regardless of the absolute unit or normal reference range. This personalizes the baseline comparison.
 
 **Where it would live:**
 New `src/layout/RankPercentileChart.tsx`.
@@ -463,14 +521,15 @@ A "View Personal Rank History" toggle in the single-biomarker detail modal, swap
 Uses `extra.optimality[]` and `extra.range` (e.g. `'3.9 - 6.4'`) from `src/processors/post/range.ts` combined with data from `dataAtom`.
 
 **Which existing data it uses:**
-It parses the string in `extra.range` to extract the min/max thresholds. For the most recent values (`labels[]` slice), it computes how close a biomarker value is to its boundary. It uses the `optimality` boolean array to filter out markers that are *already* out of range, focusing only on those that are nominally "in range" but dangerously close to the limit (e.g., > 95% of the distance from the median to the boundary).
+It parses the string in `extra.range` to extract the min/max thresholds. For the most recent values (`labels[]` slice), it computes how close a biomarker value is to its boundary. It uses the `optimality` boolean array to filter out markers that are _already_ out of range, focusing only on those that are nominally "in range" but dangerously close to the limit (e.g., > 95% of the distance from the median to the boundary).
 
 **Axes:**
+
 - X-axis: Time (the most recent 3-5 measurements from `labels[]`).
 - Y-axis: Biomarker Name (from `visibleDataAtom`).
 
 **What it reveals that current charts don't:**
-The current charts show what *has already broken* (values outside the shaded `markArea`). This heatmap acts as a predictive early-warning system. It reveals which physiological markers are rapidly degrading and about to cross into abnormal territory, allowing for preventative intervention *before* a clinical out-of-range flag is triggered.
+The current charts show what _has already broken_ (values outside the shaded `markArea`). This heatmap acts as a predictive early-warning system. It reveals which physiological markers are rapidly degrading and about to cross into abnormal territory, allowing for preventative intervention _before_ a clinical out-of-range flag is triggered.
 
 **Where it would live:**
 New `src/layout/ImminentWarningHeatmap.tsx`.
@@ -488,9 +547,10 @@ A "Predictive Warnings" widget on the main dashboard that appears automatically 
 Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` combined with data from `dataAtom` and `labels[]`.
 
 **Which existing data it uses:**
-For a given tag group (e.g., `5-Hormone`), it counts total measurements across all its biomarkers. It tracks the number of times any marker falls out-of-range (`optimality[] === true`). Crucially, it then checks the *subsequent* valid measurement for that same marker to see if it reverted to optimal (`optimality[] === false`) or remained chronic.
+For a given tag group (e.g., `5-Hormone`), it counts total measurements across all its biomarkers. It tracks the number of times any marker falls out-of-range (`optimality[] === true`). Crucially, it then checks the _subsequent_ valid measurement for that same marker to see if it reverted to optimal (`optimality[] === false`) or remained chronic.
 
 **Axes:**
+
 - No standard axes for Funnel.
 - Stages: Total Measurements -> Out-of-Range Events -> Recovered on Next Test -> Chronic (Failed to Recover).
 
@@ -505,7 +565,6 @@ A "View Resilience Metrics" action when hovering over or selecting a specific ta
 
 ---
 
-
 **Proposal: Correlation vs P-Value Volcano Plot**
 
 **ECharts type:** `scatter`
@@ -517,6 +576,7 @@ Uses `correlations` parameter mapped to the array of `[string, number, number]` 
 It reads the array of calculated correlation pairs (Target Biomarker against all others) generated by `Correlation.tsx`, plotting the correlation coefficient (`rho`) on the X-axis and the negative log10 of the p-value (`-log10(p)`) on the Y-axis. It utilizes `correlationAlphaAtom` to draw a horizontal `markLine` indicating the threshold of statistical significance.
 
 **Axes:**
+
 - X-axis: Correlation Coefficient (-1.0 to 1.0)
 - Y-axis: -log10(p-value) (Significance)
 
@@ -542,6 +602,7 @@ Uses `rankedDataMapAtom` from `src/atom/dataAtom.ts` and `correlationMethodAtom`
 Instead of calculating a single correlation coefficient over the entire timeline `labels[]`, it slices the historical data into rolling windows (e.g., 6-month blocks). For two selected biomarkers, it computes the correlation coefficient within each rolling window and plots the resulting series of coefficients over time.
 
 **Axes:**
+
 - X-axis: Time (the center date of each rolling window, derived from `labels[]`)
 - Y-axis: Correlation Coefficient (e.g., -1.0 to 1.0)
 
@@ -567,6 +628,7 @@ Uses `extra.range` from `src/processors/post/range.ts` and `ecStat.regression` f
 Extracts min/max boundaries from `extra.range`. Plots a single biomarker's historical values and extends a linear regression line into the future (extrapolating the X-axis) to predict when the value will intersect the boundary.
 
 **Axes:**
+
 - X-axis: Time (including future dates extrapolated from `labels[]`)
 - Y-axis: Biomarker Value
 
@@ -580,6 +642,7 @@ New `src/layout/PredictiveTrendChart.tsx`.
 A "Predictive Trend" toggle on the single-biomarker `LineChart` view (e.g., inside the Table Row Expansion).
 
 ---
+
 **Proposal: System Resilience Reversion Funnel**
 
 **ECharts type:** `funnel`
@@ -589,13 +652,14 @@ Uses `extra.tag[]` assigned by `src/processors/post/tag.ts` and `extra.optimalit
 
 **Which existing data it uses:**
 For a specific user-selected tag group (e.g., `2-Metabolic`), it calculates the conversion rate through four stages using data from `dataAtom`:
+
 1. Total valid measurements across all biomarkers in the tag group.
 2. Measurements that fell out-of-range (`extra.optimality[] === true`).
-3. Out-of-range measurements that successfully recovered to optimal on the *very next* test date (evaluating the next non-null index in `values[]`).
+3. Out-of-range measurements that successfully recovered to optimal on the _very next_ test date (evaluating the next non-null index in `values[]`).
 4. Out-of-range measurements that remained chronic (did not recover on the next test).
 
 **What it reveals that current charts don't:**
-Quantifies systemic biological resilience. Rather than just showing the static historical number of anomalies (like a bar chart), this funnel visualizes the *recovery bounce-back rate*. A steep funnel indicates a highly resilient system that corrects itself quickly, whereas a wide bottom indicates a system that is struggling to return to homeostasis once disturbed.
+Quantifies systemic biological resilience. Rather than just showing the static historical number of anomalies (like a bar chart), this funnel visualizes the _recovery bounce-back rate_. A steep funnel indicates a highly resilient system that corrects itself quickly, whereas a wide bottom indicates a system that is struggling to return to homeostasis once disturbed.
 
 **Where it would live:**
 New `src/layout/SystemResilienceFunnel.tsx`.
@@ -616,6 +680,7 @@ Uses `labels[]` from `src/data/index.ts` and array lengths / null-gaps from `dat
 It aligns the non-null `values[]` counts for all biomarkers in `dataAtom` against the global timeline `labels[]` (format `YYMMDD`). The size or density of the scatter point represents the total number of distinct biomarkers tested on that specific date.
 
 **Axes:**
+
 - X-axis: Time (dates parsed from `labels[]`)
 - Y-axis: Categorical testing intensity or single baseline.
 
@@ -639,6 +704,7 @@ Uses `extra.range` pre-computed by `src/processors/post/range.ts` and `values[]`
 For each biomarker in `nonInferredDataAtom`, it parses `extra.range` (e.g. "3.9 - 6.4") to calculate the "Range Width" (e.g., 2.5). It then calculates the "Historical Volatility" of the biomarker by computing the standard deviation of its non-null `values[]` across all time points (`labels[]`).
 
 **Axes:**
+
 - X-axis: Optimal Range Width (Log scale, to handle tight vs wide ranges)
 - Y-axis: Historical Volatility (Standard Deviation)
 
@@ -664,11 +730,12 @@ Uses `labels[]` from `src/data/index.ts` and the `values[]` arrays extracted fro
 It utilizes the historical time-series arrays (`BioMarker[1]`) for two user-selected biomarkers, along with the `labels[]` array for the timeline. It offsets one biomarker's data series by a user-defined number of index steps (representing chronological measurements) to visually align shifted time horizons.
 
 **Axes:**
+
 - X-axis: Time (the shared `labels[]` dates)
 - Y-axes: Dual Y-axes (one for each biomarker, properly scaled according to their respective units `BioMarker[2]`)
 
 **What it reveals that current charts don't:**
-The existing correlation scatter plot (`Chart2.tsx`) and standard line chart (`Chart.tsx`) only compare biomarkers at the *exact same point in time*. This lag-offset chart reveals *leading versus lagging* indicators. For example, it can visually demonstrate if a spike in Vitamin D levels today consistently precedes an increase in Calcium levels 30 days from now. Discovering these delayed physiological responses is impossible with statically aligned arrays.
+The existing correlation scatter plot (`Chart2.tsx`) and standard line chart (`Chart.tsx`) only compare biomarkers at the _exact same point in time_. This lag-offset chart reveals _leading versus lagging_ indicators. For example, it can visually demonstrate if a spike in Vitamin D levels today consistently precedes an increase in Calcium levels 30 days from now. Discovering these delayed physiological responses is impossible with statically aligned arrays.
 
 **Where it would live:**
 New `src/layout/CorrelationLagChart.tsx`.
@@ -689,6 +756,7 @@ Uses `values[]` extracted from `nonInferredDataAtom` and `dataMapAtom` (from `sr
 Calculates the statistical standard deviation or coefficient of variation (volatility) for the raw `values[]` array of every measured biomarker across its entire timeline, excluding null gaps.
 
 **Axes:**
+
 - None (Polar coordinate system mapping value magnitude to sector radius).
 
 **What it reveals that current charts don't:**
@@ -700,3 +768,380 @@ New `src/layout/VolatilityPolarChart.tsx`.
 **Trigger / entry point:**
 A "Volatility Overview" button in the global dashboard header or Data Grid table header, complementing the existing system clustering and correlation overviews.
 ---
+
+**Proposal: Missing Data Interpolation Confidence Area Chart**
+
+**ECharts type:** `line` (with `areaStyle`)
+
+**Codebase citation:**
+Uses `dataAtom` from `src/atom/dataAtom.ts` and aligns `values[]` containing nulls against `labels[]`.
+
+**Which existing data it uses:**
+It utilizes the historical time-series array `values[]` (which contains `null` gaps for missing measurements) from `dataAtom` alongside the standard `labels[]` timeline.
+
+**Axes:**
+
+- X-axis: Time (dates parsed from `labels[]`)
+- Y-axis: Biomarker Value
+
+**What it reveals that current charts don't:**
+In the standard `Chart.tsx` line charts, missing data is either left as gaps (default `connectNulls: false`) or visually omitted, making long spans of untested time look either broken or falsely linear. This chart uses a solid line for actual data points and a heavily faded/dashed line with an underlying semi-transparent "uncertainty" area for periods spanning null values. This visually warns the user when a trend is merely an interpolation spanning months of untested time, preventing false confidence in a historical trajectory.
+
+**Where it would live:**
+New `src/layout/InterpolationConfidenceChart.tsx`.
+
+**Trigger / entry point:**
+A "Show Interpolation Confidence" toggle built directly into the existing `LineChart.tsx` component used in the table row expansion view.
+
+---
+
+**Proposal: Alpha-Threshold Sensitivity Bar Chart**
+
+**ECharts type:** `bar`
+
+**Codebase citation:**
+Uses `correlationAlphaAtom` from `src/atom/correlationAtom.ts` and global pairwise combinations from `dataMapAtom`.
+
+**Which existing data it uses:**
+Iterates through all possible pairwise biomarker correlations derived from `dataMapAtom` (excluding inferred data). It counts the total number of statistically significant correlations (edges) across three standard significance thresholds (Alpha = 0.10, 0.05, 0.01) rather than just a single active threshold.
+
+**Axes:**
+
+- X-axis: Significance Level (Alpha 0.10, 0.05, 0.01)
+- Y-axis: Count of Significant Correlations
+
+**What it reveals that current charts don't:**
+The existing correlation tools (`Correlation.tsx` and Chord Diagram) only show results for the single globally selected `correlationAlphaAtom`. This bar chart provides a meta-analysis of the system's overall robustness. If the total number of significant correlations drops precipitously from Alpha 0.05 to Alpha 0.01, it reveals that most of the user's biomarker couplings are weak or borderline (potentially driven by noise), whereas a stable bar height across thresholds indicates deep, highly robust physiological linkage.
+
+**Where it would live:**
+New `src/layout/AlphaSensitivityBar.tsx`.
+
+**Trigger / entry point:**
+Displayed as a "Robustness Summary" widget above the main controls in the Correlation modal (`Correlation.tsx`).
+**Proposal: Simultaneous Anomaly Burst Scatter**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` aligned with time-series `labels` from `src/data/index.ts`.
+
+**Which existing data it uses:**
+It scans across all tracked biomarkers in `dataAtom.ts` and sums the total number of `true` values in `extra.optimality[]` for each specific date index in `labels[]`.
+
+**Axes:**
+
+- X-axis: Time (dates from `labels[]`)
+- Y-axis: Total simultaneous anomalies (Count of out-of-range markers)
+
+**What it reveals that current charts don't:**
+While individual timeline charts show when a single marker fails, this chart reveals systemic "bursts" of physiological stress. A sudden spike indicates a catastrophic health event (e.g., severe acute infection or metabolic crash) where dozens of systems failed simultaneously, allowing the user to correlate these systemic shocks with lifestyle or clinical events.
+
+**Where it would live:**
+New `src/layout/SimultaneousAnomalyBurstScatter.tsx`.
+
+**Trigger / entry point:**
+A "Systemic Stress Timeline" toggle in the main dashboard view, replacing the individual multi-line `Chart.tsx`.
+
+---
+
+**Proposal: Tag-Group Anomaly Velocity Line Chart**
+
+**ECharts type:** `line`
+
+**Codebase citation:**
+Uses `extra.tag[]` from `src/processors/post/tag.ts` and `extra.optimality[]` from `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+For each tag group (e.g., `4-Lipid`), it calculates the total count of out-of-range biomarkers (`extra.optimality[] === true`) per timestamp. It then calculates the first derivative (the step-to-step delta in the anomaly count).
+
+**Axes:**
+
+- X-axis: Time (dates from `labels[]`)
+- Y-axis: Anomaly Velocity (Rate of change in failing markers per system)
+
+**What it reveals that current charts don't:**
+Reveals which biological systems are _currently destabilizing the fastest_. A tag group might have a high absolute number of anomalies, but if its velocity is zero, it's stable. Conversely, a group with few anomalies but a high positive velocity is actively degrading and requires immediate attention.
+
+**Where it would live:**
+New `src/layout/TagAnomalyVelocityChart.tsx`.
+
+**Trigger / entry point:**
+A "System Destabilization Rate" button in the global dashboard header, rendering alongside the System Radar Chart.
+---
+
+**Proposal: Biomarker Range Exceedance Radar**
+
+**ECharts type:** `radar`
+
+**Codebase citation:**
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` and `tag` grouping from `src/processors/post/tag.ts`, index-aligned with the time-series values in `dataAtom.ts`.
+
+**Which existing data it uses:**
+Iterates through all non-inferred biomarkers, grouping them by their assigned tag groups (e.g., `1-RBC`, `4-Lipid`). For each group, it calculates the historical percentage of values that were out-of-range (`extra.optimality[] === true`) compared to the total number of non-null measurements for those tags.
+
+**Axes:**
+- Each axis of the radar represents a Tag Group (e.g., RBC, Metabolic, Liver).
+- The radius value represents the overall "Exceedance Percentage" (0% to 100%) for that entire system across the user's logged history.
+
+**What it reveals that current charts don't:**
+While individual timeline charts show a specific marker failing on a given day, this radar chart aggregates historical failures by physiological system. A large spike on the "4-Lipid" axis immediately tells the user that their lipid system is historically their weakest link, even if individual markers fluctuate in and out of range, providing a high-level systemic vulnerability overview.
+
+**Where it would live:**
+New `src/layout/SystemVulnerabilityRadar.tsx`.
+
+**Trigger / entry point:**
+Displayed alongside the correlation heatmaps or as a primary visualization in a top-level "Health Summary" or "System Overview" view.
+
+---
+
+**Proposal: Measurement Gap vs Optimality Scatter**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+Uses the global time scale `labels[]` from `src/data/index.ts` and `extra.optimality[]` from `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+For each non-inferred biomarker (from `nonInferredDataAtom`), it analyzes the time-series data to calculate two metrics:
+1. The average duration between non-null measurements (derived by mapping non-null indices to `labels[]`).
+2. The overall failure rate (`extra.optimality[] === true` vs total measurements).
+
+**Axes:**
+- X-axis: Average Measurement Gap (Days/Months) - derived from `labels[]`
+- Y-axis: Historical Failure Rate (%) - derived from `extra.optimality[]`
+
+**What it reveals that current charts don't:**
+Reveals psychological avoidance behavior in medical testing. Biomarkers that have high failure rates but large measurement gaps (top right quadrant) indicate a user who knows a marker is problematic but avoids testing it regularly. Conversely, markers tested frequently despite being perfectly optimal (bottom left) reveal over-testing of stable systems. This meta-insight goes beyond raw data to reflect the user's relationship with their health tracking.
+
+**Where it would live:**
+New `src/layout/TestingBehaviorScatter.tsx`.
+
+**Trigger / entry point:**
+A new "Testing Habits" or "Protocol Meta-Analysis" subsection in the dashboard, complementing the data grid.
+---
+
+**Proposal: Phenotypic Age Delta Area Chart**
+
+**ECharts type:** `line` (with `areaStyle`)
+
+**Codebase citation:**
+`a-PhenoAge` tag group in `src/processors/post/tag.ts` and `inferred: true` flag for derived biomarkers.
+
+**Which existing data it uses:**
+Filters `visibleDataAtom` (or `dataAtom`) to isolate the computed "Phenotypic Age" biomarker (an `inferred` metric belonging to the `a-PhenoAge` tag group). Plots its historical values across time points `formattedLabels`.
+
+**Axes:**
+X-axis: Time (`formattedLabels`), Y-axis: Age (Years).
+
+**What it reveals that current charts don't:**
+Provides a dedicated, high-contrast visual for the core computed longevity metric. By using an area chart, it emphasizes the cumulative magnitude of aging acceleration (or deceleration) over time, offering a clearer trajectory of systemic biological aging compared to viewing it as a thin line alongside raw lab values.
+
+**Where it would live:**
+New `src/layout/PhenoAgeAreaChart.tsx`.
+
+**Trigger / entry point:**
+A dedicated "Longevity" view or rendered prominently at the top of the dashboard whenever the `a-PhenoAge` tag is selected via `tagAtom`.
+
+---
+
+**Proposal: Correlation Residuals vs. Time Scatter Plot**
+
+**ECharts type:** `scatter` (with `markLine` at Y=0)
+
+**Codebase citation:**
+`ecStat.regression` transform output in `src/layout/Chart2.tsx`.
+
+**Which existing data it uses:**
+Utilizes the linear regression model generated by `ecStat.regression` in `Chart2.tsx` to calculate the mathematical residual (the vertical distance between the actual observed Y value and the predicted Y value on the regression line) for each timestamp in `formattedLabels`.
+
+**Axes:**
+X-axis: Time, Y-axis: Residual Value (distance from expected).
+
+**What it reveals that current charts don't:**
+Reveals whether a high correlation between two biomarkers is stable over time or if their relationship is fundamentally shifting. For example, if residuals consistently grow larger or shift from negative to positive over the years, it indicates the physiological coupling is breaking down, a nuance completely masked by a static scatter plot or a single R-value.
+
+**Where it would live:**
+New `src/layout/CorrelationResidualScatter.tsx`, rendered inside the Correlation Modal alongside `Chart2.tsx`.
+
+**Trigger / entry point:**
+A new "View Residuals Timeline" toggle button inside `Chart2.tsx` that appears when a regression model is successfully fitted.
+
+---
+
+**Proposal: Origin-Value Conversion Discrepancy Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.originValues` and `extra.hasOrigin` from `BioMarker` in `src/types/biomarker.ts`.
+
+**Which existing data it uses:**
+Scans all biomarkers in `dataAtom.ts` where `hasOrigin` is true. For each timestamp in `labels[]`, it compares the magnitude of the normalized value (`values[]`) against the raw source value (`originValues[]`), accounting for the conversion ratio defined by `unit` and `originUnit`.
+
+**Axes**
+- X-axis: Time (dates from `labels[]`)
+- Y-axis: Biomarker Name
+- Color/Value: Variance % (Deviation between normalized value and expected converted origin value)
+
+**What it reveals that current charts don't:**
+Reveals hidden data integrity and lab calibration errors. If a user switches labs and the new lab uses a different assay methodology for a marker (e.g. Testosterone ng/dL vs nmol/L), standardizing the unit might mask underlying calibration drift. This heatmap instantly flags timestamps where the raw source value diverges suspiciously from historical norms despite post-conversion normalization, warning the user of potential assay incomparability.
+
+**Where it would live:**
+New `src/layout/DataIntegrityHeatmap.tsx`.
+
+**Trigger / entry point:**
+A "Data QA / Integrity View" toggle in the Data Grid header, allowing users to verify the trustworthiness of their compiled record before analyzing correlations.
+
+---
+
+
+**Proposal: Biomarker Cross-Correlation Network Diagram**
+
+**ECharts type:** `graph`
+
+**Codebase citation:**
+Uses `nonInferredDataAtom` and `correlationAlphaAtom` from `src/atom/correlationAtom.ts`.
+
+**Which existing data it uses:**
+It computes all pairwise correlations using `nonInferredDataAtom`. Nodes represent individual biomarkers (sized by their average correlation magnitude or centrality), and edges represent correlations passing the threshold set by `correlationAlphaAtom`.
+
+**Axes:**
+N/A (Force-directed or circular layout).
+
+**What it reveals that current charts don't:**
+The current scatter and polar charts show the relationship of one target biomarker to many others. A full network diagram reveals the global "modules" or clusters of heavily interconnected biomarkers across all physiological systems simultaneously, highlighting whether a user's health profile has a single highly-coupled vulnerability or multiple independent ones.
+
+**Where it would live:**
+New `src/layout/CrossCorrelationNetwork.tsx`.
+
+**Trigger / entry point:**
+A "Global Correlation Network" toggle in the main dashboard view, providing an alternative to the Correlation Chord Diagram.
+
+---
+
+
+**Proposal: Tag-Group Correlation Heatmap Network**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `processedTags` and `extra.tag` groups from `src/processors/post/tag.ts` mapped against the outputs stored in `correlationMethodAtom`.
+
+**Which existing data it uses:**
+Instead of calculating pairwise biomarker correlations (e.g. Glucose vs LDL), this aggregates the pairwise scores from `correlationAtom.ts` and averages them across their parent `tag` groups (e.g. `2-Metabolic` vs `4-Lipid`).
+
+**Axes**
+- X-axis: System Tag Groups (e.g., `1-RBC`, `2-Metabolic`, `3-Liver`)
+- Y-axis: System Tag Groups (e.g., `1-RBC`, `2-Metabolic`, `3-Liver`)
+- Color/Value: Aggregate Correlation Coefficient (Spearman/Pearson depending on `correlationMethodAtom`)
+
+**What it reveals that current charts don't:**
+The existing `CorrelationChordDiagram` and `CorrelationPolarScatter` can become visually overwhelming "hairballs" of 80+ nodes. This meta-heatmap abstracts the data up one level to answer: "Is my Liver system heavily coupled to my Metabolic system?". It reveals macro-physiological dependencies, showing which entire organ systems track together or fail together, providing a much cleaner systemic overview.
+
+**Where it would live:**
+New `src/layout/SystemicCorrelationHeatmap.tsx`.
+
+**Trigger / entry point:**
+A "System View" mode toggle inside the existing Correlation Modal (`Correlation.tsx`), replacing the granular biomarker list with the macro tag-group matrix.
+
+---
+
+**Proposal: Biomarker Deviation Margin Bar Chart**
+
+**ECharts type:** `bar`
+
+**Codebase citation:**
+Uses `extra.range` (the string representing optimal boundaries) and `extra.optimality[]` pre-computed by `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+Calculates the absolute numerical margin between a biomarker's actual value (from `BioMarker[1]`) and its nearest optimal range boundary (parsed dynamically from `extra.range`). Plots this margin across all `formattedLabels`.
+
+**Axes:**
+- X-axis: Time (`formattedLabels` from `src/data/index.ts`)
+- Y-axis: Deviation Magnitude (absolute value distance from optimal range boundary)
+
+**What it reveals that current charts don't:**
+The current `LineChart` only uses a colored `markArea` band to show if a value is in or out of range. This bar chart isolates the *magnitude of the failure*, allowing users to immediately see if their out-of-range values are barely missing the target (small bars) or severely deviating from the target over time (large bars), highlighting progression of severity.
+
+**Where it would live:**
+New `src/layout/DeviationMarginBarChart.tsx`.
+
+**Trigger / entry point:**
+A "View Deviation Margin" toggle inside the expanded row section of `Table.tsx`, rendering alongside or replacing the standard `LineChart`.
+
+---
+
+**Proposal: Correlation Hypothesis Significance Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `correlationAlternativeAtom` (`'less'` vs `'greater'`) from `src/atom/correlationAtom.ts`.
+
+**Which existing data it uses:**
+Computes the P-value matrix using `nonInferredDataAtom`, but specifically calculates and maps the *delta* in significance (P-value difference) when toggling the `correlationAlternativeAtom` from 'less' to 'greater'.
+
+**Axes:**
+- X-axis: Target Biomarkers
+- Y-axis: Source Biomarkers
+- Color/Value: Delta in P-value Significance between 'less' and 'greater' alternative hypotheses
+
+**What it reveals that current charts don't:**
+Identifies strictly asymmetric, directional relationships (e.g., when Biomarker A goes up, Biomarker B strictly goes down, but not vice versa), revealing directional dependencies rather than standard two-sided correlations. The existing heatmaps show general coupling, whereas this reveals potential leading vs lagging indicators.
+
+**Where it would live:**
+New `src/layout/HypothesisDeltaHeatmap.tsx`.
+
+**Trigger / entry point:**
+A "View Asymmetry" toggle in the Correlation Modal header (inside `Correlation.tsx`), visually emphasizing directional relationship shifts.
+
+---
+
+**Proposal: Systemic Anomaly Scatter Matrix**
+
+**ECharts type:** `scatter` (Scatter Plot Matrix / SPLOM)
+
+**Codebase citation:**
+Uses `extra.optimality[]` from `src/processors/post/range.ts` combined with `1-RBC` to `9-Mineral` from `src/processors/post/tag.ts`.
+
+**Which existing data it uses:**
+It maps out out-of-range rates for all biological systems simultaneously by aggregating the boolean out-of-range arrays (`extra.optimality[]`) within each tag group returned by `visibleDataAtom`.
+
+**Axes**
+- X-axis: Time (`formattedLabels`)
+- Y-axis: Biomarker count currently out of range.
+- Grid: Multiple scatter plots in a grid format, one for each tag group (e.g., Liver, Kidney).
+
+**What it reveals that current charts don't:**
+The existing dashboard provides correlation heatmaps between single biomarkers. This matrix aggregates the anomalies per physiological system to reveal which systems are failing simultaneously or sequentially, identifying cascading health deteriorations (e.g., Metabolic strain preceding Liver strain) over time that a 1-to-1 correlation chart cannot capture.
+
+**Where it would live:**
+New `src/layout/SystemicAnomalyScatterMatrix.tsx`.
+
+**Trigger / entry point:**
+A new "Systemic Health Map" button within the main control nav header.
+
+---
+
+**Proposal: Tag-Group Deviation Step Line Chart**
+
+**ECharts type:** `line` (with `step: 'middle'`)
+
+**Codebase citation:**
+Uses `extra.tag` groups (e.g. `3-Liver`, `6-Kidney`) from `src/processors/post/tag.ts` and their member biomarkers.
+
+**Which existing data it uses:**
+It calculates the sum or percentage of non-optimal markers across the entire tag group at any given time point using the `optimality: boolean[]` arrays generated in `src/processors/post/range.ts`.
+
+**Axes:**
+- X-axis: Time (`formattedLabels`)
+- Y-axis: Deviation severity score (calculated as % of markers out of range for a given tag group)
+
+**What it reveals that current charts don't:**
+Provides a discrete, stepped visualization of when specific physiological systems (e.g., Kidney, Hormone) crossed critical deviation thresholds, making it easier to track sudden state changes in health profiles compared to smooth continuous lines which can blur sudden anomalies in health snapshots.
+
+**Where it would live:**
+New `src/layout/TagGroupDeviationStepLine.tsx`.
+
+**Trigger / entry point:**
+A new toggle view on the data grid header for viewing system-level macro states instead of micro biomarker charts.

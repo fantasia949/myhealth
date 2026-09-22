@@ -54,7 +54,10 @@ export default memo(({ name, values, rangeStr }: LineChartProps) => {
     const result: [string, number | string][] = []
     for (let i = 0; i < numLabels; i++) {
       const value = values[i]
-      result.push([formattedLabels[i], value !== null && value !== undefined && !Number.isNaN(value as number) ? value : '-'])
+      result.push([
+        formattedLabels[i],
+        value !== null && value !== undefined && !Number.isNaN(value as number) ? value : '-',
+      ])
     }
     return result
   }, [values])
@@ -84,6 +87,15 @@ export default memo(({ name, values, rangeStr }: LineChartProps) => {
       const validMax = max !== undefined && !Number.isNaN(max)
 
       if (validMin || validMax) {
+        let areaStart: any = {}
+        let areaEnd: any = {}
+        if (validMin) {
+          areaStart = { yAxis: min }
+        }
+        if (validMax) {
+          areaEnd = { yAxis: max }
+        }
+
         markArea = {
           itemStyle: {
             color: 'rgba(84, 112, 198, 0.1)',
@@ -91,14 +103,7 @@ export default memo(({ name, values, rangeStr }: LineChartProps) => {
           // Disable tooltip on markArea to prevent showing "undefined" when hovering the shaded region
           tooltip: { show: false },
           data: [
-            [
-              {
-                ...(validMin ? { yAxis: min } : {}),
-              },
-              {
-                ...(validMax ? { yAxis: max } : {}),
-              },
-            ],
+            [areaStart, areaEnd],
           ],
         }
       }

@@ -68,7 +68,7 @@ const echartsOptions = {
   },
   grid: {
     right: 40,
-    left: 80,
+    left: 120,
   },
 }
 
@@ -90,7 +90,7 @@ export default memo(({ keys }: ScatterChartProps) => {
         offset: sideOffset,
         nameLocation: 'middle',
         nameRotate: isEven ? 90 : -90,
-        nameGap: 50,
+        nameGap: 60,
         axisLine: {
           show: true,
           lineStyle: {
@@ -165,8 +165,8 @@ export default memo(({ keys }: ScatterChartProps) => {
         data: keys,
       },
       grid: {
-        left: Math.max((Math.ceil(keys.length / 2) - 1) * 100 + 80, 40),
-        right: Math.max((Math.floor(keys.length / 2) - 1) * 100 + 80, 40),
+        left: Math.max((Math.ceil(keys.length / 2) - 1) * 100 + 120, 60),
+        right: Math.max((Math.floor(keys.length / 2) - 1) * 100 + 120, 60),
       },
     }),
     [yAxes, chartData, keys],

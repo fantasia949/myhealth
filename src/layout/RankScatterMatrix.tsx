@@ -7,7 +7,7 @@ import type {
   XAXisComponentOption,
   YAXisComponentOption,
   ScatterSeriesOption,
-  TooltipComponentOption
+  TooltipComponentOption,
 } from 'echarts'
 import type { CallbackDataParams } from 'echarts/types/dist/shared'
 import { CHART_PALETTE } from './Chart2'
@@ -144,7 +144,11 @@ export default memo(({ keys }: RankScatterMatrixProps) => {
           color: '#f0f0f0',
         },
         formatter: (p: CallbackDataParams | CallbackDataParams[]) => {
-          const params = (Array.isArray(p) ? p[0] : p) as CallbackDataParams & { encode: { x: number[], y: number[] }, value: (string | number)[], marker: string };
+          const params = (Array.isArray(p) ? p[0] : p) as CallbackDataParams & {
+            encode: { x: number[]; y: number[] }
+            value: (string | number)[]
+            marker: string
+          }
           if (params.value) {
             const date = params.value[0]
             const valX = params.value[params.encode.x[0]]

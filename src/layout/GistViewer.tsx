@@ -127,9 +127,7 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
                 onClick={() => setSelectedFile(file)}
                 className="text-left p-3 rounded bg-[#333333] hover:bg-[#444444] transition-colors border border-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               >
-                <div className="font-medium text-blue-400 mb-1 line-clamp-2">
-                  {keys}
-                </div>
+                <div className="font-medium text-blue-400 mb-1 line-clamp-2">{keys}</div>
                 <div className="text-xs text-gray-400 flex items-center gap-1">
                   <ClockIcon className="h-3 w-3" aria-hidden="true" />
                   {isParsed ? dateStr : file.filename}
@@ -148,17 +146,12 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
         aria-live="polite"
       >
         <div className="bg-gray-800/50 rounded-full p-4 mb-4">
-          <ClipboardDocumentIcon
-            className="h-8 w-8 text-gray-400"
-            aria-hidden="true"
-          />
+          <ClipboardDocumentIcon className="h-8 w-8 text-gray-400" aria-hidden="true" />
         </div>
-        <h3 className="text-lg font-medium text-gray-300 mb-2">
-          No AI history found
-        </h3>
+        <h3 className="text-lg font-medium text-gray-300 mb-2">No AI history found</h3>
         <p className="text-sm text-gray-400 max-w-sm mb-6">
-          You haven't saved any AI analyses to this Gist yet. Select biomarkers, ask
-          AI, and save the results to see them here.
+          You haven't saved any AI analyses to this Gist yet. Select biomarkers, ask AI, and save
+          the results to see them here.
         </p>
         <button
           type="button"
@@ -233,9 +226,7 @@ export default function GistViewer({ isOpen, onClose }: GistViewerProps) {
                   </button>
                 </Dialog.Title>
 
-                <div className="flex-1 overflow-y-auto">
-                  {renderContent()}
-                </div>
+                <div className="flex-1 overflow-y-auto">{renderContent()}</div>
               </Dialog.Panel>
             </Transition.Child>
           </div>

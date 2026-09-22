@@ -201,6 +201,7 @@ This document provides an overview of all implemented charts in the application.
 **Purpose:** Visualizes asymmetric, directional limits and boundary-conditional relationships between a target biomarker and its correlates. It plots raw values of the Target Biomarker (X-axis) against a Selected Correlated Biomarker (Y-axis), allowing users to uncover physiological feedback loops (e.g., "Biomarker A only drags Biomarker B down when it crosses a certain threshold").
 
 **Key Features:**
+
 - Target and Selected average `markLine` reference lines to divide data into quadrants.
 - Tooltip describing individual observations.
 - Dropdown selector to switch between different top-correlated biomarkers for the given directional alternative hypothesis ('less' or 'greater').
@@ -216,6 +217,7 @@ This document provides an overview of all implemented charts in the application.
 **Purpose:** Visualizes correlation directionality and significance by mapping pairwise correlations in a polar space. Separates biomarkers that move together from those that move inversely, providing a comprehensive clustering overview of physiological interactions.
 
 **Key Features:**
+
 - **Magnitude Mapping:** Radius corresponds to the absolute correlation coefficient.
 - **Directionality/Significance Mapping:** Angle represents the sign of correlation (0-90° for positive, 180-270° for negative) and relative significance (p-value).
 - Custom rich tooltip displaying Coefficient, P-Value, Radius, and Angle.
