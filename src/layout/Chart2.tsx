@@ -33,9 +33,9 @@ export const CHART_PALETTE = [
 const getRegressionTooltip = (expression: string, keyX: string, keyY: string) => {
   if (expression) {
     const formattedExpr = expression.replace(/x/g, keyX).replace(/^y\s*=/, `${keyY} = `)
-    return `<strong>Regression Trend</strong><br/>${formattedExpr}`
+    return `Regression Trend<br/>${formattedExpr}`
   }
-  return '<strong>Regression Trend</strong>'
+  return 'Regression Trend'
 }
 
 const echartsOptions: EChartsOption & Pick<EChartsReactProps, 'style' | 'theme'> = {
@@ -68,33 +68,6 @@ const echartsOptions: EChartsOption & Pick<EChartsReactProps, 'style' | 'theme'>
     borderColor: '#3a3a3a80',
     textStyle: {
       color: '#f0f0f0',
-    },
-    formatter: (params: any) => {
-      // Return custom formatted string for scatter data points
-      if (params.seriesType === 'scatter' && params.value && params.value.length >= 3) {
-        // value[0] is X, value[1] is Y, value[2] is Date string, value[3] is Unit 1, value[4] is Unit 2
-        const [x, y, date, unitX, unitY] = params.value
-
-        if (
-          x === null ||
-          x === undefined ||
-          x === 'NaN' ||
-          Number.isNaN(x) ||
-          y === null ||
-          y === undefined ||
-          y === 'NaN' ||
-          Number.isNaN(y)
-        ) {
-          return ''
-        }
-
-        const dispX = unitX ? `${x} ${unitX}` : x
-        const dispY = unitY ? `${y} ${unitY}` : y
-        const nameX = params.dimensionNames?.[0] || 'X'
-        const nameY = params.dimensionNames?.[1] || 'Y'
-        return `${date}<br/><strong>${nameX}:</strong> ${dispX}<br/><strong>${nameY}:</strong> ${dispY}`
-      }
-      return params.name || params.seriesName || ''
     },
   },
   grid: {
@@ -268,7 +241,7 @@ export default memo(({ keys }: ChartProps) => {
             const nameX = params.dimensionNames?.[0] || keys[0]
             const nameY = params.dimensionNames?.[1] || keys[1]
             return (
-              `<strong>${dateStr}</strong><br/>` +
+              `${dateStr}<br/>` +
               `${params.marker} ${nameX}: <strong>${val1}${u0}</strong><br/>` +
               `${params.marker} ${nameY}: <strong>${val2}${u1}</strong>`
             )
