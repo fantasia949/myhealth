@@ -1,11 +1,7 @@
 import React, { memo } from 'react'
 import ReactECharts from 'echarts-for-react'
 import { labels } from '../data'
-
-interface BoxplotChartProps {
-  name: string
-  values: number[]
-}
+import { BoxplotChartProps } from './BoxplotChart.types'
 
 const echartsOptions = {
   style: { height: 300, width: '100%' },
