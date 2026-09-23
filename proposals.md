@@ -1145,3 +1145,54 @@ New `src/layout/TagGroupDeviationStepLine.tsx`.
 
 **Trigger / entry point:**
 A new toggle view on the data grid header for viewing system-level macro states instead of micro biomarker charts.
+
+---
+
+**Proposal: Multi-System Anomaly Co-occurrence Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.tag` arrays assigned in `src/processors/post/tag.ts` and the `extra.optimality[]` boolean array computed in `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+It scans all biomarkers from `dataAtom` and groups them by their primary system tag (e.g. `2-Metabolic`, `3-Liver`, `6-Kidney`). For every timestamp in `labels[]`, it checks if a biomarker is flagged in its `optimality[]` array. It then cross-tabulates which physiological systems exhibit anomalies at the exact same timestamp.
+
+**Axes**
+- X-axis: System Tag Groups (e.g., `2-Metabolic`, `3-Liver`, `4-Lipid`)
+- Y-axis: System Tag Groups (e.g., `2-Metabolic`, `3-Liver`, `4-Lipid`)
+- Color/Value: Frequency (count or percentage) of timestamps where both systems had at least one biomarker out of optimal range simultaneously.
+
+**What it reveals that current charts don't:**
+The existing correlation charts (like `Chart2.tsx` and the correlation heatmaps) calculate statistical correlations based on raw measurement values. This heatmap operates purely on *anomaly co-occurrence* (when things break at the same time). This reveals whether a failure in the Liver system reliably co-occurs with a failure in the Lipid system, providing a macro-level view of systemic cascading failures that raw value correlations often obscure.
+
+**Where it would live:**
+New `src/layout/SystemAnomalyCooccurrence.tsx`.
+
+**Trigger / entry point:**
+A "System Anomaly Matrix" toggle button inside the global Correlation Modal (`Correlation.tsx`), allowing users to switch from raw value correlations to pure out-of-range co-occurrence mapping.
+
+---
+
+**Proposal: Biomarker Measurement Sparsity Calendar**
+
+**ECharts type:** `calendar` (with `scatter` overlay)
+
+**Codebase citation:**
+Uses the global `labels[]` time strings from `src/data/index.ts` and the `values[]` arrays from `BioMarker[1]` in `src/types/biomarker.ts`.
+
+**Which existing data it uses:**
+For a specific biomarker (or group of biomarkers filtered by `tagAtom`), it maps the presence of a valid numeric value (i.e. not `null`, `undefined`, or `'-'`) in the `values[]` array to its corresponding date in `labels[]`.
+
+**Axes**
+- Calendar Coordinate System: Year/Month calendar grid
+- Value: Boolean (1 if a valid measurement exists on that date, 0 if gap/null)
+
+**What it reveals that current charts don't:**
+The current `LineChart` and `ScatterChart` plot available data linearly but mask large chronological gaps between blood test panels. A calendar view instantly visualizes measurement cadence and sparsity, revealing exactly which months or years lack health surveillance for a specific biomarker or entire system, allowing the user to spot testing inconsistencies at a glance.
+
+**Where it would live:**
+New `src/layout/MeasurementSparsityCalendar.tsx`.
+
+**Trigger / entry point:**
+A "View Test History Calendar" button placed inside the expanded row view of `Table.tsx` (next to the `LineChart` rendering), providing immediate chronological context for the measurement density of that specific biomarker.
