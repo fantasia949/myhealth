@@ -1145,3 +1145,52 @@ New `src/layout/TagGroupDeviationStepLine.tsx`.
 
 **Trigger / entry point:**
 A new toggle view on the data grid header for viewing system-level macro states instead of micro biomarker charts.
+
+---
+
+**Proposal: PhenoAge Component Acceleration Line Chart**
+
+**ECharts type:** `line`
+
+**Codebase citation:**
+Uses the `a-PhenoAge` tag group from `src/processors/post/tag.ts` which defines the member biomarkers (e.g. `Albumin`, `Glucose`, `Creatinin`, `MCV`).
+
+**Which existing data it uses:**
+It filters `dataAtom` by the `a-PhenoAge` tag group. Instead of plotting the absolute `values[]` from `BioMarker[1]`, it calculates the second derivative (acceleration/velocity of change) of the normalized values over the `labels[]` time series for each of the clinical components.
+
+**Axes:**
+- X-axis: Time (dates from `labels[]`)
+- Y-axis: Rate of Change (Velocity/Acceleration) of normalized biomarker value.
+
+**What it reveals that current charts don't:**
+Reveals which specific underlying clinical component is accelerating fastest toward pathological ranges, driving biological aging. Instead of just seeing that the composite `Pheno age` score is high, it allows users to preemptively target the specific driving factor (e.g., accelerating Glucose vs accelerating CRP-hs) before the composite score noticeably spikes or the individual markers breach clinical boundaries.
+
+**Where it would live:**
+New `src/layout/PhenoAgeAccelerationLineChart.tsx`.
+
+**Trigger / entry point:**
+A new "View Acceleration" toggle within the existing `Table.tsx` specifically when the `a-PhenoAge` tag is active in the `tagAtom`.
+
+---
+
+**Proposal: Systemic Health Overview TreeMap**
+
+**ECharts type:** `treemap`
+
+**Codebase citation:**
+Uses `tagDescription` and `tagKeys` from `src/processors/post/tag.ts`, combined with `extra.optimality[]` pre-computed by `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+Top-level nodes map to the `tagKeys` (e.g. `2-Metabolic`). Leaf nodes are the individual biomarkers within those tags. The size of each leaf node represents the percentage of its historical measurements (from `labels[]`) that were out of optimal range (calculated by summing `true` values in `extra.optimality[]`).
+
+**Axes:**
+N/A (Hierarchical space-filling).
+
+**What it reveals that current charts don't:**
+Provides a hierarchical, space-filling view of cumulative historical health burden. The current multi-axis time series and scatter charts focus on chronological trajectories. The Treemap instantly shows which macro-system (and which specific marker within it) has historically been the most problematic over the entire lifetime of the dataset, ignoring chronology to emphasize total accumulated systemic load.
+
+**Where it would live:**
+New `src/layout/SystemicHealthTreeMap.tsx`.
+
+**Trigger / entry point:**
+A "Systemic Overview" button in the global navigation (`Nav.tsx`), serving as an alternative entry view to the default data grid.
