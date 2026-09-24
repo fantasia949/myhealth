@@ -38,7 +38,7 @@ const echartsOptions = {
 
       if (!title) return ''
 
-      let tooltipStr = `${title}`
+      let tooltipStr = `<strong>${title}</strong>`
       let hasValidValues = false
 
       for (let i = 0; i < pArray.length; i++) {
@@ -54,8 +54,11 @@ const echartsOptions = {
           val !== 'NaN' &&
           !Number.isNaN(val)
         ) {
-          const unit = p.value[2] ? ` ${p.value[2]}` : ''
-          tooltipStr += `<br/>${p.marker} ${p.seriesName}: <strong>${val}${unit}</strong>`
+          let unitStr = ''
+          if (p.value[2]) {
+            unitStr = ` ${p.value[2]}`
+          }
+          tooltipStr += `<br/>${p.marker} ${p.seriesName}: <strong>${val}${unitStr}</strong>`
           hasValidValues = true
         }
       }
