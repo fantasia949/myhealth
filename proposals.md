@@ -774,3 +774,54 @@ New `src/layout/SystemicAnomalyScatterMatrix.tsx`.
 
 **Trigger / entry point:**
 A new "Systemic Health Map" button within the main control nav header.
+
+---
+
+**Proposal: Rank-Based Biomarker Cross-Correlation Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `rankedDataMapAtom` from `src/atom/dataAtom.ts` (which caches Spearman rank calculations for each biomarker name) and `correlationMethodAtom` from `src/atom/correlationAtom.ts`.
+
+**Which existing data it uses:**
+It utilizes the pre-computed arrays within `rankedDataMapAtom` to generate a correlation matrix between all biomarkers within a selected tag group (via `tagAtom`). When `correlationMethodAtom` is set to 'spearman', it instantly computes pairwise correlation coefficients using the already-ranked arrays, avoiding costly recalculations on every matrix cell.
+
+**Axes:**
+- X-axis: Biomarker Names (from `tagAtom` members)
+- Y-axis: Biomarker Names (from `tagAtom` members)
+- Color/Value: Correlation Coefficient (-1.0 to 1.0)
+
+**What it reveals that current charts don't:**
+While the existing Chord Diagram shows relationships, it only displays links that pass the significance threshold, making it a sparse representation. A correlation heatmap provides a dense, continuous overview of how every biomarker in a system (e.g., all lipids in `4-Lipid`) relates to one another, instantly revealing blocks of highly co-regulated markers versus independent outliers within the same biological category.
+
+**Where it would live:**
+New `src/layout/SystemCorrelationHeatmap.tsx`.
+
+**Trigger / entry point:**
+A "View System Correlation Matrix" button in the System Overview pane when a specific `tagAtom` is active.
+
+---
+
+**Proposal: Longitudinal Optimality Streak Bar Chart**
+
+**ECharts type:** `bar`
+
+**Codebase citation:**
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` for all biomarkers in `dataAtom`.
+
+**Which existing data it uses:**
+For a given biomarker selected via the UI, it iterates through its chronological `extra.optimality[]` boolean array. It calculates the duration of consecutive "true" (out-of-range) streaks versus "false" (in-range) streaks, plotting these continuous durations as alternating positive and negative bars over time.
+
+**Axes:**
+- X-axis: Streak Start Date (from `formattedLabels`)
+- Y-axis: Duration of Streak (in days, positive for optimal, negative for out-of-range)
+
+**What it reveals that current charts don't:**
+Standard line charts and scatter plots show point-in-time optimality, but they don't explicitly visualize the *persistence* of a health state. This chart immediately answers "How long have I kept this biomarker in check before a relapse?" by converting raw point anomalies into continuous state durations, highlighting improving or degrading stability over the long term.
+
+**Where it would live:**
+New `src/layout/OptimalityStreakChart.tsx`.
+
+**Trigger / entry point:**
+An "Analyze Stability" option within the expanded view of a specific biomarker's `LineChart.tsx`.

@@ -104,6 +104,10 @@ export default memo(({ keys }: ScatterChartProps) => {
           formatter: '{value}',
         },
         scale: true,
+        splitLine: {
+          show: index === 0,
+          lineStyle: { color: '#3a3a3a80', type: 'dashed', width: 1 },
+        },
       })
     }
     return result
