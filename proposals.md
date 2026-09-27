@@ -19,27 +19,6 @@ A "Conditional Probability View" toggle within the correlation and statistical m
 
 ---
 
-**Proposal: PhenoAge Dependency Network Chart**
-
-**ECharts type:** `graph`
-
-**Codebase citation:**
-Uses `a-PhenoAge` tags grouped by `src/processors/post/tag.ts` and the `inferred` flag from `src/types/biomarker.ts`, fed by `dataAtom`.
-
-**Which existing data it uses:**
-It pulls all biomarkers under the `a-PhenoAge` tag group. It maps out the `inferred: true` biomarker (PhenoAge itself) as the central node and connects it to the measured underlying `originValues` (like Albumin, CRP-hs, Glucose, WBC). It sizes the individual nodes based on the relative frequency of their out-of-range failures (`extra.optimality[]` from `src/processors/post/range.ts`).
-
-**What it reveals that current charts don't:**
-While the standard LineChart can show a user's biological age (PhenoAge) increasing, it cannot explain _why_. This graph immediately highlights the root cause—by sizing the measured nodes by failure frequency, a user can instantly see if their elevated PhenoAge is driven by chronic inflammation (large CRP-hs node) versus poor glucose control (large Glucose node).
-
-**Where it would live:**
-New `src/layout/PhenoAgeDependencyGraph.tsx`.
-
-**Trigger / entry point:**
-A "Deconstruct Score" button next to any calculated/inferred biomarker that expands this dependency graph.
-
----
-
 **Proposal: Sub-Clinical Biomarker Creep Heatmap**
 
 **ECharts type:** `heatmap`
@@ -669,32 +648,6 @@ A "Volatility vs Range Map" button in the Analyze dropdown menu.
 
 ---
 
-**Proposal: Correlation Lag Offset Line Chart**
-
-**ECharts type:** `line`
-
-**Codebase citation:**
-Uses `labels[]` from `src/data/index.ts` and the `values[]` arrays extracted from entries in `dataMapAtom` (from `src/atom/dataAtom.ts`).
-
-**Which existing data it uses:**
-It utilizes the historical time-series arrays (`BioMarker[1]`) for two user-selected biomarkers, along with the `labels[]` array for the timeline. It offsets one biomarker's data series by a user-defined number of index steps (representing chronological measurements) to visually align shifted time horizons.
-
-**Axes:**
-
-- X-axis: Time (the shared `labels[]` dates)
-- Y-axes: Dual Y-axes (one for each biomarker, properly scaled according to their respective units `BioMarker[2]`)
-
-**What it reveals that current charts don't:**
-The existing correlation scatter plot (`Chart2.tsx`) and standard line chart (`Chart.tsx`) only compare biomarkers at the _exact same point in time_. This lag-offset chart reveals _leading versus lagging_ indicators. For example, it can visually demonstrate if a spike in Vitamin D levels today consistently precedes an increase in Calcium levels 30 days from now. Discovering these delayed physiological responses is impossible with statically aligned arrays.
-
-**Where it would live:**
-New `src/layout/CorrelationLagChart.tsx`.
-
-**Trigger / entry point:**
-A "Time-Shift" interactive slider inside the existing Biomarker Correlation modal (`BiomarkerCorrelation.tsx`) that dynamically applies a positive/negative index offset to the target biomarker's data series.
-
----
-
 **Proposal: Biomarker Volatility Polar Area Chart**
 
 **ECharts type:** `pie` (with `roseType: 'area'`)
@@ -744,57 +697,8 @@ New `src/layout/AlphaSensitivityBar.tsx`.
 **Trigger / entry point:**
 Displayed as a "Robustness Summary" widget above the main controls in the Correlation modal (`Correlation.tsx`).
 
-
-
-**Proposal: Measurement Gap vs Optimality Scatter**
-
-**ECharts type:** `scatter`
-
-**Codebase citation:**
-Uses the global time scale `labels[]` from `src/data/index.ts` and `extra.optimality[]` from `src/processors/post/range.ts`.
-
-**Which existing data it uses:**
-For each non-inferred biomarker (from `nonInferredDataAtom`), it analyzes the time-series data to calculate two metrics:
-1. The average duration between non-null measurements (derived by mapping non-null indices to `labels[]`).
-2. The overall failure rate (`extra.optimality[] === true` vs total measurements).
-
-**Axes:**
-- X-axis: Average Measurement Gap (Days/Months) - derived from `labels[]`
-- Y-axis: Historical Failure Rate (%) - derived from `extra.optimality[]`
-
-**What it reveals that current charts don't:**
-Reveals psychological avoidance behavior in medical testing. Biomarkers that have high failure rates but large measurement gaps (top right quadrant) indicate a user who knows a marker is problematic but avoids testing it regularly. Conversely, markers tested frequently despite being perfectly optimal (bottom left) reveal over-testing of stable systems. This meta-insight goes beyond raw data to reflect the user's relationship with their health tracking.
-
-**Where it would live:**
-New `src/layout/TestingBehaviorScatter.tsx`.
-
-**Trigger / entry point:**
-A new "Testing Habits" or "Protocol Meta-Analysis" subsection in the dashboard, complementing the data grid.
 ---
 
-**Proposal: Phenotypic Age Delta Area Chart**
-
-**ECharts type:** `line` (with `areaStyle`)
-
-**Codebase citation:**
-`a-PhenoAge` tag group in `src/processors/post/tag.ts` and `inferred: true` flag for derived biomarkers.
-
-**Which existing data it uses:**
-Filters `visibleDataAtom` (or `dataAtom`) to isolate the computed "Phenotypic Age" biomarker (an `inferred` metric belonging to the `a-PhenoAge` tag group). Plots its historical values across time points `formattedLabels`.
-
-**Axes:**
-X-axis: Time (`formattedLabels`), Y-axis: Age (Years).
-
-**What it reveals that current charts don't:**
-Provides a dedicated, high-contrast visual for the core computed longevity metric. By using an area chart, it emphasizes the cumulative magnitude of aging acceleration (or deceleration) over time, offering a clearer trajectory of systemic biological aging compared to viewing it as a thin line alongside raw lab values.
-
-**Where it would live:**
-New `src/layout/PhenoAgeAreaChart.tsx`.
-
-**Trigger / entry point:**
-A dedicated "Longevity" view or rendered prominently at the top of the dashboard whenever the `a-PhenoAge` tag is selected via `tagAtom`.
-
----
 
 **Proposal: Correlation Residuals vs. Time Scatter Plot**
 
@@ -820,58 +724,6 @@ A new "View Residuals Timeline" toggle button inside `Chart2.tsx` that appears w
 
 ---
 
-**Proposal: Origin-Value Conversion Discrepancy Heatmap**
-
-**ECharts type:** `heatmap`
-
-**Codebase citation:**
-Uses `extra.originValues` and `extra.hasOrigin` from `BioMarker` in `src/types/biomarker.ts`.
-
-**Which existing data it uses:**
-Scans all biomarkers in `dataAtom.ts` where `hasOrigin` is true. For each timestamp in `labels[]`, it compares the magnitude of the normalized value (`values[]`) against the raw source value (`originValues[]`), accounting for the conversion ratio defined by `unit` and `originUnit`.
-
-**Axes**
-- X-axis: Time (dates from `labels[]`)
-- Y-axis: Biomarker Name
-- Color/Value: Variance % (Deviation between normalized value and expected converted origin value)
-
-**What it reveals that current charts don't:**
-Reveals hidden data integrity and lab calibration errors. If a user switches labs and the new lab uses a different assay methodology for a marker (e.g. Testosterone ng/dL vs nmol/L), standardizing the unit might mask underlying calibration drift. This heatmap instantly flags timestamps where the raw source value diverges suspiciously from historical norms despite post-conversion normalization, warning the user of potential assay incomparability.
-
-**Where it would live:**
-New `src/layout/DataIntegrityHeatmap.tsx`.
-
-**Trigger / entry point:**
-A "Data QA / Integrity View" toggle in the Data Grid header, allowing users to verify the trustworthiness of their compiled record before analyzing correlations.
-
----
-
-
-
-**Proposal: Biomarker Deviation Margin Bar Chart**
-
-**ECharts type:** `bar`
-
-**Codebase citation:**
-Uses `extra.range` (the string representing optimal boundaries) and `extra.optimality[]` pre-computed by `src/processors/post/range.ts`.
-
-**Which existing data it uses:**
-Calculates the absolute numerical margin between a biomarker's actual value (from `BioMarker[1]`) and its nearest optimal range boundary (parsed dynamically from `extra.range`). Plots this margin across all `formattedLabels`.
-
-**Axes:**
-- X-axis: Time (`formattedLabels` from `src/data/index.ts`)
-- Y-axis: Deviation Magnitude (absolute value distance from optimal range boundary)
-
-**What it reveals that current charts don't:**
-The current `LineChart` only uses a colored `markArea` band to show if a value is in or out of range. This bar chart isolates the *magnitude of the failure*, allowing users to immediately see if their out-of-range values are barely missing the target (small bars) or severely deviating from the target over time (large bars), highlighting progression of severity.
-
-**Where it would live:**
-New `src/layout/DeviationMarginBarChart.tsx`.
-
-**Trigger / entry point:**
-A "View Deviation Margin" toggle inside the expanded row section of `Table.tsx`, rendering alongside or replacing the standard `LineChart`.
-
----
 
 **Proposal: Correlation Hypothesis Significance Heatmap**
 
