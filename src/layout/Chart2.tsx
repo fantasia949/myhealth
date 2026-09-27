@@ -263,8 +263,14 @@ export default memo(({ keys }: ChartProps) => {
             }
 
             const dateStr = params.value[2]
-            const u0 = params.value[3] ? ` ${params.value[3]}` : ''
-            const u1 = params.value[4] ? ` ${params.value[4]}` : ''
+            let u0 = ''
+            if (params.value[3]) {
+              u0 = ` ${params.value[3]}`
+            }
+            let u1 = ''
+            if (params.value[4]) {
+              u1 = ` ${params.value[4]}`
+            }
             const nameX = params.dimensionNames?.[0] || keys[0]
             const nameY = params.dimensionNames?.[1] || keys[1]
             return (

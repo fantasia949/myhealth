@@ -128,8 +128,11 @@ export default memo(({ name, values, rangeStr }: LineChartProps) => {
           ) {
             return ''
           }
-          const unitStr = unit ? ` ${unit}` : ''
-          return `${p.value[0]}<br/>${p.marker} ${p.seriesName}: <strong>${p.value[1]}${unitStr}</strong>`
+          let unitStr = ''
+          if (unit) {
+            unitStr = ` ${unit}`
+          }
+          return `<strong>${p.value[0]}</strong><br/>${p.marker} ${p.seriesName}: <strong>${p.value[1]}${unitStr}</strong>`
         },
       },
       title: {

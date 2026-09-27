@@ -46,7 +46,7 @@ const echartsOptions: EChartsReactProps = {
 
         if (!title) return ''
 
-        let tooltipStr = `${title}`
+        let tooltipStr = `<strong>${title}</strong>`
         let hasValidValues = false
 
         // ⚡ Bolt Optimization: Replaced pArray.forEach with a standard for-loop in the tooltip formatter.
@@ -70,7 +70,10 @@ const echartsOptions: EChartsReactProps = {
             val !== undefined &&
             !Number.isNaN(val)
           ) {
-            const unitStr = unit ? ` ${unit}` : ''
+            let unitStr = ''
+            if (unit) {
+              unitStr = ` ${unit}`
+            }
             tooltipStr += `<br/>${p.marker} ${p.seriesName}: <strong>${val}${unitStr}</strong>`
             hasValidValues = true
           }
