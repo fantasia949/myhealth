@@ -67,6 +67,7 @@ export const rankedDataMapAtom = atom((get) => {
 
 export const filterTextAtom = atom('')
 export const tagAtom = atom<string | null>(null)
+export const isEvolutionViewOpenAtom = atom<boolean>(false)
 
 export const visibleDataAtom = atom((get) => {
   let data = get(dataAtom)

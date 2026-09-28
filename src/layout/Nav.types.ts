@@ -20,4 +20,6 @@ export type NavProps = {
   onToggleMatrixView: () => void
   isNetworkViewOpen: boolean
   onToggleNetworkView: () => void
+  isEvolutionViewOpen?: boolean
+  onToggleEvolutionView?: () => void
 }

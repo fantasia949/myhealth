@@ -68,6 +68,8 @@ export default React.memo<NavProps>(
     onToggleMatrixView,
     isNetworkViewOpen,
     onToggleNetworkView,
+    isEvolutionViewOpen,
+    onToggleEvolutionView,
   }) => {
     const [averageCount, setAverageCount] = useAtom(averageCountAtom)
     const key = useAtomValue(aiKeyAtom)
@@ -641,6 +643,30 @@ export default React.memo<NavProps>(
                                     Chord Diagram
                                   </button>
 
+                                  {onToggleEvolutionView && (
+                                    <button
+                                      onClick={() => {
+                                        onToggleEvolutionView()
+                                        close()
+                                      }}
+                                      className={cn(
+                                        'flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left',
+                                        'text-gray-300 hover:bg-gray-800/80 hover:text-white',
+                                        isEvolutionViewOpen ? 'text-accent font-semibold' : '',
+                                      )}
+                                    >
+                                      <div
+                                        className={cn(
+                                          'h-1.5 w-1.5 rounded-full bg-accent transition-all',
+                                          isEvolutionViewOpen
+                                            ? 'scale-100 opacity-100'
+                                            : 'scale-0 opacity-0',
+                                        )}
+                                      />
+                                      Evolution Matrix
+                                    </button>
+                                  )}
+
                                   {onOpenClustering && (
                                     <button
                                       onClick={() => {
@@ -1045,6 +1071,28 @@ export default React.memo<NavProps>(
                                 />
                                 Chord Diagram
                               </button>
+                              {onToggleEvolutionView && (
+                                <button
+                                  onClick={() => {
+                                    onToggleEvolutionView()
+                                    setShow(false)
+                                  }}
+                                  className={cn(
+                                    'flex items-center gap-3 px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl text-sm font-medium transition-colors',
+                                    isEvolutionViewOpen
+                                      ? 'text-accent border-accent/30 bg-accent/5'
+                                      : 'text-gray-300',
+                                  )}
+                                >
+                                  <div
+                                    className={cn(
+                                      'h-2 w-2 rounded-full',
+                                      isEvolutionViewOpen ? 'bg-accent' : 'bg-gray-700',
+                                    )}
+                                  />
+                                  Evolution Matrix
+                                </button>
+                              )}
                               {onOpenClustering && (
                                 <button
                                   onClick={() => {

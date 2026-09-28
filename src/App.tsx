@@ -15,6 +15,7 @@ const CorrelationHeatmap = React.lazy(() => import('./layout/CorrelationHeatmap'
 const RadarChart = React.lazy(() => import('./layout/RadarChart'))
 const CorrelationChordDiagram = React.lazy(() => import('./layout/CorrelationChordDiagram'))
 const RankScatterMatrix = React.lazy(() => import('./layout/RankScatterMatrix'))
+const LongitudinalRankParallel = React.lazy(() => import('./layout/LongitudinalRankParallel'))
 
 import {
   getBioMarkersAtom,
@@ -23,6 +24,7 @@ import {
   aiKeyAtom,
   aiModelAtom,
   gistTokenAtom,
+  isEvolutionViewOpenAtom,
 } from './atom/dataAtom'
 import { BioMarker } from './types/biomarker'
 import { PasswordInput } from './layout/PasswordInput'
@@ -49,6 +51,7 @@ export default function App() {
   const [showGistToken, setShowGistToken] = React.useState(false)
   const [isMatrixViewOpen, setIsMatrixViewOpen] = React.useState(false)
   const [isNetworkViewOpen, setIsNetworkViewOpen] = React.useState(false)
+  const [isEvolutionViewOpen, setIsEvolutionViewOpen] = useAtom(isEvolutionViewOpenAtom)
 
   React.useEffect(() => {
     const handler = setTimeout(() => {
@@ -233,6 +236,8 @@ export default function App() {
       onToggleMatrixView: () => setIsMatrixViewOpen((prev) => !prev),
       isNetworkViewOpen,
       onToggleNetworkView: () => setIsNetworkViewOpen((prev) => !prev),
+      isEvolutionViewOpen,
+      onToggleEvolutionView: () => setIsEvolutionViewOpen((prev) => !prev),
     }),
     [
       selected,
@@ -252,6 +257,8 @@ export default function App() {
       setIsClusteringOpen,
       isMatrixViewOpen,
       isNetworkViewOpen,
+      isEvolutionViewOpen,
+      setIsEvolutionViewOpen,
     ],
   )
 
@@ -313,6 +320,12 @@ export default function App() {
       return (
         <div className="mb-8 px-4">
           <CorrelationChordDiagram />
+        </div>
+      )
+    } else if (isEvolutionViewOpen) {
+      return (
+        <div className="mb-8 px-4">
+          <LongitudinalRankParallel />
         </div>
       )
     } else {
@@ -384,7 +397,7 @@ export default function App() {
         >
           {renderContent()}
         </React.Suspense>
-        {!(isNetworkViewOpen || isMatrixViewOpen) && <Table {...tableProps} />}
+        {!(isNetworkViewOpen || isMatrixViewOpen || isEvolutionViewOpen) && <Table {...tableProps} />}
         <div className="flex flex-wrap justify-center gap-4 mt-4 pb-8">
           <div className="flex flex-col gap-1">
             <label htmlFor="ai-model" className="text-xs text-gray-400 font-medium ml-1">
