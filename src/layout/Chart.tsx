@@ -128,6 +128,10 @@ export default memo(({ keys }: ChartProps) => {
             color: CHART_PALETTE[i % CHART_PALETTE.length],
           },
         },
+        splitLine: {
+          show: i === 0,
+          lineStyle: { color: '#3a3a3a80', type: 'dashed', width: 1 },
+        },
       })
     }
     return result
