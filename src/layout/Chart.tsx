@@ -8,7 +8,6 @@ import { CHART_PALETTE } from './Chart2'
 import { ChartProps } from './Chart.types'
 import type { EChartsReactProps } from 'echarts-for-react'
 import type { YAXisComponentOption, LineSeriesOption } from 'echarts'
-import type * as echarts from 'echarts'
 import type { Field } from '@echarts-readymade/core'
 
 const dimension = [
@@ -198,7 +197,7 @@ export default memo(({ keys }: ChartProps) => {
         },
       }
     } as EChartsReactProps
-  }, [yAxis, keys.length, echartsOptions])
+  }, [yAxis, keys.length])
 
   if (keys.length === 0) {
     return (
