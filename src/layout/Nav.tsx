@@ -601,6 +601,7 @@ export default React.memo<NavProps>(
                                       close()
                                     }}
                                     disabled={filterTag == null}
+                                    aria-pressed={isMatrixViewOpen}
                                     className={cn(
                                       'flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left',
                                       'text-gray-300 hover:bg-gray-800/80 hover:text-white',
@@ -624,6 +625,7 @@ export default React.memo<NavProps>(
                                       onToggleNetworkView()
                                       close()
                                     }}
+                                    aria-pressed={isNetworkViewOpen}
                                     className={cn(
                                       'flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left',
                                       'text-gray-300 hover:bg-gray-800/80 hover:text-white',
@@ -1010,6 +1012,7 @@ export default React.memo<NavProps>(
                                   setShow(false)
                                 }}
                                 disabled={filterTag == null}
+                                aria-pressed={isMatrixViewOpen}
                                 className={cn(
                                   'flex items-center gap-3 px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl text-sm font-medium transition-colors',
                                   isMatrixViewOpen
@@ -1030,6 +1033,7 @@ export default React.memo<NavProps>(
                                   onToggleNetworkView()
                                   setShow(false)
                                 }}
+                                aria-pressed={isNetworkViewOpen}
                                 className={cn(
                                   'flex items-center gap-3 px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl text-sm font-medium transition-colors',
                                   isNetworkViewOpen
