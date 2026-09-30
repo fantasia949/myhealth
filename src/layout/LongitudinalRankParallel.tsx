@@ -14,12 +14,13 @@ const LongitudinalRankParallel = React.memo(() => {
   const volatileBiomarkers = useMemo(() => {
     if (!nonInferredData || nonInferredData.length === 0) return []
 
-    const candidates: { name: string; cv: number; values: (number | null)[] }[] = []
+    const candidates: { name: string; unit: string; cv: number; values: (number | null)[] }[] = []
 
     for (let i = 0; i < nonInferredData.length; i++) {
       const entry = nonInferredData[i]
       const name = entry[0]
       const rawValues = entry[1]
+      const unit = entry[2] || ''
 
       // Filter to get valid numbers
       const validValues: number[] = []
@@ -61,7 +62,7 @@ const LongitudinalRankParallel = React.memo(() => {
 
       // Only include if there is some variation
       if (cv > 0) {
-        candidates.push({ name, cv, values: processedValues })
+        candidates.push({ name, unit, cv, values: processedValues })
       }
     }
 
@@ -69,6 +70,15 @@ const LongitudinalRankParallel = React.memo(() => {
     candidates.sort((a, b) => b.cv - a.cv)
     return candidates.slice(0, 10)
   }, [nonInferredData])
+
+  // Map for fast lookup in tooltip formatter
+  const volatileMap = useMemo(() => {
+    const map = new Map<string, (typeof volatileBiomarkers)[0]>()
+    for (let i = 0; i < volatileBiomarkers.length; i++) {
+      map.set(volatileBiomarkers[i].name, volatileBiomarkers[i])
+    }
+    return map
+  }, [volatileBiomarkers])
 
   // 2. Build the Parallel Coordinates options
   const option = useMemo(() => {
@@ -145,24 +155,26 @@ const LongitudinalRankParallel = React.memo(() => {
         borderColor: '#3a3a3a80',
         textStyle: { color: '#f0f0f0' },
         formatter: (params: any) => {
-          const bmName = params.name
-          const valArray = params.value
-          let tooltipHtml = `<strong style="color: #2563eb">${bmName}</strong><br/>`
+          const bmName = params.seriesName || params.name || params.data?.name
+          const valArray = Array.isArray(params.value)
+            ? params.value
+            : Array.isArray(params.data?.value)
+              ? params.data.value
+              : []
+          const bmObj = volatileMap.get(bmName)
+          const unitStr = bmObj && bmObj.unit ? ` ${bmObj.unit}` : ''
+
+          let tooltipHtml = `<strong style="color: #2563eb">${bmName || 'Biomarker'}</strong><br/>`
 
           for (let idx = 0; idx < labels.length; idx++) {
             const label = labels[idx]
             const dateStr = formattedLabels[idx] || label
             const val = valArray[idx]
-            let rawVal = null
-            for (let bIdx = 0; bIdx < volatileBiomarkers.length; bIdx++) {
-              if (volatileBiomarkers[bIdx].name === bmName) {
-                rawVal = volatileBiomarkers[bIdx].values[idx]
-                break
-              }
-            }
-            const rawValStr = rawVal !== null && rawVal !== undefined ? rawVal.toFixed(2) : 'N/A'
+            const rawVal = bmObj ? bmObj.values[idx] : null
+            const rawValStr =
+              rawVal !== null && rawVal !== undefined ? `${rawVal.toFixed(2)}${unitStr}` : 'N/A'
 
-            if (val === '-') {
+            if (val === '-' || val === null || val === undefined) {
               tooltipHtml += `${dateStr}: <span style="color:#888">No Measurement</span><br/>`
             } else {
               tooltipHtml += `${dateStr}: <strong>${val}%</strong> (Value: ${rawValStr})<br/>`
@@ -221,10 +233,10 @@ const LongitudinalRankParallel = React.memo(() => {
             opacity: 1,
           },
         },
-        data: [s.value],
+        data: [{ name: s.name, value: s.value }],
       })),
     }
-  }, [volatileBiomarkers, rankedDataMap])
+  }, [volatileBiomarkers, rankedDataMap, volatileMap])
 
   if (volatileBiomarkers.length === 0) {
     return (
