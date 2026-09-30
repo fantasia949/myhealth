@@ -825,3 +825,55 @@ New `src/layout/OptimalityStreakChart.tsx`.
 
 **Trigger / entry point:**
 An "Analyze Stability" option within the expanded view of a specific biomarker's `LineChart.tsx`.
+
+---
+
+**Proposal: Optimality Concordance Matrix**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.optimality[]` from `src/processors/post/range.ts` combined with all active biomarkers in `dataAtom.ts`.
+
+**Which existing data it uses:**
+Iterates pairwise over the `extra.optimality[]` boolean arrays (which indicate if a value is out of bounds at each timestamp) for all biomarkers returned by `visibleDataAtom`. For each pair, it calculates the percentage of timestamps where *both* biomarkers were simultaneously out of range (true concordance).
+
+**Axes:**
+- X-axis: Biomarker Names (from `visibleDataAtom`)
+- Y-axis: Biomarker Names (from `visibleDataAtom`)
+- Color/Value: Concordance Percentage (0% to 100%)
+
+**What it reveals that current charts don't:**
+Current scatter and line charts show when single markers fail, but this matrix explicitly identifies cascading system failures. For instance, if Glucose and Triglycerides frequently fail at the exact same time, their cell will be bright red, revealing tight clinical co-dependence that standard correlation (which just measures value movement, not boundary crossing) cannot detect.
+
+**Where it would live:**
+New `src/layout/OptimalityConcordanceMatrix.tsx`.
+
+**Trigger / entry point:**
+A new "View Concordance Map" button in the Data Grid header alongside the Analyze menu.
+
+---
+
+**Proposal: Biomarker Range Exceedance Magnitude Bubble Chart**
+
+**ECharts type:** `scatter` (configured as a bubble chart via `symbolSize`)
+
+**Codebase citation:**
+Uses `extra.range` bounds string from `src/processors/post/range.ts` and raw `values[]` from `dataMapAtom` (in `src/atom/dataAtom.ts`).
+
+**Which existing data it uses:**
+For each timestamp in `formattedLabels`, it checks if a measured value falls outside its `extra.range` boundaries. If it does, it calculates the *percentage magnitude* by which the value exceeds the bound (e.g., a Glucose of 7.0 mmol/L exceeds the 6.4 bound by ~9.3%).
+
+**Axes:**
+- X-axis: Time (`formattedLabels`)
+- Y-axis: Categorical Biomarker Names (grouped by `tag.ts`)
+- Bubble Size (`symbolSize`): The calculated percentage by which the value exceeded the normal range limit.
+
+**What it reveals that current charts don't:**
+Current line charts with `markArea` easily show *that* a value is out of bounds, but comparing the severity of multiple failing biomarkers across systems is difficult due to differing units and scales. This chart normalizes the severity into bubble sizes on a single timeline grid, instantly exposing "critical" spikes (huge bubbles) versus borderline drift (tiny bubbles) across the entire physiological system simultaneously.
+
+**Where it would live:**
+New `src/layout/RangeExceedanceBubbleChart.tsx`.
+
+**Trigger / entry point:**
+An "Exceedance Severity Over Time" view toggle in the main dashboard.

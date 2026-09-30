@@ -116,9 +116,10 @@ export default memo(({ name, values, rangeStr }: LineChartProps) => {
         formatter: (params: any) => {
           // ECharts axis trigger passes an array of series data for that axis index
           const p = Array.isArray(params) ? params[0] : params
+          if (!p || !p.value) {
+            return ''
+          }
           if (
-            !p ||
-            !p.value ||
             p.value[1] === '-' ||
             p.value[1] === '' ||
             p.value[1] === 'NaN' ||
@@ -126,7 +127,7 @@ export default memo(({ name, values, rangeStr }: LineChartProps) => {
             p.value[1] === undefined ||
             Number.isNaN(p.value[1])
           ) {
-            return ''
+            return `<strong>${p.value[0]}</strong><br/>${p.marker} ${p.seriesName}: <strong>No Data</strong>`
           }
           let unitStr = ''
           if (unit) {
