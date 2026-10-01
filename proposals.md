@@ -877,3 +877,55 @@ New `src/layout/RangeExceedanceBubbleChart.tsx`.
 
 **Trigger / entry point:**
 An "Exceedance Severity Over Time" view toggle in the main dashboard.
+
+---
+
+**Proposal: Strict-Range Volatility vs Standard-Range Adherence Matrix**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.range` and `strictRange` overrides defined in `src/processors/post/range.ts` combined with raw `values[]` via `dataMapAtom` (in `src/atom/dataAtom.ts`).
+
+**Which existing data it uses:**
+It compares the time-series measurements for any biomarker that possesses a strict range override (e.g., Glucose: standard [3.9, 6.4] vs strict [3.9, 4.7]). For each such marker in `visibleDataAtom`, it calculates the frequency at which the value is within the standard boundaries but fails the stricter optimally tight boundaries.
+
+**Axes:**
+- X-axis: Time (e.g., Year/Quarter groupings of `formattedLabels`)
+- Y-axis: Biomarker Names (filtered for those possessing `strictRange` limits)
+- Color/Value: Frequency (Percentage) of "borderline" measurements (passing standard, failing strict).
+
+**What it reveals that current charts don't:**
+The existing dashboard treats "out of range" as a binary condition based on the default bounds (`extra.optimality[]`). This matrix reveals sub-clinical drift—periods where a system (like metabolic markers) technically looks "normal" to standard tests, but is highly volatile when judged against strict longevity/optimal targets.
+
+**Where it would live:**
+New `src/layout/SubClinicalDriftHeatmap.tsx`.
+
+**Trigger / entry point:**
+A new "View Strict Adherence" toggle when viewing the Data Grid.
+
+---
+
+**Proposal: Biomarker Inferred-Origin Stale Measurement Density**
+
+**ECharts type:** `calendar`
+
+**Codebase citation:**
+Uses `hasOrigin` and `originValues` from `src/types/biomarker.ts`, populated by computed/inferred processors.
+
+**Which existing data it uses:**
+Analyzes the `originValues` array for biomarkers where `inferred: true` and `hasOrigin === true`. It identifies time points (`formattedLabels`) where the inferred calculation heavily relies on interpolated, null, or excessively lagged base measurements rather than fresh data.
+
+**Axes:**
+- X-axis: Time (Calendar Year layout matching `formattedLabels` range)
+- Y-axis: Day of Week
+- Color/Value: Stale/Missing Data Score for inferred combinations on that day.
+
+**What it reveals that current charts don't:**
+Currently, users view inferred metrics (e.g., PhenoAge) on a line chart as if they are perfectly continuous. This calendar chart reveals the *confidence* of those calculated metrics, instantly showing periods where the underlying multi-biomarker panel was incomplete, warning the user that the inferred peak/valley might be a data artifact rather than a true physiological shift.
+
+**Where it would live:**
+New `src/layout/InferredConfidenceCalendar.tsx`.
+
+**Trigger / entry point:**
+A "View Data Confidence" button next to any inferred metric line chart.
