@@ -96,6 +96,7 @@ const LongitudinalRankParallel = React.memo(() => {
         inverse: true, // We want 1st percentile (0 or top ranks) at the top!
         nameLocation: 'end' as const,
         axisLabel: {
+          show: idx === 0,
           formatter: '{value}%',
         },
       }
