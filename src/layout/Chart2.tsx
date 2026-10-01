@@ -30,12 +30,13 @@ export const CHART_PALETTE = [
   '#2559B7',
 ]
 
-const getRegressionTooltip = (expression: string, keyX: string, keyY: string) => {
+const getRegressionTooltip = (expression: string, keyX: string, keyY: string, marker?: string) => {
   if (expression) {
     const formattedExpr = expression.replace(/x/g, keyX).replace(/^y\s*=/, `${keyY} = `)
-    return `Regression Trend<br/>${formattedExpr}`
+    const markerStr = marker ? `${marker} ` : ''
+    return `<strong>Regression Trend</strong><br/>${markerStr}Equation: <strong>${formattedExpr}</strong>`
   }
-  return 'Regression Trend'
+  return '<strong>Regression Trend</strong>'
 }
 
 const echartsOptions: EChartsOption & Pick<EChartsReactProps, 'style' | 'theme'> = {
@@ -247,7 +248,7 @@ export default memo(({ keys }: ChartProps) => {
             const nameX = params.dimensionNames?.[0] || keys[0]
             const nameY = params.dimensionNames?.[1] || keys[1]
             return (
-              `${dateStr}<br/>` +
+              `<strong>${dateStr}</strong><br/>` +
               `${params.marker} ${nameX}: <strong>${val1}${u0}</strong><br/>` +
               `${params.marker} ${nameY}: <strong>${val2}${u1}</strong>`
             )
@@ -263,7 +264,7 @@ export default memo(({ keys }: ChartProps) => {
           ) {
             expr = params.value[2]
           }
-          return getRegressionTooltip(expr, keys[0], keys[1])
+          return getRegressionTooltip(expr, keys[0], keys[1], params.marker)
         },
       },
       dataset,
