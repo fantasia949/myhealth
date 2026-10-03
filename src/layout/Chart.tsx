@@ -177,6 +177,9 @@ export default memo(({ keys }: ChartProps) => {
     for (let i = 0; i < keys.length; i++) {
       series.push({
         type: 'line',
+        name: keys[i],
+        symbol: 'circle',
+        symbolSize: 6,
         connectNulls: false,
         yAxisIndex: i,
       })

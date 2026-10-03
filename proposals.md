@@ -929,3 +929,156 @@ New `src/layout/InferredConfidenceCalendar.tsx`.
 
 **Trigger / entry point:**
 A "View Data Confidence" button next to any inferred metric line chart.
+
+---
+
+**Proposal: Longitudinal Tag Group Rank Correlation Network**
+
+**ECharts type:** `graph` (Graph/Network Chart)
+
+**Codebase citation:**
+Uses `rankedDataMapAtom` from `src/atom/dataAtom.ts` and tag groups defined in `src/processors/post/tag.ts`.
+
+**Which existing data it uses:**
+It utilizes the pre-computed, zero-copy `Float64Array` buffers in `rankedDataMapAtom` for a selected physiological system (e.g., all markers in the `3-Liver` tag group). By computing pairwise Spearman rank correlations between all active biomarkers within that tag group over time, it generates a network layout where nodes are biomarkers and edge weights (line thickness/color) represent the strength of their correlation.
+
+**Axes:**
+- Nodes: Biomarkers within a specific tag group
+- Edges: Correlation strength (from `rankedDataMapAtom`)
+
+**What it reveals that current charts don't:**
+Current charts (like the 1-to-1 scatter or linear correlation heatmaps) only examine two biomarkers at a time, making it hard to see the broader "shape" of a system's failure or recovery. A network graph instantly reveals "hub" biomarkers (those strongly linked to many others within the same tag group) versus isolated markers, helping users pinpoint the most central driver of a systemic imbalance.
+
+**Where it would live:**
+New `src/layout/SystemRankCorrelationNetwork.tsx`.
+
+**Trigger / entry point:**
+A "View System Network" toggle button inside the Tag Overview panel when a specific tag (like `4-Lipid`) is active.
+
+---
+
+**Proposal: Biomarker Optimality Cross-Correlation Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` and `correlationAlphaAtom` from `src/atom/correlationAtom.ts`.
+
+**Which existing data it uses:**
+Instead of correlating raw values or ranks, it correlates the boolean `extra.optimality[]` arrays across all active biomarkers in `dataAtom.ts`. For each pair, it calculates a binary similarity metric (e.g., Jaccard index or phi coefficient) to determine how frequently the two biomarkers go *out of range* simultaneously, applying the significance threshold from `correlationAlphaAtom`.
+
+**Axes:**
+- X-axis: Biomarker Names (from `visibleDataAtom`)
+- Y-axis: Biomarker Names (from `visibleDataAtom`)
+- Color/Value: Optimality Correlation Score (0 to 1)
+
+**What it reveals that current charts don't:**
+The existing dashboard focuses heavily on whether two biomarkers move up or down together (Spearman/Pearson on raw values). However, a patient might have two biomarkers that move independently most of the time but *fail* (cross their clinical thresholds) together during periods of high stress. This heatmap specifically highlights *coupled failures*, revealing hidden clinical co-morbidities that value-based correlations mask.
+
+**Where it would live:**
+New `src/layout/OptimalityCorrelationHeatmap.tsx`.
+
+**Trigger / entry point:**
+A new "Correlate Failures" mode in the Analyze menu, alongside the existing raw/rank correlation options.
+
+---
+
+**Proposal: Longitudinal Tag Group Rank Correlation Network**
+
+**ECharts type:** `graph` (Graph/Network Chart)
+
+**Codebase citation:**
+Uses `rankedDataMapAtom` from `src/atom/dataAtom.ts` and tag groups defined in `src/processors/post/tag.ts`.
+
+**Which existing data it uses:**
+It utilizes the pre-computed, zero-copy `Float64Array` buffers in `rankedDataMapAtom` for a selected physiological system (e.g., all markers in the `3-Liver` tag group). By computing pairwise Spearman rank correlations between all active biomarkers within that tag group over time, it generates a network layout where nodes are biomarkers and edge weights (line thickness/color) represent the strength of their correlation.
+
+**Axes:**
+- Nodes: Biomarkers within a specific tag group
+- Edges: Correlation strength (from `rankedDataMapAtom`)
+
+**What it reveals that current charts don't:**
+Current charts (like the 1-to-1 scatter or linear correlation heatmaps) only examine two biomarkers at a time, making it hard to see the broader "shape" of a system's failure or recovery. A network graph instantly reveals "hub" biomarkers (those strongly linked to many others within the same tag group) versus isolated markers, helping users pinpoint the most central driver of a systemic imbalance.
+
+**Where it would live:**
+New `src/layout/SystemRankCorrelationNetwork.tsx`.
+
+**Trigger / entry point:**
+A "View System Network" toggle button inside the Tag Overview panel when a specific tag (like `4-Lipid`) is active.
+
+---
+
+**Proposal: Biomarker Optimality Cross-Correlation Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` and `correlationAlphaAtom` from `src/atom/correlationAtom.ts`.
+
+**Which existing data it uses:**
+Instead of correlating raw values or ranks, it correlates the boolean `extra.optimality[]` arrays across all active biomarkers in `dataAtom.ts`. For each pair, it calculates a binary similarity metric (e.g., Jaccard index or phi coefficient) to determine how frequently the two biomarkers go *out of range* simultaneously, applying the significance threshold from `correlationAlphaAtom`.
+
+**Axes:**
+- X-axis: Biomarker Names (from `visibleDataAtom`)
+- Y-axis: Biomarker Names (from `visibleDataAtom`)
+- Color/Value: Optimality Correlation Score (0 to 1)
+
+**What it reveals that current charts don't:**
+The existing dashboard focuses heavily on whether two biomarkers move up or down together (Spearman/Pearson on raw values). However, a patient might have two biomarkers that move independently most of the time but *fail* (cross their clinical thresholds) together during periods of high stress. This heatmap specifically highlights *coupled failures*, revealing hidden clinical co-morbidities that value-based correlations mask.
+
+**Where it would live:**
+New `src/layout/OptimalityCorrelationHeatmap.tsx`.
+
+**Trigger / entry point:**
+A new "Correlate Failures" mode in the Analyze menu, alongside the existing raw/rank correlation options.
+
+---
+
+**Proposal: Longitudinal Tag Group Rank Correlation Network**
+
+**ECharts type:** `graph` (Graph/Network Chart)
+
+**Codebase citation:**
+Uses `rankedDataMapAtom` from `src/atom/dataAtom.ts` and tag groups defined in `src/processors/post/tag.ts`.
+
+**Which existing data it uses:**
+It utilizes the pre-computed, zero-copy `Float64Array` buffers in `rankedDataMapAtom` for a selected physiological system (e.g., all markers in the `3-Liver` tag group). By computing pairwise Spearman rank correlations between all active biomarkers within that tag group over time, it generates a network layout where nodes are biomarkers and edge weights (line thickness/color) represent the strength of their correlation.
+
+**Axes:**
+- Nodes: Biomarkers within a specific tag group
+- Edges: Correlation strength (from `rankedDataMapAtom`)
+
+**What it reveals that current charts don't:**
+Current charts (like the 1-to-1 scatter or linear correlation heatmaps) only examine two biomarkers at a time, making it hard to see the broader "shape" of a system's failure or recovery. A network graph instantly reveals "hub" biomarkers (those strongly linked to many others within the same tag group) versus isolated markers, helping users pinpoint the most central driver of a systemic imbalance.
+
+**Where it would live:**
+New `src/layout/SystemRankCorrelationNetwork.tsx`.
+
+**Trigger / entry point:**
+A "View System Network" toggle button inside the Tag Overview panel when a specific tag (like `4-Lipid`) is active.
+
+---
+
+**Proposal: Biomarker Optimality Cross-Correlation Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` and `correlationAlphaAtom` from `src/atom/correlationAtom.ts`.
+
+**Which existing data it uses:**
+Instead of correlating raw values or ranks, it correlates the boolean `extra.optimality[]` arrays across all active biomarkers in `dataAtom.ts`. For each pair, it calculates a binary similarity metric (e.g., Jaccard index or phi coefficient) to determine how frequently the two biomarkers go *out of range* simultaneously, applying the significance threshold from `correlationAlphaAtom`.
+
+**Axes:**
+- X-axis: Biomarker Names (from `visibleDataAtom`)
+- Y-axis: Biomarker Names (from `visibleDataAtom`)
+- Color/Value: Optimality Correlation Score (0 to 1)
+
+**What it reveals that current charts don't:**
+The existing dashboard focuses heavily on whether two biomarkers move up or down together (Spearman/Pearson on raw values). However, a patient might have two biomarkers that move independently most of the time but *fail* (cross their clinical thresholds) together during periods of high stress. This heatmap specifically highlights *coupled failures*, revealing hidden clinical co-morbidities that value-based correlations mask.
+
+**Where it would live:**
+New `src/layout/OptimalityCorrelationHeatmap.tsx`.
+
+**Trigger / entry point:**
+A new "Correlate Failures" mode in the Analyze menu, alongside the existing raw/rank correlation options.
