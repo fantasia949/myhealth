@@ -1,0 +1,11 @@
+--- src/layout/Chart.tsx
++++ src/layout/Chart.tsx
+@@ -183,9 +183,9 @@
+
+     return {
+       ...echartsOptions,
++      replaceMerge: ['series', 'yAxis'],
+-      opts: { replaceMerge: ['series', 'yAxis'] },
+       option: {
+         ...echartsOptions.option,
+         yAxis,
