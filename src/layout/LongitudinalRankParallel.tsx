@@ -194,8 +194,8 @@ const LongitudinalRankParallel = React.memo(() => {
       },
       parallelAxis,
       parallel: {
-        left: '8%',
-        right: '10%',
+        left: '5%',
+        right: '5%',
         bottom: '15%',
         top: '12%',
         parallelAxisDefault: {
