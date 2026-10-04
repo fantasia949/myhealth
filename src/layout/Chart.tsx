@@ -184,7 +184,7 @@ export default memo(({ keys }: ChartProps) => {
 
     return {
       ...echartsOptions,
-      opts: { replaceMerge: ['series', 'yAxis'] },
+      replaceMerge: ['series', 'yAxis'],
       option: {
         ...echartsOptions.option,
         yAxis,

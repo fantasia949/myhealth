@@ -929,3 +929,53 @@ New `src/layout/InferredConfidenceCalendar.tsx`.
 
 **Trigger / entry point:**
 A "View Data Confidence" button next to any inferred metric line chart.
+
+---
+
+**Proposal: System-Wide Correlation Distribution Histogram**
+
+**ECharts type:** `bar` (with `echarts-stat` histogram transform)
+
+**Codebase citation:**
+Uses `rankedDataMapAtom` from `src/atom/dataAtom.ts` (which caches Spearman rank calculations for each biomarker name) and `correlationMethodAtom` from `src/atom/correlationAtom.ts`.
+
+**Which existing data it uses:**
+Computes the entire matrix of pairwise correlation coefficients (rho) for all `nonInferredDataAtom` pairs. It uses `echarts-stat` to transform these coefficients into a 1D histogram.
+
+**Axes:**
+- X-axis: Correlation coefficient bins (-1.0 to 1.0)
+- Y-axis: Frequency/count of biomarker pairs in that bin.
+
+**What it reveals that current charts don't:**
+Shows the macroscopic coupling state of the biology. A normal healthy system might have a normal distribution centered at 0. A stressed or aging system might show a bimodal distribution with many highly positive or negative correlations, indicating systemic lock-in or collapse across systems.
+
+**Where it would live:**
+New `src/layout/SystemCouplingHistogram.tsx`.
+
+**Trigger / entry point:**
+A "View System Rigidity" button in the Correlation Modal.
+
+---
+
+**Proposal: Network Density vs. Significance Alpha Line Chart**
+
+**ECharts type:** `line`
+
+**Codebase citation:**
+Uses `correlationAlphaAtom` from `src/atom/correlationAtom.ts` and `nonInferredDataAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+Iterates over a range of hypothetical alpha values (e.g., 0.01 to 0.10). At each step, it calculates how many pairwise correlations in `nonInferredDataAtom` pass the threshold (i.e. the count of edges where `p < alpha`).
+
+**Axes:**
+- X-axis: Alpha threshold (0.01 to 0.10)
+- Y-axis: Count of significant edges (Network Density)
+
+**What it reveals that current charts don't:**
+Shows how "fragile" the correlation network is. If the edge count collapses drastically at alpha 0.04, it means most observed correlations are borderline and possibly noisy. A robust biological network will have a stable plateau, proving strong interactions.
+
+**Where it would live:**
+New `src/layout/NetworkSensitivityLineChart.tsx`.
+
+**Trigger / entry point:**
+A "Test Network Robustness" icon near the Alpha slider in the Correlation settings.
