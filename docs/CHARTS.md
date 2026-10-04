@@ -223,3 +223,16 @@ This document provides an overview of all implemented charts in the application.
 - Custom rich tooltip displaying Coefficient, P-Value, Radius, and Angle.
 
 **Data/Atom:** Prop: `correlations: [string, number, number][]` (derived from significant entries in `Correlation.tsx`), `target: string`, `alpha: number`.
+
+## LongitudinalRankParallel (Evolution Matrix)
+
+**Locations in UI:** Main View (Dashboard) via "Evolution Matrix" toggle in Analyze menu
+**Locations in code file:** `src/layout/LongitudinalRankParallel.tsx`
+**Purpose:** An ECharts Parallel Coordinates visualization tracking the longitudinal evolution of Spearman rank percentiles over time for the top 10 most volatile biomarkers (ranked by Coefficient of Variation, CV = SD / Mean). It reveals rank inversions and shifting physiological dynamics across historical measurement dates.
+
+**Key Features:**
+- **Parallel Axis Layout:** Each vertical axis represents a measurement date in chronological order.
+- **Spearman Rank Percentiles:** Converts non-inferred historical ranks into 0–100% percentiles (with 1st percentile / top ranks at the top).
+- **Interactive Tooltip:** Shows biomarker name, percentile rank, and raw numerical value for each date.
+
+**Data/Atom:** Directly consumes Jotai atoms: `nonInferredDataAtom`, `rankedDataMapAtom`.
