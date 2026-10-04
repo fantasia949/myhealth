@@ -84,18 +84,29 @@ const LongitudinalRankParallel = React.memo(() => {
   const option = useMemo(() => {
     if (volatileBiomarkers.length === 0) return {}
 
+    // Calculate label step to prevent date label crowding at the bottom of parallel axes
+    const labelStep = labels.length > 12 ? Math.ceil(labels.length / 8) : 1
+
     // Axis represents dates (oldest to newest)
     const parallelAxis = labels.map((label, idx) => {
       const displayDate = formattedLabels[idx] || label
+      // Only display date name on spaced interval axes to prevent horizontal text truncation/overlap
+      const showName = idx === 0 || idx === labels.length - 1 || idx % labelStep === 0
+
       return {
         dim: idx,
-        name: displayDate,
+        name: showName ? displayDate : '',
         type: 'value' as const,
         min: 0,
         max: 100,
         inverse: true, // We want 1st percentile (0 or top ranks) at the top!
         nameLocation: 'end' as const,
+        nameRotate: 30,
         axisLabel: {
+          show: false,
+          formatter: () => '',
+        },
+        axisTick: {
           show: false,
         },
       }
