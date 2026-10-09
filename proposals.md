@@ -1103,3 +1103,53 @@ New `src/layout/RankVolatilityLineChart.tsx`.
 **Trigger / entry point:**
 An "Analyze Homeostatic Volatility" view inside the individual biomarker drill-down modal, accessible alongside the standard raw measurement LineChart.
 
+
+---
+
+**Proposal: Tag Group Co-Morbidity Radar Overlay**
+
+**ECharts type:** `radar`
+
+**Codebase citation:**
+Uses `extra.tag` arrays on `BioMarker[3]` mapped through `visibleDataAtom` in `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+It calculates the percentage of biomarkers currently outside their optimal ranges (`extra.optimality[]`) within each distinct tag group defined in `src/processors/post/tag.ts`. It overlays multiple timepoints (e.g., current measurement vs a historical baseline) on the same radar axes.
+
+**Axes:**
+- Radial Axes: Tag Groups (e.g., `3-Liver`, `4-Lipid`, `6-Kidney`)
+- Distance from center: Percentage of biomarkers in that group currently marked as out-of-range (`optimality: true`).
+
+**What it reveals that current charts don't:**
+While individual sparklines show specific biomarker failures, this chart reveals systemic, multi-organ stress patterns. If both the `3-Liver` and `4-Lipid` axes spike outward simultaneously, it immediately highlights a broader metabolic collapse rather than an isolated anomaly, providing a macroscopic system-health overview.
+
+**Where it would live:**
+New `src/layout/SystemBurdenRadar.tsx`.
+
+**Trigger / entry point:**
+A "System Overview" toggle on the main dashboard, replacing or augmenting the existing multi-series scatter plot when no specific biomarker is selected.
+
+---
+
+**Proposal: Longitudinal Sampling Frequency Calendar**
+
+**ECharts type:** `calendar`
+
+**Codebase citation:**
+Uses `extra.getSamples(num: number, count?: number)` from `BioMarker[3]` and `labels[]` from `src/data/index.ts`.
+
+**Which existing data it uses:**
+It maps the count of non-null measurements across all active biomarkers in `dataAtom.ts` for each specific date in `labels[]`.
+
+**Axes:**
+- X-axis/Grid: Calendar layout by Year/Month/Day
+- Color/Heat: Count of valid non-inferred measurements taken on that day.
+
+**What it reveals that current charts don't:**
+The dataset has sparse, irregular sampling intervals (`labels[]`). This chart exposes data density gaps—showing patients when they are failing to adhere to a regular testing protocol, or identifying clusters where too many blood tests were taken in rapid succession (e.g., during an acute illness phase), which helps explain sudden volatility in the correlation charts.
+
+**Where it would live:**
+New `src/layout/MeasurementDensityCalendar.tsx`.
+
+**Trigger / entry point:**
+A "View Protocol Adherence" button in the global settings or date range selector panel.
