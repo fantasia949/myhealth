@@ -117,6 +117,30 @@ const LongitudinalRankParallel = React.memo(() => {
       const ranks = rankedDataMap.get(bm.name)
       const name = bm.name
 
+      // Hoist minRank and maxRank calculations outside the date iteration loop
+      // to avoid O(N^2) complexity.
+      let minRank = 0
+      let maxRank = 0
+      let hasValidRanks = false
+      if (ranks) {
+        const validRanks: number[] = []
+        for (let rIdx = 0; rIdx < ranks.length; rIdx++) {
+          const r = ranks[rIdx]
+          if (!isNaN(r)) {
+            validRanks.push(r)
+          }
+        }
+        if (validRanks.length > 1) {
+          hasValidRanks = true
+          minRank = validRanks[0]
+          maxRank = validRanks[0]
+          for (let rIdx = 1; rIdx < validRanks.length; rIdx++) {
+            if (validRanks[rIdx] < minRank) minRank = validRanks[rIdx]
+            if (validRanks[rIdx] > maxRank) maxRank = validRanks[rIdx]
+          }
+        }
+      }
+
       // Create an array aligned with each date
       const dataLine = labels.map((_, dateIdx) => {
         const rawVal = bm.values[dateIdx]
@@ -127,21 +151,8 @@ const LongitudinalRankParallel = React.memo(() => {
         // Convert Spearman rank back to percentile relative to its own history
         // ranks is a Float64Array aligned with the same rawValues length (and dates)
         const rankVal = ranks[dateIdx]
-        const validRanks: number[] = []
-        for (let rIdx = 0; rIdx < ranks.length; rIdx++) {
-          const r = ranks[rIdx]
-          if (!isNaN(r)) {
-            validRanks.push(r)
-          }
-        }
-        if (validRanks.length <= 1) return 0
 
-        let minRank = validRanks[0]
-        let maxRank = validRanks[0]
-        for (let rIdx = 1; rIdx < validRanks.length; rIdx++) {
-          if (validRanks[rIdx] < minRank) minRank = validRanks[rIdx]
-          if (validRanks[rIdx] > maxRank) maxRank = validRanks[rIdx]
-        }
+        if (!hasValidRanks) return 0
 
         // Prevent division by zero
         if (maxRank === minRank) return 100
