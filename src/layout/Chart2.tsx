@@ -65,6 +65,9 @@ const echartsOptions: EChartsOption & Pick<EChartsReactProps, 'style' | 'theme'>
   ],
   tooltip: {
     triggerOn: 'mousemove',
+    axisPointer: {
+      type: 'cross',
+    },
     backgroundColor: '#111111',
     borderColor: '#3a3a3a80',
     textStyle: {
