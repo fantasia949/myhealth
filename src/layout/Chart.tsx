@@ -200,7 +200,8 @@ export default memo(({ keys }: ChartProps) => {
         },
       }
     } as EChartsReactProps
-  }, [yAxis, keys.length])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [yAxis, keys.join(',')])
 
   if (keys.length === 0) {
     return (
