@@ -158,3 +158,7 @@
 **Action:** Replace `Array.sort` with a manual inline insertion sort for small, statically bounded arrays (`N <= 5`) within loops to eliminate the closure allocation and standard library overhead, making the hot path faster.
 
 ## 2026-07-21 - Avoid Array.from().sort() with Set to Array conversions\n\n**Learning:** When creating a unique array from a `Set`, using `Array.from(set).sort()` or `[...set].sort()` introduces intermediate iterator allocations and potentially creates holey arrays. Since this often happens in data formatting pipelines or React `useMemo` blocks, it adds unnecessary garbage collection overhead.\n**Action:** Replace `Array.from(set).sort()` with a pre-allocated dense array `const arr = new Array(set.size)` and explicitly push elements via a `for (const s of set)` loop to optimize memory layout for V8 before calling `.sort()`.
+
+## 2024-05-18 - Hoisting min/max array aggregations outside of O(N) mapping loops
+**Learning:** Performing a full-array traversal to calculate min/max within another array map loop causes O(N^2) complexity.
+**Action:** When deriving percentiles or normalized values, calculate the min and max values of the source array *once* before mapping over its elements.
