@@ -26,6 +26,9 @@ const echartsOptions: EChartsReactProps = {
     backgroundColor: 'transparent',
     tooltip: {
       trigger: 'axis',
+      axisPointer: {
+        type: 'cross',
+      },
       backgroundColor: '#111111',
       borderColor: '#3a3a3a80',
       textStyle: {
