@@ -1154,3 +1154,53 @@ New `src/layout/InferredConfidenceLineChart.tsx`.
 
 **Trigger / entry point:**
 An "Overlay Confidence" toggle button next to the standard LineChart for any biomarker where `extra.inferred === true`.
+
+---
+
+**Proposal: Initial Anomaly Onset EffectScatter**
+
+**ECharts type:** `effectScatter`
+
+**Codebase citation:**
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` which is index-aligned with `BioMarker[1]`.
+
+**Which existing data it uses:**
+Scans the current list of biomarkers returned by `visibleDataAtom` to find the earliest chronological index where `optimality[i] === true` for each biomarker. Plots these specific onset points.
+
+**Axes:**
+- X-axis: Time (`labels[]` from `src/data/index.ts`)
+- Y-axis: Categorical axis of biomarker names
+
+**What it reveals that current charts don't:**
+Uses ECharts' animated `effectScatter` ripple to draw visual attention exclusively to the exact chronological moment a biomarker first deviated from its optimal range. Instead of clustering thousands of data points on lines or scatters, it isolates the *onset timeline*, helping users precisely pinpoint when a chronic physiological issue originally started.
+
+**Where it would live:**
+New `src/layout/AnomalyOnsetTimeline.tsx`.
+
+**Trigger / entry point:**
+A new "Onset Timeline" tab near the main table view that focuses purely on tracking the chronological emergence of health issues across the active `visibleDataAtom` dataset.
+
+---
+
+**Proposal: Correlation Alternative Hypothesis Split-Bar Chart**
+
+**ECharts type:** `bar` (grouped)
+
+**Codebase citation:**
+Uses `correlationAlternativeAtom` (values `'two-sided' | 'less' | 'greater'`) and `correlationMethodAtom` from `src/atom/correlationAtom.ts`.
+
+**Which existing data it uses:**
+When performing statistical correlation across the `dataMapAtom` for exactly two selected biomarkers, it programmatically computes all three hypothesis alternatives (`less`, `greater`, `two-sided`) simultaneously using the method defined in `correlationMethodAtom`, mapping the resulting p-values or test statistics into a grouped bar layout.
+
+**Axes:**
+- X-axis: Categorical hypothesis type (`less`, `greater`, `two-sided`)
+- Y-axis: P-Value magnitude (or test statistic strength)
+
+**What it reveals that current charts don't:**
+Currently, users must manually toggle the `correlationAlternativeAtom` dropdown and remember previous values to compare directional significance. This chart visualizes the significance of positive correlation vs negative correlation side-by-side, immediately revealing asymmetric directional strength (e.g., proving that one biomarker only drives the other *down*, but not *up*).
+
+**Where it would live:**
+New `src/layout/CorrelationDirectionalityBar.tsx`.
+
+**Trigger / entry point:**
+Rendered inside the existing `Analyze` (Correlation) panel when exactly two biomarkers are selected, replacing the manual alternative hypothesis dropdown with an instant visual comparison.
