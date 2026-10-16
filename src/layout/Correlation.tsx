@@ -133,7 +133,16 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
   }, [data, dataMap, target, alpha, alternative, rankedDataMap, method])
 
   const significantEntries = React.useMemo(() => {
-    return entries ? entries.filter((e) => e[2] <= alpha) : []
+    if (!entries) return []
+    // ⚡ Bolt Optimization: Replace chained .filter() with classic for-loop
+    // to eliminate closure creation and garbage collection overhead in hot path.
+    const result = []
+    for (let i = 0; i < entries.length; i++) {
+      if (entries[i][2] <= alpha) {
+        result.push(entries[i])
+      }
+    }
+    return result
   }, [entries, alpha])
 
   // ⚡ Bolt Optimization: Memoize the directional correlations array to preserve referential equality.
