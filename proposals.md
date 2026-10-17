@@ -1204,3 +1204,52 @@ New `src/layout/CorrelationDirectionalityBar.tsx`.
 
 **Trigger / entry point:**
 Rendered inside the existing `Analyze` (Correlation) panel when exactly two biomarkers are selected, replacing the manual alternative hypothesis dropdown with an instant visual comparison.
+
+---
+
+**Proposal: Target vs Non-Target Rank Divergence Line Chart**
+
+**ECharts type:** `line`
+
+**Codebase citation:**
+Uses `rankedDataMapAtom` from `src/atom/dataAtom.ts` and `correlationAlternativeAtom` from `src/atom/correlationAtom.ts`.
+
+**Which existing data it uses:**
+It utilizes the pre-computed `Float64Array` rank distributions stored inside `rankedDataMapAtom` for a selected "target" biomarker and compares it against another selected "non-target" biomarker.
+
+**Axes:**
+- X-axis: Time (`formattedLabels`)
+- Y-axis: Absolute difference in Spearman Rank between the two biomarkers.
+
+**What it reveals that current charts don't:**
+Current charts focus on absolute values or linear correlation. This chart visualizes how the *relative ranking* of two biomarkers diverges over time. A large spike indicates a period where the relationship between the two biomarkers fundamentally changed in relation to their own historical distributions, which can highlight critical physiological decoupling events even if raw values remain stable.
+
+**Where it would live:**
+New `src/layout/RankDivergenceLineChart.tsx`.
+
+**Trigger / entry point:**
+A "View Rank Divergence" toggle button inside the Correlation Modal when exactly two biomarkers are selected.
+
+---
+
+**Proposal: Biomarker Optimality Status Gauge**
+
+**ECharts type:** `gauge`
+
+**Codebase citation:**
+Uses `extra.optimality[]` pre-computed by `src/processors/post/range.ts` and `dataAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+It calculates the percentage of historical measurements for a specific biomarker (from `dataAtom`) where the value was *within* the optimal range (i.e., `optimality[i] === false`).
+
+**Axes:**
+- Circular Gauge representing 0% to 100% adherence to optimal range.
+
+**What it reveals that current charts don't:**
+Provides a simple, at-a-glance "health score" for a specific biomarker based on its entire historical record, rather than just looking at the most recent value or scanning a complex timeline. A gauge showing 90% indicates the biomarker is historically very stable and within bounds, whereas 30% indicates chronic issues.
+
+**Where it would live:**
+New `src/layout/OptimalityGauge.tsx`.
+
+**Trigger / entry point:**
+A small inline gauge rendered next to the biomarker name in the main table view or inside the row expansion panel.
