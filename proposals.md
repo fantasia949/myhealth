@@ -1157,6 +1157,54 @@ An "Overlay Confidence" toggle button next to the standard LineChart for any bio
 
 ---
 
+**Proposal: Data-Driven Hierarchical Cluster Dendrogram**
+
+**ECharts type:** `tree` (Orthogonal / Radial Dendrogram)
+
+**Codebase citation:**
+Uses pairwise correlation output stored in `correlationAtom.ts` and active biomarkers from `dataAtom.ts`.
+
+**Which existing data it uses:**
+It applies hierarchical agglomerative clustering on the full distance matrix derived from `correlationAtom` (e.g., converting correlation scores into distance metrics). It consumes the names and properties of biomarkers from `visibleDataAtom`.
+
+**Axes**
+- Nodes represent individual biomarkers.
+- Branch lengths / hierarchy depth represent the correlation distance between clusters.
+
+**What it reveals that current charts don't:**
+Current visualizations group biomarkers by strict predefined medical tags (like `3-Liver` or `4-Lipid`). A dendrogram automatically discovers hidden, patient-specific physiological groupings based purely on how the data behaves longitudinally. It might reveal that a specific metabolic marker and a hormone marker cluster tightly together in this specific patient, suggesting a novel physiological linkage that traditional categorization obscures.
+
+**Where it would live:**
+New `src/layout/DataDrivenClusterTree.tsx`.
+
+**Trigger / entry point:**
+A "Discover Hidden Clusters" toggle in the Analyze menu, replacing the standard predefined tag-based correlation views.
+
+---
+
+**Proposal: Biomarker Velocity (First Derivative) Bar Chart**
+
+**ECharts type:** `bar`
+
+**Codebase citation:**
+Uses `labels[]` (time) from `src/data/index.ts` and the `values[]` array inside the `BioMarker` tuple defined in `src/types/biomarker.ts`.
+
+**Which existing data it uses:**
+It calculates the rate of change (first derivative: Δvalue / Δtime) between consecutive non-null measurements for a single selected biomarker from `dataMapAtom`.
+
+**Axes**
+- X-axis: Time (`formattedLabels`) corresponding to the midpoint between measurements.
+- Y-axis: Rate of Change (e.g., Value per Month).
+- Bars: Positive bars indicate an accelerating rising trend, negative bars indicate a falling trend.
+
+**What it reveals that current charts don't:**
+Current line and scatter charts focus entirely on absolute values relative to static optimal ranges. A biomarker might still technically be within the "safe" range, but a massive positive velocity bar indicates a dangerous momentum or trajectory. This visualization highlights physiological *momentum* rather than state, allowing users to take preventative action before an anomaly actually occurs.
+
+**Where it would live:**
+New `src/layout/BiomarkerVelocityChart.tsx`.
+
+**Trigger / entry point:**
+A "View Momentum" toggle rendered above the standard `LineChart` inside the individual biomarker drill-down modal (Table Row Expansion).
 **Proposal: Initial Anomaly Onset EffectScatter**
 
 **ECharts type:** `effectScatter`

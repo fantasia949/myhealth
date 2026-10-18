@@ -52,7 +52,7 @@ const echartsOptions: EChartsOption & Pick<EChartsReactProps, 'style' | 'theme'>
       scale: true,
       axisLine: { show: false },
       axisTick: { show: false },
-      splitLine: { show: false },
+      splitLine: { lineStyle: { color: '#3a3a3a80', type: 'dashed', width: 1 } },
     },
   ],
   yAxis: [
