@@ -162,6 +162,6 @@
 ## 2024-05-18 - Hoisting min/max array aggregations outside of O(N) mapping loops
 **Learning:** Performing a full-array traversal to calculate min/max within another array map loop causes O(N^2) complexity.
 **Action:** When deriving percentiles or normalized values, calculate the min and max values of the source array *once* before mapping over its elements.
-## 2026-10-16 - [Array.filter Overhead in useMemo]
+## 2026-10-18 - [Array.filter Overhead in useMemo]
 **Learning:** Chained array methods like `.filter` inside `useMemo` can create a bottleneck due to closure creation and garbage collection overhead in this React codebase, especially for large datasets or frequent renders.
 **Action:** Replace `.filter()` and similar higher-order array methods with standard `for` loops and dense arrays when working with hot paths like `useMemo` hooks computing chart data or correlations.
