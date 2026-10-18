@@ -236,3 +236,17 @@ This document provides an overview of all implemented charts in the application.
 - **Interactive Tooltip:** Shows biomarker name, percentile rank, and raw numerical value for each date.
 
 **Data/Atom:** Directly consumes Jotai atoms: `nonInferredDataAtom`, `rankedDataMapAtom`.
+
+## LocalCorrelationBrushLine (Longitudinal Statistical Significance Brush)
+
+**Locations in UI:** Correlation Modal (`Correlation.tsx`) via "Time-Window Analysis" tab
+**Locations in code file:** `src/layout/LocalCorrelationBrushLine.tsx`
+**Purpose:** A dual time-series line chart equipped with an ECharts interactive brush tool (`lineX`) allowing users to drag and isolate arbitrary historical time windows. Unlike all-time static correlation averages, it computes local Spearman/Pearson correlation strictly over the brushed window, highlighting statistically significant windows ($p \le \alpha$) with an ECharts `markArea` highlight and displaying a live summary badge (local $\rho$, $p$-value, sample size $N$, and significance status).
+
+**Key Features:**
+- **Interactive Time-Window Brush:** Allows horizontal brush selection across timeline dates.
+- **Dynamic Secondary Biomarker Selector:** Lets the user pick any candidate biomarker to compare against the primary target, defaulting to the top correlate.
+- **Spearman Rank Trajectories:** Plots dual rank trajectories over time (`formattedLabels`).
+- **Live Local Statistical Calculation:** Dynamically evaluates local correlation ($r$ or $\rho$) and $p$-value over the selected window vs full timeline.
+
+**Data/Atom:** Props: `target: string`. Directly consumes Jotai atoms: `rankedDataMapAtom`, `dataMapAtom`, `nonInferredDataAtom`, `correlationAlphaAtom`, `correlationMethodAtom`, `correlationAlternativeAtom`.

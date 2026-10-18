@@ -17,6 +17,7 @@ import CorrelationVolcanoPlot from './CorrelationVolcanoPlot'
 import KeystoneCentralityScatter from './KeystoneCentralityScatter'
 import DirectionalCorrelationScatter from './DirectionalCorrelationScatter'
 import CorrelationPolarScatter from './CorrelationPolarScatter'
+import LocalCorrelationBrushLine from './LocalCorrelationBrushLine'
 
 export default React.memo(({ target, onClose }: CorrelationProps) => {
   const data = useAtomValue(nonInferredDataAtom)
@@ -27,7 +28,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
   const [method, setMethod] = useAtom(correlationMethodAtom)
   const [isCopied, setIsCopied] = React.useState(false)
   const [activeTab, setActiveTab] = React.useState<
-    'chart' | 'significance' | 'table' | 'prioritization' | 'directional' | 'directional-polar'
+    'chart' | 'significance' | 'table' | 'prioritization' | 'time-window' | 'directional' | 'directional-polar'
   >('chart')
 
   const entries = React.useMemo(() => {
@@ -186,7 +187,7 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                 leaveFrom="translate-x-0"
                 leaveTo="translate-x-full"
               >
-                <Dialog.Panel className="pointer-events-auto w-screen max-w-md transform transition-all">
+                <Dialog.Panel className="pointer-events-auto w-screen max-w-3xl transform transition-all">
                   <div className="flex h-full flex-col overflow-y-scroll bg-[#222222] border-l border-gray-700 shadow-xl">
                     <div className="px-4 py-6 sm:px-6">
                       <div className="flex items-start justify-between">
@@ -376,6 +377,18 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                         >
                           Prioritization View
                         </button>
+                        <button
+                          type="button"
+                          aria-pressed={activeTab === 'time-window'}
+                          className={`w-full rounded-lg py-2.5 text-sm font-medium leading-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors ${
+                            activeTab === 'time-window'
+                              ? 'bg-blue-600/80 text-white shadow'
+                              : 'text-gray-400 hover:bg-white/10 hover:text-white'
+                          }`}
+                          onClick={() => setActiveTab('time-window')}
+                        >
+                          Time-Window Analysis
+                        </button>
                         {alternative !== 'two-sided' && (
                           <button
                             type="button"
@@ -434,6 +447,12 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
                       {activeTab === 'prioritization' && (
                         <div className="mb-8">
                           {target && <KeystoneCentralityScatter target={target} />}
+                        </div>
+                      )}
+
+                      {activeTab === 'time-window' && (
+                        <div className="mb-8">
+                          {target && <LocalCorrelationBrushLine target={target} />}
                         </div>
                       )}
 
