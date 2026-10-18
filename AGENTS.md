@@ -14,11 +14,11 @@ MyHealth is a **client-side personal health tracking and biomarker analysis dash
 
 | Layer            | Technology                                                        |
 | ---------------- | ----------------------------------------------------------------- |
-| UI framework     | React 19 + TypeScript 6                                           |
+| UI framework     | React 19 + TypeScript 7                                           |
 | Bundler          | Vite 8                                                            |
 | Styling          | Tailwind CSS 4                                                    |
-| State management | Jotai 2 (atomic, async atoms)                                     |
-| Data tables      | TanStack React Table 8                                            |
+| State management | Jotai 3 (atomic, async atoms)                                     |
+| Data tables      | TanStack React Table 9                                            |
 | Charts           | ECharts 6 + echarts-for-react, @echarts-readymade, OGL (3D WebGL) |
 | Statistics       | @stdlib/stats-pcorrtest, echarts-stat                             |
 | UI components    | @headlessui/react, @heroicons/react                               |

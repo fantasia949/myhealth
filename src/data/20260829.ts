@@ -78,5 +78,5 @@ export default {
         '+polygonatum' // hoang tinh
     ],
     review: ['work-leg', 'mien', '+khoai lang', 'preload-glucose', ''],
-    plan: ['+delphidin', '+cacao', '+incarin', '+hmb', '-fucoidan'],
+    plan: ['+delphidin', '+cacao', '+incarin', '+hmb', '-fucoidan','+ngoc-truc', '+sinh-dia', '++dhea'],
 }
