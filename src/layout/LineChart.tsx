@@ -28,10 +28,14 @@ const echartsOptions = {
   xAxis: {
     type: 'time',
     boundaryGap: false,
+    axisLine: { show: false },
+    axisTick: { show: false },
+    splitLine: { show: false },
   },
   yAxis: {
     type: 'value',
     scale: true, // This makes the axis adjust to the data range
+    splitLine: { lineStyle: { color: '#3a3a3a80', type: 'dashed', width: 1 } },
   },
 }
 
