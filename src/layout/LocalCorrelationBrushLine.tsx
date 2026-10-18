@@ -343,6 +343,18 @@ export default memo(({ target }: LocalCorrelationBrushLineProps) => {
 
   return (
     <div className="flex flex-col gap-3">
+      {/* Introductory Guide Card */}
+      <div className="p-3 bg-blue-950/20 border border-blue-800/40 rounded-lg text-xs text-gray-300 leading-relaxed">
+        <div className="font-semibold text-blue-400 mb-1 flex items-center gap-1.5">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Longitudinal Time-Window Correlation Analysis
+        </div>
+        This chart plots rank trajectories across time. Use the <strong>brush tool</strong> to select a specific time window.
+        Unlike static all-time averages, this reveals temporary periods of strong physiological coupling (e.g., during acute illness or specific interventions) that would otherwise be masked across multi-year spans.
+      </div>
+
       {/* Selector & Badge controls */}
       <div className="flex flex-wrap items-center justify-between gap-2 bg-dark-bg/60 p-3 border border-gray-700 rounded-lg">
         <div className="flex items-center gap-2">
