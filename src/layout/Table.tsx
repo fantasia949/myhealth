@@ -34,10 +34,7 @@ import {
 import { averageCountAtom } from '../atom/averageValueAtom'
 import BiomarkerCorrelation from './BiomarkerCorrelation'
 import { TableProps, DisplayedEntry } from './Table.types'
-import {
-  CORRELATION_EXCLUDED_BIOMARKERS,
-  SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS,
-} from '../config/correlations'
+import { CORRELATION_EXCLUDED_BIOMARKERS } from '../config/correlations'
 import { Spinner } from './Spinner'
 
 const LineChart = React.lazy(() => import('./LineChart'))
@@ -188,8 +185,6 @@ const TableRow = React.memo(
     const { name, values, visibleValues, visibleOptimality, visibleOriginValues, unit, extra } =
       entry
     const safeNameId = String(name).replace(/[^a-zA-Z0-9-_]/g, '-')
-    const isExcludedFromCorr = CORRELATION_EXCLUDED_BIOMARKERS.includes(name)
-    const isExcludedFromSuppCorr = SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS.includes(name)
 
     let displayUnit = ''
     if (typeof unit === 'string') {
@@ -207,14 +202,6 @@ const TableRow = React.memo(
       ? `${name} correlation is excluded`
       : `Correlate ${name} with other biomarkers`
     const correlationClass = isCorrelationExcluded
-      ? 'text-gray-600 cursor-not-allowed opacity-50'
-      : 'hover:text-blue-400'
-
-    const isSuppCorrelationExcluded = SUPPLEMENT_CORRELATION_EXCLUDED_BIOMARKERS.includes(name)
-    const suppCorrelationTitle = isSuppCorrelationExcluded
-      ? `${name} correlation is excluded`
-      : `Correlate ${name} with supplements`
-    const suppCorrelationClass = isSuppCorrelationExcluded
       ? 'text-gray-600 cursor-not-allowed opacity-50'
       : 'hover:text-blue-400'
 

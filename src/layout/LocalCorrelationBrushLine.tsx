@@ -144,7 +144,9 @@ export default memo(({ target }: LocalCorrelationBrushLineProps) => {
     const options = { alpha, alternative }
 
     const startIndex = brushedRange ? Math.max(0, brushedRange[0]) : 0
-    const endIndex = brushedRange ? Math.min(formattedLabels.length - 1, brushedRange[1]) : formattedLabels.length - 1
+    const endIndex = brushedRange
+      ? Math.min(formattedLabels.length - 1, brushedRange[1])
+      : formattedLabels.length - 1
 
     if (method === 'pearson') {
       if (!targetRaw || !secondaryRaw) return null
@@ -161,7 +163,13 @@ export default memo(({ target }: LocalCorrelationBrushLineProps) => {
       }
 
       if (xVals.length < 3) {
-        return { pcorr: 0, pValue: 1, n: xVals.length, isSignificant: false, isBrushed: !!brushedRange }
+        return {
+          pcorr: 0,
+          pValue: 1,
+          n: xVals.length,
+          isSignificant: false,
+          isBrushed: !!brushedRange,
+        }
       }
 
       const res = calculatePearson(new Float64Array(xVals), new Float64Array(yVals), options)
@@ -186,10 +194,20 @@ export default memo(({ target }: LocalCorrelationBrushLineProps) => {
       }
 
       if (xRanks.length < 3) {
-        return { pcorr: 0, pValue: 1, n: xRanks.length, isSignificant: false, isBrushed: !!brushedRange }
+        return {
+          pcorr: 0,
+          pValue: 1,
+          n: xRanks.length,
+          isSignificant: false,
+          isBrushed: !!brushedRange,
+        }
       }
 
-      const res = calculateSpearmanRanked(new Float64Array(xRanks), new Float64Array(yRanks), options)
+      const res = calculateSpearmanRanked(
+        new Float64Array(xRanks),
+        new Float64Array(yRanks),
+        options,
+      )
       return {
         pcorr: res.pcorr,
         pValue: res.pValue,
@@ -347,12 +365,19 @@ export default memo(({ target }: LocalCorrelationBrushLineProps) => {
       <div className="p-3 bg-blue-950/20 border border-blue-800/40 rounded-lg text-xs text-gray-300 leading-relaxed">
         <div className="font-semibold text-blue-400 mb-1 flex items-center gap-1.5">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
           Longitudinal Time-Window Correlation Analysis
         </div>
-        This chart plots rank trajectories across time. Use the <strong>brush tool</strong> to select a specific time window.
-        Unlike static all-time averages, this reveals temporary periods of strong physiological coupling (e.g., during acute illness or specific interventions) that would otherwise be masked across multi-year spans.
+        This chart plots rank trajectories across time. Use the <strong>brush tool</strong> to
+        select a specific time window. Unlike static all-time averages, this reveals temporary
+        periods of strong physiological coupling (e.g., during acute illness or specific
+        interventions) that would otherwise be masked across multi-year spans.
       </div>
 
       {/* Selector & Badge controls */}
@@ -398,9 +423,7 @@ export default memo(({ target }: LocalCorrelationBrushLineProps) => {
             </span>
             <span
               className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-sans font-bold ${
-                stats.isSignificant
-                  ? 'bg-green-800/80 text-green-200'
-                  : 'bg-gray-700 text-gray-400'
+                stats.isSignificant ? 'bg-green-800/80 text-green-200' : 'bg-gray-700 text-gray-400'
               }`}
             >
               {stats.isSignificant ? 'Significant' : 'Non-sig'}

@@ -201,9 +201,9 @@ export default memo(({ keys }: ChartProps) => {
           left: Math.max((Math.ceil(keys.length / 2) - 1) * 100 + 120, 60),
           right: Math.max((Math.floor(keys.length / 2) - 1) * 100 + 120, 60),
         },
-      }
+      },
     } as EChartsReactProps
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [yAxis, keys.join(',')])
 
   if (keys.length === 0) {
