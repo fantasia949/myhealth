@@ -1058,3 +1058,52 @@ New `src/layout/DataQualityMatrix.tsx`.
 
 **Trigger / entry point:**
 A "Data Quality Audit" toggle in the main application navbar, mapping all measured biomarkers.
+
+---
+
+**Proposal: Clinical Event MarkPoint Overlay**
+
+**ECharts type:** `markPoint` (overlay on existing line/scatter charts)
+
+**Codebase citation:**
+Uses `notesAtom` and `noteValuesAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+It accesses the processed clinical notes and their associated dates from `notesAtom`. It then overlays these textual events onto the time-series charts (like `LineChart.tsx` or `Chart.tsx`).
+
+**Axes:**
+N/A (Overlays on existing time-series X/Y axes)
+
+**What it reveals that current charts don't:**
+Current line and scatter charts only show numerical values over time. By injecting clinical events (e.g., "Started new medication", "Diet change") as `markPoint` indicators precisely on the dates they occurred, users can visually correlate sudden biomarker shifts (inflection points) with actual real-world health interventions.
+
+**Where it would live:**
+Integrated into `src/layout/Chart.tsx` and `src/layout/LineChart.tsx` as an optional series augmentation.
+
+**Trigger / entry point:**
+A new "Show Clinical Notes" toggle in the main chart control panel.
+
+---
+
+**Proposal: Single-Biomarker Auto-Correlation Memory Line Chart**
+
+**ECharts type:** `line` (or `bar`)
+
+**Codebase citation:**
+Uses the raw values from `dataMapAtom` (`BioMarker[1]`) in `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+For a single selected biomarker, it calculates its *auto-correlation* (correlation with itself) at various time lags (e.g., lag-1 = previous measurement, lag-2 = measurement before that) across the `labels[]` timeline.
+
+**Axes:**
+- X-axis: Time Lag (e.g., 1 measurement ago, 2 measurements ago... up to N).
+- Y-axis: Auto-Correlation Coefficient (-1 to +1).
+
+**What it reveals that current charts don't:**
+Reveals the "physiological memory" or momentum of a specific biomarker. A high auto-correlation at lag-1 means today's value is heavily dependent on yesterday's value (high inertia). A rapid drop to zero means the biomarker is highly volatile and forgets its previous state quickly. This helps distinguish between chronic baseline shifts versus acute, transient spikes.
+
+**Where it would live:**
+New `src/layout/AutoCorrelationChart.tsx`.
+
+**Trigger / entry point:**
+A "View Temporal Momentum" toggle within the individual biomarker table row expansion.
