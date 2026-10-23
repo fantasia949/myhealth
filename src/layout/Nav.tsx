@@ -202,6 +202,8 @@ export default React.memo<NavProps>(
       return () => window.removeEventListener('keydown', handleKeyDown)
     }, [])
 
+    const [canvasText, setCanvasText] = React.useState<string | null>(null)
+
     const onAskAI = React.useCallback(async () => {
       if (selected.length === 0) {
         return
@@ -281,9 +283,18 @@ export default React.memo<NavProps>(
       } finally {
         setIsAsking(false)
       }
-    }, [selected, data, filterTag, key, model, fullData, nonInferredData, rankedDataMap])
+    }, [
+      selected,
+      data,
+      filterTag,
+      key,
+      model,
+      fullData,
+      nonInferredData,
+      rankedDataMap,
+      setCanvasText,
+    ])
 
-    const [canvasText, setCanvasText] = React.useState<string | null>(null)
     const [gistUrl, setGistUrl] = React.useState<string | null>(null)
     const [gistError, setGistError] = React.useState<string | null>(null)
     const [isGistLoading, setIsGistLoading] = React.useState(false)
@@ -298,7 +309,7 @@ export default React.memo<NavProps>(
       setGistUrl(null)
       setGistError(null)
       setIsGistLoading(false)
-    }, [])
+    }, [setCanvasText])
 
     const onAverageCount = React.useCallback(
       (e: React.ChangeEvent<HTMLSelectElement>) => setAverageCount(e.target.value),
