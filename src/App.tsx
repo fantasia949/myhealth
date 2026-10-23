@@ -397,7 +397,9 @@ export default function App() {
         >
           {renderContent()}
         </React.Suspense>
-        {!(isNetworkViewOpen || isMatrixViewOpen || isEvolutionViewOpen) && <Table {...tableProps} />}
+        {!(isNetworkViewOpen || isMatrixViewOpen || isEvolutionViewOpen) && (
+          <Table {...tableProps} />
+        )}
         <div className="flex flex-wrap justify-center gap-4 mt-4 pb-8">
           <div className="flex flex-col gap-1">
             <label htmlFor="ai-model" className="text-xs text-gray-400 font-medium ml-1">
