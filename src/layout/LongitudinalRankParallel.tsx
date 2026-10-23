@@ -275,7 +275,8 @@ const LongitudinalRankParallel = React.memo(() => {
         <div>
           <h3 className="text-sm font-medium text-gray-200">Longitudinal Rank Inversion</h3>
           <p className="text-[10px] text-gray-400 mt-0.5">
-            Spearman Rank Percentile over time for the top 10 most volatile biomarkers (by Coefficient of Variation)
+            Spearman Rank Percentile over time for the top 10 most volatile biomarkers (by
+            Coefficient of Variation)
           </p>
         </div>
       </div>

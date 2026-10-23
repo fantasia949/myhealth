@@ -28,7 +28,13 @@ export default React.memo(({ target, onClose }: CorrelationProps) => {
   const [method, setMethod] = useAtom(correlationMethodAtom)
   const [isCopied, setIsCopied] = React.useState(false)
   const [activeTab, setActiveTab] = React.useState<
-    'chart' | 'significance' | 'table' | 'prioritization' | 'time-window' | 'directional' | 'directional-polar'
+    | 'chart'
+    | 'significance'
+    | 'table'
+    | 'prioritization'
+    | 'time-window'
+    | 'directional'
+    | 'directional-polar'
   >('chart')
 
   const entries = React.useMemo(() => {

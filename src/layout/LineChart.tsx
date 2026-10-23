@@ -106,9 +106,7 @@ export default memo(({ name, values, rangeStr }: LineChartProps) => {
           },
           // Disable tooltip on markArea to prevent showing "undefined" when hovering the shaded region
           tooltip: { show: false },
-          data: [
-            [areaStart, areaEnd],
-          ],
+          data: [[areaStart, areaEnd]],
         }
       }
     }

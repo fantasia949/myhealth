@@ -961,3 +961,100 @@ New `src/layout/CorrelationDivergenceScatter.tsx`.
 
 **Trigger / entry point:**
 A new "Non-Linearity Analysis" button within the correlation modal.
+**Proposal: Value-to-Rank Non-Linearity Scatter**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+Uses `dataMapAtom` (raw values) and `rankedDataMapAtom` (Spearman ranks) from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+It pairs the raw measurement `values[]` (from `dataMapAtom`) against their computed historical rank/percentile (from `rankedDataMapAtom`) for a single selected biomarker.
+
+**Axes**
+- X-axis: Raw Biomarker Value
+- Y-axis: Spearman Rank Percentile (0 to 100)
+
+**What it reveals that current charts don't:**
+Current charts display either raw values over time (LineChart) or ranked correlations (LongitudinalRankParallel), but never both simultaneously. This scatter plot visualizes the non-linear distribution curve of a specific biomarker within the individual's own historical data. A flat curve implies high volatility (large value swings barely change rank), while a steep curve implies rigid homeostasis (tiny value shifts cause massive rank changes). It reveals the true sensitivity of the patient's physiological baseline.
+
+**Where it would live:**
+New `src/layout/ValueRankSensitivityScatter.tsx`.
+
+**Trigger / entry point:**
+A "View Baseline Sensitivity" toggle inside the individual biomarker drill-down modal (Table Row Expansion).
+
+---
+
+**Proposal: Significance Threshold Sensitivity Line Chart**
+
+**ECharts type:** `line`
+
+**Codebase citation:**
+Uses `correlationAlphaAtom` from `src/atom/correlationAtom.ts` and the active correlations generated in `src/layout/Correlation.tsx`.
+
+**Which existing data it uses:**
+Instead of computing correlation for a single selected `alpha` threshold, it iterates over a continuous range of alpha values (e.g., from `0.01` to `0.20`) and recalculates the number of statistically significant correlations at each step.
+
+**Axes**
+- X-axis: Alpha Threshold ($\alpha$)
+- Y-axis: Number of Significant Correlates (Count)
+
+**What it reveals that current charts don't:**
+Currently, users select a single static $\alpha$ threshold (e.g., 0.05). If the data is noisy, dropping the threshold to 0.04 might suddenly eliminate half the correlations. This chart visualizes the *robustness* of the correlation network. A smooth line indicates a stable network, while sudden cliffs imply that many discovered correlations are borderline and highly sensitive to statistical assumptions, warning the user against over-interpreting weak links.
+
+**Where it would live:**
+New `src/layout/AlphaSensitivityCurve.tsx`.
+
+**Trigger / entry point:**
+A small sparkline or dedicated button rendered next to the "Significance Level ($\alpha$)" dropdown in the `Correlation.tsx` modal, helping users choose a mathematically sound threshold.
+**Proposal: Longitudinal Rank Correlation Drift Radar**
+
+**ECharts type:** `radar`
+
+**Codebase citation:**
+Uses `rankedDataMapAtom` from `src/atom/dataAtom.ts` which provides the Spearman rank cache (`Float64Array`) per biomarker, and `correlationMethodAtom` from `src/atom/correlationAtom.ts`.
+
+**Which existing data it uses:**
+It selects a baseline time window and a recent time window from `labels[]`. For a selected primary biomarker (e.g. from `visibleDataAtom`), it calculates its Spearman rank correlation (`rankedDataMapAtom`) against 5-8 other related biomarkers (e.g. members of the same `tagAtom`) for both the baseline and recent windows.
+
+**Axes**
+- Radar indicators: Related Biomarker Names.
+- Value: Correlation score (-1 to 1) comparing the primary biomarker to each related biomarker.
+
+**What it reveals that current charts don't:**
+Current correlation scatters compute a single global correlation across all time points. This radar chart overlays two distinct time periods (baseline vs. recent). If a biomarker (like Glucose) used to be highly correlated with another (like Insulin) but is no longer correlated in the recent window, the radar shape will drastically warp, immediately revealing that a homeostatic relationship has broken down over time.
+
+**Where it would live:**
+New `src/layout/CorrelationDriftRadar.tsx`.
+
+**Trigger / entry point:**
+A "View Correlation Drift" button within the individual biomarker table row expansion, comparing its rank data against its peers in the active `tagAtom`.
+
+---
+
+**Proposal: Biomarker Stability vs Imputation Matrix**
+
+**ECharts type:** `scatter` (Bubble chart)
+
+**Codebase citation:**
+Uses the underlying raw value arrays `BioMarker[1]` (which contain nulls) from `dataAtom.ts` and `extra.optimality[]` from `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+For every biomarker in `nonInferredDataAtom`, it calculates two metrics across the time series (`labels[]`):
+1. Missingness Ratio (Percentage of `null` values).
+2. Volatility / Instability (Percentage of non-null points where `extra.optimality[i] === true`).
+
+**Axes**
+- X-axis: Data Completeness (0% to 100% missing values based on `null` frequency).
+- Y-axis: Optimality Failure Rate (0% to 100% out-of-range).
+- Bubble Size: Total number of non-null measurements.
+
+**What it reveals that current charts don't:**
+It maps data quality against health stability. Users can instantly identify critical "blind spots"—biomarkers that have a high out-of-range frequency (high on Y) but are rarely tested (high on X). This provides actionable clinical intelligence: "You are highly unstable in these markers, but you aren't measuring them enough to track them properly," which the standard chronological line charts completely obscure.
+
+**Where it would live:**
+New `src/layout/DataQualityMatrix.tsx`.
+
+**Trigger / entry point:**
+A "Data Quality Audit" toggle in the main application navbar, mapping all measured biomarkers.
