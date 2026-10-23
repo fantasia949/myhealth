@@ -178,11 +178,12 @@ const LongitudinalRankParallel = React.memo(() => {
         textStyle: { color: '#f0f0f0' },
         formatter: (params: any) => {
           const bmName = params.seriesName || params.name || params.data?.name
-          const valArray = Array.isArray(params.value)
-            ? params.value
-            : Array.isArray(params.data?.value)
-              ? params.data.value
-              : []
+          let valArray = []
+          if (Array.isArray(params.value)) {
+            valArray = params.value
+          } else if (Array.isArray(params.data?.value)) {
+            valArray = params.data.value
+          }
           const bmObj = volatileMap.get(bmName)
           const unitStr = bmObj && bmObj.unit ? ` ${bmObj.unit}` : ''
 
