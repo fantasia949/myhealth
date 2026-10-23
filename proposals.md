@@ -912,6 +912,55 @@ Rendered inside the existing `Analyze` (Correlation) panel when exactly two biom
 
 ---
 
+---
+
+**Proposal: Biomarker Strict-Range Deviation Waterfall**
+
+**ECharts type:** `bar` (with `stack` for waterfall effect)
+
+**Codebase citation:**
+`strictRange` object vs standard `range` in `src/processors/post/range.ts`.
+
+**Which existing data it uses:**
+Iterates through `dataAtom`, identifying biomarkers that possess both a standard `range` and a `strictRange` override. It extracts the lower/upper bounds of both and calculates the magnitude of the "buffer zone" (the difference between the clinical norm and the stricter anti-aging target).
+
+**Axes**
+X-axis: Biomarker names (filtered to those with dual ranges).
+Y-axis: Normalized value margin (representing the boundaries and the gap).
+
+**What it reveals that current charts don't:**
+Visually quantifies the "buffer zone" eliminated by strict criteria, helping users immediately understand how much more aggressive their optimality targets are compared to clinical norms. Current charts only show static string labels or shaded bands independently.
+
+**Where it would live:**
+New `src/layout/StrictRangeWaterfall.tsx`, rendered within the range analysis section.
+
+**Trigger / entry point:**
+A new "Range Adherence" toggle when viewing biomarkers with defined strict ranges.
+
+---
+
+**Proposal: Spearman-Pearson Divergence Scatter Plot**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+`correlationMethodAtom` from `src/atom/correlationAtom.ts` and `rankedDataMapAtom` from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+For every pair of biomarkers in `nonInferredDataAtom`, calculates both the Pearson (linear) and Spearman (rank-based) correlation coefficients.
+
+**Axes**
+X-axis: Pearson correlation coefficient (-1 to 1).
+Y-axis: Spearman correlation coefficient (-1 to 1).
+
+**What it reveals that current charts don't:**
+Points that deviate significantly from the `y = x` diagonal indicate highly non-linear but monotonic relationships (where Spearman is high but Pearson is low). This exposes hidden biological links that standard linear regression misses entirely.
+
+**Where it would live:**
+New `src/layout/CorrelationDivergenceScatter.tsx`.
+
+**Trigger / entry point:**
+A new "Non-Linearity Analysis" button within the correlation modal.
 **Proposal: Value-to-Rank Non-Linearity Scatter**
 
 **ECharts type:** `scatter`
