@@ -67,3 +67,8 @@
 
 **Learning:** Chained array methods like `.filter`, `.map`, and `.forEach` inside `useMemo` or other hot render paths create a bottleneck due to closure creation, temporary array allocations, and garbage collection overhead in this React codebase, especially for large datasets or frequent renders.
 **Action:** Replace these higher-order array methods with standard `for` loops and push valid elements into dense arrays (`const arr = []`) to eliminate overhead and improve performance.
+
+## 2026-10-23 - [Replacing chained .map calls with for loops inside ECharts generation]
+
+**Learning:** Using chained `.map` methods (like `Array.prototype.map`) within large ECharts React component `useMemo` hooks allocates a new closure function and a new array layout for every mapping pass. When defining complex ECharts objects (like Parallel Coordinates `series` or `parallelAxis`), replacing `.map` with a classic `for` loop pushing to a dense array (`const arr = []; arr.push()`) effectively minimizes closures and V8 GC churn, resulting in faster and smoother chart renders.
+**Action:** When updating chart configuration options in `useMemo` that involve transforming large arrays (e.g. `seriesData`, `parallelAxis`), use classic `for` loops instead of `.map`.
