@@ -198,6 +198,7 @@ const TableRow = React.memo(
     const cellUnit = useOrigin ? extra.originUnit : unit
 
     const isCorrelationExcluded = CORRELATION_EXCLUDED_BIOMARKERS.includes(name)
+    const isExcludedFromSuppCorr = isCorrelationExcluded
     const correlationTitle = isCorrelationExcluded
       ? `${name} correlation is excluded`
       : `Correlate ${name} with other biomarkers`
