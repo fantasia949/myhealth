@@ -1107,3 +1107,28 @@ New `src/layout/AutoCorrelationChart.tsx`.
 
 **Trigger / entry point:**
 A "View Temporal Momentum" toggle within the individual biomarker table row expansion.
+
+---
+**Proposal: Tag Group Measurement Adherence Chart**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+Reads `tagAtom` to filter biomarkers, uses `dataMapAtom` to extract `BioMarker[1]` (values array with `null` for missing) and `labels[]` (time series).
+
+**Which existing data it uses:**
+For the currently active tag group (e.g. `8-WBC`), it evaluates the frequency of measurements across the time axis. It checks each biomarker in the tag group for `null` gaps at each timestamp in `labels[]`.
+
+**Axes**
+- X-axis: Time (`labels[]` converted to readable dates).
+- Y-axis: Biomarker Names in the current `tagAtom` group.
+- Color: Binary or frequency-based (e.g., Green/1 if measured, Grey/0 if `null`).
+
+**What it reveals that current charts don't:**
+It instantly exposes measurement inconsistencies within a biological system. If a user is tracking liver health (`3-Liver`), but only ALT/AST are measured frequently while GGT and Bilirubin are skipped, this heatmap clearly reveals the "blind spots" in the system's monitoring protocol over time.
+
+**Where it would live:**
+New `src/layout/TagMeasurementHeatmap.tsx`.
+
+**Trigger / entry point:**
+A "Measurement Consistency" view toggle next to the tag group selector in the navigation bar.
