@@ -1107,29 +1107,3 @@ New `src/layout/AutoCorrelationChart.tsx`.
 
 **Trigger / entry point:**
 A "View Temporal Momentum" toggle within the individual biomarker table row expansion.
-
----
-
-**Proposal: Longitudinal Optimality Volatility Heatmap**
-
-**ECharts type:** `heatmap`
-
-**Codebase citation:**
-`extra.optimality[]` pre-computed by `src/processors/post/range.ts` and `visibleDataAtom` from `src/atom/dataAtom.ts`.
-
-**Which existing data it uses:**
-Reads the pre-computed boolean array `extra.optimality` for every biomarker present in `visibleDataAtom` across all time points defined in `labels[]`.
-
-**Axes**
-- X-axis: Time (mapped to `labels[]`).
-- Y-axis: Biomarker Names (filtered by `visibleDataAtom` or `tagAtom`).
-- Value: Color intensity based on transition states (e.g. green for staying optimal, red for staying non-optimal, yellow/orange for transitioning into or out of optimality between consecutive measurements).
-
-**What it reveals that current charts don't:**
-Current line and scatter plots focus on absolute values, requiring cognitive effort to check against ranges. The `extra.optimality` field already knows if a point is out of range. A heatmap visualizing these boolean states and their transitions instantly highlights periods of systemic physiological distress—where multiple biomarkers in a tag group (like Liver or Lipid) simultaneously drop out of range, revealing cascading health failures that individual trend lines hide.
-
-**Where it would live:**
-New `src/layout/OptimalityTransitionHeatmap.tsx`.
-
-**Trigger / entry point:**
-A "System Stability Heatmap" toggle next to the tag group filter in `Nav.tsx`, rendered when viewing a specific `tagAtom`.
