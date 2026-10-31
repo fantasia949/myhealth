@@ -67,3 +67,7 @@
 
 **Learning:** Chained array methods like `.filter`, `.map`, and `.forEach` inside `useMemo` or other hot render paths create a bottleneck due to closure creation, temporary array allocations, and garbage collection overhead in this React codebase, especially for large datasets or frequent renders.
 **Action:** Replace these higher-order array methods with standard `for` loops and push valid elements into dense arrays (`const arr = []`) to eliminate overhead and improve performance.
+
+## 2026-11-20 - Multi-Pass Array Merging Overhead
+**Learning:** Combining multiple O(N) array `.map` calls that iterate over the exact same dataset into a single standard `for` loop avoids intermediate array allocations and closure overhead, particularly in complex ECharts mapping logic like `LongitudinalRankParallel`.
+**Action:** When dynamically generating multiple ECharts configurations (like labels, legends, and series data) from the same source dataset, combine them into a single-pass `for` loop.

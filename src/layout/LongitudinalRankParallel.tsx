@@ -88,12 +88,15 @@ const LongitudinalRankParallel = React.memo(() => {
     const labelStep = labels.length > 12 ? Math.ceil(labels.length / 8) : 1
 
     // Axis represents dates (oldest to newest)
-    const parallelAxis = labels.map((label, idx) => {
+    // ⚡ Bolt Optimization: Replace labels.map() with a classic for-loop to avoid closure allocation
+    const parallelAxis = []
+    for (let idx = 0; idx < labels.length; idx++) {
+      const label = labels[idx]
       const displayDate = formattedLabels[idx] || label
       // Only display date name on spaced interval axes to prevent horizontal text truncation/overlap
       const showName = idx === 0 || idx === labels.length - 1 || idx % labelStep === 0
 
-      return {
+      parallelAxis.push({
         dim: idx,
         name: showName ? displayDate : '',
         type: 'value' as const,
@@ -109,13 +112,20 @@ const LongitudinalRankParallel = React.memo(() => {
         axisTick: {
           show: false,
         },
-      }
-    })
+      })
+    }
 
     // Series represents line data for each biomarker
-    const seriesData = volatileBiomarkers.map((bm) => {
+    // ⚡ Bolt Optimization: Combine legendData, seriesData and series creation into a single loop
+    const legendData = []
+    const series = []
+
+    for (let i = 0; i < volatileBiomarkers.length; i++) {
+      const bm = volatileBiomarkers[i]
       const ranks = rankedDataMap.get(bm.name)
       const name = bm.name
+
+      legendData.push(name)
 
       // Hoist minRank and maxRank calculations outside the date iteration loop
       // to avoid O(N^2) complexity.
@@ -142,31 +152,51 @@ const LongitudinalRankParallel = React.memo(() => {
       }
 
       // Create an array aligned with each date
-      const dataLine = labels.map((_, dateIdx) => {
+      // ⚡ Bolt Optimization: Replace labels.map() with a classic for-loop
+      const dataLine = []
+      for (let dateIdx = 0; dateIdx < labels.length; dateIdx++) {
         const rawVal = bm.values[dateIdx]
         if (rawVal === null || !ranks) {
-          return '-' // ECharts missing value sentinel to leave gap
+          dataLine.push('-') // ECharts missing value sentinel to leave gap
+          continue
         }
 
         // Convert Spearman rank back to percentile relative to its own history
         // ranks is a Float64Array aligned with the same rawValues length (and dates)
         const rankVal = ranks[dateIdx]
 
-        if (!hasValidRanks) return 0
+        if (!hasValidRanks) {
+          dataLine.push(0)
+          continue
+        }
 
         // Prevent division by zero
-        if (maxRank === minRank) return 100
+        if (maxRank === minRank) {
+          dataLine.push(100)
+          continue
+        }
 
         // Percentile from 0 to 100
         const pct = ((rankVal - minRank) / (maxRank - minRank)) * 100
-        return Math.round(pct)
-      })
-
-      return {
-        name,
-        value: dataLine,
+        dataLine.push(Math.round(pct))
       }
-    })
+
+      series.push({
+        name: name,
+        type: 'parallel',
+        lineStyle: {
+          width: 2.5,
+          opacity: 0.7,
+        },
+        emphasis: {
+          lineStyle: {
+            width: 4.5,
+            opacity: 1,
+          },
+        },
+        data: [{ name: name, value: dataLine }],
+      })
+    }
 
     return {
       theme: 'dark',
@@ -208,7 +238,7 @@ const LongitudinalRankParallel = React.memo(() => {
       },
       legend: {
         top: 'bottom',
-        data: volatileBiomarkers.map((b) => b.name),
+        data: legendData,
         textStyle: {
           color: '#ccc',
           fontSize: 11,
@@ -244,21 +274,7 @@ const LongitudinalRankParallel = React.memo(() => {
         },
       },
       color: CHART_PALETTE,
-      series: seriesData.map((s) => ({
-        name: s.name,
-        type: 'parallel',
-        lineStyle: {
-          width: 2.5,
-          opacity: 0.7,
-        },
-        emphasis: {
-          lineStyle: {
-            width: 4.5,
-            opacity: 1,
-          },
-        },
-        data: [{ name: s.name, value: s.value }],
-      })),
+      series,
     }
   }, [volatileBiomarkers, rankedDataMap, volatileMap])
 
