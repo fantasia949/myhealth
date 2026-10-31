@@ -67,3 +67,7 @@
 
 **Learning:** Chained array methods like `.filter`, `.map`, and `.forEach` inside `useMemo` or other hot render paths create a bottleneck due to closure creation, temporary array allocations, and garbage collection overhead in this React codebase, especially for large datasets or frequent renders.
 **Action:** Replace these higher-order array methods with standard `for` loops and push valid elements into dense arrays (`const arr = []`) to eliminate overhead and improve performance.
+
+## 2026-10-25 - [Ternary Simplification]
+**Learning:** Dense ternaries and boolean logical chains in hot UI/tooltip paths can significantly reduce code clarity without offering functional benefits.
+**Action:** Always favor optional chaining (`?.`) combined with `if` blocks or nullish coalescing over deeply chained ternary expressions for accessing deeply nested object properties, arrays, or handling null fallbacks.
