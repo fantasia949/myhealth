@@ -44,10 +44,17 @@ const echartsOptions: EChartsOption & Pick<EChartsReactProps, 'style' | 'theme'>
     textStyle: { color: '#f0f0f0' },
     formatter: (params: any) => {
       if (params.seriesType === 'scatter') {
-        const val1 = params.value[0] !== undefined ? params.value[0].toFixed(0) + '%' : '-'
-        const val2 = params.value[1] !== undefined ? params.value[1].toFixed(0) + '%' : '-'
-        const supps = params.value[2] ? params.value[2] : 'None'
-        const date = params.value[3] ? params.value[3] : ''
+        const [xVal, yVal, suppsVal, dateVal] = params.value
+
+        let val1 = '-'
+        if (xVal !== undefined) val1 = xVal.toFixed(0) + '%'
+
+        let val2 = '-'
+        if (yVal !== undefined) val2 = yVal.toFixed(0) + '%'
+
+        const supps = suppsVal || 'None'
+        const date = dateVal || ''
+
         return `<strong>${date}</strong><br/>Supplements: <strong>${supps}</strong><br/>X Optimality: ${val1}<br/>Y Optimality: ${val2}`
       }
       return params.name || ''
@@ -218,10 +225,13 @@ const SystemClustering = memo(({ isOpen, onClose }: SystemClusteringProps) => {
 
         // Ensure we properly map notes depending on the type
         const rawNote: NoteItem | undefined = noteValues[t]
-        const supps =
-          rawNote && rawNote.supps && rawNote.supps.length > 0 ? rawNote.supps.join(', ') : 'None'
 
-        const date = rawNote ? rawNote.date : ''
+        let supps = 'None'
+        if (rawNote?.supps?.length) {
+          supps = rawNote.supps.join(', ')
+        }
+
+        const date = rawNote?.date || ''
 
         // Push [x, y, label, date]
         timepoints.push([m1Score, m2Score, supps, date])
