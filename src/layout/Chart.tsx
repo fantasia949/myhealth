@@ -165,9 +165,9 @@ export default memo(({ keys }: ChartProps) => {
       for (let j = 0; j < validSeries.length; j++) {
         const series = validSeries[j]
         const v = series.values[i]
-        item[series.fieldKey] =
-          v !== null && v !== undefined && !Number.isNaN(v as number) ? v : '-'
-        item[`${series.fieldKey}_unit`] = series.unit || ''
+        const isValid = v !== null && v !== undefined && !Number.isNaN(v as number)
+        item[series.fieldKey] = isValid ? v : '-'
+        item[`${series.fieldKey}_unit`] = isValid ? (series.unit || '') : ''
       }
       result.push(item)
     }
