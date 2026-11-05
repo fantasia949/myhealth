@@ -1107,3 +1107,27 @@ New `src/layout/AutoCorrelationChart.tsx`.
 
 **Trigger / entry point:**
 A "View Temporal Momentum" toggle within the individual biomarker table row expansion.
+
+**Proposal: Tag-Group Inference Reliance Scatter**
+
+**ECharts type:** `scatter`
+
+**Codebase citation:**
+Uses `tagAtom` and `dataAtom` from `src/atom/dataAtom.ts`, specifically reading `extra.inferred` and `extra.optimality[]` from `BioMarker[3]`.
+
+**Which existing data it uses:**
+It calculates the ratio of `inferred: true` biomarkers to standard measured biomarkers within each tag group. It then averages the out-of-range frequency (`optimality[] === true`) for all biomarkers in that group.
+
+**Axes**
+- X-axis: Inference Ratio (% of biomarkers in the tag group that are computed rather than directly measured).
+- Y-axis: Group Optimality Failure Rate (% out-of-range across the group).
+- Bubble Size: Total number of biomarkers in the tag group.
+
+**What it reveals that current charts don't:**
+It highlights epistemological risk in the patient's health model. If a tag group (e.g., `a-PhenoAge` or `2-Metabolic`) has a high failure rate (high on Y) but is almost entirely driven by inferred data (high on X), it warns the user that their perceived systemic failure is heavily reliant on mathematical models, not direct physiological measurement. Current charts treat `inferred` and measured data as equally concrete.
+
+**Where it would live:**
+New `src/layout/InferenceRelianceScatter.tsx`.
+
+**Trigger / entry point:**
+A "View Model Reliance" toggle in the main application navbar, mapping all tag groups.
