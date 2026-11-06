@@ -1107,3 +1107,28 @@ New `src/layout/AutoCorrelationChart.tsx`.
 
 **Trigger / entry point:**
 A "View Temporal Momentum" toggle within the individual biomarker table row expansion.
+
+---
+
+**Proposal: Tag-Group Optimality Heatmap**
+
+**ECharts type:** `heatmap`
+
+**Codebase citation:**
+`extra.optimality[]` pre-computed by `src/processors/post/range.ts`, index-aligned with `BioMarker[1]`.
+
+**Which existing data it uses:**
+Reads `extra.optimality[]` and `extra.tag` from every `BioMarker` entry returned by `visibleDataAtom`.
+
+**Axes:**
+- X-axis: `formattedLabels` (time points).
+- Y-axis: The biomarkers belonging to the active `tagAtom` (e.g., all members of `8-WBC`).
+
+**What it reveals that current charts don't:**
+Shows simultaneously across all biomarkers in a specific tag group (like Liver or Kidney function) whether they are falling out of their optimal range at a given point in time. This provides a system-level view of health at a glance (e.g., "all liver markers went out of range simultaneously in August") rather than requiring the user to analyze individual line/scatter charts.
+
+**Where it would live:**
+New `src/layout/SystemOptimalityHeatmap.tsx`, rendered in `App.tsx` when `tagAtom` is non-null.
+
+**Trigger / entry point:**
+Activated automatically when a user clicks a tag filter in the navigation (setting `tagAtom`), utilizing `visibleDataAtom` which already filters down to only those biomarkers.
