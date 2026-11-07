@@ -1107,3 +1107,27 @@ New `src/layout/AutoCorrelationChart.tsx`.
 
 **Trigger / entry point:**
 A "View Temporal Momentum" toggle within the individual biomarker table row expansion.
+
+---
+
+**Proposal: Clinical Note Timeline MarkLine Overlay**
+
+**ECharts type:** `markLine`
+
+**Codebase citation:**
+Uses `notesAtom` and `noteValuesAtom` exported from `src/atom/dataAtom.ts`.
+
+**Which existing data it uses:**
+It accesses the timestamped clinical notes (user interventions, lifestyle changes, etc.) from `notesAtom`. For each note, the timestamp is mapped to the existing `labels[]` (X-axis time data) to generate `markLine` definitions.
+
+**Axes**
+N/A (This is a series overlay on top of existing time-series axes in `Chart.tsx` or `LineChart.tsx`).
+
+**What it reveals that current charts don't:**
+Current line and scatter charts only show numerical values over time. By injecting `markLine` annotations at specific dates, users can visually and instantly correlate sudden spikes, drops, or trend shifts in their biomarkers with real-world events (e.g., "Started Vitamin D supplement", "Changed Diet"). This turns abstract data into a concrete causal analysis without requiring the user to mentally cross-reference a separate notes list.
+
+**Where it would live:**
+Injected into `src/layout/Chart.tsx` and `src/layout/LineChart.tsx` as an additional `markLine` property on the primary series.
+
+**Trigger / entry point:**
+A new "Overlay Clinical Notes" toggle switch in the main chart control panel.
